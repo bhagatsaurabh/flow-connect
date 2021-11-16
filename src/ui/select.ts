@@ -9,7 +9,7 @@ import { Color } from "../core/color";
 
 export class Select extends UINode implements Serializable {
   label: Label;
-  _selected: string;
+  private _selected: string;
 
   get selected(): string {
     if (this.propName) {
@@ -71,35 +71,41 @@ export class Select extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.selected);
   }
 
+  /** @hidden */
   paint(): void {
-    this.context.fillStyle = this.style.arrowColor;
-    this.context.beginPath();
-    this.context.moveTo(this.position.x, this.position.y + this.height / 2);
-    this.context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .15);
-    this.context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .85);
-    this.context.lineTo(this.position.x, this.position.y + this.height / 2);
-    this.context.closePath();
-    this.context.fill();
+    let context = this.context;
+    context.fillStyle = this.style.arrowColor;
+    context.beginPath();
+    context.moveTo(this.position.x, this.position.y + this.height / 2);
+    context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .15);
+    context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .85);
+    context.lineTo(this.position.x, this.position.y + this.height / 2);
+    context.closePath();
+    context.fill();
 
-    this.context.fillStyle = this.style.arrowColor;
-    this.context.beginPath();
-    this.context.moveTo(this.position.x + this.width, this.position.y + this.height / 2);
-    this.context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .15);
-    this.context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .85);
-    this.context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
-    this.context.closePath();
-    this.context.fill();
+    context.fillStyle = this.style.arrowColor;
+    context.beginPath();
+    context.moveTo(this.position.x + this.width, this.position.y + this.height / 2);
+    context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .15);
+    context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .85);
+    context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
+    context.closePath();
+    context.fill();
   }
+  /** @hidden */
   paintLOD1() {
-    this.context.fillStyle = this.style.arrowColor;
-    this.context.strokeStyle = '#000';
-    this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
-    this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    let context = this.context;
+    context.fillStyle = this.style.arrowColor;
+    context.strokeStyle = '#000';
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     this.label.width = this.width * .7;
     this.label.position.x = this.position.x + this.width * .15;
@@ -115,6 +121,7 @@ export class Select extends UINode implements Serializable {
     }
   }
 
+  /** @hidden */
   onPropChange(oldValue: any, newValue: any) {
     let value = this.options.length === 0 ? 'None' : (this.options.includes(newValue) ? newValue : this.options[0]);
     this._selected = value;
@@ -123,21 +130,25 @@ export class Select extends UINode implements Serializable {
     this.output && (this.output as any)['setData'](this.selected);
   }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
@@ -155,21 +166,25 @@ export class Select extends UINode implements Serializable {
 
     this.call('change', this, this.selected);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }

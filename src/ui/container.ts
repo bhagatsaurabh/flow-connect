@@ -15,6 +15,7 @@ import { Source } from "./source";
 import { Toggle } from "./toggle";
 import { UINode } from "./ui-node";
 
+/** @hidden */
 export class Container extends UINode implements Serializable {
   contentWidth: number;
 
@@ -32,30 +33,36 @@ export class Container extends UINode implements Serializable {
     this.contentWidth = this.width - 2 * this.node.style.padding;
   }
 
+  /** @hidden */
   paint(): void {
-    this.context.shadowColor = this.style.shadowColor;
-    this.context.shadowBlur = 3;
-    this.context.shadowOffsetX = this.style.shadowOffset.x;
-    this.context.shadowOffsetY = this.style.shadowOffset.y;
-    this.context.fillStyle = this.style.backgroundColor;
-    this.context.strokeStyle = this.style.borderColor;
-    this.context.lineWidth = this.style.borderWidth;
-    this.context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
-    this.context.stroke();
-    this.context.fill();
+    let context = this.context;
+    context.shadowColor = this.style.shadowColor;
+    context.shadowBlur = 3;
+    context.shadowOffsetX = this.style.shadowOffset.x;
+    context.shadowOffsetY = this.style.shadowOffset.y;
+    context.fillStyle = this.style.backgroundColor;
+    context.strokeStyle = this.style.borderColor;
+    context.lineWidth = this.style.borderWidth;
+    context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
+    context.stroke();
+    context.fill();
   }
+  /** @hidden */
   paintLOD1() {
-    this.context.fillStyle = this.style.backgroundColor;
-    this.context.strokeStyle = this.style.borderColor;
-    this.context.lineWidth = this.style.borderWidth;
-    this.context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
-    this.context.stroke();
-    this.context.fill();
+    let context = this.context;
+    context.fillStyle = this.style.backgroundColor;
+    context.strokeStyle = this.style.borderColor;
+    context.lineWidth = this.style.borderWidth;
+    context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
+    context.stroke();
+    context.fill();
   }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     this.position = this.node.position;
     let terminalsDisplayHeight = Math.max(this.node.inputs.length, this.node.outputs.length) * this.node.style.terminalRowHeight + this.node.style.titleHeight;
@@ -70,29 +77,38 @@ export class Container extends UINode implements Serializable {
     this.height = y + this.node.style.padding - this.position.y;
   }
 
+  /** @hidden */
   onPropChange() { }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('click', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void { }
 
   serialize(): SerializedContainer {

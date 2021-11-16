@@ -11,9 +11,10 @@ import { Color } from "../core/color";
 
 export class Source extends UINode implements Serializable {
   label: Label;
-  htmlInput: HTMLInputElement;
-  fileIcon: Image;
-  _file: File;
+
+  private htmlInput: HTMLInputElement;
+  private fileIcon: Image;
+  private _file: File;
 
   get file(): File {
     if (this.propName) return this.node.props[this.propName];
@@ -84,20 +85,25 @@ export class Source extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.file);
   }
 
+  /** @hidden */
   paint(): void {
     this.context.strokeStyle = this.style.borderColor;
     this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   paintLOD1() {
-    this.context.strokeStyle = this.style.borderColor;
-    this.context.fillStyle = this.style.color;
-    this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-    this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    let context = this.context;
+    context.strokeStyle = this.style.borderColor;
+    context.fillStyle = this.style.color;
+    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     this.label.width = this.width;
     this.label.height = this.height;
@@ -117,6 +123,7 @@ export class Source extends UINode implements Serializable {
     }
   }
 
+  /** @hidden */
   onPropChange(oldValue: any, newValue: any) {
     this._file = newValue;
     this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf("."));
@@ -125,41 +132,49 @@ export class Source extends UINode implements Serializable {
     this.output && (this.output as any)['setData'](this._file);
   }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }

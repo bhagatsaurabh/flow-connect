@@ -8,8 +8,8 @@ import { Serializable, SerializedSlider, SerializedTerminal, SliderStyle } from 
 import { Color } from "../core/color";
 
 export class Slider extends UINode implements Serializable {
-  thumbFill: number;
-  _value: number;
+  private thumbFill: number;
+  private _value: number;
 
   get value(): number {
     if (this.propName) return this.node.props[this.propName];
@@ -69,41 +69,47 @@ export class Slider extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.value);
   }
 
+  /** @hidden */
   paint(): void {
-    this.context.lineWidth = this.style.railHeight;
-    this.context.strokeStyle = this.style.color;
-    this.context.lineCap = 'butt';
+    let context = this.context;
+    context.lineWidth = this.style.railHeight;
+    context.strokeStyle = this.style.color;
+    context.lineCap = 'butt';
 
     let start = Math.max(this.position.x, this.position.x + this.thumbFill - 3);
     if (start !== this.position.x) {
-      this.context.beginPath();
-      this.context.moveTo(this.position.x, this.position.y + this.height / 2);
-      this.context.lineTo(start, this.position.y + this.height / 2);
-      this.context.stroke();
+      context.beginPath();
+      context.moveTo(this.position.x, this.position.y + this.height / 2);
+      context.lineTo(start, this.position.y + this.height / 2);
+      context.stroke();
     }
     start = Math.min(this.position.x + 2 * this.style.thumbRadius + this.thumbFill + 3, this.position.x + this.width);
     if (start !== (this.position.x + this.width)) {
-      this.context.beginPath();
-      this.context.moveTo(start, this.position.y + this.height / 2);
-      this.context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
-      this.context.stroke();
+      context.beginPath();
+      context.moveTo(start, this.position.y + this.height / 2);
+      context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
+      context.stroke();
     }
 
-    this.context.fillStyle = this.style.thumbColor;
-    this.context.beginPath();
-    this.context.arc(this.position.x + this.style.thumbRadius + this.thumbFill, this.position.y + this.height / 2, this.style.thumbRadius, 0, 2 * Math.PI);
-    this.context.fill();
+    context.fillStyle = this.style.thumbColor;
+    context.beginPath();
+    context.arc(this.position.x + this.style.thumbRadius + this.thumbFill, this.position.y + this.height / 2, this.style.thumbRadius, 0, 2 * Math.PI);
+    context.fill();
   }
+  /** @hidden */
   paintLOD1() {
-    this.context.strokeStyle = '#000';
-    this.context.fillStyle = this.style.color;
-    this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-    this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    let context = this.context;
+    context.strokeStyle = '#000';
+    context.fillStyle = this.style.color;
+    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     this.thumbFill = denormalize(normalize(this.value, this.min, this.max), 0, this.width - 2 * this.style.thumbRadius);
 
@@ -117,6 +123,7 @@ export class Slider extends UINode implements Serializable {
     }
   }
 
+  /** @hidden */
   onPropChange(oldValue: any, newValue: any) {
     this._value = newValue;
     this.reflow();
@@ -125,26 +132,31 @@ export class Slider extends UINode implements Serializable {
     this.output && (this.output as any)['setData'](this.value);
   }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
@@ -154,16 +166,19 @@ export class Slider extends UINode implements Serializable {
     this.thumbFill = realPosition.clamp(this.position.x + this.style.thumbRadius, this.position.x + this.width - this.style.thumbRadius, y, y).subtract(this.position.x + this.style.thumbRadius, 0).x;
     this.value = parseFloat(denormalize(normalize(this.thumbFill, 0, this.width - 2 * this.style.thumbRadius), this.min, this.max).toFixed(this.precision));
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }

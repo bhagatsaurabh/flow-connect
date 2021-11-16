@@ -11,7 +11,10 @@ export class Connector implements Serializable {
   end: Terminal;
   startNode: Node;
   endNode: Node;
+
+  /** @hidden */
   _data: any;
+
   get data(): any { return this._data; }
   set data(data: any) {
     this._data = data;
@@ -38,8 +41,12 @@ export class Connector implements Serializable {
     if (this.end) this.endNode = this.end.node;
     if (start && end) {
       this.floatingTip = null;
+
       this.start.connectors.push(this);
-      this.end.connectors.push(this);
+      if (this.end.connectors.length > 0) {
+        this.end.connectors[0].removeConnection();
+        this.end.connectors[0] = this;
+      } else this.end.connectors.push(this);
 
       if (!isDeserialization) this.flow.executionGraph.connect(this.startNode, this.endNode);
       this.start.call('connect', this.start, this);
@@ -47,6 +54,7 @@ export class Connector implements Serializable {
     };
   }
 
+  /** @hidden */
   completeConnection(destination: Terminal) {
     if (!this.start) {
       this.start = destination;
@@ -69,6 +77,7 @@ export class Connector implements Serializable {
     this.start.call('connect', this.start, this);
     this.end.call('connect', this.end, this);
   }
+  /** @hidden */
   removeConnection() {
     if (this.start) {
       this.start.connectors.includes(this) && this.start.connectors.splice(this.start.connectors.indexOf(this), 1);
@@ -84,6 +93,11 @@ export class Connector implements Serializable {
         this.endNode.currHitTerminal = null;
       }
     }
+  }
+  /** @hidden */
+  setData(data: any) {
+    this._data = data;
+    this.end && this.end.call('data', data);
   }
   canConnect(destination: Terminal): boolean {
     let source = !this.start ? this.end : this.start;
@@ -106,7 +120,7 @@ export class Connector implements Serializable {
     this._offRender();
     this.flow.flowConnect.offContext.restore();
   }
-  _render() {
+  private _render() {
     let ax, ay, dx, dy;
     if (this.start) {
       if (this.startNode.renderState.nodeState === NodeState.MAXIMIZED)
@@ -131,25 +145,25 @@ export class Connector implements Serializable {
     let [cx, cy] = [dx - offset, dy];
     let [midx, midy] = [(bx + cx) / 2, (by + cy) / 2];
 
-    this.flow.flowConnect.context.beginPath();
-    this.flow.flowConnect.context.moveTo(ax, ay);
-    this.flow.flowConnect.context.quadraticCurveTo(bx, by, midx, midy);
-    this.flow.flowConnect.context.moveTo(midx, midy);
-    this.flow.flowConnect.context.quadraticCurveTo(cx, cy, dx, dy);
-    this.flow.flowConnect.context.strokeStyle = 'grey';
-    this.flow.flowConnect.context.lineWidth = this.style.width + 2;
-    this.flow.flowConnect.context.stroke();
-
-    this.flow.flowConnect.context.beginPath();
-    this.flow.flowConnect.context.moveTo(ax, ay);
-    this.flow.flowConnect.context.quadraticCurveTo(bx, by, midx, midy);
-    this.flow.flowConnect.context.moveTo(midx, midy);
-    this.flow.flowConnect.context.quadraticCurveTo(cx, cy, dx, dy);
-    this.flow.flowConnect.context.strokeStyle = this.style.color;
-    this.flow.flowConnect.context.lineWidth = this.style.width;
-    this.flow.flowConnect.context.stroke();
+    let context = this.flow.flowConnect.context;
+    context.beginPath();
+    context.moveTo(ax, ay);
+    context.quadraticCurveTo(bx, by, midx, midy);
+    context.moveTo(midx, midy);
+    context.quadraticCurveTo(cx, cy, dx, dy);
+    context.strokeStyle = 'grey';
+    context.lineWidth = this.style.width + 2;
+    context.stroke();
+    context.beginPath();
+    context.moveTo(ax, ay);
+    context.quadraticCurveTo(bx, by, midx, midy);
+    context.moveTo(midx, midy);
+    context.quadraticCurveTo(cx, cy, dx, dy);
+    context.strokeStyle = this.style.color;
+    context.lineWidth = this.style.width;
+    context.stroke();
   }
-  _offRender() { }
+  private _offRender() { }
 
   serialize(): SerializedConnector {
     return {

@@ -1,9 +1,11 @@
 import { GraphState } from "../math/constants";
+import { Log } from "../utils/logger";
 import { getNewGUID } from "../utils/utils";
 import { Flow } from "./flow";
 import { Serializable, SerializedGraph, SerializedGraphNode } from "./interfaces";
 import { Node } from "./node";
 
+/** @hidden */
 export class GraphNode implements Serializable {
   id: string;
   childs: GraphNode[] = [];
@@ -27,6 +29,7 @@ export class GraphNode implements Serializable {
   }
 }
 
+/** @hidden */
 export class Graph implements Serializable {
   state: GraphState = GraphState.Stopped;
   nodes: GraphNode[][];
@@ -99,7 +102,7 @@ export class Graph implements Serializable {
         this.processDirtyNodes();
         resolve(true);
       } catch (error) {
-        console.log(error);
+        Log.error(error);
         reject(false);
       }
     });
@@ -125,7 +128,7 @@ export class Graph implements Serializable {
   }
   processDirtyNodes() {
     let dirtyNodes = Object.values(this.dirtyNodes).sort((a, b) => (a.order - b.order));
-    console.log([...dirtyNodes]);
+    Log.log('Dirty Nodes: ', [...dirtyNodes]);
 
     let queue: GraphNode[] = dirtyNodes;
     queue.forEach(graphNode => {

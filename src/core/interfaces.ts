@@ -31,10 +31,16 @@ export interface Serializable {
   serialize(): any;
 }
 
+export interface Rules {
+  [dataType: string]: string[];
+}
+export interface TerminalTypeColors {
+  [terminalType: string]: string;
+}
 export interface FlowOptions {
   name: string,
-  rules: { [type: string]: string[] },
-  terminalTypeColors: { [key: string]: string }
+  rules: Rules,
+  terminalTypeColors: TerminalTypeColors
 }
 
 export interface ConnectorStyle {

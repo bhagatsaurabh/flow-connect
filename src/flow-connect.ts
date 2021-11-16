@@ -3,43 +3,101 @@ import { Vector2 } from "./math/vector";
 import { Constant, TerminalType, ViewPort } from './math/constants';
 import { Dimension, FlowOptions, Pointer, SerializedFlow } from "./core/interfaces";
 import { intersects } from "./utils/utils";
+import { FlowState } from './math/constants';
+import { Log } from './utils/logger';
 
+declare global {
+  interface CanvasRenderingContext2D {
+    roundRect: (x: number, y: number, width: number, height: number, radius: number) => void,
+    strokeRoundRect: (x: number, y: number, width: number, height: number, radius: number) => void,
+    fillRoundRect: (x: number, y: number, width: number, height: number, radius: number) => void
+  }
+}
+/**
+ * FlowConnect is like a placeholder that contains references to all [[Flow]]s created by this instance and can render one flow at a time on-screen
+ * 
+ * One FlowConnect instance is bound to exactly one HTMLCanvasElement, this instance maintains/tracks the dimensions of HTMLCanvasElement,
+ * it registers user-interaction events (mouse, keyboard, touch) and creates additional OffScreenCanvas's to track/act-upon these events
+ */
 export class FlowConnect extends Hooks {
+  /** Reference to the canvas element on which the flows will be rendered by FlowConnect instance */
+  canvas: HTMLCanvasElement;
+  private _context: CanvasRenderingContext2D;
+  get context(): CanvasRenderingContext2D { return this._context };
+
+  /** For rendering color hit-maps for [[Node]]s */
+  offCanvas: OffscreenCanvas | HTMLCanvasElement;
+  private _offContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offContext };
+
+  /** For rendering color hit-maps for UI elements of [[Node]]s */
+  offUICanvas: OffscreenCanvas | HTMLCanvasElement;
+  private _offUIContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offUIContext };
+
+  /** For rendering color hit-maps for [[Group]]s */
+  offGroupCanvas: OffscreenCanvas | HTMLCanvasElement;
+  private _offGroupContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  get offGroupContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offGroupContext };
+
+  /** Canvas's absolute position and dimension from viewport origin (top-left) (for e.g. if the canvas element is inside a scrollable div) */
   canvasDimensions: Dimension = { top: 0, left: 0, width: 0, height: 0 };
-  canvasElement: HTMLCanvasElement;
-  context: CanvasRenderingContext2D;
-  offCanvasElement: OffscreenCanvas | HTMLCanvasElement;
-  offContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  offUICanvasElement: OffscreenCanvas | HTMLCanvasElement;
-  offUIContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  offGroupCanvasElement: OffscreenCanvas | HTMLCanvasElement;
-  offGroupContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  get cursor(): string { return this.canvasElement.style.cursor; }
-  set cursor(cursor: string) { this.canvasElement.style.cursor = cursor; }
-  frameId: number;
 
-  rootFlow: Flow;
-  currFlow: Flow;
+  get cursor(): string { return this.canvas.style.cursor; }
+  set cursor(cursor: string) { this.canvas.style.cursor = cursor; }
 
+  /** Id recieved from *requestAnimationFrame* */
+  private frameId: number;
+
+  /** Root flow of the flow-tree (for e.g. you might have a [[Flow]] that contains [[SubFlowNode]]s that again contains SubFlowNodes and so on...) */
+  private rootFlow: Flow;
+  /** Flow which is currently rendered on the canvas */
+  private currFlow: Flow;
+
+  /** All the flows created by this FlowConnect instance  */
+  flows: Flow[] = [];
+
+  /** Reference of the current/previous Nodes/Groups under user-interaction (mouse, touch) */
+  private currHitNode: Node;
+  private prevHitNode: Node;
+  private currHitGroup: Group;
+
+  /** Reference to the new Group being drawn */
+  private currGroup: Group;
+  private groupStartPoint: Vector2;
+
+  /** @hidden Reference to the new Connector being drawn */
   floatingConnector: Connector;
-  currHitNode: Node;
-  prevHitNode: Node;
-  currHitGroup: Group;
-  currGroup: Group;
-  groupStartPoint: Vector2;
-  pointers: Pointer[] = [];
-  keymap: { [key: string]: boolean } = {};
-  touchControls: { [control: string]: boolean } = { 'CreateGroup': false };
+
+  /** For controlling user-interaction */
+  private pointers: Pointer[] = [];
+  private keymap: { [key: string]: boolean } = {};
+  private touchControls: { [control: string]: boolean } = { 'CreateGroup': false };
+
+  /** @hidden HTML input overlayed on canvas */
+  private genericInput: HTMLInputElement = document.createElement('input');
+
   minScale: number = 0.1;
   maxScale: number = 5;
   wheelScaleDelta: number = 1.05;
   pinchScaleDelta: number = 1.02;
-  genericInput: HTMLInputElement = document.createElement('input');
-  get scale(): number { return this.transform.a; }
-  transform: DOMMatrix = new DOMMatrix();
-  inverseTransform: DOMMatrix = new DOMMatrix();
-  identity: DOMMatrix = new DOMMatrix();
+  get scale(): number { return this._transform.a };
+  private _transform: DOMMatrix = new DOMMatrix();
 
+  /** Current transformation matrix */
+  get transform(): DOMMatrix { return this._transform };
+  private inverseTransform: DOMMatrix = new DOMMatrix();
+  private identity: DOMMatrix = new DOMMatrix();
+
+  /** Time (in ms) when one or more flows created by this FlowConnect instance was started */
+  startTime: number = -1;
+  private timerId: number;
+  /** No. of milliseconds passed since the start of one or more flows */
+  get time(): number { return (this.startTime < 0) ? this.startTime : (performance.now() - this.startTime) };
+
+  /**
+   * @param mount HTML element (div or canvas) on which FlowConnect will render [[Flow]]s, if no mount is provided, a new canvas element will be created and attached to document.body
+   */
   constructor(mount?: HTMLCanvasElement | HTMLDivElement, width?: number, height?: number) {
     super();
     this.prepareCanvas(mount, width, height);
@@ -48,12 +106,12 @@ export class FlowConnect extends Hooks {
     this.registerChangeListeners();
     this.attachStyles();
     this.polyfill();
-
     this.registerEvents();
     this.setGenericInput();
   }
 
-  registerChangeListeners() {
+  /** Re-calculates cavnvas position/dimension when scrolling/resizing happens */
+  private registerChangeListeners() {
     let throttle = false;
     document.addEventListener('scroll', () => {
       if (!throttle) {
@@ -68,70 +126,74 @@ export class FlowConnect extends Hooks {
     const resizeObserver = new ResizeObserver(() => {
       this.calculateCanvasDimension();
     })
-    resizeObserver.observe(this.canvasElement);
+    resizeObserver.observe(this.canvas);
   }
-  prepareCanvas(mount?: HTMLCanvasElement | HTMLDivElement, width?: number, height?: number) {
+  private prepareCanvas(mount?: HTMLCanvasElement | HTMLDivElement, width?: number, height?: number) {
     if (!mount) {
-      this.canvasElement = document.createElement('canvas');
-      this.canvasElement.width = document.body.clientWidth;
-      this.canvasElement.height = document.body.clientHeight;
-      document.body.appendChild(this.canvasElement);
+      this.canvas = document.createElement('canvas');
+      this.canvas.width = document.body.clientWidth;
+      this.canvas.height = document.body.clientHeight;
+      document.body.appendChild(this.canvas);
     } else if (mount instanceof HTMLDivElement) {
-      this.canvasElement = document.createElement('canvas');
+      this.canvas = document.createElement('canvas');
       if (width && height) {
-        this.canvasElement.width = width;
-        this.canvasElement.height = height;
+        this.canvas.width = width;
+        this.canvas.height = height;
       } else {
-        this.canvasElement.width = mount.clientWidth;
-        this.canvasElement.height = mount.clientHeight;
+        this.canvas.width = mount.clientWidth;
+        this.canvas.height = mount.clientHeight;
       }
-      mount.appendChild(this.canvasElement);
-    } else {
-      this.canvasElement = mount;
+      mount.appendChild(this.canvas);
+    } else if (mount instanceof HTMLCanvasElement) {
+      this.canvas = mount;
       if (width && height) {
-        this.canvasElement.width = width;
-        this.canvasElement.height = height;
+        this.canvas.width = width;
+        this.canvas.height = height;
       }
-    }
-    this.context = this.canvasElement.getContext('2d');
-  }
-  setupHitCanvas() {
-    if (typeof OffscreenCanvas !== 'undefined' && typeof OffscreenCanvasRenderingContext2D !== 'undefined') {
-      this.offCanvasElement = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
-      this.offUICanvasElement = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
-      this.offGroupCanvasElement = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
     } else {
-      this.offCanvasElement = document.createElement('canvas');
-      this.offUICanvasElement = document.createElement('canvas');
-      this.offGroupCanvasElement = document.createElement('canvas');
+      Log.error('mount provided is not of type HTMLDivElement or HTMLCanvasElement')
     }
-    this.offContext = this.offCanvasElement.getContext('2d');
-    this.offUIContext = this.offUICanvasElement.getContext('2d');
-    this.offGroupContext = this.offGroupCanvasElement.getContext('2d');
+    this._context = this.canvas.getContext('2d');
   }
-  attachStyles() {
-    this.canvasElement.style.touchAction = 'none';
+  /** Creates additional canvas's for rendering color hit-maps */
+  private setupHitCanvas() {
+    if (typeof OffscreenCanvas !== 'undefined' && typeof OffscreenCanvasRenderingContext2D !== 'undefined') {
+      this.offCanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
+      this.offUICanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
+      this.offGroupCanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
+    } else {
+      this.offCanvas = document.createElement('canvas');
+      this.offUICanvas = document.createElement('canvas');
+      this.offGroupCanvas = document.createElement('canvas');
+    }
+    this._offContext = this.offCanvas.getContext('2d');
+    this._offUIContext = this.offUICanvas.getContext('2d');
+    this._offGroupContext = this.offGroupCanvas.getContext('2d');
+  }
+  private attachStyles() {
+    this.canvas.style.touchAction = 'none';
 
     let inputStyle = document.createElement('style');
     inputStyle.innerHTML = 'input.flow-connect-input { position: fixed; visibility: hidden; pointer-events: none; z-index: 100; border: none; border-radius: 0; box-sizing: border-box;} input.flow-connect-input:focus { outline: none; }';
     document.getElementsByTagName('head')[0].appendChild(inputStyle);
   }
-  calculateCanvasDimension() {
-    let boundingRect = this.canvasElement.getBoundingClientRect();
+  private calculateCanvasDimension() {
+    let boundingRect = this.canvas.getBoundingClientRect();
     this.canvasDimensions = {
       top: Math.round(boundingRect.top - window.scrollY),
       left: Math.round(boundingRect.left - window.scrollX),
       width: Math.round(boundingRect.width),
       height: Math.round(boundingRect.height)
     }
-    this.offCanvasElement.width = this.canvasDimensions.width;
-    this.offCanvasElement.height = this.canvasDimensions.height;
-    this.offUICanvasElement.width = this.canvasDimensions.width;
-    this.offUICanvasElement.height = this.canvasDimensions.height;
-    this.offGroupCanvasElement.width = this.canvasDimensions.width;
-    this.offGroupCanvasElement.height = this.canvasDimensions.height;
+
+    this.offCanvas.width = this.canvasDimensions.width;
+    this.offCanvas.height = this.canvasDimensions.height;
+    this.offUICanvas.width = this.canvasDimensions.width;
+    this.offUICanvas.height = this.canvasDimensions.height;
+    this.offGroupCanvas.width = this.canvasDimensions.width;
+    this.offGroupCanvas.height = this.canvasDimensions.height;
   }
-  polyfill() {
+  private polyfill() {
     CanvasRenderingContext2D.prototype.roundRect = function (x: number, y: number, width: number, height: number, radius: number) {
       this.beginPath();
       this.moveTo(x + radius, y);
@@ -156,12 +218,7 @@ export class FlowConnect extends Hooks {
       this.fill();
     }
   }
-  createFlow(options: FlowOptions = { name: 'New Flow', rules: {}, terminalTypeColors: {} }): Flow {
-    Object.keys(Constant.DefaultRules).forEach(key => options.rules[key] = Constant.DefaultRules[key]);
-    return new Flow(this, options.name, options.rules, options.terminalTypeColors);
-  }
-
-  registerEvents(): void {
+  private registerEvents(): void {
     let dragDelta: Vector2;
     let prevPanPosition: Vector2 = Vector2.Zero();
     let prevPinchDistance: number = -1;
@@ -173,7 +230,7 @@ export class FlowConnect extends Hooks {
       this.keymap[ev.key] = false;
     }
 
-    this.canvasElement.onpointerdown = (ev: PointerEvent) => {
+    this.canvas.onpointerdown = (ev: PointerEvent) => {
       if (!this.currFlow) return;
 
       this.addPointer(ev.pointerId, this.getRelativePosition(ev));
@@ -181,7 +238,7 @@ export class FlowConnect extends Hooks {
         prevPanPosition = this.pointers[0].screenPosition;
         this.currHitNode = this.getHitNode(this.pointers[0].screenPosition);
         if (this.currHitNode) {
-          this.currHitNode.zIndex = Infinity;
+          this.currHitNode.zIndex = Number.MAX_SAFE_INTEGER;
           if (this.keymap['Control']) {
             this.currHitNode.focused = !this.currHitNode.focused;
           } else {
@@ -211,7 +268,7 @@ export class FlowConnect extends Hooks {
         }
       }
     }
-    this.canvasElement.onpointerup = (ev) => {
+    this.canvas.onpointerup = (ev) => {
       if (!this.currFlow) return;
 
       this.removePointer(this.pointers, ev);
@@ -239,7 +296,7 @@ export class FlowConnect extends Hooks {
       }
       if (this.floatingConnector) this.handleConnection(hitNode, screenPosition, realPosition);
     }
-    this.canvasElement.onpointerout = (ev) => {
+    this.canvas.onpointerout = (ev) => {
       if (!this.currFlow) return;
 
       this.removePointer(this.pointers, ev);
@@ -270,7 +327,7 @@ export class FlowConnect extends Hooks {
         this.prevHitNode = null;
       }
     }
-    this.canvasElement.onpointermove = (ev) => {
+    this.canvas.onpointermove = (ev) => {
       if (!this.currFlow) return;
 
       let screenPosition = this.getRelativePosition(ev);
@@ -289,10 +346,10 @@ export class FlowConnect extends Hooks {
       }
 
       if (this.currGroup) {
-        if (realPosition.x < this.groupStartPoint.x) this.currGroup._position.x = realPosition.x;
+        if (realPosition.x < this.groupStartPoint.x) this.currGroup.position.x = realPosition.x;
         this.currGroup.width = Math.abs(this.groupStartPoint.x - realPosition.x);
 
-        if (realPosition.y < this.groupStartPoint.y) this.currGroup._position.y = realPosition.y;
+        if (realPosition.y < this.groupStartPoint.y) this.currGroup.position.y = realPosition.y;
         this.currGroup.height = Math.abs(this.groupStartPoint.y - realPosition.y);
       }
 
@@ -303,8 +360,8 @@ export class FlowConnect extends Hooks {
 
           let hitGroup = this.getHitGroup(screenPosition);
           if (hitGroup && hitGroup === this.currHitNode.group) {
-            let groupRealPos = hitGroup.position.transform(this.transform);
-            let nodeRealPos = this.currHitNode.position.transform(this.transform);
+            let groupRealPos = hitGroup.position.transform(this._transform);
+            let nodeRealPos = this.currHitNode.position.transform(this._transform);
 
             let intersection = intersects(groupRealPos.x, groupRealPos.y,
               groupRealPos.x + hitGroup.width * this.scale,
@@ -342,7 +399,7 @@ export class FlowConnect extends Hooks {
         this.prevHitNode = hitNode;
       }
     }
-    this.canvasElement.onclick = (ev) => {
+    this.canvas.onclick = (ev) => {
       if (!this.currFlow) return;
 
       let screenPosition = this.getRelativePosition(ev);
@@ -355,7 +412,7 @@ export class FlowConnect extends Hooks {
         hitGroup && hitGroup.onClick(screenPosition.clone(), realPosition.clone());
       }
     };
-    this.canvasElement.oncontextmenu = (ev) => {
+    this.canvas.oncontextmenu = (ev) => {
       if (!this.currFlow) return;
 
       ev.preventDefault();
@@ -366,13 +423,13 @@ export class FlowConnect extends Hooks {
       if (!this.keymap['Control']) this.currFlow.removeAllFocus();
       hitNode && (hitNode.focused = true);
     }
-    this.canvasElement.onwheel = (ev: WheelEvent) => {
+    this.canvas.onwheel = (ev: WheelEvent) => {
       if (!this.currFlow) return;
 
       this.handleZoom(ev.deltaY < 0, this.getRelativePosition(ev), this.wheelScaleDelta);
     }
   }
-  setGenericInput() {
+  private setGenericInput() {
     this.genericInput.className = 'flow-connect-input';
     this.genericInput.style.visibility = 'hidden';
     this.genericInput.style.pointerEvents = 'none';
@@ -387,6 +444,7 @@ export class FlowConnect extends Hooks {
 
     document.body.appendChild(this.genericInput);
   }
+  /** @hidden */
   showGenericInput(position: Vector2 | DOMPoint, value: string, styles: { [key: string]: any }, attributes: { [key: string]: any }, callback: (value: string) => void) {
     if (document.activeElement === this.genericInput) return;
 
@@ -401,24 +459,24 @@ export class FlowConnect extends Hooks {
     this.genericInput.onchange = () => callback(this.genericInput.value);
     this.genericInput.focus();
   }
-  updatePointer(id: number, screenPosition: Vector2, realPosition: Vector2) {
+  private updatePointer(id: number, screenPosition: Vector2, realPosition: Vector2) {
     let pointer = this.pointers.find(pointer => pointer.id === id);
     if (pointer) {
       pointer.screenPosition = screenPosition;
       pointer.realPosition = realPosition;
     }
   }
-  handleZoom(zoomIn: boolean, origin: Vector2, scaleDelta: number) {
-    if ((this.transform.a >= this.maxScale && zoomIn) || (this.transform.a <= this.minScale && !zoomIn)) return;
+  private handleZoom(zoomIn: boolean, origin: Vector2, scaleDelta: number) {
+    if ((this._transform.a >= this.maxScale && zoomIn) || (this._transform.a <= this.minScale && !zoomIn)) return;
     this.updateTransform(zoomIn ? scaleDelta : (1 / scaleDelta), origin, null);
   }
-  handleGrouping(screenPosition: Vector2) {
+  private handleGrouping(screenPosition: Vector2) {
     let hitGroup = this.getHitGroup(screenPosition);
 
     let intersection;
     if (hitGroup) {
-      let groupRealPos = hitGroup.position.transform(this.transform);
-      let nodeRealPos = this.currHitNode.position.transform(this.transform);
+      let groupRealPos = hitGroup.position.transform(this._transform);
+      let nodeRealPos = this.currHitNode.position.transform(this._transform);
 
       intersection = intersects(groupRealPos.x, groupRealPos.y,
         groupRealPos.x + hitGroup.width * this.scale,
@@ -453,13 +511,13 @@ export class FlowConnect extends Hooks {
       }
     }
   }
-  handleConnection(hitNode: Node, screenPosition: Vector2, realPosition: Vector2) {
+  private handleConnection(hitNode: Node, screenPosition: Vector2, realPosition: Vector2) {
     if (!hitNode) {
       this.fallbackConnection();
       return;
     }
     let hitTerminal = hitNode.getHitTerminal(
-      Color.rgbaToString(this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data),
+      Color.rgbaToString(this._offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data),
       screenPosition.clone(),
       realPosition.clone()
     );
@@ -501,76 +559,114 @@ export class FlowConnect extends Hooks {
       this.floatingConnector = null;
     }
   }
-  getRelativePosition(ev: PointerEvent | WheelEvent | MouseEvent) {
+  private getRelativePosition(ev: PointerEvent | WheelEvent | MouseEvent) {
     return new Vector2(ev.clientX - this.canvasDimensions.left, ev.clientY - this.canvasDimensions.top);
   }
-  updateTransform(scale: number, scaleOrigin: Vector2, translate: Vector2) {
+  private updateTransform(scale: number, scaleOrigin: Vector2, translate: Vector2) {
     if (scale) {
       let realSpaceOrigin = scaleOrigin.transform(this.inverseTransform);
-      this.transform
+      this._transform
         .translateSelf(realSpaceOrigin.x, realSpaceOrigin.y)
         .scaleSelf(scale, scale)
         .translateSelf(-realSpaceOrigin.x, -realSpaceOrigin.y);
     }
     if (translate) {
-      this.transform.translateSelf(translate.x, translate.y);
+      this._transform.translateSelf(translate.x, translate.y);
     }
 
-    this.inverseTransform = this.transform.inverse();
+    this.inverseTransform = this._transform.inverse();
 
-    this.context.setTransform(this.transform);
-    this.offContext.setTransform(this.transform);
-    this.offUIContext.setTransform(this.transform);
-    this.offGroupContext.setTransform(this.transform);
+    this._context.setTransform(this._transform);
+    this._offContext.setTransform(this._transform);
+    this._offUIContext.setTransform(this._transform);
+    this._offGroupContext.setTransform(this._transform);
 
     this.call('transform', this);
   }
-  fallbackConnection() {
+  private fallbackConnection() {
     this.floatingConnector.removeConnection();
     this.currFlow.removeConnector(this.floatingConnector.id);
   }
-  addPointer(pointerId: number, position: Vector2) {
+  private addPointer(pointerId: number, position: Vector2) {
     this.pointers.push({
       id: pointerId,
       screenPosition: position,
       realPosition: position.transform(this.inverseTransform)
     });
   }
-  removePointer(pointers: Pointer[], ev: PointerEvent) {
+  private removePointer(pointers: Pointer[], ev: PointerEvent) {
     pointers.splice(pointers.findIndex(pointer => pointer.id === ev.pointerId), 1);
   }
-  getHitNode(position: Vector2): Node {
-    let rgbaString = Color.rgbaToString(this.offContext.getImageData(position.x, position.y, 1, 1).data);
+  private getHitNode(position: Vector2): Node {
+    let rgbaString = Color.rgbaToString(this._offContext.getImageData(position.x, position.y, 1, 1).data);
     return this.currFlow.hitColorToNode[rgbaString];
   }
-  getHitGroup(position: Vector2): Group {
-    let rgbaString = Color.rgbaToString(this.offGroupContext.getImageData(position.x, position.y, 1, 1).data);
+  private getHitGroup(position: Vector2): Group {
+    let rgbaString = Color.rgbaToString(this._offGroupContext.getImageData(position.x, position.y, 1, 1).data);
     return this.currFlow.hitColorToGroup[rgbaString];
   }
-  clear() {
-    this.context.save();
-    this.context.setTransform(this.identity);
-    this.context.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
-    this.context.restore();
+  private clear() {
+    this._context.save();
+    this._context.setTransform(this.identity);
+    this._context.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
+    this._context.restore();
 
-    this.offContext.save();
-    this.offContext.setTransform(this.identity);
-    this.offContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
-    this.offContext.restore();
+    this._offContext.save();
+    this._offContext.setTransform(this.identity);
+    this._offContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
+    this._offContext.restore();
 
-    this.offUIContext.save();
-    this.offUIContext.setTransform(this.identity);
-    this.offUIContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
-    this.offUIContext.restore();
+    this._offUIContext.save();
+    this._offUIContext.setTransform(this.identity);
+    this._offUIContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
+    this._offUIContext.restore();
 
-    this.offGroupContext.save();
-    this.offGroupContext.setTransform(this.identity);
-    this.offGroupContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
-    this.offGroupContext.restore();
+    this._offGroupContext.save();
+    this._offGroupContext.setTransform(this.identity);
+    this._offGroupContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
+    this._offGroupContext.restore();
+  }
+  /** @hidden */
+  startGlobalTime() {
+    if (this.startTime < 0) {
+      this.startTime = performance.now();
+      this._startGlobalTime();
+    }
+  }
+  private _startGlobalTime() {
+    this.call('tick', this);
+    this.timerId = window.requestAnimationFrame(this._startGlobalTime.bind(this));
+  }
+  /** @hidden */
+  stopGlobalTime() {
+    let allFlowsStopped = true;
+    for (let flow of this.flows) {
+      if (flow.state !== FlowState.Stopped) {
+        allFlowsStopped = false;
+        break;
+      }
+    }
+    if (allFlowsStopped) {
+      cancelAnimationFrame(this.timerId);
+      this.startTime = -1;
+      this.call('tickreset', this);
+    }
+  }
+  private _render() {
+    this.clear();
+
+    this.currGroup && this.currGroup.render();
+    this.currFlow.render();
+    this.call('update', this);
+
+    this.frameId = window.requestAnimationFrame(this._render.bind(this));
   }
 
-  top() {
-    this.render(this.rootFlow);
+  createFlow(options: FlowOptions = { name: 'New Flow', rules: {}, terminalTypeColors: {} }): Flow {
+    options.rules = { ...options.rules, ...Constant.DefaultRules };
+    let flow = new Flow(this, options.name, options.rules, options.terminalTypeColors);
+    this.flows.push(flow);
+    return flow;
   }
   render(flow: Flow) {
     if (flow === this.currFlow) return;
@@ -584,16 +680,13 @@ export class FlowConnect extends Hooks {
     this.currFlow = flow;
     this._render();
   }
-  _render() {
-    this.clear();
-
-    this.currGroup && this.currGroup.render();
-    this.currFlow.render();
-    this.call('update', this);
-
-    this.frameId = window.requestAnimationFrame(this._render.bind(this));
+  /** Render the root flow of the flow-tree */
+  top() {
+    this.render(this.rootFlow);
   }
-
+  /** Creates a flow from json
+   * @param json Json string with schema [[SerializedFlow]]
+   */
   fromJson(json: string): Flow {
     let data: SerializedFlow;
     let flow: Flow = null;
@@ -602,7 +695,7 @@ export class FlowConnect extends Hooks {
       data = JSON.parse(json);
       flow = Flow.deSerialize(this, data);
     } catch (error) {
-      console.log(error);
+      Log.error(error);
     }
     return flow;
   }
@@ -611,7 +704,7 @@ export class FlowConnect extends Hooks {
     try {
       return JSON.stringify(serializedFlow, null);
     } catch (error) {
-      console.log(error);
+      Log.error(error);
     }
   }
 }

@@ -7,7 +7,7 @@ import { Serializable, SerializedTerminal, SerializedToggle, ToggleStyle } from 
 import { Color } from "../core/color";
 
 export class Toggle extends UINode implements Serializable {
-  _checked: boolean = false;
+  private _checked: boolean = false;
 
   get checked(): boolean {
     if (this.propName) return this.node.props[this.propName];
@@ -62,30 +62,36 @@ export class Toggle extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.checked);
   }
 
+  /** @hidden */
   paint(): void {
-    this.context.strokeStyle = this.style.backgroundColor;
-    this.context.lineWidth = this.height * .75;
-    this.context.lineCap = 'round';
-    this.context.beginPath();
-    this.context.moveTo(this.position.x + this.context.lineWidth / 2, this.position.y + this.height / 2);
-    this.context.lineTo(this.position.x + this.width - this.context.lineWidth / 2, this.position.y + this.height / 2);
-    this.context.stroke();
+    let context = this.context;
+    context.strokeStyle = this.style.backgroundColor;
+    context.lineWidth = this.height * .75;
+    context.lineCap = 'round';
+    context.beginPath();
+    context.moveTo(this.position.x + this.context.lineWidth / 2, this.position.y + this.height / 2);
+    context.lineTo(this.position.x + this.width - this.context.lineWidth / 2, this.position.y + this.height / 2);
+    context.stroke();
 
-    this.context.fillStyle = this.style.color;
-    this.context.beginPath();
-    this.context.arc(this.checked ? this.position.x + this.width - this.height / 2 : this.position.x + this.height / 2, this.position.y + this.height / 2, this.height / 2, 0, 2 * Math.PI);
-    this.context.fill();
+    context.fillStyle = this.style.color;
+    context.beginPath();
+    context.arc(this.checked ? this.position.x + this.width - this.height / 2 : this.position.x + this.height / 2, this.position.y + this.height / 2, this.height / 2, 0, 2 * Math.PI);
+    context.fill();
   }
+  /** @hidden */
   paintLOD1() {
-    this.context.strokeStyle = this.style.color;
-    this.context.fillStyle = this.style.backgroundColor;
-    this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-    this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    let context = this.context;
+    context.strokeStyle = this.style.color;
+    context.fillStyle = this.style.backgroundColor;
+    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     if (this.input) {
       this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
@@ -97,6 +103,7 @@ export class Toggle extends UINode implements Serializable {
     }
   }
 
+  /** @hidden */
   onPropChange(oldValue: any, newValue: any) {
     this._checked = newValue;
     this.call('change', this, this.checked);
@@ -104,21 +111,25 @@ export class Toggle extends UINode implements Serializable {
     this.output && (this.output as any)['setData'](this.checked);
   }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
@@ -126,21 +137,25 @@ export class Toggle extends UINode implements Serializable {
 
     this.checked = !this.checked;
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }

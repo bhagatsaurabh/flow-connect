@@ -24,8 +24,8 @@ export class Button extends UINode implements Serializable {
     super(node, Vector2.Zero(), UIType.Button, false, { ...Constant.DefaultButtonStyle(), ...style }, null,
       input ?
         (typeof input === 'boolean' ?
-          new Terminal(node, TerminalType.IN, 'event', '', {}, () => this.call('click', this)) :
-          new Terminal(node, input.type, input.dataType, input.name, input.style, () => this.call('click', this), input.id, Color.deSerialize(input.hitColor))
+          new Terminal(node, TerminalType.IN, 'event', '', {}) :
+          new Terminal(node, input.type, input.dataType, input.name, input.style, input.id, Color.deSerialize(input.hitColor))
         ) :
         null,
       output ?
@@ -36,6 +36,8 @@ export class Button extends UINode implements Serializable {
         null,
       id, hitColor
     );
+
+    if (this.input) this.input.on('event', () => this.call('click', this));
     this.height = height ? height : (this.node.style.rowHeight + 2 * this.style.padding);
 
     this.label = new Label(this.node, text, null, false, false, {
@@ -49,20 +51,23 @@ export class Button extends UINode implements Serializable {
     this.children.push(this.label);
   }
 
+  /** @hidden */
   paint(): void {
     this.context.fillStyle = this.style.backgroundColor;
     this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   paintLOD1() {
     this.context.strokeStyle = '#000';
     this.paint();
     this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
   }
-
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     this.label.position = this.position;
     this.label.height = this.height;
@@ -78,43 +83,52 @@ export class Button extends UINode implements Serializable {
     }
   }
 
+  /** @hidden */
   onPropChange() { }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
 

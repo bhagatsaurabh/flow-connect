@@ -1,8 +1,29 @@
+import { Rules } from "../core/interfaces";
 import { Vector2 } from "./vector";
 
 export class Constant {
-  static TAU = (Math.PI / 180);
-  static DefaultRules: { [type: string]: string[] } = { 'string': ['string'], 'number': ['number'], 'boolean': ['boolean'], 'file': ['file'], 'event': ['event'] };
+  static TAU = 0.017453292519943295;
+
+  /** Default rules every [[Flow]] will have, for e.g. a string output can only be connected to string inputs.
+   *  ```javascript
+   *  {
+   *    'string': ['string'],
+   *    'number': ['number'],
+   *    'boolean': ['boolean'],
+   *    'file': ['file'],
+   *    'event': ['event']
+   *  }
+   *  ```
+   */
+  static DefaultRules: Rules = {
+    'string': ['string', 'any'],
+    'number': ['number', 'any'],
+    'boolean': ['boolean', 'any'],
+    'file': ['file', 'any'],
+    'event': ['event', 'any'],
+    'any': ['any']
+  };
+  /** Default colors for [[Group]]s */
   static DefaultGroupColors = {
     colors: [
       ['rgba(239, 134, 119, 1)', 'rgba(239, 134, 119, .5)'],
@@ -12,9 +33,10 @@ export class Constant {
     RED: () => Constant.DefaultGroupColors.colors[0],
     GREEN: () => Constant.DefaultGroupColors.colors[1],
     BLUE: () => Constant.DefaultGroupColors.colors[2],
-    Random: () => Constant.DefaultGroupColors.colors[Math.floor(Math.random() * (Constant.DefaultGroupColors.colors.length - 1))]
+    Random: () => Constant.DefaultGroupColors.colors[Math.floor(Math.random() * Constant.DefaultGroupColors.colors.length)]
   };
 
+  /** @hidden */
   static DefaultNodeStyle = () => {
     return {
       font: 'arial',
@@ -35,12 +57,14 @@ export class Constant {
       terminalStripMargin: 8
     };
   };
+  /** @hidden */
   static DefaultConnectorStyle = () => {
     return {
       width: 5,
       color: '#7fff00aa'
     };
   };
+  /** @hidden */
   static DefaultGroupStyle = () => {
     return {
       titleColor: '#000',
@@ -48,6 +72,7 @@ export class Constant {
       font: 'arial'
     };
   };
+  /** @hidden */
   static DefaultTerminalStyle = () => {
     return {
       radius: 4,
@@ -57,6 +82,7 @@ export class Constant {
       focusColor: '#bbbbbb80'
     };
   };
+  /** @hidden */
   static DefaultButtonStyle = () => {
     return {
       backgroundColor: '#666',
@@ -66,6 +92,7 @@ export class Constant {
       fontSize: '11px'
     };
   };
+  /** @hidden */
   static DefaultContainerStyle = () => {
     return {
       backgroundColor: '#dddddd',
@@ -76,19 +103,23 @@ export class Constant {
       borderColor: '#444'
     };
   };
+  /** @hidden */
   static DefaultDisplayStyle = () => {
     return {
       borderColor: '#000'
     };
   };
+  /** @hidden */
   static DefaultHorizontalLayoutStyle = () => {
     return {};
   };
+  /** @hidden */
   static DefaultImageStyle = () => {
     return {
       align: 'left'
     };
   };
+  /** @hidden */
   static DefaultInputStyle = () => {
     return {
       backgroundColor: '#eee',
@@ -100,6 +131,7 @@ export class Constant {
       type: InputType.Text
     };
   };
+  /** @hidden */
   static DefaultLabelStyle = () => {
     return {
       color: '#000',
@@ -108,11 +140,13 @@ export class Constant {
       align: 'left'
     };
   };
+  /** @hidden */
   static DefaultSelectStyle = () => {
     return {
       arrowColor: '#000'
     };
   };
+  /** @hidden */
   static DefaultSliderStyle = (height: number) => {
     return {
       color: '#444',
@@ -121,11 +155,13 @@ export class Constant {
       thumbRadius: height / 2
     }
   }
+  /** @hidden */
   static DefaultSourceStyle = () => {
     return {
       borderColor: '#000'
     };
   };
+  /** @hidden */
   static DefaultToggleStyle = () => {
     return {
       backgroundColor: '#999',
@@ -134,15 +170,17 @@ export class Constant {
   };
 }
 
+/** @hidden Constants to determine whether two rectangles are inside one another or intersecting or disconnected */
 export enum ViewPort {
-  INSIDE,
-  OUTSIDE,
-  INTERSECT
+  INSIDE = 'INSIDE',
+  OUTSIDE = 'OUTSIDE',
+  INTERSECT = 'INTERSECT'
 }
 export enum NodeState {
   MAXIMIZED,
   MINIMIZED
 }
+/** @hidden Levels of Detail, affects rendering while zooming in/out */
 export enum LOD {
   LOD0,
   LOD1,

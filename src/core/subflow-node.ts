@@ -41,23 +41,25 @@ export class SubFlowNode extends Node {
     this.addNodeButton(() => {
       this.flow.flowConnect.render(this.subFlow);
     }, (nodeButton: NodeButton, position: Vector2) => {
-      this.context.strokeStyle = this.style.expandButtonColor;
+      let context = this.context;
+      context.strokeStyle = this.style.expandButtonColor;
 
-      this.context.beginPath();
-      this.context.moveTo(position.x, position.y + this.style.nodeButtonSize / 2);
-      this.context.lineTo(position.x, position.y + this.style.nodeButtonSize);
-      this.context.lineTo(position.x + this.style.nodeButtonSize, position.y);
-      this.context.lineTo(position.x + this.style.nodeButtonSize, position.y + this.style.nodeButtonSize / 2);
-      this.context.moveTo(position.x + this.style.nodeButtonSize, position.y);
-      this.context.lineTo(position.x + this.style.nodeButtonSize / 2, position.y);
-      this.context.moveTo(position.x, position.y + this.style.nodeButtonSize);
-      this.context.lineTo(position.x + this.style.nodeButtonSize / 2, position.y + this.style.nodeButtonSize);
-      this.context.closePath();
+      context.beginPath();
+      context.moveTo(position.x, position.y + this.style.nodeButtonSize / 2);
+      context.lineTo(position.x, position.y + this.style.nodeButtonSize);
+      context.lineTo(position.x + this.style.nodeButtonSize, position.y);
+      context.lineTo(position.x + this.style.nodeButtonSize, position.y + this.style.nodeButtonSize / 2);
+      context.moveTo(position.x + this.style.nodeButtonSize, position.y);
+      context.lineTo(position.x + this.style.nodeButtonSize / 2, position.y);
+      context.moveTo(position.x, position.y + this.style.nodeButtonSize);
+      context.lineTo(position.x + this.style.nodeButtonSize / 2, position.y + this.style.nodeButtonSize);
+      context.closePath();
 
-      this.context.stroke();
+      context.stroke();
     }, Align.Right);
   }
 
+  /** @hidden */
   run() {
     if (this.flow.state === FlowState.Stopped) return;
 

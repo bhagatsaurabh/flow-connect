@@ -4,32 +4,40 @@ import { Node } from "./node";
 import { Hooks } from './hooks';
 import { Group } from './group';
 import { Connector } from './connector';
-import { BinarySearchTree } from "../utils/binary-search-tree";
+import { AVLTree } from "../utils/avl-tree";
 import { NodeStyle, Serializable, SerializedFlow, TerminalStyle } from './interfaces';
 import { SubFlowNode } from "./subflow-node";
 import { TunnelNode } from "./tunnel-node";
 import { getNewGUID } from "../utils/utils";
 import { FlowState } from "../math/constants";
 import { Graph } from "./graph";
+import { Rules } from "./interfaces";
+import { TerminalTypeColors } from "./interfaces";
 
+/** A Flow is a set of [[Node]]s, [[Connector]]s and [[Group]]s, it can also contain [[SubFlowNode]]s thereby creating a tree of Flows. */
 export class Flow extends Hooks implements Serializable {
-  sortedNodes: BinarySearchTree<Node>;
+  sortedNodes: AVLTree<Node>;
   nodes: { [id: string]: Node };
   groups: Group[];
   connectors: { [id: string]: Connector };
   inputs: TunnelNode[];
   outputs: TunnelNode[];
-  hitColorToNode: { [color: string]: Node };
-  hitColorToGroup: { [color: string]: Group };
-  listeners: { [eventKey: string]: number } = {};
   state: FlowState = FlowState.Stopped;
+
+  /** @hidden */
+  hitColorToNode: { [color: string]: Node };
+  /** @hidden */
+  hitColorToGroup: { [color: string]: Group };
+  /** @hidden */
+  listeners: { [eventKey: string]: number } = {};
+  /** @hidden */
   executionGraph: Graph;
 
   constructor(
     public flowConnect: FlowConnect,
     public name: string,
-    public rules: { [type: string]: string[] },
-    public terminalTypeColors: { [key: string]: string },
+    public rules: Rules,
+    public terminalTypeColors: TerminalTypeColors,
     public id: string = getNewGUID()
   ) {
 
@@ -39,22 +47,28 @@ export class Flow extends Hooks implements Serializable {
     this.connectors = {};
     this.hitColorToNode = {};
     this.hitColorToGroup = {};
-    this.sortedNodes = new BinarySearchTree((a: Node, b: Node) => (a.zIndex - b.zIndex), (node: Node) => node.id);
+    this.sortedNodes = new AVLTree((a: Node, b: Node) => (a.zIndex - b.zIndex), (node: Node) => node.id);
     this.inputs = [];
     this.outputs = [];
     this.executionGraph = new Graph();
 
     this.registerListeners();
+
+    this.flowConnect.on('tick', () => {
+      if (this.state === FlowState.Running) this.call('tick', this);
+    });
   }
 
-  registerListeners() {
+  private registerListeners() {
     let id = this.flowConnect.on('transform', () => this.call('transform', this));
     this.listeners['transform'] = id;
   }
+  /** @hidden */
   deregisterListeners() {
     this.flowConnect.off('transform', this.listeners['transform']);
     delete this.listeners['transform'];
   }
+  /** @hidden */
   existsInFlow(flow: Flow): boolean {
     for (let node of Object.values(this.nodes)) {
       if ((node as SubFlowNode).subFlow === flow) return true;
@@ -103,7 +117,6 @@ export class Flow extends Hooks implements Serializable {
     this.executionGraph.add(subFlowNode);
     return subFlowNode;
   }
-
   createNode(name: string, position: Vector2, width: number, inputs?: any[], outputs?: any[], style: NodeStyle = {}, terminalStyle: TerminalStyle = {}, props?: { [key: string]: any }): Node {
     let inTerminals: any[] = [], outTerminals: any[] = [];
     if (typeof inputs !== 'undefined') inTerminals = inputs;
@@ -157,18 +170,22 @@ export class Flow extends Hooks implements Serializable {
     Object.values(this.connectors).forEach(connector => connector.render());
     this.sortedNodes.forEach(node => node.render());
   }
-
   start() {
     if (this.state === FlowState.Running) return;
 
     this.state = FlowState.Running;
     this.call('start', this);
+    this.flowConnect.startGlobalTime();
+
     this.executionGraph.start();
   }
   stop() {
+    if (this.state === FlowState.Stopped) return;
     // what if GraphState is Running ?
     this.state = FlowState.Stopped;
     this.call('stop', this);
+    this.flowConnect.stopGlobalTime();
+
     Object.values(this.nodes).forEach(node => {
       if (node instanceof SubFlowNode) {
         node.subFlow.stop();

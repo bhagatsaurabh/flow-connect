@@ -3,13 +3,13 @@ import { ImageStyle, Serializable, SerializedImage } from "../core/interfaces";
 import { Node } from "../core/node";
 import { Constant, UIType } from "../math/constants";
 import { Vector2 } from "../math/vector";
-import { Logger } from "../utils/logger";
+import { Log } from "../utils/logger";
 import { UINode } from "./ui-node";
 
 export class Image extends UINode implements Serializable {
-  imageCanvas: OffscreenCanvas | HTMLCanvasElement;
-  source: HTMLImageElement;
-  ratio: number;
+  private imageCanvas: OffscreenCanvas | HTMLCanvasElement;
+  private source: HTMLImageElement;
+  private ratio: number;
 
   constructor(
     node: Node,
@@ -38,10 +38,11 @@ export class Image extends UINode implements Serializable {
       this.reflow();
       this.node.ui.update();
     };
-    this.source.onerror = (error) => Logger.error(error);
+    this.source.onerror = (error) => Log.error(error);
     this.source.src = sourceString;
   }
 
+  /** @hidden */
   paint(): void {
     if (this.imageCanvas) {
       let x = this.position.x;
@@ -55,6 +56,7 @@ export class Image extends UINode implements Serializable {
       );
     }
   }
+  /** @hidden */
   paintLOD1() {
     if (this.imageCanvas) {
       let x = this.position.x;
@@ -62,12 +64,14 @@ export class Image extends UINode implements Serializable {
         if (this.style.align === 'center') x += this.node.ui.contentWidth / 2 - this.source.width / 2;
         else if (this.style.align === 'right') x += + (this.node.ui.contentWidth - this.source.width);
       }
-      this.context.fillStyle = 'lightgrey';
-      this.context.strokeStyle = '#000';
-      this.context.fillRect(x, this.position.y, this.width, this.height);
-      this.context.strokeRect(x, this.position.y, this.width, this.height)
+      let context = this.context;
+      context.fillStyle = 'lightgrey';
+      context.strokeStyle = '#000';
+      context.fillRect(x, this.position.y, this.width, this.height);
+      context.strokeRect(x, this.position.y, this.width, this.height)
     }
   }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
 
@@ -78,6 +82,7 @@ export class Image extends UINode implements Serializable {
     }
     this.offUIContext.fillRect(x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     if (!this.source.width || !this.source.height) return;
 
@@ -89,29 +94,38 @@ export class Image extends UINode implements Serializable {
     }
   }
 
+  /** @hidden */
   onPropChange() { }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('click', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void { }
 
   serialize(): SerializedImage {

@@ -29,15 +29,15 @@ var Color = (function () {
     Color.Random = function () {
         return new Color(new Uint8ClampedArray([Math.floor(utils_1.getRandom(0, 255)), Math.floor(utils_1.getRandom(0, 255)), Math.floor(utils_1.getRandom(0, 255)), 255]));
     };
-    Color.rgbaToHex = function (rgba) {
-        return "#" + Color._componentToHex(rgba[0]) + Color._componentToHex(rgba[1]) + Color._componentToHex(rgba[2]) + Color._componentToHex(rgba[3]);
-    };
     Color.hexToRGBA = function (hex) {
         return new Uint8ClampedArray([parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16), parseInt(hex.slice(7, 9), 16)]);
     };
     Color._componentToHex = function (c) {
         var hex = c.toString(16);
-        return hex.length == 1 ? '0' + hex : hex;
+        return hex.length === 1 ? '0' + hex : hex;
+    };
+    Color.rgbaToHex = function (rgba) {
+        return "#" + Color._componentToHex(rgba[0]) + Color._componentToHex(rgba[1]) + Color._componentToHex(rgba[2]) + Color._componentToHex(rgba[3]);
     };
     Color.rgbaToString = function (rgba) {
         return rgba[0] + ":" + rgba[1] + ":" + rgba[2] + ":" + rgba[3];
@@ -99,7 +99,12 @@ var Connector = (function () {
         if (start && end) {
             this.floatingTip = null;
             this.start.connectors.push(this);
-            this.end.connectors.push(this);
+            if (this.end.connectors.length > 0) {
+                this.end.connectors[0].removeConnection();
+                this.end.connectors[0] = this;
+            }
+            else
+                this.end.connectors.push(this);
             if (!isDeserialization)
                 this.flow.executionGraph.connect(this.startNode, this.endNode);
             this.start.call('connect', this.start, this);
@@ -156,6 +161,10 @@ var Connector = (function () {
             }
         }
     };
+    Connector.prototype.setData = function (data) {
+        this._data = data;
+        this.end && this.end.call('data', data);
+    };
     Connector.prototype.canConnect = function (destination) {
         var source = !this.start ? this.end : this.start;
         if (!destination)
@@ -204,22 +213,23 @@ var Connector = (function () {
         var _g = [ax + offset, ay], bx = _g[0], by = _g[1];
         var _h = [dx - offset, dy], cx = _h[0], cy = _h[1];
         var _j = [(bx + cx) / 2, (by + cy) / 2], midx = _j[0], midy = _j[1];
-        this.flow.flowConnect.context.beginPath();
-        this.flow.flowConnect.context.moveTo(ax, ay);
-        this.flow.flowConnect.context.quadraticCurveTo(bx, by, midx, midy);
-        this.flow.flowConnect.context.moveTo(midx, midy);
-        this.flow.flowConnect.context.quadraticCurveTo(cx, cy, dx, dy);
-        this.flow.flowConnect.context.strokeStyle = 'grey';
-        this.flow.flowConnect.context.lineWidth = this.style.width + 2;
-        this.flow.flowConnect.context.stroke();
-        this.flow.flowConnect.context.beginPath();
-        this.flow.flowConnect.context.moveTo(ax, ay);
-        this.flow.flowConnect.context.quadraticCurveTo(bx, by, midx, midy);
-        this.flow.flowConnect.context.moveTo(midx, midy);
-        this.flow.flowConnect.context.quadraticCurveTo(cx, cy, dx, dy);
-        this.flow.flowConnect.context.strokeStyle = this.style.color;
-        this.flow.flowConnect.context.lineWidth = this.style.width;
-        this.flow.flowConnect.context.stroke();
+        var context = this.flow.flowConnect.context;
+        context.beginPath();
+        context.moveTo(ax, ay);
+        context.quadraticCurveTo(bx, by, midx, midy);
+        context.moveTo(midx, midy);
+        context.quadraticCurveTo(cx, cy, dx, dy);
+        context.strokeStyle = 'grey';
+        context.lineWidth = this.style.width + 2;
+        context.stroke();
+        context.beginPath();
+        context.moveTo(ax, ay);
+        context.quadraticCurveTo(bx, by, midx, midy);
+        context.moveTo(midx, midy);
+        context.quadraticCurveTo(cx, cy, dx, dy);
+        context.strokeStyle = this.style.color;
+        context.lineWidth = this.style.width;
+        context.stroke();
     };
     Connector.prototype._offRender = function () { };
     Connector.prototype.serialize = function () {
@@ -254,6 +264,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -265,7 +277,7 @@ var node_1 = __webpack_require__(55);
 var hooks_1 = __webpack_require__(417);
 var group_1 = __webpack_require__(166);
 var connector_1 = __webpack_require__(907);
-var binary_search_tree_1 = __webpack_require__(156);
+var avl_tree_1 = __webpack_require__(141);
 var subflow_node_1 = __webpack_require__(587);
 var tunnel_node_1 = __webpack_require__(915);
 var utils_1 = __webpack_require__(974);
@@ -281,18 +293,22 @@ var Flow = (function (_super) {
         _this.rules = rules;
         _this.terminalTypeColors = terminalTypeColors;
         _this.id = id;
-        _this.listeners = {};
         _this.state = constants_1.FlowState.Stopped;
+        _this.listeners = {};
         _this.nodes = {};
         _this.groups = [];
         _this.connectors = {};
         _this.hitColorToNode = {};
         _this.hitColorToGroup = {};
-        _this.sortedNodes = new binary_search_tree_1.BinarySearchTree(function (a, b) { return (a.zIndex - b.zIndex); }, function (node) { return node.id; });
+        _this.sortedNodes = new avl_tree_1.AVLTree(function (a, b) { return (a.zIndex - b.zIndex); }, function (node) { return node.id; });
         _this.inputs = [];
         _this.outputs = [];
         _this.executionGraph = new graph_1.Graph();
         _this.registerListeners();
+        _this.flowConnect.on('tick', function () {
+            if (_this.state === constants_1.FlowState.Running)
+                _this.call('tick', _this);
+        });
         return _this;
     }
     Flow.prototype.registerListeners = function () {
@@ -374,11 +390,15 @@ var Flow = (function (_super) {
             return;
         this.state = constants_1.FlowState.Running;
         this.call('start', this);
+        this.flowConnect.startGlobalTime();
         this.executionGraph.start();
     };
     Flow.prototype.stop = function () {
+        if (this.state === constants_1.FlowState.Stopped)
+            return;
         this.state = constants_1.FlowState.Stopped;
         this.call('stop', this);
+        this.flowConnect.stopGlobalTime();
         Object.values(this.nodes).forEach(function (node) {
             if (node instanceof subflow_node_1.SubFlowNode) {
                 node.subFlow.stop();
@@ -485,16 +505,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Graph = exports.GraphNode = void 0;
 var constants_1 = __webpack_require__(522);
+var logger_1 = __webpack_require__(645);
 var utils_1 = __webpack_require__(974);
 var node_1 = __webpack_require__(55);
 var GraphNode = (function () {
@@ -594,7 +613,7 @@ var Graph = (function () {
                                 resolve(true);
                             }
                             catch (error) {
-                                console.log(error);
+                                logger_1.Log.error(error);
                                 reject(false);
                             }
                         })];
@@ -629,7 +648,7 @@ var Graph = (function () {
     Graph.prototype.processDirtyNodes = function () {
         var _this = this;
         var dirtyNodes = Object.values(this.dirtyNodes).sort(function (a, b) { return (a.order - b.order); });
-        console.log(__spreadArrays(dirtyNodes));
+        logger_1.Log.log('Dirty Nodes: ', __spreadArray([], dirtyNodes));
         var queue = dirtyNodes;
         queue.forEach(function (graphNode) {
             graphNode.flowNode.run();
@@ -684,6 +703,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -720,10 +741,10 @@ var Group = (function (_super) {
         _this.height = height;
         _this.style = style;
         _this.id = id;
-        _this.hitColor = hitColor;
         _this.nodes = [];
         _this.nodeDeltas = [];
         _this.renderState = constants_1.ViewPort.INSIDE;
+        _this.hitColor = hitColor;
         _this.style = __assign(__assign({}, constants_1.Constant.DefaultGroupStyle()), style);
         _this.id = utils_1.getNewGUID();
         _this._position = position;
@@ -770,11 +791,12 @@ var Group = (function (_super) {
         this.flow.hitColorToGroup[this.hitColor.rgbaString] = this;
     };
     Group.prototype.computeTextMetrics = function () {
-        this.flow.flowConnect.context.font = this.style.fontSize + ' ' + this.style.font;
-        var metrics = this.flow.flowConnect.context.measureText(this.name);
+        var context = this.flow.flowConnect.context;
+        context.font = this.style.fontSize + ' ' + this.style.font;
+        var metrics = context.measureText(this.name);
         this.textWidth = metrics.width;
-        metrics = this.flow.flowConnect.context.measureText('M');
-        this.flow.flowConnect.context.font = null;
+        metrics = context.measureText('M');
+        context.font = null;
         this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
         if (typeof this.textHeight === 'undefined') {
             var d = document.createElement("span");
@@ -821,15 +843,16 @@ var Group = (function (_super) {
         this.flow.flowConnect.offGroupContext.restore();
     };
     Group.prototype._render = function () {
-        this.flow.flowConnect.context.strokeStyle = this.style.borderColor;
-        this.flow.flowConnect.context.lineWidth = 2;
-        this.flow.flowConnect.context.fillStyle = this.style.color;
-        this.flow.flowConnect.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-        this.flow.flowConnect.context.fillRect(this.position.x, this.position.y, this.width, this.height);
-        this.flow.flowConnect.context.fillStyle = this.style.titleColor;
-        this.flow.flowConnect.context.textBaseline = 'bottom';
-        this.flow.flowConnect.context.font = this.style.fontSize + ' ' + this.style.font;
-        this.flow.flowConnect.context.fillText(this.name, this.position.x, this.position.y - 10);
+        var context = this.flow.flowConnect.context;
+        context.strokeStyle = this.style.borderColor;
+        context.lineWidth = 2;
+        context.fillStyle = this.style.color;
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        context.fillStyle = this.style.titleColor;
+        context.textBaseline = 'bottom';
+        context.font = this.style.fontSize + ' ' + this.style.font;
+        context.fillText(this.name, this.position.x, this.position.y - 10);
     };
     Group.prototype._offRender = function () {
         this.flow.flowConnect.offGroupContext.fillStyle = this.hitColor.rgbaCSSString;
@@ -909,13 +932,14 @@ var Hooks = (function () {
         }
         if (this.registeredEvents[eventKey]) {
             if (args)
-                Object.values(this.registeredEvents[eventKey]).forEach(function (callback) { return callback.apply(void 0, args); });
+                Object.values(this.registeredEvents[eventKey]).forEach(function (callback) { return new Promise(function (resolve) { return resolve(callback.apply(void 0, args)); }); });
             else
-                Object.values(this.registeredEvents[eventKey]).forEach(function (callback) { return callback(); });
+                Object.values(this.registeredEvents[eventKey]).forEach(function (callback) { return new Promise(function (resolve) { return resolve(callback()); }); });
         }
     };
     Hooks.prototype.off = function (eventKey, id) {
-        delete this.registeredEvents[eventKey][id];
+        if (this.registeredEvents[eventKey])
+            delete this.registeredEvents[eventKey][id];
     };
     return Hooks;
 }());
@@ -976,6 +1000,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1046,16 +1072,16 @@ var Node = (function (_super) {
         _this.style = style;
         _this.terminalStyle = terminalStyle;
         _this.id = id;
-        _this.hitColor = hitColor;
+        _this.nodeButtons = [];
+        _this.propObservers = {};
+        _this.renderState = { viewport: constants_1.ViewPort.INSIDE, nodeState: constants_1.NodeState.MAXIMIZED, lod: constants_1.LOD.LOD2 };
         _this.focused = false;
         _this.inputs = [];
         _this.outputs = [];
         _this.inputsUI = [];
         _this.outputsUI = [];
-        _this.nodeButtons = [];
-        _this.propObservers = {};
-        _this.renderState = { viewport: constants_1.ViewPort.INSIDE, nodeState: constants_1.NodeState.MAXIMIZED, lod: constants_1.LOD.LOD2 };
         _this.group = null;
+        _this.hitColor = hitColor;
         _this._width = width;
         _this.style = __assign(__assign({}, constants_1.Constant.DefaultNodeStyle()), style);
         _this._position = position;
@@ -1063,13 +1089,10 @@ var Node = (function (_super) {
         _this.hitColorToUI = {};
         _this.hitColorToTerminal = {};
         _this.hitColorToNodeButton = {};
-        _this.zIndex = 0;
-        _this.context = flow.flowConnect.context;
-        _this.offContext = flow.flowConnect.offContext;
-        _this.offUIContext = flow.flowConnect.offUIContext;
+        _this._zIndex = 0;
         _this.setHitColor(hitColor);
-        (_a = _this.inputs).push.apply(_a, inputs.map(function (input) { return new terminal_1.Terminal(_this, constants_1.TerminalType.IN, input.dataType, input.name, input.style ? input.style : __assign({}, terminalStyle), null, input.id ? input.id : null, input.hitColor ? color_1.Color.deSerialize(input.hitColor) : null); }));
-        (_b = _this.outputs).push.apply(_b, outputs.map(function (output) { return new terminal_1.Terminal(_this, constants_1.TerminalType.OUT, output.dataType, output.name, output.style ? output.style : __assign({}, terminalStyle), null, output.id ? output.id : null, output.hitColor ? color_1.Color.deSerialize(output.hitColor) : null); }));
+        (_a = _this.inputs).push.apply(_a, inputs.map(function (input) { return new terminal_1.Terminal(_this, constants_1.TerminalType.IN, input.dataType, input.name, input.style ? input.style : __assign({}, terminalStyle), input.id ? input.id : null, input.hitColor ? color_1.Color.deSerialize(input.hitColor) : null); }));
+        (_b = _this.outputs).push.apply(_b, outputs.map(function (output) { return new terminal_1.Terminal(_this, constants_1.TerminalType.OUT, output.dataType, output.name, output.style ? output.style : __assign({}, terminalStyle), output.id ? output.id : null, output.hitColor ? color_1.Color.deSerialize(output.hitColor) : null); }));
         _this.ui = ui ? (ui instanceof index_1.Container ? ui : index_1.Container.deSerialize(_this, ui)) : new index_1.Container(_this, width);
         _this.addNodeButton(function () { return _this.toggleNodeState(); }, function (nodeButton, position) {
             _this.context.fillStyle = _this.style.maximizeButtonColor;
@@ -1080,10 +1103,26 @@ var Node = (function (_super) {
         _this.flow.on('transform', function () { return _this.updateRenderState(); });
         return _this;
     }
+    Object.defineProperty(Node.prototype, "context", {
+        get: function () { return this.flow.flowConnect.context; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(Node.prototype, "offContext", {
+        get: function () { return this.flow.flowConnect.offContext; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(Node.prototype, "offUIContext", {
+        get: function () { return this.flow.flowConnect.offUIContext; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
     Object.defineProperty(Node.prototype, "position", {
-        get: function () {
-            return this._position;
-        },
+        get: function () { return this._position; },
         set: function (position) {
             this._position = position;
             this.reflow();
@@ -1093,23 +1132,24 @@ var Node = (function (_super) {
         enumerable: false,
         configurable: true
     });
+    ;
     Object.defineProperty(Node.prototype, "zIndex", {
-        get: function () {
-            return this._zIndex;
-        },
+        get: function () { return this._zIndex; },
         set: function (zIndex) {
-            this._zIndex = zIndex;
             if (this.flow.sortedNodes.remove(this)) {
+                this._zIndex = zIndex;
                 this.flow.sortedNodes.add(this);
+            }
+            else {
+                this._zIndex = zIndex;
             }
         },
         enumerable: false,
         configurable: true
     });
+    ;
     Object.defineProperty(Node.prototype, "width", {
-        get: function () {
-            return this._width;
-        },
+        get: function () { return this._width; },
         set: function (width) {
             this._width = width;
             this.ui.width = width;
@@ -1118,6 +1158,7 @@ var Node = (function (_super) {
         enumerable: false,
         configurable: true
     });
+    ;
     Node.prototype.setupProps = function (props) {
         var _this = this;
         var propsTarget = {};
@@ -1158,17 +1199,6 @@ var Node = (function (_super) {
         this.hitColor = hitColor;
         this.flow.hitColorToNode[this.hitColor.rgbaString] = this;
     };
-    Node.prototype.addTerminal = function (terminal) {
-        if (!(terminal instanceof terminal_1.Terminal)) {
-            terminal = terminal_1.Terminal.deSerialize(this, terminal);
-        }
-        if (terminal.type === constants_1.TerminalType.IN)
-            this.inputs.push(terminal);
-        else
-            this.outputs.push(terminal);
-        this.reflow();
-        this.ui.reflow();
-    };
     Node.prototype.addNodeButton = function (callback, render, align) {
         var newNodeButton = new NodeButton(this, callback, render, align);
         var noOfButtons = this.nodeButtons.filter(function (nodeButton) { return nodeButton.align === newNodeButton.align; }).length;
@@ -1180,9 +1210,6 @@ var Node = (function (_super) {
         newNodeButton.deltaX = deltaX;
         this.nodeButtons.push(newNodeButton);
         return newNodeButton;
-    };
-    Node.prototype.dispose = function () {
-        this.flow.removeNode(this.id);
     };
     Node.prototype.reflow = function () {
         var y = this.position.y + this.style.terminalRowHeight / 2 + this.style.padding / 2 + this.style.titleHeight;
@@ -1196,9 +1223,6 @@ var Node = (function (_super) {
             y = this.position.y + (this.outputs.length * this.style.terminalRowHeight) / 2 - (this.inputs.length * this.style.terminalRowHeight) / 2 + this.style.terminalRowHeight / 2 + this.style.padding / 2 + this.style.titleHeight;
             this.recalculateInputTerminals(y);
         }
-    };
-    Node.prototype.toggleNodeState = function () {
-        this.renderState.nodeState = this.renderState.nodeState === constants_1.NodeState.MAXIMIZED ? constants_1.NodeState.MINIMIZED : constants_1.NodeState.MAXIMIZED;
     };
     Node.prototype.updateRenderState = function () {
         var realPos = this.position.transform(this.flow.flowConnect.transform);
@@ -1252,49 +1276,14 @@ var Node = (function (_super) {
     Node.prototype.getHitNodeButton = function (hitColor) {
         return this.hitColorToNodeButton[hitColor];
     };
-    Node.prototype.getInput = function (terminal) {
-        if (typeof terminal === 'string') {
-            var inputTerminal = this.inputs.find(function (currTerm) { return (currTerm.name === terminal); });
-            if (inputTerminal)
-                return inputTerminal['getData']();
-        }
-        else {
-            if (this.inputs[terminal])
-                return this.inputs[terminal]['getData']();
-        }
-        return null;
-    };
-    Node.prototype.setOutput = function (terminal, data) {
-        if (typeof terminal === 'string') {
-            var outputTerminal = this.outputs.find(function (currTerm) { return (currTerm.name === terminal); });
-            if (outputTerminal)
-                return outputTerminal['setData'](data);
-        }
-        else {
-            if (this.outputs[terminal])
-                this.outputs[terminal]['setData'](data);
-        }
-    };
     Node.prototype.run = function () {
         if (this.flow.state === constants_1.FlowState.Stopped)
             return;
         this.call('process', this, this.inputs.map(function (terminal) { return terminal.connectors.length > 0 ? terminal.connectors[0].data : null; }));
     };
-    Node.prototype.render = function () {
-        if (this.renderState.viewport === constants_1.ViewPort.OUTSIDE)
-            return;
-        if (this.renderState.nodeState === constants_1.NodeState.MAXIMIZED)
-            this.ui.render();
-        this.context.save();
-        this._render();
-        this.context.restore();
-        this.nodeButtons.forEach(function (nodeButton) { return nodeButton.render(); });
-        this.offContext.save();
-        this._offRender();
-        this.offContext.restore();
-    };
     Node.prototype._render = function () {
         var _this = this;
+        var context = this.context;
         if (this.renderState.nodeState === constants_1.NodeState.MAXIMIZED) {
             if (this.renderState.lod > 0) {
                 this.inputs.forEach(function (terminal) { return terminal.render(); });
@@ -1302,39 +1291,39 @@ var Node = (function (_super) {
             }
         }
         else {
-            this.context.fillStyle = 'green';
+            context.fillStyle = 'green';
             if ((this.inputs.length + this.inputsUI.length) > 0) {
                 var radius = this.inputs.length > 0 ? this.inputs[0].style.radius : this.inputsUI[0].style.radius;
-                this.context.fillRect(this.position.x - this.style.terminalStripMargin - radius * 2, this.position.y + this.style.titleHeight / 2 - radius, radius * 2, radius * 2);
+                context.fillRect(this.position.x - this.style.terminalStripMargin - radius * 2, this.position.y + this.style.titleHeight / 2 - radius, radius * 2, radius * 2);
             }
             if ((this.outputs.length + this.outputsUI.length) > 0) {
                 var radius = this.outputs.length > 0 ? this.outputs[0].style.radius : this.outputsUI[0].style.radius;
-                this.context.fillRect(this.position.x + this.width + this.style.terminalStripMargin, this.position.y + this.style.titleHeight / 2 - radius, radius * 2, radius * 2);
+                context.fillRect(this.position.x + this.width + this.style.terminalStripMargin, this.position.y + this.style.titleHeight / 2 - radius, radius * 2, radius * 2);
             }
         }
-        this.context.fillStyle = this.style.titleColor;
-        this.context.font = this.style.titleFontSize + ' ' + this.style.titleFont;
-        this.context.textBaseline = 'middle';
-        this.context.fillText(this.name, this.position.x + this.ui.width / 2 - this.context.measureText(this.name).width / 2, this.position.y + this.style.titleHeight / 2);
+        context.fillStyle = this.style.titleColor;
+        context.font = this.style.titleFontSize + ' ' + this.style.titleFont;
+        context.textBaseline = 'middle';
+        context.fillText(this.name, this.position.x + this.ui.width / 2 - context.measureText(this.name).width / 2, this.position.y + this.style.titleHeight / 2);
         if (this.renderState.nodeState === constants_1.NodeState.MAXIMIZED) {
-            this.context.fillStyle = this.style.color;
-            this.context.font = this.style.fontSize + ' ' + this.style.font;
-            this.context.textBaseline = 'middle';
+            context.fillStyle = this.style.color;
+            context.font = this.style.fontSize + ' ' + this.style.font;
+            context.textBaseline = 'middle';
             this.inputs.forEach(function (terminal) {
-                _this.context.fillText(terminal.name, terminal.position.x + terminal.style.radius + _this.style.terminalStripMargin + _this.style.padding, terminal.position.y);
+                context.fillText(terminal.name, terminal.position.x + terminal.style.radius + _this.style.terminalStripMargin + _this.style.padding, terminal.position.y);
             });
             this.outputs.forEach(function (terminal) {
-                _this.context.fillText(terminal.name, terminal.position.x - terminal.style.radius - _this.style.terminalStripMargin - _this.style.padding - _this.context.measureText(terminal.name).width, terminal.position.y);
+                context.fillText(terminal.name, terminal.position.x - terminal.style.radius - _this.style.terminalStripMargin - _this.style.padding - context.measureText(terminal.name).width, terminal.position.y);
             });
         }
         if (this.focused) {
-            this.context.strokeStyle = '#000';
-            this.context.lineWidth = 2;
+            context.strokeStyle = '#000';
+            context.lineWidth = 2;
             var inputTerminalsWidth = this.inputs.length === 0 ? (this.inputsUI.length === 0 ? 0 : this.inputsUI[0].style.radius * 2) : this.inputs[0].style.radius * 2;
             inputTerminalsWidth += this.style.terminalStripMargin * 2;
             var outputTerminalsWidth = this.outputs.length === 0 ? (this.outputsUI.length === 0 ? 0 : this.outputsUI[0].style.radius * 2) : this.outputs[0].style.radius * 2;
             outputTerminalsWidth += this.style.terminalStripMargin * 2;
-            this.context.strokeRoundRect(this.position.x - inputTerminalsWidth, this.position.y, this.width + inputTerminalsWidth + outputTerminalsWidth, this.renderState.nodeState === constants_1.NodeState.MAXIMIZED ? (this.ui.height + this.style.padding) : this.style.titleHeight, 4);
+            context.strokeRoundRect(this.position.x - inputTerminalsWidth, this.position.y, this.width + inputTerminalsWidth + outputTerminalsWidth, this.renderState.nodeState === constants_1.NodeState.MAXIMIZED ? (this.ui.height + this.style.padding) : this.style.titleHeight, 4);
         }
     };
     Node.prototype._offRender = function () {
@@ -1352,6 +1341,93 @@ var Node = (function (_super) {
             outputTerminalsStripWidth = radius * 2 + this.style.terminalStripMargin;
         }
         this.offContext.fillRect(x, y, this.ui.width + inputTerminalsStripWidth + outputTerminalsStripWidth, this.renderState.nodeState === constants_1.NodeState.MAXIMIZED ? this.ui.height : this.style.titleHeight);
+    };
+    Node.prototype.addTerminal = function (terminal) {
+        if (!(terminal instanceof terminal_1.Terminal)) {
+            terminal = terminal_1.Terminal.deSerialize(this, terminal);
+        }
+        if (terminal.type === constants_1.TerminalType.IN)
+            this.inputs.push(terminal);
+        else
+            this.outputs.push(terminal);
+        this.ui.update();
+        this.reflow();
+    };
+    Node.prototype.getInput = function (terminal) {
+        if (typeof terminal === 'string') {
+            var inputTerminal = this.inputs.find(function (currTerm) { return (currTerm.name === terminal); });
+            if (inputTerminal)
+                return inputTerminal['getData']();
+        }
+        else {
+            if (this.inputs[terminal])
+                return this.inputs[terminal]['getData']();
+        }
+        return null;
+    };
+    Node.prototype.getInputs = function () {
+        return this.inputs.map(function (terminal) { return terminal['getData'](); });
+    };
+    Node.prototype.setOutput = function (terminal, data) {
+        if (typeof terminal === 'string') {
+            var outputTerminal = this.outputs.find(function (currTerm) { return (currTerm.name === terminal); });
+            if (outputTerminal)
+                return outputTerminal['setData'](data);
+        }
+        else {
+            if (this.outputs[terminal])
+                this.outputs[terminal]['setData'](data);
+        }
+    };
+    Node.prototype.setOutputs = function (outputs) {
+        var _this = this;
+        var outputData = new Map();
+        Object.entries(outputs).forEach(function (entry) {
+            var terminal = _this.outputs.find(function (terminal) { return terminal.name === entry[0]; });
+            if (terminal) {
+                outputData.set(terminal, entry[1]);
+            }
+            else {
+                throw 'Error';
+            }
+        });
+        var groupedConnectors = new Map();
+        var outputDataIterator = outputData.keys();
+        var curr;
+        while ((curr = outputDataIterator.next().value) && curr) {
+            curr.connectors.forEach(function (connector) {
+                if (groupedConnectors.has(connector.endNode))
+                    groupedConnectors.get(connector.endNode).push(connector);
+                else
+                    groupedConnectors.set(connector.endNode, [connector]);
+            });
+        }
+        var gCntrsIterator = groupedConnectors.values();
+        var connectors;
+        while ((connectors = gCntrsIterator.next().value) && connectors) {
+            for (var i = 1; i < connectors.length; i += 1)
+                connectors[i].setData(outputData.get(connectors[i].start));
+            connectors[0].data = outputData.get(connectors[0].start);
+        }
+    };
+    Node.prototype.toggleNodeState = function () {
+        this.renderState.nodeState = this.renderState.nodeState === constants_1.NodeState.MAXIMIZED ? constants_1.NodeState.MINIMIZED : constants_1.NodeState.MAXIMIZED;
+    };
+    Node.prototype.dispose = function () {
+        this.flow.removeNode(this.id);
+    };
+    Node.prototype.render = function () {
+        if (this.renderState.viewport === constants_1.ViewPort.OUTSIDE)
+            return;
+        if (this.renderState.nodeState === constants_1.NodeState.MAXIMIZED)
+            this.ui.render();
+        this.context.save();
+        this._render();
+        this.context.restore();
+        this.nodeButtons.forEach(function (nodeButton) { return nodeButton.render(); });
+        this.offContext.save();
+        this._offRender();
+        this.offContext.restore();
     };
     Node.prototype.onDown = function (screenPosition, realPosition) {
         this.call('down', this, screenPosition, realPosition);
@@ -1497,6 +1573,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1533,18 +1611,19 @@ var SubFlowNode = (function (_super) {
         _this.addNodeButton(function () {
             _this.flow.flowConnect.render(_this.subFlow);
         }, function (nodeButton, position) {
-            _this.context.strokeStyle = _this.style.expandButtonColor;
-            _this.context.beginPath();
-            _this.context.moveTo(position.x, position.y + _this.style.nodeButtonSize / 2);
-            _this.context.lineTo(position.x, position.y + _this.style.nodeButtonSize);
-            _this.context.lineTo(position.x + _this.style.nodeButtonSize, position.y);
-            _this.context.lineTo(position.x + _this.style.nodeButtonSize, position.y + _this.style.nodeButtonSize / 2);
-            _this.context.moveTo(position.x + _this.style.nodeButtonSize, position.y);
-            _this.context.lineTo(position.x + _this.style.nodeButtonSize / 2, position.y);
-            _this.context.moveTo(position.x, position.y + _this.style.nodeButtonSize);
-            _this.context.lineTo(position.x + _this.style.nodeButtonSize / 2, position.y + _this.style.nodeButtonSize);
-            _this.context.closePath();
-            _this.context.stroke();
+            var context = _this.context;
+            context.strokeStyle = _this.style.expandButtonColor;
+            context.beginPath();
+            context.moveTo(position.x, position.y + _this.style.nodeButtonSize / 2);
+            context.lineTo(position.x, position.y + _this.style.nodeButtonSize);
+            context.lineTo(position.x + _this.style.nodeButtonSize, position.y);
+            context.lineTo(position.x + _this.style.nodeButtonSize, position.y + _this.style.nodeButtonSize / 2);
+            context.moveTo(position.x + _this.style.nodeButtonSize, position.y);
+            context.lineTo(position.x + _this.style.nodeButtonSize / 2, position.y);
+            context.moveTo(position.x, position.y + _this.style.nodeButtonSize);
+            context.lineTo(position.x + _this.style.nodeButtonSize / 2, position.y + _this.style.nodeButtonSize);
+            context.closePath();
+            context.stroke();
         }, constants_1.Align.Right);
         return _this;
     }
@@ -1596,6 +1675,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1622,7 +1703,7 @@ var connector_1 = __webpack_require__(907);
 var hooks_1 = __webpack_require__(417);
 var Terminal = (function (_super) {
     __extends(Terminal, _super);
-    function Terminal(node, type, dataType, name, style, eventCallback, id, hitColor) {
+    function Terminal(node, type, dataType, name, style, id, hitColor) {
         if (style === void 0) { style = {}; }
         var _this = _super.call(this) || this;
         _this.node = node;
@@ -1630,7 +1711,6 @@ var Terminal = (function (_super) {
         _this.dataType = dataType;
         _this.name = name;
         _this.style = style;
-        _this.eventCallback = eventCallback;
         _this.id = id;
         _this.hitColor = hitColor;
         _this.style = __assign(__assign({}, constants_1.Constant.DefaultTerminalStyle()), style);
@@ -1661,42 +1741,59 @@ var Terminal = (function (_super) {
         this.node.hitColorToTerminal[this.hitColor.rgbaString] = this;
     };
     Terminal.prototype.render = function () {
-        this.node.context.save();
+        var context = this.node.context;
+        context.save();
         if (this.focus) {
-            this.node.context.beginPath();
-            this.node.context.arc(this.position.x, this.position.y, this.style.radius * 3, 0, 2 * Math.PI);
-            this.node.context.fillStyle = this.style.focusColor;
-            this.node.context.fill();
+            context.beginPath();
+            context.arc(this.position.x, this.position.y, this.style.radius * 3, 0, 2 * Math.PI);
+            context.fillStyle = this.style.focusColor;
+            context.fill();
         }
         if (this.dataType === 'event') {
-            this.node.context.beginPath();
-            this.node.context.moveTo(this.position.x, this.position.y - this.style.radius * 1.3);
-            this.node.context.lineTo(this.position.x + this.style.radius * 1.3, this.position.y);
-            this.node.context.lineTo(this.position.x, this.position.y + this.style.radius * 1.3);
-            this.node.context.lineTo(this.position.x - this.style.radius * 1.3, this.position.y);
-            this.node.context.lineTo(this.position.x, this.position.y - this.style.radius * 1.3);
-            this.node.context.closePath();
+            context.beginPath();
+            context.moveTo(this.position.x, this.position.y - this.style.radius * 1.3);
+            context.lineTo(this.position.x + this.style.radius * 1.3, this.position.y);
+            context.lineTo(this.position.x, this.position.y + this.style.radius * 1.3);
+            context.lineTo(this.position.x - this.style.radius * 1.3, this.position.y);
+            context.lineTo(this.position.x, this.position.y - this.style.radius * 1.3);
+            context.closePath();
         }
         else {
-            this.node.context.beginPath();
-            this.node.context.arc(this.position.x, this.position.y, this.style.radius, 0, 2 * Math.PI);
+            context.beginPath();
+            context.arc(this.position.x, this.position.y, this.style.radius, 0, 2 * Math.PI);
         }
-        this.node.context.fillStyle = this.focus ? '#00ff00' : (this.node.flow.terminalTypeColors[this.dataType] || '#888');
-        this.node.context.strokeStyle = this.style.borderColor;
-        this.node.context.shadowBlur = this.style.shadowBlur;
-        this.node.context.shadowColor = this.style.shadowColor;
-        this.node.context.fill();
-        this.node.context.stroke();
-        this.node.context.restore();
+        context.fillStyle = this.focus ? '#00ff00' : (this.node.flow.terminalTypeColors[this.dataType] || '#888');
+        context.strokeStyle = this.style.borderColor;
+        context.shadowBlur = this.style.shadowBlur;
+        context.shadowColor = this.style.shadowColor;
+        context.fill();
+        context.stroke();
+        context.restore();
         this.offUIRender();
     };
+    Terminal.prototype.connect = function (otherTerminal, style) {
+        if (this.type !== otherTerminal.type) {
+            var start = this.type === constants_1.TerminalType.OUT ? this : otherTerminal;
+            var end = this.type === constants_1.TerminalType.IN ? this : otherTerminal;
+            if (end.connectors.length > 0 && start.connectors.includes(end.connectors[0]))
+                return false;
+        }
+        if (utils_1.canConnect(this, otherTerminal, this.node.flow.rules, this.node.flow.executionGraph)) {
+            var newConnector = new connector_1.Connector(this.node.flow, this.type === constants_1.TerminalType.OUT ? this : otherTerminal, this.type === constants_1.TerminalType.IN ? this : otherTerminal, null, style);
+            this.node.flow.connectors[newConnector.id] = newConnector;
+            return true;
+        }
+        else
+            return false;
+    };
     Terminal.prototype.offUIRender = function () {
-        this.node.offUIContext.save();
-        this.node.offUIContext.beginPath();
-        this.node.offUIContext.arc(this.position.x, this.position.y, this.style.radius + this.node.style.terminalStripMargin, 0, 2 * Math.PI);
-        this.node.offUIContext.fillStyle = this.hitColor.rgbaCSSString;
-        this.node.offUIContext.fill();
-        this.node.offUIContext.restore();
+        var context = this.node.offUIContext;
+        context.save();
+        context.beginPath();
+        context.arc(this.position.x, this.position.y, this.style.radius + this.node.style.terminalStripMargin, 0, 2 * Math.PI);
+        context.fillStyle = this.hitColor.rgbaCSSString;
+        context.fill();
+        context.restore();
     };
     Terminal.prototype.onEnter = function (screenPosition, realPosition) {
         this.call('enter', this, screenPosition, realPosition);
@@ -1752,8 +1849,9 @@ var Terminal = (function (_super) {
         this.call('rightclick', this);
     };
     Terminal.prototype.onEvent = function (data) {
-        if (this.type === constants_1.TerminalType.IN && this.eventCallback)
-            this.eventCallback(data);
+        if (this.type === constants_1.TerminalType.IN) {
+            this.call('event', this, data);
+        }
     };
     Terminal.prototype.emit = function (data) {
         if (this.type === constants_1.TerminalType.OUT && this.connectors.length !== 0) {
@@ -1773,7 +1871,7 @@ var Terminal = (function (_super) {
         };
     };
     Terminal.deSerialize = function (node, data) {
-        return new Terminal(node, data.type, data.dataType, data.name, data.style, null, data.id, color_1.Color.deSerialize(data.hitColor));
+        return new Terminal(node, data.type, data.dataType, data.name, data.style, data.id, color_1.Color.deSerialize(data.hitColor));
     };
     return Terminal;
 }(hooks_1.Hooks));
@@ -1794,6 +1892,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1806,8 +1906,8 @@ var color_1 = __webpack_require__(278);
 var node_1 = __webpack_require__(55);
 var TunnelNode = (function (_super) {
     __extends(TunnelNode, _super);
-    function TunnelNode(flow, nodeName, position, width, inputs, outputs, style, terminalStyle, props, id, hitColor) {
-        var _this = _super.call(this, flow, nodeName, position, width, inputs, outputs, style, terminalStyle, props, id, hitColor) || this;
+    function TunnelNode(flow, name, position, width, inputs, outputs, style, terminalStyle, props, id, hitColor) {
+        var _this = _super.call(this, flow, name, position, width, inputs, outputs, style, terminalStyle, props, id, hitColor) || this;
         if (_this.inputs.length > 0) {
             _this.inputs[0].on('data', function (data) {
                 _this.proxyTerminal['setData'](data);
@@ -1875,11 +1975,24 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
@@ -1896,22 +2009,26 @@ var index_1 = __webpack_require__(676);
 var vector_1 = __webpack_require__(281);
 var constants_1 = __webpack_require__(522);
 var utils_1 = __webpack_require__(974);
+var constants_2 = __webpack_require__(522);
+var logger_1 = __webpack_require__(645);
 var FlowConnect = (function (_super) {
     __extends(FlowConnect, _super);
     function FlowConnect(mount, width, height) {
         var _this = _super.call(this) || this;
         _this.canvasDimensions = { top: 0, left: 0, width: 0, height: 0 };
+        _this.flows = [];
         _this.pointers = [];
         _this.keymap = {};
         _this.touchControls = { 'CreateGroup': false };
+        _this.genericInput = document.createElement('input');
         _this.minScale = 0.1;
         _this.maxScale = 5;
         _this.wheelScaleDelta = 1.05;
         _this.pinchScaleDelta = 1.02;
-        _this.genericInput = document.createElement('input');
-        _this.transform = new DOMMatrix();
+        _this._transform = new DOMMatrix();
         _this.inverseTransform = new DOMMatrix();
         _this.identity = new DOMMatrix();
+        _this.startTime = -1;
         _this.prepareCanvas(mount, width, height);
         _this.setupHitCanvas();
         _this.calculateCanvasDimension();
@@ -1922,17 +2039,54 @@ var FlowConnect = (function (_super) {
         _this.setGenericInput();
         return _this;
     }
+    Object.defineProperty(FlowConnect.prototype, "context", {
+        get: function () { return this._context; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(FlowConnect.prototype, "offContext", {
+        get: function () { return this._offContext; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(FlowConnect.prototype, "offUIContext", {
+        get: function () { return this._offUIContext; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(FlowConnect.prototype, "offGroupContext", {
+        get: function () { return this._offGroupContext; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
     Object.defineProperty(FlowConnect.prototype, "cursor", {
-        get: function () { return this.canvasElement.style.cursor; },
-        set: function (cursor) { this.canvasElement.style.cursor = cursor; },
+        get: function () { return this.canvas.style.cursor; },
+        set: function (cursor) { this.canvas.style.cursor = cursor; },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(FlowConnect.prototype, "scale", {
-        get: function () { return this.transform.a; },
+        get: function () { return this._transform.a; },
         enumerable: false,
         configurable: true
     });
+    ;
+    Object.defineProperty(FlowConnect.prototype, "transform", {
+        get: function () { return this._transform; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(FlowConnect.prototype, "time", {
+        get: function () { return (this.startTime < 0) ? this.startTime : (performance.now() - this.startTime); },
+        enumerable: false,
+        configurable: true
+    });
+    ;
     FlowConnect.prototype.registerChangeListeners = function () {
         var _this = this;
         var throttle = false;
@@ -1948,71 +2102,74 @@ var FlowConnect = (function (_super) {
         var resizeObserver = new ResizeObserver(function () {
             _this.calculateCanvasDimension();
         });
-        resizeObserver.observe(this.canvasElement);
+        resizeObserver.observe(this.canvas);
     };
     FlowConnect.prototype.prepareCanvas = function (mount, width, height) {
         if (!mount) {
-            this.canvasElement = document.createElement('canvas');
-            this.canvasElement.width = document.body.clientWidth;
-            this.canvasElement.height = document.body.clientHeight;
-            document.body.appendChild(this.canvasElement);
+            this.canvas = document.createElement('canvas');
+            this.canvas.width = document.body.clientWidth;
+            this.canvas.height = document.body.clientHeight;
+            document.body.appendChild(this.canvas);
         }
         else if (mount instanceof HTMLDivElement) {
-            this.canvasElement = document.createElement('canvas');
+            this.canvas = document.createElement('canvas');
             if (width && height) {
-                this.canvasElement.width = width;
-                this.canvasElement.height = height;
+                this.canvas.width = width;
+                this.canvas.height = height;
             }
             else {
-                this.canvasElement.width = mount.clientWidth;
-                this.canvasElement.height = mount.clientHeight;
+                this.canvas.width = mount.clientWidth;
+                this.canvas.height = mount.clientHeight;
             }
-            mount.appendChild(this.canvasElement);
+            mount.appendChild(this.canvas);
+        }
+        else if (mount instanceof HTMLCanvasElement) {
+            this.canvas = mount;
+            if (width && height) {
+                this.canvas.width = width;
+                this.canvas.height = height;
+            }
         }
         else {
-            this.canvasElement = mount;
-            if (width && height) {
-                this.canvasElement.width = width;
-                this.canvasElement.height = height;
-            }
+            logger_1.Log.error('mount provided is not of type HTMLDivElement or HTMLCanvasElement');
         }
-        this.context = this.canvasElement.getContext('2d');
+        this._context = this.canvas.getContext('2d');
     };
     FlowConnect.prototype.setupHitCanvas = function () {
         if (typeof OffscreenCanvas !== 'undefined' && typeof OffscreenCanvasRenderingContext2D !== 'undefined') {
-            this.offCanvasElement = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
-            this.offUICanvasElement = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
-            this.offGroupCanvasElement = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
+            this.offCanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
+            this.offUICanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
+            this.offGroupCanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
         }
         else {
-            this.offCanvasElement = document.createElement('canvas');
-            this.offUICanvasElement = document.createElement('canvas');
-            this.offGroupCanvasElement = document.createElement('canvas');
+            this.offCanvas = document.createElement('canvas');
+            this.offUICanvas = document.createElement('canvas');
+            this.offGroupCanvas = document.createElement('canvas');
         }
-        this.offContext = this.offCanvasElement.getContext('2d');
-        this.offUIContext = this.offUICanvasElement.getContext('2d');
-        this.offGroupContext = this.offGroupCanvasElement.getContext('2d');
+        this._offContext = this.offCanvas.getContext('2d');
+        this._offUIContext = this.offUICanvas.getContext('2d');
+        this._offGroupContext = this.offGroupCanvas.getContext('2d');
     };
     FlowConnect.prototype.attachStyles = function () {
-        this.canvasElement.style.touchAction = 'none';
+        this.canvas.style.touchAction = 'none';
         var inputStyle = document.createElement('style');
         inputStyle.innerHTML = 'input.flow-connect-input { position: fixed; visibility: hidden; pointer-events: none; z-index: 100; border: none; border-radius: 0; box-sizing: border-box;} input.flow-connect-input:focus { outline: none; }';
         document.getElementsByTagName('head')[0].appendChild(inputStyle);
     };
     FlowConnect.prototype.calculateCanvasDimension = function () {
-        var boundingRect = this.canvasElement.getBoundingClientRect();
+        var boundingRect = this.canvas.getBoundingClientRect();
         this.canvasDimensions = {
             top: Math.round(boundingRect.top - window.scrollY),
             left: Math.round(boundingRect.left - window.scrollX),
             width: Math.round(boundingRect.width),
             height: Math.round(boundingRect.height)
         };
-        this.offCanvasElement.width = this.canvasDimensions.width;
-        this.offCanvasElement.height = this.canvasDimensions.height;
-        this.offUICanvasElement.width = this.canvasDimensions.width;
-        this.offUICanvasElement.height = this.canvasDimensions.height;
-        this.offGroupCanvasElement.width = this.canvasDimensions.width;
-        this.offGroupCanvasElement.height = this.canvasDimensions.height;
+        this.offCanvas.width = this.canvasDimensions.width;
+        this.offCanvas.height = this.canvasDimensions.height;
+        this.offUICanvas.width = this.canvasDimensions.width;
+        this.offUICanvas.height = this.canvasDimensions.height;
+        this.offGroupCanvas.width = this.canvasDimensions.width;
+        this.offGroupCanvas.height = this.canvasDimensions.height;
     };
     FlowConnect.prototype.polyfill = function () {
         CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
@@ -2041,11 +2198,6 @@ var FlowConnect = (function (_super) {
             this.fill();
         };
     };
-    FlowConnect.prototype.createFlow = function (options) {
-        if (options === void 0) { options = { name: 'New Flow', rules: {}, terminalTypeColors: {} }; }
-        Object.keys(constants_1.Constant.DefaultRules).forEach(function (key) { return options.rules[key] = constants_1.Constant.DefaultRules[key]; });
-        return new index_1.Flow(this, options.name, options.rules, options.terminalTypeColors);
-    };
     FlowConnect.prototype.registerEvents = function () {
         var _this = this;
         var dragDelta;
@@ -2057,7 +2209,7 @@ var FlowConnect = (function (_super) {
         window.onkeyup = function (ev) {
             _this.keymap[ev.key] = false;
         };
-        this.canvasElement.onpointerdown = function (ev) {
+        this.canvas.onpointerdown = function (ev) {
             if (!_this.currFlow)
                 return;
             _this.addPointer(ev.pointerId, _this.getRelativePosition(ev));
@@ -2065,7 +2217,7 @@ var FlowConnect = (function (_super) {
                 prevPanPosition = _this.pointers[0].screenPosition;
                 _this.currHitNode = _this.getHitNode(_this.pointers[0].screenPosition);
                 if (_this.currHitNode) {
-                    _this.currHitNode.zIndex = Infinity;
+                    _this.currHitNode.zIndex = Number.MAX_SAFE_INTEGER;
                     if (_this.keymap['Control']) {
                         _this.currHitNode.focused = !_this.currHitNode.focused;
                     }
@@ -2097,7 +2249,7 @@ var FlowConnect = (function (_super) {
                 }
             }
         };
-        this.canvasElement.onpointerup = function (ev) {
+        this.canvas.onpointerup = function (ev) {
             if (!_this.currFlow)
                 return;
             _this.removePointer(_this.pointers, ev);
@@ -2122,7 +2274,7 @@ var FlowConnect = (function (_super) {
             if (_this.floatingConnector)
                 _this.handleConnection(hitNode, screenPosition, realPosition);
         };
-        this.canvasElement.onpointerout = function (ev) {
+        this.canvas.onpointerout = function (ev) {
             if (!_this.currFlow)
                 return;
             _this.removePointer(_this.pointers, ev);
@@ -2151,7 +2303,7 @@ var FlowConnect = (function (_super) {
                 _this.prevHitNode = null;
             }
         };
-        this.canvasElement.onpointermove = function (ev) {
+        this.canvas.onpointermove = function (ev) {
             if (!_this.currFlow)
                 return;
             var screenPosition = _this.getRelativePosition(ev);
@@ -2168,10 +2320,10 @@ var FlowConnect = (function (_super) {
             }
             if (_this.currGroup) {
                 if (realPosition.x < _this.groupStartPoint.x)
-                    _this.currGroup._position.x = realPosition.x;
+                    _this.currGroup.position.x = realPosition.x;
                 _this.currGroup.width = Math.abs(_this.groupStartPoint.x - realPosition.x);
                 if (realPosition.y < _this.groupStartPoint.y)
-                    _this.currGroup._position.y = realPosition.y;
+                    _this.currGroup.position.y = realPosition.y;
                 _this.currGroup.height = Math.abs(_this.groupStartPoint.y - realPosition.y);
             }
             if (_this.currHitNode) {
@@ -2180,8 +2332,8 @@ var FlowConnect = (function (_super) {
                     _this.currHitNode.position = realPosition.add(dragDelta);
                     var hitGroup = _this.getHitGroup(screenPosition);
                     if (hitGroup && hitGroup === _this.currHitNode.group) {
-                        var groupRealPos = hitGroup.position.transform(_this.transform);
-                        var nodeRealPos = _this.currHitNode.position.transform(_this.transform);
+                        var groupRealPos = hitGroup.position.transform(_this._transform);
+                        var nodeRealPos = _this.currHitNode.position.transform(_this._transform);
                         var intersection = utils_1.intersects(groupRealPos.x, groupRealPos.y, groupRealPos.x + hitGroup.width * _this.scale, groupRealPos.y + hitGroup.height * _this.scale, nodeRealPos.x, nodeRealPos.y, nodeRealPos.x + _this.currHitNode.width * _this.scale, nodeRealPos.y + _this.currHitNode.ui.height * _this.scale);
                         if (intersection === constants_1.ViewPort.INSIDE) {
                             var nodeIndex = hitGroup.nodes.findIndex(function (node) { return node.id === _this.currHitNode.id; });
@@ -2214,7 +2366,7 @@ var FlowConnect = (function (_super) {
                 _this.prevHitNode = hitNode;
             }
         };
-        this.canvasElement.onclick = function (ev) {
+        this.canvas.onclick = function (ev) {
             if (!_this.currFlow)
                 return;
             var screenPosition = _this.getRelativePosition(ev);
@@ -2226,7 +2378,7 @@ var FlowConnect = (function (_super) {
                 hitGroup && hitGroup.onClick(screenPosition.clone(), realPosition.clone());
             }
         };
-        this.canvasElement.oncontextmenu = function (ev) {
+        this.canvas.oncontextmenu = function (ev) {
             if (!_this.currFlow)
                 return;
             ev.preventDefault();
@@ -2237,7 +2389,7 @@ var FlowConnect = (function (_super) {
                 _this.currFlow.removeAllFocus();
             hitNode && (hitNode.focused = true);
         };
-        this.canvasElement.onwheel = function (ev) {
+        this.canvas.onwheel = function (ev) {
             if (!_this.currFlow)
                 return;
             _this.handleZoom(ev.deltaY < 0, _this.getRelativePosition(ev), _this.wheelScaleDelta);
@@ -2278,7 +2430,7 @@ var FlowConnect = (function (_super) {
         }
     };
     FlowConnect.prototype.handleZoom = function (zoomIn, origin, scaleDelta) {
-        if ((this.transform.a >= this.maxScale && zoomIn) || (this.transform.a <= this.minScale && !zoomIn))
+        if ((this._transform.a >= this.maxScale && zoomIn) || (this._transform.a <= this.minScale && !zoomIn))
             return;
         this.updateTransform(zoomIn ? scaleDelta : (1 / scaleDelta), origin, null);
     };
@@ -2287,8 +2439,8 @@ var FlowConnect = (function (_super) {
         var hitGroup = this.getHitGroup(screenPosition);
         var intersection;
         if (hitGroup) {
-            var groupRealPos = hitGroup.position.transform(this.transform);
-            var nodeRealPos = this.currHitNode.position.transform(this.transform);
+            var groupRealPos = hitGroup.position.transform(this._transform);
+            var nodeRealPos = this.currHitNode.position.transform(this._transform);
             intersection = utils_1.intersects(groupRealPos.x, groupRealPos.y, groupRealPos.x + hitGroup.width * this.scale, groupRealPos.y + hitGroup.height * this.scale, nodeRealPos.x, nodeRealPos.y, nodeRealPos.x + this.currHitNode.width * this.scale, nodeRealPos.y + this.currHitNode.ui.height * this.scale);
         }
         if (this.currHitNode.group) {
@@ -2320,7 +2472,7 @@ var FlowConnect = (function (_super) {
             this.fallbackConnection();
             return;
         }
-        var hitTerminal = hitNode.getHitTerminal(index_1.Color.rgbaToString(this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data), screenPosition.clone(), realPosition.clone());
+        var hitTerminal = hitNode.getHitTerminal(index_1.Color.rgbaToString(this._offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data), screenPosition.clone(), realPosition.clone());
         if (hitTerminal)
             hitNode.currHitTerminal = hitTerminal;
         if (!hitTerminal) {
@@ -2367,19 +2519,19 @@ var FlowConnect = (function (_super) {
     FlowConnect.prototype.updateTransform = function (scale, scaleOrigin, translate) {
         if (scale) {
             var realSpaceOrigin = scaleOrigin.transform(this.inverseTransform);
-            this.transform
+            this._transform
                 .translateSelf(realSpaceOrigin.x, realSpaceOrigin.y)
                 .scaleSelf(scale, scale)
                 .translateSelf(-realSpaceOrigin.x, -realSpaceOrigin.y);
         }
         if (translate) {
-            this.transform.translateSelf(translate.x, translate.y);
+            this._transform.translateSelf(translate.x, translate.y);
         }
-        this.inverseTransform = this.transform.inverse();
-        this.context.setTransform(this.transform);
-        this.offContext.setTransform(this.transform);
-        this.offUIContext.setTransform(this.transform);
-        this.offGroupContext.setTransform(this.transform);
+        this.inverseTransform = this._transform.inverse();
+        this._context.setTransform(this._transform);
+        this._offContext.setTransform(this._transform);
+        this._offUIContext.setTransform(this._transform);
+        this._offGroupContext.setTransform(this._transform);
         this.call('transform', this);
     };
     FlowConnect.prototype.fallbackConnection = function () {
@@ -2397,33 +2549,69 @@ var FlowConnect = (function (_super) {
         pointers.splice(pointers.findIndex(function (pointer) { return pointer.id === ev.pointerId; }), 1);
     };
     FlowConnect.prototype.getHitNode = function (position) {
-        var rgbaString = index_1.Color.rgbaToString(this.offContext.getImageData(position.x, position.y, 1, 1).data);
+        var rgbaString = index_1.Color.rgbaToString(this._offContext.getImageData(position.x, position.y, 1, 1).data);
         return this.currFlow.hitColorToNode[rgbaString];
     };
     FlowConnect.prototype.getHitGroup = function (position) {
-        var rgbaString = index_1.Color.rgbaToString(this.offGroupContext.getImageData(position.x, position.y, 1, 1).data);
+        var rgbaString = index_1.Color.rgbaToString(this._offGroupContext.getImageData(position.x, position.y, 1, 1).data);
         return this.currFlow.hitColorToGroup[rgbaString];
     };
     FlowConnect.prototype.clear = function () {
-        this.context.save();
-        this.context.setTransform(this.identity);
-        this.context.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
-        this.context.restore();
-        this.offContext.save();
-        this.offContext.setTransform(this.identity);
-        this.offContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
-        this.offContext.restore();
-        this.offUIContext.save();
-        this.offUIContext.setTransform(this.identity);
-        this.offUIContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
-        this.offUIContext.restore();
-        this.offGroupContext.save();
-        this.offGroupContext.setTransform(this.identity);
-        this.offGroupContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
-        this.offGroupContext.restore();
+        this._context.save();
+        this._context.setTransform(this.identity);
+        this._context.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
+        this._context.restore();
+        this._offContext.save();
+        this._offContext.setTransform(this.identity);
+        this._offContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
+        this._offContext.restore();
+        this._offUIContext.save();
+        this._offUIContext.setTransform(this.identity);
+        this._offUIContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
+        this._offUIContext.restore();
+        this._offGroupContext.save();
+        this._offGroupContext.setTransform(this.identity);
+        this._offGroupContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
+        this._offGroupContext.restore();
     };
-    FlowConnect.prototype.top = function () {
-        this.render(this.rootFlow);
+    FlowConnect.prototype.startGlobalTime = function () {
+        if (this.startTime < 0) {
+            this.startTime = performance.now();
+            this._startGlobalTime();
+        }
+    };
+    FlowConnect.prototype._startGlobalTime = function () {
+        this.call('tick', this);
+        this.timerId = window.requestAnimationFrame(this._startGlobalTime.bind(this));
+    };
+    FlowConnect.prototype.stopGlobalTime = function () {
+        var allFlowsStopped = true;
+        for (var _i = 0, _a = this.flows; _i < _a.length; _i++) {
+            var flow = _a[_i];
+            if (flow.state !== constants_2.FlowState.Stopped) {
+                allFlowsStopped = false;
+                break;
+            }
+        }
+        if (allFlowsStopped) {
+            cancelAnimationFrame(this.timerId);
+            this.startTime = -1;
+            this.call('tickreset', this);
+        }
+    };
+    FlowConnect.prototype._render = function () {
+        this.clear();
+        this.currGroup && this.currGroup.render();
+        this.currFlow.render();
+        this.call('update', this);
+        this.frameId = window.requestAnimationFrame(this._render.bind(this));
+    };
+    FlowConnect.prototype.createFlow = function (options) {
+        if (options === void 0) { options = { name: 'New Flow', rules: {}, terminalTypeColors: {} }; }
+        options.rules = __assign(__assign({}, options.rules), constants_1.Constant.DefaultRules);
+        var flow = new index_1.Flow(this, options.name, options.rules, options.terminalTypeColors);
+        this.flows.push(flow);
+        return flow;
     };
     FlowConnect.prototype.render = function (flow) {
         if (flow === this.currFlow)
@@ -2438,12 +2626,8 @@ var FlowConnect = (function (_super) {
         this.currFlow = flow;
         this._render();
     };
-    FlowConnect.prototype._render = function () {
-        this.clear();
-        this.currGroup && this.currGroup.render();
-        this.currFlow.render();
-        this.call('update', this);
-        this.frameId = window.requestAnimationFrame(this._render.bind(this));
+    FlowConnect.prototype.top = function () {
+        this.render(this.rootFlow);
     };
     FlowConnect.prototype.fromJson = function (json) {
         var data;
@@ -2453,7 +2637,7 @@ var FlowConnect = (function (_super) {
             flow = index_1.Flow.deSerialize(this, data);
         }
         catch (error) {
-            console.log(error);
+            logger_1.Log.error(error);
         }
         return flow;
     };
@@ -2463,7 +2647,7 @@ var FlowConnect = (function (_super) {
             return JSON.stringify(serializedFlow, null);
         }
         catch (error) {
-            console.log(error);
+            logger_1.Log.error(error);
         }
     };
     return FlowConnect;
@@ -2487,8 +2671,15 @@ var vector_1 = __webpack_require__(281);
 var Constant = (function () {
     function Constant() {
     }
-    Constant.TAU = (Math.PI / 180);
-    Constant.DefaultRules = { 'string': ['string'], 'number': ['number'], 'boolean': ['boolean'], 'file': ['file'], 'event': ['event'] };
+    Constant.TAU = 0.017453292519943295;
+    Constant.DefaultRules = {
+        'string': ['string', 'any'],
+        'number': ['number', 'any'],
+        'boolean': ['boolean', 'any'],
+        'file': ['file', 'any'],
+        'event': ['event', 'any'],
+        'any': ['any']
+    };
     Constant.DefaultGroupColors = {
         colors: [
             ['rgba(239, 134, 119, 1)', 'rgba(239, 134, 119, .5)'],
@@ -2498,7 +2689,7 @@ var Constant = (function () {
         RED: function () { return Constant.DefaultGroupColors.colors[0]; },
         GREEN: function () { return Constant.DefaultGroupColors.colors[1]; },
         BLUE: function () { return Constant.DefaultGroupColors.colors[2]; },
-        Random: function () { return Constant.DefaultGroupColors.colors[Math.floor(Math.random() * (Constant.DefaultGroupColors.colors.length - 1))]; }
+        Random: function () { return Constant.DefaultGroupColors.colors[Math.floor(Math.random() * Constant.DefaultGroupColors.colors.length)]; }
     };
     Constant.DefaultNodeStyle = function () {
         return {
@@ -2622,9 +2813,9 @@ var Constant = (function () {
 exports.Constant = Constant;
 var ViewPort;
 (function (ViewPort) {
-    ViewPort[ViewPort["INSIDE"] = 0] = "INSIDE";
-    ViewPort[ViewPort["OUTSIDE"] = 1] = "OUTSIDE";
-    ViewPort[ViewPort["INTERSECT"] = 2] = "INTERSECT";
+    ViewPort["INSIDE"] = "INSIDE";
+    ViewPort["OUTSIDE"] = "OUTSIDE";
+    ViewPort["INTERSECT"] = "INTERSECT";
 })(ViewPort = exports.ViewPort || (exports.ViewPort = {}));
 var NodeState;
 (function (NodeState) {
@@ -2704,19 +2895,18 @@ __exportStar(__webpack_require__(281), exports);
 /***/ }),
 
 /***/ 281:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Vector2 = void 0;
-var constants_1 = __webpack_require__(522);
 var Vector2 = (function () {
     function Vector2(xOrDOMPoint, y) {
         var _a, _b;
         if (xOrDOMPoint instanceof DOMPoint)
             _a = [xOrDOMPoint.x, xOrDOMPoint.y], this.x = _a[0], this.y = _a[1];
         else
-            _b = [xOrDOMPoint, y], this.x = _b[0], this.y = _b[1];
+            _b = [xOrDOMPoint || 0, y || 0], this.x = _b[0], this.y = _b[1];
     }
     Vector2.prototype.toString = function () {
         return '[' + this.x.toFixed(3) + ', ' + this.y.toFixed(3) + ']';
@@ -2797,21 +2987,6 @@ var Vector2 = (function () {
             this.x -= arg1;
             this.y -= arg2;
         }
-    };
-    Vector2.prototype.rotate = function (pivot, degrees) {
-        degrees = degrees * constants_1.Constant.TAU;
-        var cosT = Math.cos(degrees);
-        var sinT = Math.sin(degrees);
-        return new Vector2((cosT * (this.x - pivot.x)) - (sinT * (this.y - pivot.y)) + pivot.x, (sinT * (this.x - pivot.x)) + (cosT * (this.y - pivot.y)) + pivot.y);
-    };
-    Vector2.prototype.rotateInPlace = function (pivot, degrees) {
-        degrees = degrees * constants_1.Constant.TAU;
-        var cosT = Math.cos(degrees);
-        var sinT = Math.sin(degrees);
-        this.tmpX = (cosT * (this.x - pivot.x)) - (sinT * (this.y - pivot.y)) + pivot.x;
-        this.tmpY = (sinT * (this.x - pivot.x)) + (cosT * (this.y - pivot.y)) + pivot.y;
-        this.x = this.tmpX;
-        this.y = this.tmpY;
         return this;
     };
     Vector2.prototype.transform = function (transform) {
@@ -2821,6 +2996,7 @@ var Vector2 = (function () {
         var _a;
         var transformedPoint = transform.transformPoint(this);
         _a = [transformedPoint.x, transformedPoint.y], this.x = _a[0], this.y = _a[1];
+        return this;
     };
     Vector2.prototype.max = function () {
         return Math.max(this.x, this.y);
@@ -2831,16 +3007,13 @@ var Vector2 = (function () {
     Vector2.prototype.clamp = function (minX, maxX, minY, maxY) {
         if (this.x < minX)
             this.x = minX;
-        if (this.x > maxX)
+        else if (this.x > maxX)
             this.x = maxX;
         if (this.y < minY)
             this.y = minY;
-        if (this.y > maxY)
+        else if (this.y > maxY)
             this.y = maxY;
         return this;
-    };
-    Vector2.Midpoint = function (vector1, vector2) {
-        return new Vector2((vector1.x + vector2.x) / 2, (vector1.y + vector2.y) / 2);
     };
     Vector2.Distance = function (vector1OrX1, vector2OrY1, x2, y2) {
         if (vector1OrX1 instanceof Vector2 && vector2OrY1 instanceof Vector2) {
@@ -2850,41 +3023,14 @@ var Vector2 = (function () {
             return Math.sqrt(Math.pow(x2 - vector1OrX1, 2) + Math.pow(y2 - vector2OrY1, 2));
         }
     };
+    Vector2.Midpoint = function (vector1, vector2) {
+        return new Vector2((vector1.x + vector2.x) / 2, (vector1.y + vector2.y) / 2);
+    };
     Vector2.Zero = function () {
         return new Vector2(0, 0);
     };
-    Vector2.One = function () {
-        return new Vector2(1, 1);
-    };
-    Vector2.Bounds = function (vectors) {
-        var minVec = new Vector2(Number.MAX_VALUE, Number.MAX_VALUE);
-        var maxVec = new Vector2(Number.MIN_VALUE, Number.MIN_VALUE);
-        vectors.forEach(function (vector) {
-            if (vector.x < minVec.x)
-                minVec.x = vector.x;
-            if (vector.y < minVec.y)
-                minVec.y = vector.y;
-            if (vector.x > maxVec.x)
-                maxVec.x = vector.x;
-            if (vector.y > maxVec.y)
-                maxVec.y = vector.y;
-        });
-        return [minVec, maxVec];
-    };
-    Vector2.Average = function (vectors) {
-        var sumX = 0;
-        var sumY = 0;
-        vectors.forEach(function (vector) {
-            sumX += vector.x;
-            sumY += vector.y;
-        });
-        return new Vector2(sumX / vectors.length, sumY / vectors.length);
-    };
     Vector2.Random = function (minX, maxX, minY, maxY) {
         return new Vector2(Math.random() * (maxX - minX) + minX, Math.random() * (maxY - minY) + minY);
-    };
-    Vector2.Lerp = function (start, end, amount) {
-        return new Vector2(start.x + ((end.x - start.x) * amount), start.y + ((end.y - start.y) * amount));
     };
     Vector2.prototype.serialize = function () {
         return { x: this.x, y: this.y };
@@ -2922,6 +3068,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -2952,14 +3100,16 @@ var Button = (function (_super) {
         if (style === void 0) { style = {}; }
         var _this = _super.call(this, node, vector_1.Vector2.Zero(), constants_1.UIType.Button, false, __assign(__assign({}, constants_1.Constant.DefaultButtonStyle()), style), null, input ?
             (typeof input === 'boolean' ?
-                new terminal_1.Terminal(node, constants_1.TerminalType.IN, 'event', '', {}, function () { return _this.call('click', _this); }) :
-                new terminal_1.Terminal(node, input.type, input.dataType, input.name, input.style, function () { return _this.call('click', _this); }, input.id, color_1.Color.deSerialize(input.hitColor))) :
+                new terminal_1.Terminal(node, constants_1.TerminalType.IN, 'event', '', {}) :
+                new terminal_1.Terminal(node, input.type, input.dataType, input.name, input.style, input.id, color_1.Color.deSerialize(input.hitColor))) :
             null, output ?
             (typeof output === 'boolean' ?
                 new terminal_1.Terminal(node, constants_1.TerminalType.OUT, 'event', '', {}) :
                 terminal_1.Terminal.deSerialize(node, output)) :
             null, id, hitColor) || this;
         _this.text = text;
+        if (_this.input)
+            _this.input.on('event', function () { return _this.call('click', _this); });
         _this.height = height ? height : (_this.node.style.rowHeight + 2 * _this.style.padding);
         _this.label = new label_1.Label(_this.node, text, null, false, false, {
             fontSize: _this.style.fontSize,
@@ -3074,6 +3224,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -3117,24 +3269,26 @@ var Container = (function (_super) {
         return _this;
     }
     Container.prototype.paint = function () {
-        this.context.shadowColor = this.style.shadowColor;
-        this.context.shadowBlur = 3;
-        this.context.shadowOffsetX = this.style.shadowOffset.x;
-        this.context.shadowOffsetY = this.style.shadowOffset.y;
-        this.context.fillStyle = this.style.backgroundColor;
-        this.context.strokeStyle = this.style.borderColor;
-        this.context.lineWidth = this.style.borderWidth;
-        this.context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
-        this.context.stroke();
-        this.context.fill();
+        var context = this.context;
+        context.shadowColor = this.style.shadowColor;
+        context.shadowBlur = 3;
+        context.shadowOffsetX = this.style.shadowOffset.x;
+        context.shadowOffsetY = this.style.shadowOffset.y;
+        context.fillStyle = this.style.backgroundColor;
+        context.strokeStyle = this.style.borderColor;
+        context.lineWidth = this.style.borderWidth;
+        context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
+        context.stroke();
+        context.fill();
     };
     Container.prototype.paintLOD1 = function () {
-        this.context.fillStyle = this.style.backgroundColor;
-        this.context.strokeStyle = this.style.borderColor;
-        this.context.lineWidth = this.style.borderWidth;
-        this.context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
-        this.context.stroke();
-        this.context.fill();
+        var context = this.context;
+        context.fillStyle = this.style.backgroundColor;
+        context.strokeStyle = this.style.borderColor;
+        context.lineWidth = this.style.borderWidth;
+        context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
+        context.stroke();
+        context.fill();
     };
     Container.prototype.offPaint = function () {
         this.offUIContext.fillStyle = this.hitColor.hexValue;
@@ -3237,6 +3391,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -3261,33 +3417,59 @@ var vector_1 = __webpack_require__(281);
 var ui_node_1 = __webpack_require__(681);
 var Display = (function (_super) {
     __extends(Display, _super);
-    function Display(node, height, render, style, id, hitColor) {
+    function Display(node, height, renderer, style, id, hitColor) {
         if (style === void 0) { style = {}; }
         var _this = _super.call(this, node, vector_1.Vector2.Zero(), constants_1.UIType.Display, false, __assign(__assign({}, constants_1.Constant.DefaultDisplayStyle()), style), null, null, null, id, hitColor) || this;
-        _this.customRender = render;
+        _this._rendering = false;
+        _this.customRenderer = renderer;
         _this.height = height;
+        if (typeof OffscreenCanvas !== 'undefined' && typeof OffscreenCanvasRenderingContext2D !== 'undefined') {
+            _this.offCanvas = new OffscreenCanvas(_this.node.width - 2 * _this.node.style.padding, _this.height);
+            _this.offContext = _this.offCanvas.getContext('2d');
+        }
+        else {
+            _this.offCanvas = document.createElement('canvas');
+            _this.offCanvas.width = _this.node.width - 2 * _this.node.style.padding;
+            _this.offCanvas.height = _this.height;
+            _this.offContext = _this.offCanvas.getContext('2d');
+        }
         return _this;
     }
+    Display.prototype.customRender = function () {
+        var _this = this;
+        return new Promise(function (resolve) {
+            _this.offContext.clearRect(0, 0, _this.offCanvas.width, _this.offCanvas.height);
+            _this.customRenderer(_this.offContext, _this.offCanvas.width, _this.offCanvas.height);
+            resolve();
+        });
+    };
     Display.prototype.paint = function () {
-        this.context.strokeStyle = this.style.borderColor;
-        this.context.lineWidth = 1;
-        this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-        this.context.strokeStyle = null;
-        this.context.translate(this.position.x, this.position.y);
-        this.customRender(this.context, this.width, this.height);
-        this.context.resetTransform();
+        var _this = this;
+        var context = this.context;
+        context.strokeStyle = this.style.borderColor;
+        context.lineWidth = 1;
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        if (!this._rendering) {
+            this._rendering = true;
+            this.customRender().finally(function () { return _this._rendering = false; });
+        }
+        context.drawImage(this.offCanvas, 0, 0, this.offCanvas.width, this.offCanvas.height, this.position.x, this.position.y, this.node.width - 2 * this.node.style.padding, this.height);
     };
     Display.prototype.paintLOD1 = function () {
-        this.context.strokeStyle = this.style.borderColor;
-        this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-        this.context.fillStyle = 'lightgrey';
-        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        var context = this.context;
+        context.strokeStyle = this.style.borderColor;
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        context.fillStyle = 'lightgrey';
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
     Display.prototype.offPaint = function () {
         this.offUIContext.fillStyle = this.hitColor.hexValue;
         this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
-    Display.prototype.reflow = function () { };
+    Display.prototype.reflow = function () {
+        this.offCanvas.width = this.node.width - 2 * this.node.style.padding;
+        this.offCanvas.height = this.height;
+    };
     Display.prototype.onPropChange = function () { };
     Display.prototype.onOver = function (screenPosition, realPosition) {
         this.call('over', this, screenPosition, realPosition);
@@ -3348,6 +3530,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -3492,6 +3676,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -3536,7 +3722,7 @@ var Image = (function (_super) {
             _this.reflow();
             _this.node.ui.update();
         };
-        _this.source.onerror = function (error) { return logger_1.Logger.error(error); };
+        _this.source.onerror = function (error) { return logger_1.Log.error(error); };
         _this.source.src = sourceString;
         return _this;
     }
@@ -3561,10 +3747,11 @@ var Image = (function (_super) {
                 else if (this.style.align === 'right')
                     x += +(this.node.ui.contentWidth - this.source.width);
             }
-            this.context.fillStyle = 'lightgrey';
-            this.context.strokeStyle = '#000';
-            this.context.fillRect(x, this.position.y, this.width, this.height);
-            this.context.strokeRect(x, this.position.y, this.width, this.height);
+            var context = this.context;
+            context.fillStyle = 'lightgrey';
+            context.strokeStyle = '#000';
+            context.fillRect(x, this.position.y, this.width, this.height);
+            context.strokeRect(x, this.position.y, this.width, this.height);
         }
     };
     Image.prototype.offPaint = function () {
@@ -3678,6 +3865,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -3799,10 +3988,11 @@ var Input = (function (_super) {
         this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     };
     Input.prototype.paintLOD1 = function () {
-        this.context.strokeStyle = this.style.border;
-        this.context.fillStyle = this.style.backgroundColor;
-        this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        var context = this.context;
+        context.strokeStyle = this.style.border;
+        context.fillStyle = this.style.backgroundColor;
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
     Input.prototype.offPaint = function () {
         this.offUIContext.fillStyle = this.hitColor.hexValue;
@@ -3907,6 +4097,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -3985,9 +4177,10 @@ var Label = (function (_super) {
         configurable: true
     });
     Label.prototype.paint = function () {
-        this.context.fillStyle = this.style.color;
-        this.context.font = this.style.fontSize + ' ' + this.style.font;
-        this.context.textBaseline = 'top';
+        var context = this.context;
+        context.fillStyle = this.style.color;
+        context.font = this.style.fontSize + ' ' + this.style.font;
+        context.textBaseline = 'top';
         var y = this.position.y + this.height / 2 - this.textHeight / 2;
         var x = this.position.x;
         if (this.style.align === 'left') {
@@ -3999,22 +4192,24 @@ var Label = (function (_super) {
         else if (this.style.align === 'right') {
             x += this.width - this.textWidth - 5;
         }
-        this.context.fillText(this.displayText, x, y);
+        context.fillText(this.displayText, x, y);
     };
     Label.prototype.paintLOD1 = function () {
-        this.context.strokeStyle = '#000';
-        this.context.fillStyle = this.style.color;
-        this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        var context = this.context;
+        context.strokeStyle = '#000';
+        context.fillStyle = this.style.color;
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
     Label.prototype.offPaint = function () {
         this.offUIContext.fillStyle = this.hitColor.hexValue;
         this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
     Label.prototype.reflow = function () {
-        this.context.font = this.style.fontSize + ' ' + this.style.font;
-        var metrics = this.context.measureText(this.displayText);
-        this.context.font = null;
+        var context = this.context;
+        context.font = this.style.fontSize + ' ' + this.style.font;
+        var metrics = context.measureText(this.displayText);
+        context.font = null;
         this.textWidth = metrics.width;
         this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
         if (typeof this.textHeight === 'undefined') {
@@ -4115,6 +4310,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -4194,28 +4391,30 @@ var Select = (function (_super) {
         configurable: true
     });
     Select.prototype.paint = function () {
-        this.context.fillStyle = this.style.arrowColor;
-        this.context.beginPath();
-        this.context.moveTo(this.position.x, this.position.y + this.height / 2);
-        this.context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .15);
-        this.context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .85);
-        this.context.lineTo(this.position.x, this.position.y + this.height / 2);
-        this.context.closePath();
-        this.context.fill();
-        this.context.fillStyle = this.style.arrowColor;
-        this.context.beginPath();
-        this.context.moveTo(this.position.x + this.width, this.position.y + this.height / 2);
-        this.context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .15);
-        this.context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .85);
-        this.context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
-        this.context.closePath();
-        this.context.fill();
+        var context = this.context;
+        context.fillStyle = this.style.arrowColor;
+        context.beginPath();
+        context.moveTo(this.position.x, this.position.y + this.height / 2);
+        context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .15);
+        context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .85);
+        context.lineTo(this.position.x, this.position.y + this.height / 2);
+        context.closePath();
+        context.fill();
+        context.fillStyle = this.style.arrowColor;
+        context.beginPath();
+        context.moveTo(this.position.x + this.width, this.position.y + this.height / 2);
+        context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .15);
+        context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .85);
+        context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
+        context.closePath();
+        context.fill();
     };
     Select.prototype.paintLOD1 = function () {
-        this.context.fillStyle = this.style.arrowColor;
-        this.context.strokeStyle = '#000';
-        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
-        this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        var context = this.context;
+        context.fillStyle = this.style.arrowColor;
+        context.strokeStyle = '#000';
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     };
     Select.prototype.offPaint = function () {
         this.offUIContext.fillStyle = this.hitColor.hexValue;
@@ -4329,6 +4528,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -4406,33 +4607,35 @@ var Slider = (function (_super) {
         configurable: true
     });
     Slider.prototype.paint = function () {
-        this.context.lineWidth = this.style.railHeight;
-        this.context.strokeStyle = this.style.color;
-        this.context.lineCap = 'butt';
+        var context = this.context;
+        context.lineWidth = this.style.railHeight;
+        context.strokeStyle = this.style.color;
+        context.lineCap = 'butt';
         var start = Math.max(this.position.x, this.position.x + this.thumbFill - 3);
         if (start !== this.position.x) {
-            this.context.beginPath();
-            this.context.moveTo(this.position.x, this.position.y + this.height / 2);
-            this.context.lineTo(start, this.position.y + this.height / 2);
-            this.context.stroke();
+            context.beginPath();
+            context.moveTo(this.position.x, this.position.y + this.height / 2);
+            context.lineTo(start, this.position.y + this.height / 2);
+            context.stroke();
         }
         start = Math.min(this.position.x + 2 * this.style.thumbRadius + this.thumbFill + 3, this.position.x + this.width);
         if (start !== (this.position.x + this.width)) {
-            this.context.beginPath();
-            this.context.moveTo(start, this.position.y + this.height / 2);
-            this.context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
-            this.context.stroke();
+            context.beginPath();
+            context.moveTo(start, this.position.y + this.height / 2);
+            context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
+            context.stroke();
         }
-        this.context.fillStyle = this.style.thumbColor;
-        this.context.beginPath();
-        this.context.arc(this.position.x + this.style.thumbRadius + this.thumbFill, this.position.y + this.height / 2, this.style.thumbRadius, 0, 2 * Math.PI);
-        this.context.fill();
+        context.fillStyle = this.style.thumbColor;
+        context.beginPath();
+        context.arc(this.position.x + this.style.thumbRadius + this.thumbFill, this.position.y + this.height / 2, this.style.thumbRadius, 0, 2 * Math.PI);
+        context.fill();
     };
     Slider.prototype.paintLOD1 = function () {
-        this.context.strokeStyle = '#000';
-        this.context.fillStyle = this.style.color;
-        this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        var context = this.context;
+        context.strokeStyle = '#000';
+        context.fillStyle = this.style.color;
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
     Slider.prototype.offPaint = function () {
         this.offUIContext.fillStyle = this.hitColor.hexValue;
@@ -4536,6 +4739,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -4626,10 +4831,11 @@ var Source = (function (_super) {
         this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     };
     Source.prototype.paintLOD1 = function () {
-        this.context.strokeStyle = this.style.borderColor;
-        this.context.fillStyle = this.style.color;
-        this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        var context = this.context;
+        context.strokeStyle = this.style.borderColor;
+        context.fillStyle = this.style.color;
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
     Source.prototype.offPaint = function () {
         this.offUIContext.fillStyle = this.hitColor.hexValue;
@@ -4732,6 +4938,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -4803,23 +5011,25 @@ var Toggle = (function (_super) {
         configurable: true
     });
     Toggle.prototype.paint = function () {
-        this.context.strokeStyle = this.style.backgroundColor;
-        this.context.lineWidth = this.height * .75;
-        this.context.lineCap = 'round';
-        this.context.beginPath();
-        this.context.moveTo(this.position.x + this.context.lineWidth / 2, this.position.y + this.height / 2);
-        this.context.lineTo(this.position.x + this.width - this.context.lineWidth / 2, this.position.y + this.height / 2);
-        this.context.stroke();
-        this.context.fillStyle = this.style.color;
-        this.context.beginPath();
-        this.context.arc(this.checked ? this.position.x + this.width - this.height / 2 : this.position.x + this.height / 2, this.position.y + this.height / 2, this.height / 2, 0, 2 * Math.PI);
-        this.context.fill();
+        var context = this.context;
+        context.strokeStyle = this.style.backgroundColor;
+        context.lineWidth = this.height * .75;
+        context.lineCap = 'round';
+        context.beginPath();
+        context.moveTo(this.position.x + this.context.lineWidth / 2, this.position.y + this.height / 2);
+        context.lineTo(this.position.x + this.width - this.context.lineWidth / 2, this.position.y + this.height / 2);
+        context.stroke();
+        context.fillStyle = this.style.color;
+        context.beginPath();
+        context.arc(this.checked ? this.position.x + this.width - this.height / 2 : this.position.x + this.height / 2, this.position.y + this.height / 2, this.height / 2, 0, 2 * Math.PI);
+        context.fill();
     };
     Toggle.prototype.paintLOD1 = function () {
-        this.context.strokeStyle = this.style.color;
-        this.context.fillStyle = this.style.backgroundColor;
-        this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        var context = this.context;
+        context.strokeStyle = this.style.color;
+        context.fillStyle = this.style.backgroundColor;
+        context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
     };
     Toggle.prototype.offPaint = function () {
         this.offUIContext.fillStyle = this.hitColor.hexValue;
@@ -4916,6 +5126,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -4941,12 +5153,10 @@ var UINode = (function (_super) {
         _this.input = input;
         _this.output = output;
         _this.id = id;
-        _this.hitColor = hitColor;
         _this.width = 0;
         _this.height = 0;
+        _this.hitColor = hitColor;
         _this.id = utils_1.getNewGUID();
-        _this.context = _this.node.context;
-        _this.offUIContext = _this.node.offUIContext;
         _this.setHitColor(hitColor);
         _this.position = position;
         _this.children = [];
@@ -4963,10 +5173,20 @@ var UINode = (function (_super) {
             _this.node.outputsUI.push(_this.output);
         return _this;
     }
+    Object.defineProperty(UINode.prototype, "context", {
+        get: function () { return this.node.context; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(UINode.prototype, "offUIContext", {
+        get: function () { return this.node.offUIContext; },
+        enumerable: false,
+        configurable: true
+    });
+    ;
     Object.defineProperty(UINode.prototype, "disabled", {
-        get: function () {
-            return this._disabled;
-        },
+        get: function () { return this._disabled; },
         set: function (disabled) {
             this._disabled = disabled;
             this.children.forEach(function (child) { return child.disabled = disabled; });
@@ -4974,6 +5194,7 @@ var UINode = (function (_super) {
         enumerable: false,
         configurable: true
     });
+    ;
     UINode.prototype.append = function (childs) {
         var _a;
         if (Array.isArray(childs)) {
@@ -5007,24 +5228,25 @@ var UINode = (function (_super) {
     UINode.prototype.render = function () {
         if (this.renderState === constants_1.ViewPort.OUTSIDE)
             return;
+        var context = this.context;
         if (this.node.renderState.lod === constants_1.LOD.LOD1) {
-            this.context.save();
+            context.save();
             this.paintLOD1();
-            this.context.restore();
+            context.restore();
         }
         else if (this.node.renderState.lod === constants_1.LOD.LOD2) {
-            this.context.save();
+            context.save();
             this.paint();
-            this.context.restore();
+            context.restore();
             this.offUIContext.save();
             this.offPaint();
             this.offUIContext.restore();
         }
         else {
             if (this.type === constants_1.UIType.Container) {
-                this.context.save();
+                context.save();
                 this.paintLOD1();
-                this.context.restore();
+                context.restore();
             }
         }
         if (this.node.renderState.lod > 0) {
@@ -5042,151 +5264,188 @@ exports.UINode = UINode;
 
 /***/ }),
 
-/***/ 156:
+/***/ 141:
 /***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BinaryTreeNode = exports.BinarySearchTree = void 0;
-var BinarySearchTree = (function () {
-    function BinarySearchTree(comparator, dataToTreeNodeMapper) {
+exports.AVLTree = exports.AVLTreeNode = void 0;
+var AVLTreeNode = (function () {
+    function AVLTreeNode(data) {
+        this.data = data;
+        this.height = 1;
+        this.left = null;
+        this.right = null;
+    }
+    return AVLTreeNode;
+}());
+exports.AVLTreeNode = AVLTreeNode;
+var AVLTree = (function () {
+    function AVLTree(comparator, dataToTreeNodeMapper) {
         this.comparator = comparator;
         this.dataToTreeNodeMapper = dataToTreeNodeMapper;
         this.root = null;
         this.dataRefToTreeNode = {};
+        this.size = 0;
     }
-    BinarySearchTree.prototype.add = function (data) {
-        var newNode = new BinaryTreeNode(data);
-        this.dataRefToTreeNode[this.dataToTreeNodeMapper(data)] = newNode;
-        if (this.root === null)
-            this.root = newNode;
+    AVLTree.prototype.height = function (node) {
+        if (!node)
+            return 0;
+        return node.height;
+    };
+    AVLTree.prototype.rightRotate = function (node) {
+        var newRoot = node.left;
+        node.left = newRoot.right;
+        newRoot.right = node;
+        node.height = Math.max(node.left ? node.left.height : 0, node.right ? node.right.height : 0) + 1;
+        newRoot.height = Math.max(newRoot.left ? newRoot.left.height : 0, newRoot.right ? newRoot.right.height : 0) + 1;
+        return newRoot;
+    };
+    AVLTree.prototype.leftRotate = function (node) {
+        var newRoot = node.right;
+        node.right = newRoot.left;
+        newRoot.left = node;
+        node.height = Math.max(node.left ? node.left.height : 0, node.right ? node.right.height : 0) + 1;
+        newRoot.height = Math.max(newRoot.left ? newRoot.left.height : 0, newRoot.right ? newRoot.right.height : 0) + 1;
+        return newRoot;
+    };
+    AVLTree.prototype.getBalance = function (node) {
+        if (!node)
+            return 0;
+        return (node.left ? node.left.height : 0) - (node.right ? node.right.height : 0);
+    };
+    AVLTree.prototype.add = function (data) {
+        var res = { node: null };
+        this.root = this._insert(this.root, data, res);
+        this.dataRefToTreeNode[this.dataToTreeNodeMapper(data)] = res.node;
+        this.size += 1;
+        return res.node;
+    };
+    AVLTree.prototype._insert = function (node, data, res) {
+        if (!node) {
+            var newNode = new AVLTreeNode([data]);
+            res.node = newNode;
+            return newNode;
+        }
+        if (this.comparator(data, node.data[0]) === 0) {
+            node.data.push(data);
+            res.node = node;
+            return node;
+        }
+        if (this.comparator(data, node.data[0]) < 0)
+            node.left = this._insert(node.left, data, res);
         else
-            this._insert(this.root, newNode);
-    };
-    BinarySearchTree.prototype._insert = function (root, newNode) {
-        if (this.comparator(newNode.data, root.data) < 0) {
-            if (root.left === null) {
-                root.left = newNode;
-                newNode.parent = root;
-            }
-            else
-                this._insert(root.left, newNode);
+            node.right = this._insert(node.right, data, res);
+        node.height = 1 + Math.max(node.left ? node.left.height : 0, node.right ? node.right.height : 0);
+        var balance = this.getBalance(node);
+        if (balance > 1 && this.comparator(data, node.left.data[0]) < 0)
+            return this.rightRotate(node);
+        if (balance > 1 && this.comparator(data, node.left.data[0]) > 0) {
+            node.left = this.leftRotate(node.left);
+            return this.rightRotate(node);
         }
+        if (balance < -1 && this.comparator(data, node.right.data[0]) > 0)
+            return this.leftRotate(node);
+        if (balance < -1 && this.comparator(data, node.right.data[0]) < 0) {
+            node.right = this.rightRotate(node.right);
+            return this.leftRotate(node);
+        }
+        return node;
+    };
+    AVLTree.prototype.remove = function (data) {
+        var res = { deleted: false };
+        this.root = this._delete(this.root, data, res);
+        delete this.dataRefToTreeNode[this.dataToTreeNodeMapper(data)];
+        this.size -= 1;
+        return res.deleted;
+    };
+    AVLTree.prototype._delete = function (node, data, res) {
+        var _this = this;
+        if (!node)
+            return node;
+        if (this.comparator(data, node.data[0]) < 0)
+            node.left = this._delete(node.left, data, res);
+        else if (this.comparator(data, node.data[0]) > 0)
+            node.right = this._delete(node.right, data, res);
         else {
-            if (root.right === null) {
-                root.right = newNode;
-                newNode.parent = root;
-            }
-            else
-                this._insert(root.right, newNode);
-        }
-    };
-    BinarySearchTree.prototype.remove = function (dataRef) {
-        var treeNode = this.dataRefToTreeNode[this.dataToTreeNodeMapper(dataRef)];
-        if (!treeNode)
-            return false;
-        delete this.dataRefToTreeNode[this.dataToTreeNodeMapper(dataRef)];
-        if (treeNode.parent) {
-            if (treeNode.parent.left === treeNode) {
-                if (treeNode.left === null && treeNode.right === null) {
-                    treeNode.parent.left = null;
-                    return true;
+            if (node.data.length > 1) {
+                var index = node.data.findIndex(function (currData) { return _this.dataToTreeNodeMapper(currData) === _this.dataToTreeNodeMapper(data); });
+                if (index > -1) {
+                    node.data.splice(index, 1);
+                    res.deleted = true;
                 }
-                if (treeNode.left === null) {
-                    treeNode.right.parent = treeNode.parent;
-                    treeNode.parent.left = treeNode.right;
-                    return true;
+                else {
+                    res.deleted = false;
                 }
-                else if (treeNode.right === null) {
-                    treeNode.left.parent = treeNode.parent;
-                    treeNode.parent.left = treeNode.left;
-                    return true;
-                }
-                this._deleteMinNode(treeNode);
+                return node;
             }
             else {
-                if (treeNode.left === null && treeNode.right === null) {
-                    treeNode.parent.right = null;
-                    return true;
+                if (!node.left || !node.right) {
+                    var temp = null;
+                    if (!node.left)
+                        temp = node.right;
+                    else
+                        temp = node.left;
+                    if (!temp) {
+                        temp = node;
+                        node = null;
+                    }
+                    else
+                        node = temp;
+                    res.deleted = true;
                 }
-                if (treeNode.left === null) {
-                    treeNode.right.parent = treeNode.parent;
-                    treeNode.parent.right = treeNode.right;
-                    return true;
+                else {
+                    var temp = this.minValue(node.right);
+                    node.data = temp.data;
+                    node.right = this._delete(node.right, temp.data[0], res);
+                    res.deleted = true;
                 }
-                else if (treeNode.right === null) {
-                    treeNode.left.parent = treeNode.parent;
-                    treeNode.parent.right = treeNode.left;
-                    return true;
-                }
-                this._deleteMinNode(treeNode);
             }
         }
-        else {
-            if (treeNode.left === null && treeNode.right === null) {
-                this.root = null;
-                return true;
-            }
-            if (treeNode.left === null) {
-                treeNode.right.parent = treeNode.parent;
-                this.root = treeNode.right;
-                return true;
-            }
-            else if (treeNode.right === null) {
-                treeNode.left.parent = treeNode.parent;
-                this.root = treeNode.left;
-                return true;
-            }
-            this._deleteMinNode(treeNode);
-        }
-    };
-    BinarySearchTree.prototype._deleteMinNode = function (node) {
-        var min = this.findMinNode(node.right);
-        node.data = min.data;
-        if (min.parent.left === min) {
-            min.parent.left = null;
-        }
-        else {
-            min.parent.right = null;
-        }
-    };
-    BinarySearchTree.prototype.findMinNode = function (node) {
-        if (node.left === null)
+        if (!node)
             return node;
-        else
-            return this.findMinNode(node.left);
+        node.height = Math.max(node.left ? node.left.height : 0, node.right ? node.right.height : 0) + 1;
+        var balance = this.getBalance(node);
+        if (balance > 1 && this.getBalance(node.left) >= 0)
+            return this.rightRotate(node);
+        if (balance > 1 && this.getBalance(node.left) < 0) {
+            node.left = this.leftRotate(node.left);
+            return this.rightRotate(node);
+        }
+        if (balance < -1 && this.getBalance(node.right) <= 0)
+            return this.leftRotate(node);
+        if (balance < -1 && this.getBalance(node.right) > 0) {
+            node.right = this.rightRotate(node.right);
+            return this.leftRotate(node);
+        }
+        return node;
     };
-    BinarySearchTree.prototype.forEach = function (action) {
-        this.action = action;
-        this._inorder(this.root);
+    AVLTree.prototype.minValue = function (node) {
+        var curr = node;
+        while (curr.left)
+            curr = curr.left;
+        return curr;
     };
-    BinarySearchTree.prototype._inorder = function (node) {
+    AVLTree.prototype.forEach = function (action) {
+        this._inorder(this.root, action);
+    };
+    AVLTree.prototype._inorder = function (node, action) {
         if (node !== null) {
-            this._inorder(node.left);
-            this.action(node.data);
-            this._inorder(node.right);
+            this._inorder(node.left, action);
+            node.data.forEach(function (data) { return action(data); });
+            this._inorder(node.right, action);
         }
     };
-    BinarySearchTree.prototype._reverseInorder = function (node) {
+    AVLTree.prototype._reverseInorder = function (node, action) {
         if (node !== null) {
-            this._inorder(node.right);
-            this.action(node.data);
-            this._inorder(node.left);
+            this._inorder(node.right, action);
+            node.data.forEach(function (data) { return action(data); });
+            this._inorder(node.left, action);
         }
     };
-    return BinarySearchTree;
+    return AVLTree;
 }());
-exports.BinarySearchTree = BinarySearchTree;
-var BinaryTreeNode = (function () {
-    function BinaryTreeNode(data) {
-        this.data = data;
-        this.left = null;
-        this.right = null;
-        this.parent = null;
-    }
-    return BinaryTreeNode;
-}());
-exports.BinaryTreeNode = BinaryTreeNode;
+exports.AVLTree = AVLTree;
 
 
 /***/ }),
@@ -5206,7 +5465,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(156), exports);
+__exportStar(__webpack_require__(141), exports);
 __exportStar(__webpack_require__(974), exports);
 __exportStar(__webpack_require__(645), exports);
 
@@ -5218,58 +5477,78 @@ __exportStar(__webpack_require__(645), exports);
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Logger = exports.LogLevel = void 0;
+exports.Log = exports.LogLevel = void 0;
 var LogLevel;
 (function (LogLevel) {
-    LogLevel["TRACE"] = "Trace";
-    LogLevel["INFO"] = "Info";
-    LogLevel["WARN"] = "Warn";
-    LogLevel["ERROR"] = "Error";
-    LogLevel["DISABLED"] = "Disabled";
+    LogLevel[LogLevel["TRACE"] = 0] = "TRACE";
+    LogLevel[LogLevel["DEBUG"] = 1] = "DEBUG";
+    LogLevel[LogLevel["INFO"] = 2] = "INFO";
+    LogLevel[LogLevel["LOG"] = 2] = "LOG";
+    LogLevel[LogLevel["WARN"] = 3] = "WARN";
+    LogLevel[LogLevel["ERROR"] = 4] = "ERROR";
+    LogLevel[LogLevel["DISABLED"] = 5] = "DISABLED";
 })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
-var Logger = (function () {
-    function Logger() {
+var Log = (function () {
+    function Log() {
     }
-    Logger.log = function () {
+    Log.trace = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        if (this.LOG_LEVEL !== LogLevel.TRACE)
+        if (this.LOG_LEVEL > LogLevel.TRACE)
             return;
-        console.log.apply(this, args);
+        console.trace.apply(this, args);
     };
-    Logger.info = function () {
+    Log.debug = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        if (this.LOG_LEVEL !== LogLevel.INFO)
+        if (this.LOG_LEVEL > LogLevel.DEBUG)
+            return;
+        console.debug.apply(this, args);
+    };
+    Log.info = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        if (this.LOG_LEVEL > LogLevel.INFO)
             return;
         console.info.apply(this, args);
     };
-    Logger.warn = function () {
+    Log.log = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        if (this.LOG_LEVEL !== LogLevel.WARN)
+        if (this.LOG_LEVEL > LogLevel.LOG)
+            return;
+        console.log.apply(this, args);
+    };
+    Log.warn = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        if (this.LOG_LEVEL > LogLevel.WARN)
             return;
         console.warn.apply(this, args);
     };
-    Logger.error = function () {
+    Log.error = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        if (this.LOG_LEVEL !== LogLevel.ERROR)
+        if (this.LOG_LEVEL > LogLevel.ERROR)
             return;
         console.error.apply(this, args);
     };
-    Logger.LOG_LEVEL = LogLevel.DISABLED;
-    return Logger;
+    Log.LOG_LEVEL = LogLevel.WARN;
+    return Log;
 }());
-exports.Logger = Logger;
+exports.Log = Log;
 
 
 /***/ }),
@@ -5279,12 +5558,10 @@ exports.Logger = Logger;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.clamp = exports.intersects = exports.getRandom = exports.denormalize = exports.normalize = exports.getNewGUID = void 0;
+exports.canConnect = exports.clamp = exports.intersects = exports.getRandom = exports.denormalize = exports.normalize = exports.getNewGUID = void 0;
 var constants_1 = __webpack_require__(522);
 var getNewGUID = function () {
-    var S4 = function () {
-        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    };
+    var S4 = function () { return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1); };
     return (S4() + "-" + S4() + "-" + S4() + "-" + S4());
 };
 exports.getNewGUID = getNewGUID;
@@ -5297,7 +5574,7 @@ var denormalize = function (normalized, min, max) {
 };
 exports.denormalize = denormalize;
 var getRandom = function (min, max) {
-    return Math.random() * max + min;
+    return Math.random() * (max - min) + min;
 };
 exports.getRandom = getRandom;
 var intersects = function (start1X, start1Y, end1X, end1Y, start2X, start2Y, end2X, end2Y) {
@@ -5316,6 +5593,22 @@ var clamp = function (value, min, max) {
     return value <= min ? min : (value > max ? max : value);
 };
 exports.clamp = clamp;
+var canConnect = function (source, destination, rules, executionGraph) {
+    if (!destination)
+        return false;
+    if (source === destination)
+        return false;
+    if (source.node === destination.node)
+        return false;
+    if (source.type === destination.type)
+        return false;
+    if (!rules[source.dataType].includes(destination.dataType))
+        return false;
+    if (!executionGraph.canConnect(source.node, destination.node))
+        return false;
+    return true;
+};
+exports.canConnect = canConnect;
 
 
 /***/ })
@@ -5328,8 +5621,9 @@ exports.clamp = clamp;
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		if(__webpack_module_cache__[moduleId]) {
-/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
@@ -5346,10 +5640,13 @@ exports.clamp = clamp;
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	// module exports must be returned from runtime so entry inlining is disabled
+/******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(184);
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__(184);
+/******/ 	
+/******/ 	return __webpack_exports__;
 /******/ })()
 ;
 });

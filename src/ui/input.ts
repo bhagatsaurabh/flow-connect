@@ -9,8 +9,8 @@ import { Color } from "../core/color";
 
 export class Input extends UINode implements Serializable {
   label: Label;
-  inputEl: HTMLInputElement;
-  _value: string | number;
+  private inputEl: HTMLInputElement;
+  private _value: string | number;
 
   get value(): string | number {
     if (this.propName) return this.node.props[this.propName];
@@ -113,20 +113,25 @@ export class Input extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.value);
   }
 
+  /** @hidden */
   paint(): void {
     this.context.strokeStyle = this.style.border;
     this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   paintLOD1() {
-    this.context.strokeStyle = this.style.border;
-    this.context.fillStyle = this.style.backgroundColor;
-    this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-    this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    let context = this.context;
+    context.strokeStyle = this.style.border;
+    context.fillStyle = this.style.backgroundColor;
+    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     this.label.position = this.position;
     this.label.height = this.height;
@@ -142,6 +147,7 @@ export class Input extends UINode implements Serializable {
     }
   }
 
+  /** @hidden */
   onPropChange(oldValue: any, newValue: any) {
     let val: string | number;
     if (this.style.type === InputType.Number && typeof newValue === 'string') val = parseInt(newValue);
@@ -154,41 +160,49 @@ export class Input extends UINode implements Serializable {
     this.output && (this.output as any)['setData'](this.value);
   }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }

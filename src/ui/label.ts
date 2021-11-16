@@ -7,10 +7,10 @@ import { LabelStyle, Serializable, SerializedLabel, SerializedTerminal } from ".
 import { Color } from "../core/color";
 
 export class Label extends UINode implements Serializable {
-  displayText: string;
-  _text: string;
-  textWidth: number;
-  textHeight: number;
+  private displayText: string;
+  private _text: string;
+  private textWidth: number;
+  private textHeight: number;
 
   get text(): string {
     if (this.propName) return this.node.props[this.propName];
@@ -72,10 +72,12 @@ export class Label extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.text);
   }
 
+  /** @hidden */
   paint(): void {
-    this.context.fillStyle = this.style.color;
-    this.context.font = this.style.fontSize + ' ' + this.style.font;
-    this.context.textBaseline = 'top';
+    let context = this.context;
+    context.fillStyle = this.style.color;
+    context.font = this.style.fontSize + ' ' + this.style.font;
+    context.textBaseline = 'top';
     let y = this.position.y + this.height / 2 - this.textHeight / 2;
     let x = this.position.x;
     if (this.style.align === 'left') {
@@ -85,22 +87,27 @@ export class Label extends UINode implements Serializable {
     } else if (this.style.align === 'right') {
       x += this.width - this.textWidth - 5;
     }
-    this.context.fillText(this.displayText, x, y);
+    context.fillText(this.displayText, x, y);
   }
+  /** @hidden */
   paintLOD1() {
-    this.context.strokeStyle = '#000';
-    this.context.fillStyle = this.style.color;
-    this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-    this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    let context = this.context;
+    context.strokeStyle = '#000';
+    context.fillStyle = this.style.color;
+    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
-    this.context.font = this.style.fontSize + ' ' + this.style.font;
-    let metrics = this.context.measureText(this.displayText);
-    this.context.font = null;
+    let context = this.context;
+    context.font = this.style.fontSize + ' ' + this.style.font;
+    let metrics = context.measureText(this.displayText);
+    context.font = null;
     this.textWidth = metrics.width;
 
     this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
@@ -123,6 +130,7 @@ export class Label extends UINode implements Serializable {
     }
   }
 
+  /** @hidden */
   onPropChange(oldValue: any, newValue: any) {
     this._text = newValue;
     this.displayText = this._text;
@@ -131,41 +139,49 @@ export class Label extends UINode implements Serializable {
     this.output && (this.output as any)['setData'](this.text);
   }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }

@@ -29,12 +29,16 @@ export class HorizontalLayout extends UINode implements Serializable {
     if (childs) this.children.push(...childs);
   }
 
+  /** @hidden */
   paint(): void { }
+  /** @hidden */
   paintLOD1() { }
+  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+  /** @hidden */
   reflow(): void {
     let availableWidth = this.width;
     let x = this.position.x;
@@ -57,29 +61,38 @@ export class HorizontalLayout extends UINode implements Serializable {
     });
   }
 
+  /** @hidden */
   onPropChange() { }
 
+  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('over', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('down', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('up', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('click', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('drag', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     this.call('enter', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     this.call('exit', this, screenPosition, realPosition);
   }
+  /** @hidden */
   onContextMenu(): void { }
 
   serialize(): SerializedHorizontalLayout {

@@ -1,3 +1,3 @@
-export * from './binary-search-tree';
+export * from './avl-tree';
 export * from './utils';
 export * from './logger';

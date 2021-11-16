@@ -19,15 +19,15 @@ export class Color implements Serializable {
       [Math.floor(getRandom(0, 255)), Math.floor(getRandom(0, 255)), Math.floor(getRandom(0, 255)), 255]
     ));
   }
-  static rgbaToHex(rgba: number[] | Uint8ClampedArray): string {
-    return "#" + Color._componentToHex(rgba[0]) + Color._componentToHex(rgba[1]) + Color._componentToHex(rgba[2]) + Color._componentToHex(rgba[3]);
-  }
   static hexToRGBA(hex: string): Uint8ClampedArray {
     return new Uint8ClampedArray([parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16), parseInt(hex.slice(7, 9), 16)]);
   }
-  static _componentToHex(c: number) {
+  private static _componentToHex(c: number) {
     let hex = c.toString(16);
-    return hex.length == 1 ? '0' + hex : hex;
+    return hex.length === 1 ? '0' + hex : hex;
+  }
+  static rgbaToHex(rgba: number[] | Uint8ClampedArray): string {
+    return "#" + Color._componentToHex(rgba[0]) + Color._componentToHex(rgba[1]) + Color._componentToHex(rgba[2]) + Color._componentToHex(rgba[3]);
   }
   static rgbaToString(rgba: Uint8ClampedArray | number[]): string {
     return `${rgba[0]}:${rgba[1]}:${rgba[2]}:${rgba[3]}`;

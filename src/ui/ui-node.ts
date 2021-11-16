@@ -8,19 +8,20 @@ import { getNewGUID, intersects } from "../utils/utils";
 import { Events } from "../core/interfaces";
 
 export abstract class UINode extends Hooks implements Events {
+  /** @hidden */
+  renderState: ViewPort;
+  private _disabled: boolean;
+  /** @hidden */
+  hitColor: Color;
+
   draggable: boolean;
   width: number = 0;
   height: number = 0;
   children: UINode[];
-  context: CanvasRenderingContext2D;
-  offUIContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  get context(): CanvasRenderingContext2D { return this.node.context };
+  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.node.offUIContext };
   position: Vector2;
-  renderState: ViewPort;
-  _disabled: boolean;
-
-  get disabled(): boolean {
-    return this._disabled;
-  }
+  get disabled(): boolean { return this._disabled };
   set disabled(disabled: boolean) {
     this._disabled = disabled;
     this.children.forEach(child => child.disabled = disabled);
@@ -35,13 +36,12 @@ export abstract class UINode extends Hooks implements Events {
     public propName?: string,
     public input: Terminal = null, public output: Terminal = null,
     public id: string = getNewGUID(),
-    public hitColor?: Color
+    hitColor?: Color
   ) {
 
     super();
+    this.hitColor = hitColor;
     this.id = getNewGUID();
-    this.context = this.node.context;
-    this.offUIContext = this.node.offUIContext;
     this.setHitColor(hitColor);
     this.position = position;
     this.children = [];
@@ -65,10 +65,12 @@ export abstract class UINode extends Hooks implements Events {
     }
     this.update();
   }
+  /** @hidden */
   update(): void {
     this.reflow();
     this.children.forEach(child => child.update());
   }
+  /** @hidden */
   updateRenderState() {
     if (this.node.renderState.nodeState === NodeState.MINIMIZED) return;
 
@@ -83,7 +85,7 @@ export abstract class UINode extends Hooks implements Events {
 
     this.children.forEach(child => child.updateRenderState());
   }
-  setHitColor(hitColor: Color) {
+  private setHitColor(hitColor: Color) {
     //if (typeof this.hitColor !== 'undefined') return;
 
     if (!hitColor) {
@@ -96,23 +98,24 @@ export abstract class UINode extends Hooks implements Events {
   render() {
     if (this.renderState === ViewPort.OUTSIDE) return;
 
+    let context = this.context;
     if (this.node.renderState.lod === LOD.LOD1) {
-      this.context.save();
+      context.save();
       this.paintLOD1();
-      this.context.restore();
+      context.restore();
     } else if (this.node.renderState.lod === LOD.LOD2) {
-      this.context.save();
+      context.save();
       this.paint();
-      this.context.restore();
+      context.restore();
 
       this.offUIContext.save();
       this.offPaint();
       this.offUIContext.restore();
     } else {
       if (this.type === UIType.Container) {
-        this.context.save();
+        context.save();
         this.paintLOD1();
-        this.context.restore();
+        context.restore();
       }
     }
 
@@ -124,19 +127,32 @@ export abstract class UINode extends Hooks implements Events {
     this.children.forEach(child => child.render());
   }
 
+  /** @hidden */
   abstract reflow(): void;
+  /** @hidden */
   abstract paint(): void;
+  /** @hidden */
   abstract paintLOD1(): void;
+  /** @hidden */
   abstract offPaint(): void;
 
+  /** @hidden */
   abstract onOver(screenPosition: Vector2, realPosition: Vector2): void;
+  /** @hidden */
   abstract onDown(screenPosition: Vector2, realPosition: Vector2): void;
+  /** @hidden */
   abstract onUp(screenPosition: Vector2, realPosition: Vector2): void;
+  /** @hidden */
   abstract onClick(screenPosition: Vector2, realPosition: Vector2): void;
+  /** @hidden */
   abstract onDrag(screenPosition: Vector2, realPosition: Vector2): void;
+  /** @hidden */
   abstract onEnter(screenPosition: Vector2, realPosition: Vector2): void;
+  /** @hidden */
   abstract onExit(screenPosition: Vector2, realPosition: Vector2): void;
+  /** @hidden */
   abstract onContextMenu(): void;
 
+  /** @hidden */
   abstract onPropChange(oldValue: any, newValue: any): void;
 }

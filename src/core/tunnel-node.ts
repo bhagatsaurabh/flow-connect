@@ -7,8 +7,10 @@ import { Node } from "./node";
 import { Terminal } from "./terminal";
 
 export class TunnelNode extends Node {
-  _proxyTerminal: Terminal;
+  private _proxyTerminal: Terminal;
+  /** @hidden */
   get proxyTerminal(): Terminal { return this._proxyTerminal; }
+  /** @hidden */
   set proxyTerminal(terminal: Terminal) {
     this._proxyTerminal = terminal;
     this._proxyTerminal.on('data', data => {
@@ -18,7 +20,7 @@ export class TunnelNode extends Node {
 
   constructor(
     flow: Flow,
-    nodeName: string,
+    name: string,
     position: Vector2,
     width: number,
     inputs: any[], outputs: any[],
@@ -28,7 +30,7 @@ export class TunnelNode extends Node {
     hitColor?: Color,
   ) {
 
-    super(flow, nodeName, position, width, inputs, outputs, style, terminalStyle, props, id, hitColor);
+    super(flow, name, position, width, inputs, outputs, style, terminalStyle, props, id, hitColor);
 
     if (this.inputs.length > 0) {
       this.inputs[0].on('data', data => {

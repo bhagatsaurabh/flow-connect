@@ -1,6 +1,6 @@
 export class Hooks {
-  registeredEvents: { [key: string]: { [id: number]: (...args: any) => void } };
-  lastId: number;
+  protected registeredEvents: { [key: string]: { [id: number]: (...args: any) => void } };
+  protected lastId: number;
 
   constructor() {
     this.registeredEvents = {};
@@ -15,13 +15,14 @@ export class Hooks {
     this.lastId += 1;
     return id;
   }
+  /** @hidden */
   call(eventKey: string, ...args: any) {
     if (this.registeredEvents[eventKey]) {
-      if (args) Object.values(this.registeredEvents[eventKey]).forEach(callback => callback(...args));
-      else Object.values(this.registeredEvents[eventKey]).forEach(callback => callback());
+      if (args) Object.values(this.registeredEvents[eventKey]).forEach(callback => new Promise((resolve) => resolve(callback(...args))));
+      else Object.values(this.registeredEvents[eventKey]).forEach(callback => new Promise((resolve) => resolve(callback())));
     }
   }
   off(eventKey: string, id: number) {
-    delete this.registeredEvents[eventKey][id];
+    if (this.registeredEvents[eventKey]) delete this.registeredEvents[eventKey][id];
   }
 }
