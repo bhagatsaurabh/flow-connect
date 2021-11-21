@@ -42,6 +42,14 @@ export interface FlowOptions {
   rules: Rules,
   terminalTypeColors: TerminalTypeColors
 }
+export interface NodeCreatorOptions {
+  name?: string,
+  position?: Vector2,
+  width?: number,
+  props?: {},
+  style?: NodeStyle,
+  terminalStyle?: TerminalStyle
+}
 
 export interface ConnectorStyle {
   width?: number,

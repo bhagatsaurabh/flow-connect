@@ -59,7 +59,7 @@
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
 				<p><img src="media/flow-connect-index.png" alt="Flow Connect"></p>
-				<p>FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.</p>
+				<p>FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams</p>
 				<p><a href="modules.html">Jump to Index</a>
 				<br><br><br>🌐 <strong>Website:</strong> <a href="https://flow-connect.saurabh-bhagat.me">https://flow-connect.saurabh-bhagat.me</a></p>
 				<p>🔍 <strong>Examples:</strong> <a href="https://flow-connect.saurabh-bhagat.me/examples">https://flow-connect.saurabh-bhagat.me/examples</a></p>
@@ -73,6 +73,56 @@
 				<hr>
 				<pre><code class="language-bash"><span style="color: #000000">npm i flow-connect</span>
 </code></pre>
+				<a href="#cdn" id="cdn" style="color: inherit; text-decoration: none;">
+					<h3>CDN</h3>
+				</a>
+				<hr>
+				<pre><code class="language-html"><span style="color: #800000">&lt;script</span><span style="color: #000000FF"> </span><span style="color: #FF0000">src</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&quot;&quot;</span><span style="color: #800000">&gt;&lt;/script&gt;</span>
+</code></pre>
+				<a href="#example-usage" id="example-usage" style="color: inherit; text-decoration: none;">
+					<h2>Example Usage</h2>
+				</a>
+				<p>ES6</p>
+				<pre><code class="language-js"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">FlowConnect</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;flow-connect&quot;</span><span style="color: #000000">;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">StandardNodes</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;flow-connect/standard-nodes&quot;</span><span style="color: #000000">;</span>
+</code></pre>
+				<p>Example</p>
+				<pre><code class="language-js"><span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">flowConnect</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">FlowConnect</span><span style="color: #000000">(</span><span style="color: #001080">document</span><span style="color: #000000">.</span><span style="color: #795E26">getElementById</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;canvas&quot;</span><span style="color: #000000">));</span>
+
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">flow</span><span style="color: #000000"> = </span><span style="color: #001080">flowConnect</span><span style="color: #000000">.</span><span style="color: #795E26">createFlow</span><span style="color: #000000">({</span>
+<span style="color: #000000">  </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Stock Flow&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">rules:</span><span style="color: #000000"> { </span><span style="color: #001080">array:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;array&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;any&quot;</span><span style="color: #000000">] },</span>
+<span style="color: #000000">  </span><span style="color: #001080">terminalTypeColors:</span><span style="color: #000000"> {},</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">timer</span><span style="color: #000000"> = </span><span style="color: #001080">StandardNodes</span><span style="color: #000000">.</span><span style="color: #795E26">Timer</span><span style="color: #000000">(</span><span style="color: #001080">flow</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">flowConnect</span><span style="color: #000000">.</span><span style="color: #795E26">render</span><span style="color: #000000">(</span><span style="color: #001080">flow</span><span style="color: #000000">);</span>
+</code></pre>
+				<a href="#testing" id="testing" style="color: inherit; text-decoration: none;">
+					<h2>Testing</h2>
+				</a>
+				<p>Testing is done via Cypress</p>
+				<ul>
+					<li>Install <a href="https://docs.cypress.io/guides/getting-started/installing-cypress#System-requirements">Cypress</a></li>
+				</ul>
+				<pre><code class="language-bash"><span style="color: #000000">npm i cypress --save-dev</span>
+</code></pre>
+				<ul>
+					<li>Run tests</li>
+				</ul>
+				<pre><code class="language-bash"><span style="color: #000000">npm run </span><span style="color: #795E26">test</span>
+</code></pre>
+				<a href="#docs" id="docs" style="color: inherit; text-decoration: none;">
+					<h2>Docs</h2>
+				</a>
+				<p>Docs are generated using <a href="https://typedoc.org/">TypeDoc</a></p>
+				<pre><code class="language-bash"><span style="color: #000000">npm run doc</span>
+</code></pre>
+				<a href="#feedback" id="feedback" style="color: inherit; text-decoration: none;">
+					<h2>Feedback</h2>
+				</a>
+				<p>Feel free to send any feedback on <a href="mailto:saurabhbhagat98die@gmail.com">saurabhbhagat98die@gmail.com</a></p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -216,6 +266,9 @@
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/labelstyle.html" class="tsd-kind-icon">Label<wbr>Style</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/nodecreatoroptions.html" class="tsd-kind-icon">Node<wbr>Creator<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/nodestyle.html" class="tsd-kind-icon">Node<wbr>Style</a>

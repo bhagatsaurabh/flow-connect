@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ToggleStyle | flow-connect</title>
+	<title>NodeCreatorOptions | flow-connect</title>
 	<meta name="description" content="Documentation for flow-connect">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">flow-connect</a>
 				</li>
 				<li>
-					<a href="togglestyle.html">ToggleStyle</a>
+					<a href="nodecreatoroptions.html">NodeCreatorOptions</a>
 				</li>
 			</ul>
-			<h1>Interface ToggleStyle</h1>
+			<h1>Interface NodeCreatorOptions</h1>
 		</div>
 	</div>
 </header>
@@ -69,7 +69,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ToggleStyle</span>
+						<span class="target">NodeCreatorOptions</span>
 					</li>
 				</ul>
 			</section>
@@ -80,8 +80,12 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="togglestyle.html#backgroundcolor" class="tsd-kind-icon">background<wbr>Color</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="togglestyle.html#color" class="tsd-kind-icon">color</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="nodecreatoroptions.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="nodecreatoroptions.html#position" class="tsd-kind-icon">position</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="nodecreatoroptions.html#props" class="tsd-kind-icon">props</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="nodecreatoroptions.html#style" class="tsd-kind-icon">style</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="nodecreatoroptions.html#terminalstyle" class="tsd-kind-icon">terminal<wbr>Style</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="nodecreatoroptions.html#width" class="tsd-kind-icon">width</a></li>
 							</ul>
 						</section>
 					</div>
@@ -90,22 +94,67 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="backgroundcolor" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> background<wbr>Color</h3>
-					<div class="tsd-signature tsd-kind-icon">background<wbr>Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="name" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> name</h3>
+					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/301d9a2/src/core/interfaces.ts#L91">core/interfaces.ts:91</a></li>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/301d9a2/src/core/interfaces.ts#L46">core/interfaces.ts:46</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="color" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> color</h3>
-					<div class="tsd-signature tsd-kind-icon">color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="position" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> position</h3>
+					<div class="tsd-signature tsd-kind-icon">position<span class="tsd-signature-symbol">:</span> <a href="../classes/vector2.html" class="tsd-signature-type" data-tsd-kind="Class">Vector2</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/301d9a2/src/core/interfaces.ts#L92">core/interfaces.ts:92</a></li>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/301d9a2/src/core/interfaces.ts#L47">core/interfaces.ts:47</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="props" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> props</h3>
+					<div class="tsd-signature tsd-kind-icon">props<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/301d9a2/src/core/interfaces.ts#L49">core/interfaces.ts:49</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="style" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> style</h3>
+					<div class="tsd-signature tsd-kind-icon">style<span class="tsd-signature-symbol">:</span> <a href="nodestyle.html" class="tsd-signature-type" data-tsd-kind="Interface">NodeStyle</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/301d9a2/src/core/interfaces.ts#L50">core/interfaces.ts:50</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="terminalstyle" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> terminal<wbr>Style</h3>
+					<div class="tsd-signature tsd-kind-icon">terminal<wbr>Style<span class="tsd-signature-symbol">:</span> <a href="terminalstyle.html" class="tsd-signature-type" data-tsd-kind="Interface">TerminalStyle</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/301d9a2/src/core/interfaces.ts#L51">core/interfaces.ts:51</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="width" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> width</h3>
+					<div class="tsd-signature tsd-kind-icon">width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/301d9a2/src/core/interfaces.ts#L48">core/interfaces.ts:48</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -124,13 +173,25 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="togglestyle.html" class="tsd-kind-icon">Toggle<wbr>Style</a>
+						<a href="nodecreatoroptions.html" class="tsd-kind-icon">Node<wbr>Creator<wbr>Options</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="togglestyle.html#backgroundcolor" class="tsd-kind-icon">background<wbr>Color</a>
+								<a href="nodecreatoroptions.html#name" class="tsd-kind-icon">name</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="togglestyle.html#color" class="tsd-kind-icon">color</a>
+								<a href="nodecreatoroptions.html#position" class="tsd-kind-icon">position</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="nodecreatoroptions.html#props" class="tsd-kind-icon">props</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="nodecreatoroptions.html#style" class="tsd-kind-icon">style</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="nodecreatoroptions.html#terminalstyle" class="tsd-kind-icon">terminal<wbr>Style</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="nodecreatoroptions.html#width" class="tsd-kind-icon">width</a>
 							</li>
 						</ul>
 					</li>
