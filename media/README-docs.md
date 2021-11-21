@@ -73,6 +73,14 @@ npm i cypress --save-dev
 npm run test
 ```
 
+## Build
+
+Build AMD, ESM and CommonJS modules
+
+```bash
+npm run build
+```
+
 ## Docs
 
 Docs are generated using [TypeDoc](https://typedoc.org/)
