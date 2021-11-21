@@ -1,7 +1,7 @@
 {
   "name": "flow-connect",
-  "version": "1.0.0",
-  "description": "A simple and easy-to-use library for creating visual programming interfaces (Node-based editors)",
+  "version": "1.0.1",
+  "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "main": "lib/flow-connect.js",
   "scripts": {
     "test": "npx cypress run -b chrome",
