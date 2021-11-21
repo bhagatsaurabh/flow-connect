@@ -25,4 +25,5 @@ jobs:
     - name: Build
       run: |
         npm ci
+        npm install shx
         npm run build
