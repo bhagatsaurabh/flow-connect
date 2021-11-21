@@ -14,17 +14,15 @@ FlowConnect is a highly-customizable library for creating node-based editors, gr
 
 ## Installation
 
-### NPM
+#### NPM
 
----
 
 ```bash
 npm i flow-connect
 ```
 
-### CDN
+#### CDN
 
----
 
 ```html
 <script src=""></script>
