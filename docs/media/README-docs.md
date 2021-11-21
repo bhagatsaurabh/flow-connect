@@ -1,10 +1,12 @@
-![Flow Connect](media/flow-connect-index.png)
+![Flow Connect](media://flow-connect-index.png)
 
 FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.
 
+[Jump to Index](modules.html)
+
 :globe_with_meridians: **Website:** https://flow-connect.saurabh-bhagat.me
 
-:mag: **Examples:** https://flow-connect.saurabh-bhagat.me/examples
+**Examples:** https://flow-connect.saurabh-bhagat.me/examples
 
 **Docs:** https://flow-connect.saurabh-bhagat.me/docs
 
@@ -14,6 +16,6 @@ FlowConnect is a highly-customizable library for creating node-based editors, gr
 
 ### NPM
 
-```bash
+```shell
 npm i flow-connect
 ```

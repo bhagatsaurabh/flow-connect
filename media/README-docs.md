@@ -4,7 +4,7 @@ FlowConnect is a highly-customizable library for creating node-based editors, gr
 
 [Jump to Index](modules.html)
 
-**Website:** https://flow-connect.saurabh-bhagat.me
+🌐 **Website:** https://flow-connect.saurabh-bhagat.me
 
 **Examples:** https://flow-connect.saurabh-bhagat.me/examples
 
