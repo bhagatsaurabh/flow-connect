@@ -22,17 +22,17 @@ describe('Flow', () => {
             let [width, height] = [1500, 1000];
             let flowConnect = new FlowConnect(canvasEl, width, height);
 
-            expect(flowConnect.canvasElement).to.be.equal(canvasEl);
-            expect(flowConnect.canvasElement.width).to.be.equal(width);
-            expect(flowConnect.canvasElement.height).to.be.equal(height);
+            expect(flowConnect.canvas).to.be.equal(canvasEl);
+            expect(flowConnect.canvas.width).to.be.equal(width);
+            expect(flowConnect.canvas.height).to.be.equal(height);
 
-            expect(flowConnect.offCanvasElement).to.satisfy((val) => val instanceof OffscreenCanvas || val instanceof HTMLCanvasElement);
-            expect(flowConnect.offCanvasElement.width).to.be.equal(width);
-            expect(flowConnect.offCanvasElement.height).to.be.equal(height);
+            expect(flowConnect.offCanvas).to.satisfy((val) => val instanceof OffscreenCanvas || val instanceof HTMLCanvasElement);
+            expect(flowConnect.offCanvas.width).to.be.equal(width);
+            expect(flowConnect.offCanvas.height).to.be.equal(height);
 
-            expect(flowConnect.offUICanvasElement).to.satisfy((val) => val instanceof OffscreenCanvas || val instanceof HTMLCanvasElement);
-            expect(flowConnect.offUICanvasElement.width).to.be.equal(width);
-            expect(flowConnect.offUICanvasElement.height).to.be.equal(height);
+            expect(flowConnect.offUICanvas).to.satisfy((val) => val instanceof OffscreenCanvas || val instanceof HTMLCanvasElement);
+            expect(flowConnect.offUICanvas.width).to.be.equal(width);
+            expect(flowConnect.offUICanvas.height).to.be.equal(height);
         });
     });
 

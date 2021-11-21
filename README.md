@@ -1,5 +1,10 @@
 ![Flow Connect](media/flow-connect-index.png)
 
+<p align="center">
+<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/saurabh-prosoft/flow-connect/build?color=rgb%2880%2C%20128%2C%20230%29&label=Build&style=flat-square">
+
+</p>
+
 FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.
 \
 \
