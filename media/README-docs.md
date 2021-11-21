@@ -1,4 +1,4 @@
-![Flow Connect](media/flow-connect-index.png)
+![Flow Connect](media://flow-connect-index.png)
 
 FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.
 
