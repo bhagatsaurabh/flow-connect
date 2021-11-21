@@ -9,5 +9,6 @@
         "threshold": 0.01
       }
     }
-  }
+  },
+  "video": false
 }

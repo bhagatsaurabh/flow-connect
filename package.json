@@ -5,7 +5,7 @@
   "main": "lib/flow-connect.js",
   "scripts": {
     "test": "npx cypress run -b chrome",
-    "clean": "shx rm -rf _bundles lib lib-esm",
+    "clean": "shx rm -rf bundles lib lib-esm",
     "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack",
     "doc": "npx typedoc --excludePrivate --excludeProtected --readme media/README-docs.md --media media --out docs src/flow-connect.ts"
   },

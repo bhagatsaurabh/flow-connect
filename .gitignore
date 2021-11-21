@@ -8,4 +8,4 @@ cypress/videos/
 cypress/screenshots/
 __image_snapshots__
 testserver/
-/_bundles
+bundles/
