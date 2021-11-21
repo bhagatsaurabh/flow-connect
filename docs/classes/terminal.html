@@ -111,6 +111,7 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="terminal.html#connect" class="tsd-kind-icon">connect</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="terminal.html#emit" class="tsd-kind-icon">emit</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="terminal.html#off" class="tsd-kind-icon">off</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="terminal.html#on" class="tsd-kind-icon">on</a></li>
@@ -135,7 +136,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="hooks.html">Hooks</a>.<a href="hooks.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in core/terminal.ts:17</li>
+									<li>Defined in core/terminal.ts:18</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -175,7 +176,7 @@
 					<div class="tsd-signature tsd-kind-icon">connectors<span class="tsd-signature-symbol">:</span> <a href="connector.html" class="tsd-signature-type" data-tsd-kind="Class">Connector</a><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/terminal.ts:11</li>
+							<li>Defined in core/terminal.ts:12</li>
 						</ul>
 					</aside>
 				</section>
@@ -192,7 +193,7 @@
 					<div class="tsd-signature tsd-kind-icon">focus<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/terminal.ts:12</li>
+							<li>Defined in core/terminal.ts:13</li>
 						</ul>
 					</aside>
 				</section>
@@ -235,6 +236,32 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="connect" class="tsd-anchor"></a>
+					<h3>connect</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">connect<span class="tsd-signature-symbol">(</span>otherTerminal<span class="tsd-signature-symbol">: </span><a href="terminal.html" class="tsd-signature-type" data-tsd-kind="Class">Terminal</a>, style<span class="tsd-signature-symbol">?: </span><a href="../interfaces/connectorstyle.html" class="tsd-signature-type" data-tsd-kind="Interface">ConnectorStyle</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in core/terminal.ts:89</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>otherTerminal: <a href="terminal.html" class="tsd-signature-type" data-tsd-kind="Class">Terminal</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> style: <a href="../interfaces/connectorstyle.html" class="tsd-signature-type" data-tsd-kind="Interface">ConnectorStyle</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="emit" class="tsd-anchor"></a>
 					<h3>emit</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -244,7 +271,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/terminal.ts:167</li>
+									<li>Defined in core/terminal.ts:183</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -339,7 +366,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/terminal.ts:54</li>
+									<li>Defined in core/terminal.ts:55</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -357,7 +384,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/serializable.html">Serializable</a>.<a href="../interfaces/serializable.html#serialize">serialize</a></p>
 								<ul>
-									<li>Defined in core/terminal.ts:175</li>
+									<li>Defined in core/terminal.ts:191</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/serializedterminal.html" class="tsd-signature-type" data-tsd-kind="Interface">SerializedTerminal</a></h4>
@@ -374,7 +401,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/terminal.ts:185</li>
+									<li>Defined in core/terminal.ts:201</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -433,6 +460,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="terminal.html#type" class="tsd-kind-icon">type</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="terminal.html#connect" class="tsd-kind-icon">connect</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="terminal.html#emit" class="tsd-kind-icon">emit</a>
