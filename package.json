@@ -7,7 +7,7 @@
     "test": "npx cypress run",
     "clean": "shx rm -rf _bundles lib lib-esm",
     "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack",
-    "doc": "npx typedoc --excludePrivate --excludeProtected --media media --out docs src/flow-connect.ts"
+    "doc": "npx typedoc --excludePrivate --excludeProtected --readme media/README-docs.md --media media --out docs src/flow-connect.ts"
   },
   "keywords": [
     "Node editor",

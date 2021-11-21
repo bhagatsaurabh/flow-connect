@@ -1,9 +1,9 @@
 node_modules/
 lib/
 lib-esm/
-index.html
-index-mob.html
-imageIcon.png
+/index.html
+/index-mob.html
+/imageIcon.png
 cypress/videos/
 cypress/screenshots/
 __image_snapshots__
