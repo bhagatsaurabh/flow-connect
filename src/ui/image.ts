@@ -3,6 +3,7 @@ import { ImageStyle, Serializable, SerializedImage } from "../core/interfaces";
 import { Node } from "../core/node";
 import { Constant, UIType } from "../math/constants";
 import { Vector2 } from "../math/vector";
+import { imageIcon } from "../resource/icons";
 import { Log } from "../utils/logger";
 import { UINode } from "./ui-node";
 
@@ -39,7 +40,7 @@ export class Image extends UINode implements Serializable {
       this.node.ui.update();
     };
     this.source.onerror = (error) => Log.error(error);
-    this.source.src = sourceString;
+    this.source.src = sourceString || imageIcon;
   }
 
   /** @hidden */

@@ -7,8 +7,9 @@
     "test": "npx cypress run -b chrome",
     "test:headless": "npx cypress run -b chrome --headless",
     "clean": "shx rm -rf bundles lib lib-esm",
-    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack",
-    "doc": "npx typedoc --excludePrivate --excludeProtected --readme media/README-docs.md --media media --out docs src/flow-connect.ts"
+    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack --config=webpack.prod.js",
+    "doc": "npx typedoc --excludePrivate --excludeProtected --readme media/README-docs.md --media media --out docs src/flow-connect.ts",
+    "dev": "npx webpack serve --config=webpack.dev.js"
   },
   "keywords": [
     "Node editor",
@@ -31,7 +32,9 @@
     "typescript": "^4.3.5",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^5.42.0",
-    "webpack-cli": "^4.7.2"
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^4.5.0",
+    "webpack-merge": "^5.8.0"
   },
   "dependencies": {
     "@types/offscreencanvas": "^2019.6.4",

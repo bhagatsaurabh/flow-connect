@@ -8,11 +8,7 @@ module.exports = {
     'standard-nodes': {
       import: './src/standard-nodes/index.ts',
       dependOn: 'flow-connect'
-    },
-    /* 'standard-nodes.min': {
-      import: './src/standard-nodes/index.ts',
-      dependOn: 'flow-connect'
-    } */
+    }
   },
   output: {
     path: path.resolve(__dirname, 'bundles'),
@@ -23,18 +19,17 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js']
   },
-  devtool: 'source-map',
-  optimization: {
-    minimizer: [new UglifyJsPlugin({
-      sourceMap: true,
-      include: /\.min\.js$/
-    })]
-  },
   module: {
     rules: [{
       test: /\.tsx?$/,
       use: 'ts-loader',
       exclude: /node_modules/
     }]
+  },
+  optimization: {
+    minimizer: [new UglifyJsPlugin({
+      sourceMap: true,
+      include: /\.min\.js$/
+    })]
   }
 }

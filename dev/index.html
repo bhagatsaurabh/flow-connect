@@ -1,0 +1,319 @@
+<html>
+
+<head>
+  <title>FlowConnect Test</title>
+  <link rel="stylesheet" href="styles/index.css" />
+  <script src="lib/split.min.js"></script>
+  <script src="flow-connect.js"></script>
+  <script src="standard-nodes.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="layout-container" id="layout-1">
+      <div class="layout-container relative" id="layout-1-1">
+        <div class="view-selector">
+          <select onchange="viewChangeHandler(event.target.value, 'layout-1-1')" class="view-selector-select">
+            <option selected>Render</option>
+            <option>Node hit-map</option>
+            <option>UI hit-map</option>
+            <option>Group hit-map</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="layout layout-container" id="layout-2">
+      <div class="relative" id="layout-2-1">
+        <div class="view-selector">
+          <select onchange="viewChangeHandler(event.target.value, 'layout-2-1')" class="view-selector-select">
+            <option selected>Render</option>
+            <option>Node hit-map</option>
+            <option>UI hit-map</option>
+            <option>Group hit-map</option>
+          </select>
+        </div>
+      </div>
+      <div class="relative" id="layout-2-2">
+        <div class="view-selector">
+          <select onchange="viewChangeHandler(event.target.value, 'layout-2-2')" class="view-selector-select">
+            <option>Render</option>
+            <option selected>Node hit-map</option>
+            <option>UI hit-map</option>
+            <option>Group hit-map</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="layout layout-vertical layout-container" id="layout-3">
+      <div class="layout" id="layout-3-1">
+        <div class="relative" id="layout-3-1-1">
+          <div class="view-selector">
+            <select onchange="viewChangeHandler(event.target.value, 'layout-3-1-1')" class="view-selector-select">
+              <option selected>Render</option>
+              <option>Node hit-map</option>
+              <option>UI hit-map</option>
+              <option>Group hit-map</option>
+            </select>
+          </div>
+        </div>
+        <div class="relative" id="layout-3-1-2">
+          <div class="view-selector">
+            <select onchange="viewChangeHandler(event.target.value, 'layout-3-1-2')" class="view-selector-select">
+              <option>Render</option>
+              <option selected>Node hit-map</option>
+              <option>UI hit-map</option>
+              <option>Group hit-map</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="relative" id="layout-3-2">
+        <div class="view-selector">
+          <select onchange="viewChangeHandler(event.target.value, 'layout-3-2')" class="view-selector-select">
+            <option>Render</option>
+            <option>Node hit-map</option>
+            <option selected>UI hit-map</option>
+            <option>Group hit-map</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="layout layout-vertical layout-container" id="layout-4">
+      <div class="layout" id="layout-4-1">
+        <div class="relative" id="layout-4-1-1">
+          <div class="view-selector">
+            <select onchange="viewChangeHandler(event.target.value, 'layout-4-1-1')" class="view-selector-select">
+              <option selected>Render</option>
+              <option>Node hit-map</option>
+              <option>UI hit-map</option>
+              <option>Group hit-map</option>
+            </select>
+          </div>
+        </div>
+        <div class="relative" id="layout-4-1-2">
+          <div class="view-selector">
+            <select onchange="viewChangeHandler(event.target.value, 'layout-4-1-2')" class="view-selector-select">
+              <option>Render</option>
+              <option selected>Node hit-map</option>
+              <option>UI hit-map</option>
+              <option>Group hit-map</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="layout" id="layout-4-2">
+        <div class="relative" id="layout-4-2-1">
+          <div class="view-selector">
+            <select onchange="viewChangeHandler(event.target.value, 'layout-4-2-1')" class="view-selector-select">
+              <option>Render</option>
+              <option>Node hit-map</option>
+              <option selected>UI hit-map</option>
+              <option>Group hit-map</option>
+            </select>
+          </div>
+        </div>
+        <div class="relative" id="layout-4-2-2">
+          <div class="view-selector">
+            <select onchange="viewChangeHandler(event.target.value, 'layout-4-2-2')" class="view-selector-select">
+              <option selected>Render</option>
+              <option>Node hit-map</option>
+              <option>UI hit-map</option>
+              <option selected>Group hit-map</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div onchange="layoutChangeHandler(event.target.value)" class="controls">
+      <div onclick="resetLayoutSizes()" class="control-button" title="Reset"><img src="assets/reset.png" /></div>
+      <select class="layout-selector-select">
+        <option value="1" selected>Layout 1</option>
+        <option value="2">Layout 2</option>
+        <option value="3">Layout 3</option>
+        <option value="4">Layout 4</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    let gutterSize = 6;
+
+    let layout2Sizes = localStorage.getItem('layout-2-sizes');
+    layout2Sizes = layout2Sizes ? JSON.parse(layout2Sizes) : [50, 50];
+    let layout2Split = Split(['#layout-2-1', '#layout-2-2'], {
+      sizes: layout2Sizes,
+      gutterSize,
+      direction: 'horizontal',
+      onDragEnd: (sizes) => localStorage.setItem('layout-2-sizes', JSON.stringify(sizes))
+    });
+
+    let layout3Sizes = localStorage.getItem('layout-3-sizes');
+    layout3Sizes = layout3Sizes ? JSON.parse(layout3Sizes) : [50, 50];
+    let layout31Sizes = localStorage.getItem('layout-3-1-sizes');
+    layout31Sizes = layout31Sizes ? JSON.parse(layout31Sizes) : [50, 50];
+    let layout3Split = Split(['#layout-3-1', '#layout-3-2'], {
+      sizes: layout3Sizes,
+      gutterSize,
+      direction: 'vertical',
+      onDragEnd: (sizes) => localStorage.setItem('layout-3-sizes', JSON.stringify(sizes))
+    });
+    let layout31Split = Split(['#layout-3-1-1', '#layout-3-1-2'], {
+      sizes: layout31Sizes,
+      gutterSize,
+      direction: 'horizontal',
+      onDragEnd: (sizes) => localStorage.setItem('layout-3-1-sizes', JSON.stringify(sizes))
+    });
+
+    let layout4Sizes = localStorage.getItem('layout-4-sizes');
+    layout4Sizes = layout4Sizes ? JSON.parse(layout4Sizes) : [50, 50];
+    let layout41Sizes = localStorage.getItem('layout-4-1-sizes');
+    layout41Sizes = layout41Sizes ? JSON.parse(layout41Sizes) : [50, 50];
+    let layout42Sizes = localStorage.getItem('layout-4-2-sizes');
+    layout42Sizes = layout42Sizes ? JSON.parse(layout42Sizes) : [50, 50];
+    let layout4Split = Split(['#layout-4-1', '#layout-4-2'], {
+      sizes: layout4Sizes,
+      gutterSize,
+      direction: 'vertical',
+      onDragEnd: (sizes) => localStorage.setItem('layout-4-sizes', JSON.stringify(sizes))
+    });
+    let layout41Split = Split(['#layout-4-1-1', '#layout-4-1-2'], {
+      sizes: layout41Sizes,
+      gutterSize,
+      direction: 'horizontal',
+      onDragEnd: (sizes) => localStorage.setItem('layout-4-1-sizes', JSON.stringify(sizes))
+    });
+    let layout42Split = Split(['#layout-4-2-1', '#layout-4-2-2'], {
+      sizes: layout42Sizes,
+      gutterSize,
+      direction: 'horizontal',
+      onDragEnd: (sizes) => localStorage.setItem('layout-4-2-sizes', JSON.stringify(sizes))
+    });
+
+    let layout1 = document.getElementById('layout-1');
+    let layout2 = document.getElementById('layout-2');
+    let layout3 = document.getElementById('layout-3');
+    let layout4 = document.getElementById('layout-4');
+    let layout11 = document.getElementById('layout-1-1');
+    let layout21 = document.getElementById('layout-2-1');
+    let layout22 = document.getElementById('layout-2-2');
+    let layout311 = document.getElementById('layout-3-1-1');
+    let layout312 = document.getElementById('layout-3-1-2');
+    let layout32 = document.getElementById('layout-3-2');
+    let layout411 = document.getElementById('layout-4-1-1');
+    let layout412 = document.getElementById('layout-4-1-2');
+    let layout421 = document.getElementById('layout-4-2-1');
+    let layout422 = document.getElementById('layout-4-2-2');
+
+    let canvas = document.createElement('canvas');
+    let offCanvas = document.createElement('canvas');
+    let offUICanvas = document.createElement('canvas');
+    let offGroupCanvas = document.createElement('canvas');
+    canvas.className = 'canvas';
+    offCanvas.className = 'canvas';
+    offUICanvas.className = 'canvas';
+    offGroupCanvas.className = 'canvas';
+
+    let currLayout = 1;
+    let layoutIdToView = {
+      'layout-1-1': 'Render',
+      'layout-2-1': 'Render',
+      'layout-2-2': 'Node hit-map',
+      'layout-3-1-1': 'Render',
+      'layout-3-1-2': 'Node hit-map',
+      'layout-3-2': 'UI hit-map',
+      'layout-4-1-1': 'Render',
+      'layout-4-1-2': 'Node hit-map',
+      'layout-4-2-1': 'UI hit-map',
+      'layout-4-2-2': 'Group hit-map'
+    }
+    let viewToCanvas = {
+      'Render': canvas,
+      'Node hit-map': offCanvas,
+      'UI hit-map': offUICanvas,
+      'Group hit-map': offGroupCanvas
+    }
+
+    let setView = (layout) => layout.appendChild(viewToCanvas[layoutIdToView[layout.id]]);
+    let removeView = (layout) => layout.removeChild(viewToCanvas[layoutIdToView[layout.id]]);
+    let processVisibility = (layout) => {
+      layout1.style.display = layout1.id.split('-')[1] === layout.toString() ? 'flex' : 'none';
+      layout2.style.display = layout2.id.split('-')[1] === layout.toString() ? 'flex' : 'none';
+      layout3.style.display = layout3.id.split('-')[1] === layout.toString() ? 'flex' : 'none';
+      layout4.style.display = layout4.id.split('-')[1] === layout.toString() ? 'flex' : 'none';
+    }
+    let processLayout = (layout) => {
+      processVisibility(layout);
+
+      switch (layout) {
+        case 1: {
+          setView(layout11);
+          break;
+        }
+        case 2: {
+          setView(layout21);
+          setView(layout22);
+          break;
+        }
+        case 3: {
+          setView(layout311);
+          setView(layout312);
+          setView(layout32);
+          break;
+        }
+        case 4: {
+          setView(layout411);
+          setView(layout412);
+          setView(layout421);
+          setView(layout422);
+          break;
+        }
+        default: return;
+      }
+    }
+
+    processLayout(currLayout);
+
+    let layoutChangeHandler = (value) => {
+      currLayout = Number.parseInt(value);
+      processLayout(currLayout);
+    }
+
+    let viewChangeHandler = (value, id) => {
+      removeView(document.getElementById(id));
+      layoutIdToView[id] = value;
+      setView(document.getElementById(id));
+    }
+
+    let resetLayoutSizes = () => {
+      switch (currLayout) {
+        case 2: {
+          layout2Split.setSizes([50, 50]);
+          localStorage.setItem('layout-2-sizes', JSON.stringify([50, 50]));
+          break;
+        }
+        case 3: {
+          layout31Split.setSizes([50, 50]);
+          localStorage.setItem('layout-3-1-sizes', JSON.stringify([50, 50]));
+          layout3Split.setSizes([50, 50]);
+          localStorage.setItem('layout-3-sizes', JSON.stringify([50, 50]));
+          break;
+        }
+        case 4: {
+          layout4Split.setSizes([50, 50]);
+          localStorage.setItem('layout-4-sizes', JSON.stringify([50, 50]));
+          layout41Split.setSizes([50, 50]);
+          localStorage.setItem('layout-4-1-sizes', JSON.stringify([50, 50]));
+          layout42Split.setSizes([50, 50]);
+          localStorage.setItem('layout-4-2-sizes', JSON.stringify([50, 50]));
+          break;
+        }
+        default: return;
+      }
+    }
+  </script>
+  <script src="scripts/index.js"></script>
+
+</body>
+
+</html>

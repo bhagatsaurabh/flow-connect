@@ -49,7 +49,7 @@ export class FlowConnect extends Hooks {
   /** Id recieved from *requestAnimationFrame* */
   private frameId: number;
 
-  /** Root flow of the flow-tree (for e.g. you might have a [[Flow]] that contains [[SubFlowNode]]s that again contains SubFlowNodes and so on...) */
+  /** Root flow of the flow-tree ([[Flow]] that contains [[SubFlowNode]]s that again contains SubFlowNodes and so on...) */
   private rootFlow: Flow;
   /** Flow which is currently rendered on the canvas */
   private currFlow: Flow;
@@ -98,11 +98,11 @@ export class FlowConnect extends Hooks {
   /**
    * @param mount HTML element (div or canvas) on which FlowConnect will render [[Flow]]s, if no mount is provided, a new canvas element will be created and attached to document.body
    */
-  constructor(mount?: HTMLCanvasElement | HTMLDivElement, width?: number, height?: number) {
+  constructor(mount?: HTMLCanvasElement | HTMLDivElement) {
     super();
-    this.prepareCanvas(mount, width, height);
+    this.prepareCanvas(mount);
     this.setupHitCanvas();
-    this.calculateCanvasDimension();
+    this.calculateCanvasDimension(true);
     this.registerChangeListeners();
     this.attachStyles();
     this.polyfill();
@@ -116,19 +116,21 @@ export class FlowConnect extends Hooks {
     document.addEventListener('scroll', () => {
       if (!throttle) {
         window.requestAnimationFrame(() => {
-          this.calculateCanvasDimension();
+          this.calculateCanvasDimension(false);
           throttle = false;
         });
         throttle = true;
       }
     });
 
-    const resizeObserver = new ResizeObserver(() => {
-      this.calculateCanvasDimension();
-    })
-    resizeObserver.observe(this.canvas);
+    const parentResizeObserver = new ResizeObserver(() => this.calculateCanvasDimension(true));
+    parentResizeObserver.observe(this.canvas.parentElement);
+    if (this.canvas.parentElement !== document.body) {
+      const bodyResizeObserver = new ResizeObserver(() => this.calculateCanvasDimension(true));
+      bodyResizeObserver.observe(document.body);
+    }
   }
-  private prepareCanvas(mount?: HTMLCanvasElement | HTMLDivElement, width?: number, height?: number) {
+  private prepareCanvas(mount?: HTMLCanvasElement | HTMLDivElement) {
     if (!mount) {
       this.canvas = document.createElement('canvas');
       this.canvas.width = document.body.clientWidth;
@@ -136,20 +138,11 @@ export class FlowConnect extends Hooks {
       document.body.appendChild(this.canvas);
     } else if (mount instanceof HTMLDivElement) {
       this.canvas = document.createElement('canvas');
-      if (width && height) {
-        this.canvas.width = width;
-        this.canvas.height = height;
-      } else {
-        this.canvas.width = mount.clientWidth;
-        this.canvas.height = mount.clientHeight;
-      }
+      this.canvas.width = mount.clientWidth;
+      this.canvas.height = mount.clientHeight;
       mount.appendChild(this.canvas);
     } else if (mount instanceof HTMLCanvasElement) {
       this.canvas = mount;
-      if (width && height) {
-        this.canvas.width = width;
-        this.canvas.height = height;
-      }
     } else {
       Log.error('mount provided is not of type HTMLDivElement or HTMLCanvasElement')
     }
@@ -177,7 +170,13 @@ export class FlowConnect extends Hooks {
     inputStyle.innerHTML = 'input.flow-connect-input { position: fixed; visibility: hidden; pointer-events: none; z-index: 100; border: none; border-radius: 0; box-sizing: border-box;} input.flow-connect-input:focus { outline: none; }';
     document.getElementsByTagName('head')[0].appendChild(inputStyle);
   }
-  private calculateCanvasDimension() {
+  private calculateCanvasDimension(adjust: boolean) {
+    if (adjust) {
+      let parentBoundingRect = this.canvas.parentElement.getBoundingClientRect();
+      this.canvas.width = Math.round(parentBoundingRect.width);
+      this.canvas.height = Math.round(parentBoundingRect.height);
+    }
+
     let boundingRect = this.canvas.getBoundingClientRect();
     this.canvasDimensions = {
       top: Math.round(boundingRect.top - window.scrollY),
