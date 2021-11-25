@@ -76,6 +76,9 @@ export class FlowConnect extends Hooks {
 
   /** @hidden HTML input overlayed on canvas */
   private genericInput: HTMLInputElement = document.createElement('input');
+  /** @hidden */
+  private parentResizeObserver: ResizeObserver;
+  private bodyResizeObserver: ResizeObserver;
 
   minScale: number = 0.1;
   maxScale: number = 5;
@@ -122,12 +125,17 @@ export class FlowConnect extends Hooks {
         throttle = true;
       }
     });
+    this.registerObservers(this.canvas.parentElement);
+  }
+  private registerObservers(parent: HTMLElement) {
+    this.parentResizeObserver && this.parentResizeObserver.disconnect();
+    this.bodyResizeObserver && this.bodyResizeObserver.disconnect();
 
-    const parentResizeObserver = new ResizeObserver(() => this.calculateCanvasDimension(true));
-    parentResizeObserver.observe(this.canvas.parentElement);
-    if (this.canvas.parentElement !== document.body) {
-      const bodyResizeObserver = new ResizeObserver(() => this.calculateCanvasDimension(true));
-      bodyResizeObserver.observe(document.body);
+    this.parentResizeObserver = new ResizeObserver(() => this.calculateCanvasDimension(true));
+    this.parentResizeObserver.observe(parent);
+    if (parent !== document.body) {
+      this.bodyResizeObserver = new ResizeObserver(() => this.calculateCanvasDimension(true));
+      this.bodyResizeObserver.observe(document.body);
     }
   }
   private prepareCanvas(mount?: HTMLCanvasElement | HTMLDivElement) {
@@ -457,6 +465,9 @@ export class FlowConnect extends Hooks {
     this.genericInput.value = value;
     this.genericInput.onchange = () => callback(this.genericInput.value);
     this.genericInput.focus();
+  }
+  changeParent(newParent: HTMLElement) {
+    this.registerObservers(newParent);
   }
   private updatePointer(id: number, screenPosition: Vector2, realPosition: Vector2) {
     let pointer = this.pointers.find(pointer => pointer.id === id);
