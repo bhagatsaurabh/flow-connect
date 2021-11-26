@@ -116,7 +116,7 @@ export class Constant {
   /** @hidden */
   static DefaultImageStyle = () => {
     return {
-      align: 'left'
+      align: Align.Left
     };
   };
   /** @hidden */
@@ -127,7 +127,7 @@ export class Constant {
       fontSize: '11px',
       font: 'arial',
       border: '1px solid black',
-      align: 'left',
+      align: Align.Left,
       type: InputType.Text
     };
   };
@@ -137,7 +137,7 @@ export class Constant {
       color: '#000',
       fontSize: '11px',
       font: 'arial',
-      align: 'left'
+      align: Align.Left
     };
   };
   /** @hidden */
@@ -196,6 +196,7 @@ export enum InputType {
 }
 export enum Align {
   Left,
+  Center,
   Right
 }
 export enum UIType {

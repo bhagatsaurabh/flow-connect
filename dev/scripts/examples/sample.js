@@ -1,5 +1,5 @@
-let flow1 = flowConnect.createFlow({
-    name: 'Test Flow',
+let flow = flowConnect.createFlow({
+    name: 'Sample Flow',
     rules: {
         'r': ['r', 'g', 'b'],
         'g': ['r', 'g', 'b'],
@@ -14,7 +14,7 @@ let flow1 = flowConnect.createFlow({
     }
 });
 
-let node = flow1.createNode(
+let node = flow.createNode(
     'Channel Merger',
     new Vector2(50, 50),
     flowConnect.canvasDimensions.width * .4,
@@ -56,7 +56,7 @@ let inputLabel = node.createLabel('Input: ', null, false, false, { grow: .4 });
 let input = node.createInput(45, 'inputValue', true, true, 20, { type: InputType.Number, grow: .6, align: 'right' });
 node.ui.append(node.createHozLayout([inputLabel, input]));
 
-let numberNode = flow1.createNode(
+let numberNode = flow.createNode(
     'Number Source',
     new Vector2(50, 50),
     flowConnect.canvasDimensions.width * .25,
@@ -68,7 +68,7 @@ let numberNode = flow1.createNode(
 );
 numberNode.ui.append(numberNode.createInput(45, 'value', true, true, 20, { type: InputType.Number, grow: .6, align: 'right' }));
 
-let textNode = flow1.createNode(
+let textNode = flow.createNode(
     'Text Source',
     new Vector2(50, 120),
     flowConnect.canvasDimensions.width * .25,
@@ -80,7 +80,7 @@ let textNode = flow1.createNode(
 );
 textNode.ui.append(textNode.createInput('', 'value', true, true, 20, { type: InputType.Text, grow: .6, align: 'right' }));
 
-let toggleNode = flow1.createNode(
+let toggleNode = flow.createNode(
     'Toggle Source',
     new Vector2(50, 190),
     flowConnect.canvasDimensions.width * .25,
@@ -92,7 +92,7 @@ let toggleNode = flow1.createNode(
 );
 toggleNode.ui.append(toggleNode.createToggle('value', true, true, null, { grow: .2 }));
 
-let timerNode = flow1.createNode(
+let timerNode = flow.createNode(
     'Timer',
     new Vector2(100, 100), 100, [],
     [{ name: 'timer', dataType: 'event' }],
@@ -135,7 +135,5 @@ convertNode.on('process', (node, inputs) => {
     node.setOutput('Text', inputs[0] ? inputs[0].toString() : 'Error');
 });
 
-let subFlowNode = flow1.addSubFlow(flow2, new Vector2(200, 200));
+let subFlowNode = flow.addSubFlow(flow2, new Vector2(200, 200));
 subFlowNode.on('process', () => console.log('SubflowNode'));
-
-flowConnect.render(flow1);

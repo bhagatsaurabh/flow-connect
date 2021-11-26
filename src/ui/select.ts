@@ -3,7 +3,7 @@ import { Node } from "../core/node";
 import { Vector2 } from "../math/vector";
 import { Label } from "./label";
 import { UINode } from "./ui-node";
-import { Constant, TerminalType, UIType } from "../math/constants";
+import { Align, Constant, TerminalType, UIType } from "../math/constants";
 import { SelectStyle, Serializable, SerializedSelect, SerializedTerminal } from "../core/interfaces";
 import { Color } from "../core/color";
 
@@ -57,7 +57,7 @@ export class Select extends UINode implements Serializable {
     );
     this.height = height ? height : this.node.style.rowHeight;
     this._selected = this.options.length === 0 ? 'None' : this.options[0];
-    this.label = new Label(this.node, this.selected, null, false, false, { align: 'center', ...this.style }, this.height);
+    this.label = new Label(this.node, this.selected, null, false, false, { align: Align.Center, ...this.style }, this.height);
     this.children.push(this.label);
 
     if (this.input) {

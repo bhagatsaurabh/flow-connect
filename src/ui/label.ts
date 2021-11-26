@@ -1,7 +1,7 @@
 import { Terminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../math/vector";
-import { Constant, TerminalType, UIType } from '../math/constants';
+import { Align, Constant, TerminalType, UIType } from '../math/constants';
 import { UINode } from "./ui-node";
 import { LabelStyle, Serializable, SerializedLabel, SerializedTerminal } from "../core/interfaces";
 import { Color } from "../core/color";
@@ -80,11 +80,11 @@ export class Label extends UINode implements Serializable {
     context.textBaseline = 'top';
     let y = this.position.y + this.height / 2 - this.textHeight / 2;
     let x = this.position.x;
-    if (this.style.align === 'left') {
+    if (this.style.align === Align.Left) {
       x += 5;
-    } else if (this.style.align === 'center') {
+    } else if (this.style.align === Align.Center) {
       x += this.width / 2 - this.textWidth / 2;
-    } else if (this.style.align === 'right') {
+    } else if (this.style.align === Align.Right) {
       x += this.width - this.textWidth - 5;
     }
     context.fillText(this.displayText, x, y);

@@ -11,6 +11,9 @@
 
 <body>
   <div class="container">
+    <div class="examples-container">
+      <select onchange="exampleChangeHandler(event.target.value)" id="examples-select"></select>
+    </div>
     <div class="layout-container" id="layout-1">
       <div class="layout-container relative" id="layout-1-1"></div>
     </div>
@@ -90,11 +93,40 @@
         <option value="2">Layout 2</option>
         <option value="3">Layout 3</option>
         <option value="4">Layout 4</option>
+        <option value="5">Layout 5</option>
       </select>
     </div>
   </div>
 
   <script>
+    let examples = [];
+    let fetchExamples = async () => {
+      examples = await (await fetch('/examples')).json();
+      let select = document.getElementById('examples-select');
+      let lastExample = localStorage.getItem('example');
+      examples.forEach(example => {
+        let option = document.createElement('option');
+        option.innerText = example;
+        if (example === lastExample) option.selected = true;
+        select.appendChild(option);
+      });
+
+      if (lastExample) {
+        let script = document.createElement('script');
+        script.src = 'scripts/examples/' + lastExample;
+        script.onload = () => typeof flow !== 'undefined' && flowConnect.render(flow);
+        document.body.appendChild(script);
+      }
+      else {
+        localStorage.setItem('example', examples[0]);
+      }
+    }
+    let exampleChangeHandler = (example) => {
+      localStorage.setItem('example', example);
+      location.reload();
+    }
+    fetchExamples();
+
     let gutterSize = 6;
 
     let layout2Sizes = localStorage.getItem('layout-2-sizes');
@@ -177,6 +209,16 @@
     let currLayout = localStorage.getItem('curr-layout');
     if (currLayout) {
       currLayout = Number(currLayout);
+      if (currLayout === 5) {
+        layout2.style.flexDirection = 'column';
+        layout2Split.destroy();
+        layout2Split = Split(['#layout-2-1', '#layout-2-2'], {
+          sizes: layout2Sizes,
+          gutterSize,
+          direction: 'vertical',
+          onDragEnd: (sizes) => localStorage.setItem('layout-2-sizes', JSON.stringify(sizes))
+        });
+      }
       layoutSelect.value = currLayout;
     }
     else {
@@ -247,12 +289,39 @@
       }
     }
 
-    processLayout(currLayout);
+    processLayout(currLayout === 5 ? 2 : currLayout);
 
     let layoutChangeHandler = (value) => {
+      let oldLayout = currLayout;
       currLayout = Number.parseInt(value);
-      localStorage.setItem('curr-layout', currLayout);
-      processLayout(currLayout);
+      if (currLayout === 5) {
+        layout2.style.flexDirection = 'column';
+        layout2Split.destroy();
+        layout2Split = Split(['#layout-2-1', '#layout-2-2'], {
+          sizes: layout2Sizes,
+          gutterSize,
+          direction: 'vertical',
+          onDragEnd: (sizes) => localStorage.setItem('layout-2-sizes', JSON.stringify(sizes))
+        });
+
+        localStorage.setItem('curr-layout', currLayout);
+        processLayout(2);
+      } else if (currLayout === 2 && layout2.style.flexDirection === 'column') {
+        layout2.style.flexDirection = 'row';
+        layout2Split.destroy();
+        layout2Split = Split(['#layout-2-1', '#layout-2-2'], {
+          sizes: layout2Sizes,
+          gutterSize,
+          direction: 'horizontal',
+          onDragEnd: (sizes) => localStorage.setItem('layout-2-sizes', JSON.stringify(sizes))
+        });
+
+        localStorage.setItem('curr-layout', currLayout);
+        processLayout(currLayout);
+      } else {
+        localStorage.setItem('curr-layout', currLayout);
+        processLayout(currLayout);
+      }
     }
 
     let viewChangeHandler = (value, id) => {
@@ -289,8 +358,7 @@
     }
   </script>
   <script src="scripts/index.js"></script>
-  <script src="scripts/examples/sample.js"></script>
-
+  <script id="example-script"></script>
 </body>
 
 </html>

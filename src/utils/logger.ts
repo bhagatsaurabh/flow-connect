@@ -1,9 +1,9 @@
 export enum LogLevel {
-  TRACE = 0, DEBUG = 1, INFO = 2, LOG = 2, WARN = 3, ERROR = 4, DISABLED = 5
+  TRACE = 0, DEBUG = 1, WARN = 2, INFO = 3, LOG = 3, ERROR = 4, DISABLED = 5
 }
 
 export class Log {
-  static LOG_LEVEL: LogLevel = LogLevel.WARN;
+  static LOG_LEVEL: LogLevel = LogLevel.INFO;
 
   static trace(...args: any): void {
     if (this.LOG_LEVEL > LogLevel.TRACE) return;

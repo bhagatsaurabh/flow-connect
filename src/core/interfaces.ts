@@ -1,5 +1,5 @@
 import { Vector2 } from "../math/vector";
-import { InputType, LOD, NodeState, TerminalType, UIType, ViewPort } from '../math/constants';
+import { Align, InputType, LOD, NodeState, TerminalType, UIType, ViewPort } from '../math/constants';
 
 export interface Dimension {
   left: number,
@@ -113,7 +113,7 @@ export interface LabelStyle {
   color?: string,
   fontSize?: string,
   font?: string,
-  align?: string
+  align?: Align
 }
 export interface InputStyle {
   backgroundColor?: string,
@@ -122,7 +122,7 @@ export interface InputStyle {
   font?: string,
   border?: string,
   type?: InputType,
-  align?: string
+  align?: Align
 }
 export interface ButtonStyle {
   backgroundColor?: string,
@@ -142,10 +142,9 @@ export interface ContainerStyle {
 export interface DisplayStyle {
   borderColor?: string
 }
-export interface HorizontalLayoutStyle {
-}
+export interface HorizontalLayoutStyle { }
 export interface ImageStyle {
-  align?: string
+  align?: Align
 }
 
 export interface SerializedVector2 {

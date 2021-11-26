@@ -1,7 +1,7 @@
 import { Color } from "../core/color";
 import { ImageStyle, Serializable, SerializedImage } from "../core/interfaces";
 import { Node } from "../core/node";
-import { Constant, UIType } from "../math/constants";
+import { Align, Constant, UIType } from "../math/constants";
 import { Vector2 } from "../math/vector";
 import { imageIcon } from "../resource/icons";
 import { Log } from "../utils/logger";
@@ -48,8 +48,8 @@ export class Image extends UINode implements Serializable {
     if (this.imageCanvas) {
       let x = this.position.x;
       if (this.source.width < this.node.ui.contentWidth) {
-        if (this.style.align === 'center') x += this.node.ui.contentWidth / 2 - this.source.width / 2;
-        else if (this.style.align === 'right') x += + (this.node.ui.contentWidth - this.source.width);
+        if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
+        else if (this.style.align === Align.Right) x += + (this.node.ui.contentWidth - this.source.width);
       }
       this.context.drawImage(
         this.imageCanvas, 0, 0, this.source.width, this.source.height,
@@ -62,8 +62,8 @@ export class Image extends UINode implements Serializable {
     if (this.imageCanvas) {
       let x = this.position.x;
       if (this.source.width < this.node.ui.contentWidth) {
-        if (this.style.align === 'center') x += this.node.ui.contentWidth / 2 - this.source.width / 2;
-        else if (this.style.align === 'right') x += + (this.node.ui.contentWidth - this.source.width);
+        if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
+        else if (this.style.align === Align.Right) x += + (this.node.ui.contentWidth - this.source.width);
       }
       let context = this.context;
       context.fillStyle = 'lightgrey';
@@ -78,8 +78,8 @@ export class Image extends UINode implements Serializable {
 
     let x = this.position.x;
     if (this.source.width < this.node.ui.contentWidth) {
-      if (this.style.align === 'center') x += this.node.ui.contentWidth / 2 - this.source.width / 2;
-      else if (this.style.align === 'right') x += + (this.node.ui.contentWidth - this.source.width);
+      if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
+      else if (this.style.align === Align.Right) x += + (this.node.ui.contentWidth - this.source.width);
     }
     this.offUIContext.fillRect(x, this.position.y, this.width, this.height);
   }

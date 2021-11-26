@@ -1,7 +1,7 @@
 import { Node } from "../core/node";
 import { Terminal } from '../core/terminal';
 import { Vector2 } from "../math/vector";
-import { Constant, TerminalType, UIType } from '../math/constants';
+import { Align, Constant, TerminalType, UIType } from '../math/constants';
 import { Label } from "./label";
 import { UINode } from './ui-node';
 import { ButtonStyle, Serializable, SerializedButton, SerializedTerminal } from "../core/interfaces";
@@ -43,7 +43,7 @@ export class Button extends UINode implements Serializable {
     this.label = new Label(this.node, text, null, false, false, {
       fontSize: this.style.fontSize,
       font: this.style.font,
-      align: 'center',
+      align: Align.Center,
       color: this.style.color
     }, this.height);
     this.label.on('click', (_node: Node, position: Vector2) => this.call('click', this, position));

@@ -84,3 +84,17 @@ img {
   padding-top: 4px;
   padding-bottom: 4px;
 }
+.examples-container {
+  z-index: 10;
+  top: 0;
+  left: 0;
+  position: absolute;
+}
+#examples-select {
+  padding: 4px 15px 4px 15px;
+  outline: none;
+}
+#examples-select option {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}

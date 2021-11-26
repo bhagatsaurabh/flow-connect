@@ -672,7 +672,7 @@ export class FlowConnect extends Hooks {
     this.frameId = window.requestAnimationFrame(this._render.bind(this));
   }
 
-  createFlow(options: FlowOptions = { name: 'New Flow', rules: {}, terminalTypeColors: {} }): Flow {
+  createFlow(options: FlowOptions = { name: 'New Flow', rules: {} = {}, terminalTypeColors: {} = {} }): Flow {
     options.rules = { ...options.rules, ...Constant.DefaultRules };
     let flow = new Flow(this, options.name, options.rules, options.terminalTypeColors);
     this.flows.push(flow);

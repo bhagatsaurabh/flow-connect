@@ -5,7 +5,7 @@ import { fileIcon } from "../resource/icons";
 import { Image } from "./image";
 import { Label } from "./label";
 import { UINode } from "./ui-node";
-import { Constant, TerminalType, UIType } from "../math/constants";
+import { Align, Constant, TerminalType, UIType } from "../math/constants";
 import { Serializable, SerializedSource, SerializedTerminal, SourceStyle } from "../core/interfaces";
 import { Color } from "../core/color";
 
@@ -68,7 +68,7 @@ export class Source extends UINode implements Serializable {
       }
     };
 
-    this.label = new Label(this.node, 'Select', null, false, false, { align: 'center', ...this.style }, this.height);
+    this.label = new Label(this.node, 'Select', null, false, false, { align: Align.Center, ...this.style }, this.height);
     this.label.on('click', () => this.htmlInput.click());
 
     this.fileIcon = new Image(this.node, fileIcon);
