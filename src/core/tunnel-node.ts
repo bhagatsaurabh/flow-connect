@@ -13,7 +13,7 @@ export class TunnelNode extends Node {
   /** @hidden */
   set proxyTerminal(terminal: Terminal) {
     this._proxyTerminal = terminal;
-    this._proxyTerminal.on('data', data => {
+    this._proxyTerminal.on('data', (_, data) => {
       (this.outputs[0] as any)['setData'](data);
     });
   }
@@ -33,7 +33,7 @@ export class TunnelNode extends Node {
     super(flow, name, position, width, inputs, outputs, style, terminalStyle, props, id, hitColor);
 
     if (this.inputs.length > 0) {
-      this.inputs[0].on('data', data => {
+      this.inputs[0].on('data', (_, data) => {
         (this.proxyTerminal as any)['setData'](data);
       });
     } else {

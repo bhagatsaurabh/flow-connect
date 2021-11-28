@@ -62,7 +62,7 @@ export class Slider extends UINode implements Serializable {
       this.input.on('connect', (terminal, connector) => {
         if (connector.data) this.value = connector.data;
       });
-      this.input.on('data', data => {
+      this.input.on('data', (_, data) => {
         if (data) this.value = data;
       });
     }

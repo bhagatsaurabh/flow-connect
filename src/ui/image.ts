@@ -53,7 +53,7 @@ export class Image extends UINode implements Serializable {
       }
       this.context.drawImage(
         this.imageCanvas, 0, 0, this.source.width, this.source.height,
-        x, this.position.y, this.width, this.height
+        x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height
       );
     }
   }
@@ -68,8 +68,8 @@ export class Image extends UINode implements Serializable {
       let context = this.context;
       context.fillStyle = 'lightgrey';
       context.strokeStyle = '#000';
-      context.fillRect(x, this.position.y, this.width, this.height);
-      context.strokeRect(x, this.position.y, this.width, this.height)
+      context.fillRect(x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height);
+      context.strokeRect(x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height)
     }
   }
   /** @hidden */
@@ -81,7 +81,7 @@ export class Image extends UINode implements Serializable {
       if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
       else if (this.style.align === Align.Right) x += + (this.node.ui.contentWidth - this.source.width);
     }
-    this.offUIContext.fillRect(x, this.position.y, this.width, this.height);
+    this.offUIContext.fillRect(x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height);
   }
   /** @hidden */
   reflow(): void {

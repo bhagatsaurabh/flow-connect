@@ -11,8 +11,8 @@ export const API = (flow: Flow, options: NodeCreatorOptions = {}) => {
         options.position || new Vector2(50, 50),
         options.width || 150,
         [{ name: 'trigger', dataType: 'event' }],
-        [{ name: 'data', dataType: 'event' }],
-        options.style || { padding: 10, spacing: 10, rowHeight: 10 },
+        [{ name: 'data', dataType: 'any' }],
+        options.style || { rowHeight: 10 },
         options.terminalStyle || {},
         options.props ? { src: '', ...options.props } : { src: '' }
     );
@@ -22,7 +22,7 @@ export const API = (flow: Flow, options: NodeCreatorOptions = {}) => {
         if (!node.props.src || node.props.src === '') Log.error("Prop 'src' of API Node is invalid, cannot make an API call");
         else {
             let data = await (await fetch(node.props.src)).json();
-            node.outputs[0].emit(data);
+            node.setOutput(0, data);
         }
     });
     return node;

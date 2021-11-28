@@ -14,7 +14,9 @@ import { Graph } from "./graph";
 import { Rules } from "./interfaces";
 import { TerminalTypeColors } from "./interfaces";
 
-/** A Flow is a set of [[Node]]s, [[Connector]]s and [[Group]]s, it can also contain [[SubFlowNode]]s thereby creating a tree of Flows. */
+/** A Flow is a set of [[Node]]s, [[Connector]]s and [[Group]]s, it can also contain [[SubFlowNode]]s thereby creating a tree of Flows.
+ *  ![](media://example.png)
+ */
 export class Flow extends Hooks implements Serializable {
   sortedNodes: AVLTree<Node>;
   nodes: { [id: string]: Node };

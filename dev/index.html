@@ -14,6 +14,10 @@
     <div class="examples-container">
       <select onchange="exampleChangeHandler(event.target.value)" id="examples-select"></select>
     </div>
+    <div class="flow-controls">
+      <div id="flow-control-button" title="Start" onclick="flowControlHandler()" class="control-button"><img src="assets/play.png" /></div>
+      <div class="control-button" title="Goto Root Flow" onclick="flowConnect.top()"><img src="assets/up-arrow.png" /></div>
+    </div>
     <div class="layout-container" id="layout-1">
       <div class="layout-container relative" id="layout-1-1"></div>
     </div>
@@ -126,6 +130,18 @@
       location.reload();
     }
     fetchExamples();
+
+    let flowControlHandler = () => {
+      if (flow.state === FlowState.Running) {
+        document.getElementById('flow-control-button').children[0].src = 'assets/play.png';
+        document.getElementById('flow-control-button').children[0].title = 'Play';
+        flow.stop();
+      } else {
+        document.getElementById('flow-control-button').children[0].src = 'assets/pause.png';
+        document.getElementById('flow-control-button').children[0].title = 'Stop';
+        flow.start();
+      }
+    }
 
     let gutterSize = 6;
 

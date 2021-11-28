@@ -9,6 +9,7 @@ import { Terminal } from './terminal';
 import { Hooks } from './hooks';
 import { ButtonStyle, DisplayStyle, Events, HorizontalLayoutStyle, ImageStyle, InputStyle, LabelStyle, NodeStyle, RenderState, SelectStyle, Serializable, SerializedContainer, SerializedNode, SerializedTerminal, SliderStyle, SourceStyle, TerminalStyle, ToggleStyle } from "./interfaces";
 import { Connector } from "./connector";
+import { Log } from "../utils/logger";
 
 /** @hidden */
 export class NodeButton {
@@ -394,11 +395,8 @@ export class Node extends Hooks implements Events, Serializable {
     let outputData = new Map<Terminal, any>();
     Object.entries(outputs).forEach(entry => {
       let terminal = this.outputs.find(terminal => terminal.name === entry[0]);
-      if (terminal) {
-        outputData.set(terminal, entry[1]);
-      } else {
-        throw 'Error';
-      }
+      if (terminal) outputData.set(terminal, entry[1]);
+      else throw Log.error("Terminal '" + entry[0] + "' not found");
     });
 
     let groupedConnectors = new Map<Node, Connector[]>();

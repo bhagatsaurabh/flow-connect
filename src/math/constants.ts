@@ -111,7 +111,9 @@ export class Constant {
   };
   /** @hidden */
   static DefaultHorizontalLayoutStyle = () => {
-    return {};
+    return {
+      spacing: 0
+    };
   };
   /** @hidden */
   static DefaultImageStyle = () => {

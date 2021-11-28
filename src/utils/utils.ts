@@ -8,6 +8,7 @@ export const getNewGUID = () => {
   return (S4() + "-" + S4() + "-" + S4() + "-" + S4());
 };
 export const normalize = (value: number, min: number, max: number) => {
+  if (min === max) return 1;
   return (value - min) / (max - min);
 };
 export const denormalize = (normalized: number, min: number, max: number) => {
@@ -35,3 +36,16 @@ export const canConnect = (source: Terminal, destination: Terminal, rules: Rules
   if (!executionGraph.canConnect(source.node, destination.node)) return false;
   return true;
 }
+/** @hidden */
+export const binarySearch = ({ max, getValue, match }: { max: number, getValue: Function, match: number }) => {
+  let min = 0;
+  while (min <= max) {
+    let mid = Math.floor((min + max) / 2);
+    const curr = getValue(mid);
+
+    if (curr === match) return mid;
+    if (curr < match) min = mid + 1;
+    else max = mid - 1;
+  }
+  return max;
+};

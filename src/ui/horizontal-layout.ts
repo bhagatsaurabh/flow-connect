@@ -40,16 +40,15 @@ export class HorizontalLayout extends UINode implements Serializable {
   }
   /** @hidden */
   reflow(): void {
-    let availableWidth = this.width;
+    let availableWidth = this.width - (this.children.length > 0 ? this.children.length - 1 : 0) * this.style.spacing;
+    let actualWidth = availableWidth;
     let x = this.position.x;
     let maxHeight = 0;
-    this.children.forEach(child => {
-      maxHeight = Math.max(maxHeight, child.height);
-    });
+    this.children.forEach(child => maxHeight = Math.max(maxHeight, child.height));
     this.height = maxHeight;
 
     this.children.forEach(child => {
-      let childWidth = child.style.grow ? child.style.grow * this.width : (1 / this.children.length) * this.width;
+      let childWidth = child.style.grow ? child.style.grow * actualWidth : (1 / this.children.length) * actualWidth;
       if (childWidth > availableWidth) childWidth = availableWidth;
       child.width = childWidth;
 
@@ -57,8 +56,11 @@ export class HorizontalLayout extends UINode implements Serializable {
       child.position = new Vector2(x, this.position.y);
 
       availableWidth -= childWidth;
-      x += childWidth;
+      x += childWidth + this.style.spacing;
     });
+
+    // To fix a bug, when creating HozLayout with childs argument, UI container's height won't update
+    this.node.ui.reflow();
   }
 
   /** @hidden */

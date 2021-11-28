@@ -87,9 +87,13 @@ export class Graph implements Serializable {
 
     this.state = GraphState.FullRun;
 
+    /* // Old - Run every node at every tree depth
     this.nodes.forEach(groupedNodes => {
       groupedNodes.forEach(graphNode => graphNode.flowNode.run());
-    });
+    }); */
+
+    // New - Only run nodes at first level, automatic cascade after that
+    if (this.nodes.length > 0) this.nodes[0].forEach(graphNode => graphNode.flowNode.run());
 
     this.state = GraphState.Idle;
   }
@@ -128,7 +132,7 @@ export class Graph implements Serializable {
   }
   processDirtyNodes() {
     let dirtyNodes = Object.values(this.dirtyNodes).sort((a, b) => (a.order - b.order));
-    Log.log('Dirty Nodes: ', [...dirtyNodes]);
+    Log.debug('Dirty Nodes: ', [...dirtyNodes]);
 
     let queue: GraphNode[] = dirtyNodes;
     queue.forEach(graphNode => {

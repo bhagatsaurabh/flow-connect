@@ -37,6 +37,11 @@ export class Display extends UINode implements Serializable {
   private customRender() {
     return new Promise<void>(resolve => {
       this.offContext.clearRect(0, 0, this.offCanvas.width, this.offCanvas.height);
+
+      if (this.style.backgroundColor) {
+        this.offContext.fillStyle = this.style.backgroundColor;
+        this.offContext.fillRect(0, 0, this.offCanvas.width, this.offCanvas.height);
+      }
       this.customRenderer(this.offContext, this.offCanvas.width, this.offCanvas.height);
       resolve();
     });

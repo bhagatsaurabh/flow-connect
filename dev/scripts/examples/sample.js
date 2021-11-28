@@ -15,9 +15,9 @@ let flow = flowConnect.createFlow({
 });
 
 let node = flow.createNode(
-    'Channel Merger',
+    'Test Node',
     new Vector2(50, 50),
-    flowConnect.canvasDimensions.width * .4,
+    250,
     [{ name: 'R', dataType: 'r' }, { name: 'G', dataType: 'g' }, { name: 'B', dataType: 'b' }],
     [{ name: 'Image', dataType: 'image' }],
     { padding: 10, spacing: 10, rowHeight: 10 },
@@ -25,8 +25,8 @@ let node = flow.createNode(
     { labelText: 'Label Text', sliderValue: 50, toggle: false, selectedValue: null, file: null, inputValue: 365 }
 );
 
-node.ui.append(node.createLabel(null, 'labelText', true, true, { align: 'center', fontSize: '17px' }));
-node.ui.append(node.createImage(null, null, { align: 'center' }));
+node.ui.append(node.createLabel(null, 'labelText', true, true, { align: Align.Center, fontSize: '17px' }));
+node.ui.append(node.createImage(null, null, { align: Align.Center }));
 
 let sliderValue = node.createLabel(57, null, false, false, { grow: .2 });
 let slider = node.createSlider(0, 150, 57, 0, 'sliderValue', true, true, 15, { grow: .8, railHeight: 5 });
@@ -53,66 +53,39 @@ source.on('change', (source, value) => console.log(value));
 node.ui.append(node.createHozLayout([sourceLabel, source]));
 
 let inputLabel = node.createLabel('Input: ', null, false, false, { grow: .4 });
-let input = node.createInput(45, 'inputValue', true, true, 20, { type: InputType.Number, grow: .6, align: 'right' });
+let input = node.createInput(45, 'inputValue', true, true, 20, { type: InputType.Number, grow: .6, align: Align.Right });
 node.ui.append(node.createHozLayout([inputLabel, input]));
 
 let numberNode = flow.createNode(
     'Number Source',
     new Vector2(50, 50),
-    flowConnect.canvasDimensions.width * .25,
-    [],
-    [],
-    { padding: 10, spacing: 10, rowHeight: 10 },
-    {},
+    140, [], [],
+    { padding: 10, spacing: 10, rowHeight: 10 }, {},
     { value: 15 }
 );
-numberNode.ui.append(numberNode.createInput(45, 'value', true, true, 20, { type: InputType.Number, grow: .6, align: 'right' }));
+numberNode.ui.append(numberNode.createInput(45, 'value', true, true, 20, { type: InputType.Number, grow: .6, align: Align.Right }));
 
 let textNode = flow.createNode(
     'Text Source',
     new Vector2(50, 120),
-    flowConnect.canvasDimensions.width * .25,
-    [],
-    [],
-    { padding: 10, spacing: 10, rowHeight: 10 },
-    {},
+    140, [], [],
+    { padding: 10, spacing: 10, rowHeight: 10 }, {},
     { value: 'Example Text' }
 );
-textNode.ui.append(textNode.createInput('', 'value', true, true, 20, { type: InputType.Text, grow: .6, align: 'right' }));
+textNode.ui.append(textNode.createInput('', 'value', true, true, 20, { type: InputType.Text, grow: .6, align: Align.Right }));
 
 let toggleNode = flow.createNode(
     'Toggle Source',
     new Vector2(50, 190),
-    flowConnect.canvasDimensions.width * .25,
-    [],
-    [],
-    { padding: 10, spacing: 10, rowHeight: 10 },
-    {},
+    140, [], [],
+    { padding: 10, spacing: 10, rowHeight: 10 }, {},
     { value: true }
 );
 toggleNode.ui.append(toggleNode.createToggle('value', true, true, null, { grow: .2 }));
 
-let timerNode = flow.createNode(
-    'Timer',
-    new Vector2(100, 100), 100, [],
-    [{ name: 'timer', dataType: 'event' }],
-    { padding: 10, spacing: 10, rowHeight: 10 },
-    {}, { delay: 1000 }
-);
-timerNode.ui.append(timerNode.createInput(1000, 'delay', false, false, 20, { type: InputType.Number }));
-timerNode.lastTrigger = Number.MIN_VALUE;
-flowConnect.on('tickreset', () => {
-    timerNode.lastTrigger = Number.MIN_VALUE;
-});
-flowConnect.on('tick', () => {
-    let current = flowConnect.time;
-    if (current - timerNode.lastTrigger >= timerNode.props.delay) {
-        timerNode.outputs[0].emit();
-        timerNode.lastTrigger = current;
-    }
-});
+let timerNode = StandardNodes.Timer(flow, { name: 'Timer Node', props: { delay: 2000 } });
 
-node.on('process', () => console.log('Channel Merger'));
+node.on('process', () => console.log('Test Node'));
 numberNode.on('process', () => console.log('Number Source'));
 textNode.on('process', () => console.log('Text Source'));
 toggleNode.on('process', () => console.log('Toggle Source'));
@@ -123,8 +96,7 @@ let inputNode = flow2.addInput('Input 1', 'number', new Vector2(100, 100));
 let outputNode = flow2.addOutput('Output 1', 'string', new Vector2(200, 200));
 let convertNode = flow2.createNode(
     'Converter',
-    new Vector2(50, 50),
-    flowConnect.canvasDimensions.width * .4,
+    new Vector2(50, 50), 130,
     [{ name: 'Number', dataType: 'number' }],
     [{ name: 'Text', dataType: 'string' }],
     {}, {}, {}

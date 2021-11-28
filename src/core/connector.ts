@@ -18,7 +18,7 @@ export class Connector implements Serializable {
   get data(): any { return this._data; }
   set data(data: any) {
     this._data = data;
-    this.end && this.end.call('data', data);
+    this.end && this.end.call('data', this.end, data);
     if (this.flow.state === FlowState.Running && this.flow.executionGraph.state !== GraphState.FullRun) {
       this.flow.executionGraph.setDirtyNode(this.endNode);
     }
@@ -97,7 +97,7 @@ export class Connector implements Serializable {
   /** @hidden */
   setData(data: any) {
     this._data = data;
-    this.end && this.end.call('data', data);
+    this.end && this.end.call('data', this.end, data);
   }
   canConnect(destination: Terminal): boolean {
     let source = !this.start ? this.end : this.start;

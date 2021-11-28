@@ -78,7 +78,7 @@ export class Source extends UINode implements Serializable {
       this.input.on('connect', (terminal, connector) => {
         if (connector.data) this.file = connector.data;
       });
-      this.input.on('data', data => {
+      this.input.on('data', (_, data) => {
         if (data) this.file = data;
       });
     }

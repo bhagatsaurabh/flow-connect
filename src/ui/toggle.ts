@@ -55,7 +55,7 @@ export class Toggle extends UINode implements Serializable {
       this.input.on('connect', (terminal, connector) => {
         if (connector.data) this.checked = connector.data;
       });
-      this.input.on('data', data => {
+      this.input.on('data', (_, data) => {
         if (typeof data !== 'undefined') this.checked = data;
       });
     }

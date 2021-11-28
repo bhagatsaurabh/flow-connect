@@ -1,5 +1,6 @@
 import { Vector2 } from "../math/vector";
 import { Align, InputType, LOD, NodeState, TerminalType, UIType, ViewPort } from '../math/constants';
+import { Color } from "./color";
 
 export interface Dimension {
   left: number,
@@ -140,9 +141,12 @@ export interface ContainerStyle {
   borderWidth?: number
 }
 export interface DisplayStyle {
-  borderColor?: string
+  borderColor?: string,
+  backgroundColor?: string
 }
-export interface HorizontalLayoutStyle { }
+export interface HorizontalLayoutStyle {
+  spacing?: number
+}
 export interface ImageStyle {
   align?: Align
 }

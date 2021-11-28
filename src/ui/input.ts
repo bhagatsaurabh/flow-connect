@@ -95,10 +95,12 @@ export class Input extends UINode implements Serializable {
     this.inputEl.onblur = () => {
       this.inputEl.style.visibility = 'hidden';
       this.inputEl.style.pointerEvents = 'none';
+      this.value = this.inputEl.value;
+      this.label.text = this.value.toString();
     };
     this.inputEl.onchange = (event: any) => {
-      this.value = event.target.value;
-      this.label.text = this.value.toString();
+      // this.value = event.target.value;
+      // this.label.text = this.value.toString();
     }
     document.body.appendChild(this.inputEl);
 
@@ -106,7 +108,7 @@ export class Input extends UINode implements Serializable {
       this.input.on('connect', (terminal, connector) => {
         if (connector.data) this.value = connector.data;
       });
-      this.input.on('data', data => {
+      this.input.on('data', (_, data) => {
         if (data) this.value = data;
       });
     }

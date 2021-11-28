@@ -5,6 +5,7 @@ import { Align, Constant, TerminalType, UIType } from '../math/constants';
 import { UINode } from "./ui-node";
 import { LabelStyle, Serializable, SerializedLabel, SerializedTerminal } from "../core/interfaces";
 import { Color } from "../core/color";
+import { binarySearch } from "../utils/utils";
 
 export class Label extends UINode implements Serializable {
   private displayText: string;
@@ -13,7 +14,10 @@ export class Label extends UINode implements Serializable {
   private textHeight: number;
 
   get text(): string {
-    if (this.propName) return this.node.props[this.propName];
+    if (this.propName) {
+      if (typeof this.node.props[this.propName] !== 'string') return this.node.props[this.propName].toString();
+      return this.node.props[this.propName];
+    }
     return this._text;
   }
   set text(text: string) {
@@ -21,7 +25,6 @@ export class Label extends UINode implements Serializable {
       this.node.props[this.propName] = text;
     } else {
       this._text = text;
-      this.displayText = this._text;
       this.reflow();
     }
   }
@@ -55,7 +58,6 @@ export class Label extends UINode implements Serializable {
     );
 
     this._text = this.propName ? this.node.props[this.propName] : text;
-    this.displayText = this._text;
     this.reflow();
 
     if (!height) this.height = this.textHeight;
@@ -65,7 +67,7 @@ export class Label extends UINode implements Serializable {
       this.input.on('connect', (terminal, connector) => {
         if (connector.data) this.text = connector.data;
       });
-      this.input.on('data', data => {
+      this.input.on('data', (_, data) => {
         if (data) this.text = data;
       });
     }
@@ -106,6 +108,7 @@ export class Label extends UINode implements Serializable {
   reflow(): void {
     let context = this.context;
     context.font = this.style.fontSize + ' ' + this.style.font;
+    this.displayText = this.getBestFitString();
     let metrics = context.measureText(this.displayText);
     context.font = null;
     this.textWidth = metrics.width;
@@ -129,11 +132,28 @@ export class Label extends UINode implements Serializable {
       this.output.position.y = this.position.y + this.height / 2;
     }
   }
+  /** @hidden */
+  getBestFitString(): string {
+    let text = this.text;
+    if (typeof (text as any) !== 'string') text = text.toString();
+
+    let width = this.context.measureText(text).width;
+    const ellipsis = '…';
+    const ellipsisWidth = this.context.measureText(ellipsis).width;
+    if (width <= this.width || width <= ellipsisWidth) return text;
+
+    const index = binarySearch({
+      max: text.length,
+      getValue: (index: number) => this.context.measureText(text.substring(0, index)).width,
+      match: this.width - ellipsisWidth,
+    });
+
+    return text.substring(0, index) + ellipsis;
+  }
 
   /** @hidden */
   onPropChange(oldValue: any, newValue: any) {
     this._text = newValue;
-    this.displayText = this._text;
     this.reflow();
 
     this.output && (this.output as any)['setData'](this.text);

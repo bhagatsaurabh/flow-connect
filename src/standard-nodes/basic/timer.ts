@@ -11,9 +11,9 @@ export const Timer = (flow: Flow, options: NodeCreatorOptions = {}) => {
         options.position || new Vector2(50, 50),
         options.width || 150,
         [], [{ name: 'timer', dataType: 'event' }],
-        options.style || { padding: 10, spacing: 10, rowHeight: 10 },
+        options.style || { rowHeight: 10 },
         options.terminalStyle || {},
-        options.props ? { ...options.props, delay: 1000 } : { delay: 1000 }
+        options.props ? { delay: 1000, ...options.props } : { delay: 1000 }
     );
 
     node.ui.append(node.createInput(node.props.delay, 'delay', false, false, 20, { type: InputType.Number }));

@@ -54,12 +54,14 @@ body {
 .control-button {
   height: 1.5em;
   aspect-ratio: 1;
-  margin-right: 1em;
   padding: 4px;
   box-sizing: border-box;
   cursor: pointer;
   border: 1px solid lightgray;
   transition: box-shadow 0.1s linear;
+}
+.control-button:not(:last-child) {
+  margin-right: 1em;
 }
 .control-button:hover {
   box-shadow: 0 0 5px 0 gray;
@@ -97,4 +99,19 @@ img {
 #examples-select option {
   padding-top: 4px;
   padding-bottom: 4px;
+}
+.flow-controls {
+  position: absolute;
+  bottom: 0;
+  left: 50vw;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 20;
+  padding: 8 25 8 25;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: 1px solid black;
+  box-sizing: border-box;
+  background-color: rgb(236, 236, 236);
 }
