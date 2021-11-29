@@ -131,10 +131,16 @@ export class FlowConnect extends Hooks {
     this.parentResizeObserver && this.parentResizeObserver.disconnect();
     this.bodyResizeObserver && this.bodyResizeObserver.disconnect();
 
-    this.parentResizeObserver = new ResizeObserver(() => this.calculateCanvasDimension(true));
+    this.parentResizeObserver = new ResizeObserver(() => {
+      this.calculateCanvasDimension(true);
+      this.updateTransform(null, null, null);
+    });
     this.parentResizeObserver.observe(parent);
     if (parent !== document.body) {
-      this.bodyResizeObserver = new ResizeObserver(() => this.calculateCanvasDimension(true));
+      this.bodyResizeObserver = new ResizeObserver(() => {
+        this.calculateCanvasDimension(true);
+        this.updateTransform(null, null, null);
+      });
       this.bodyResizeObserver.observe(document.body);
     }
   }
