@@ -19,6 +19,7 @@ export class Constant {
     'string': ['string', 'any'],
     'number': ['number', 'any'],
     'boolean': ['boolean', 'any'],
+    'array': ['array', 'any'],
     'file': ['file', 'any'],
     'event': ['event', 'any'],
     'any': ['any']

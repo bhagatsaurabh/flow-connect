@@ -1,7 +1,7 @@
 import { Connector, Flow, Group, Node, Color, Hooks } from "./core/index";
 import { Vector2 } from "./math/vector";
 import { Constant, TerminalType, ViewPort } from './math/constants';
-import { Dimension, FlowOptions, Pointer, SerializedFlow } from "./core/interfaces";
+import { Dimension, FlowOptions, Pointer, SerializedFlow, Rules } from "./core/interfaces";
 import { intersects } from "./utils/utils";
 import { FlowState } from './math/constants';
 import { Log } from './utils/logger';
@@ -678,7 +678,10 @@ export class FlowConnect extends Hooks {
     this.frameId = window.requestAnimationFrame(this._render.bind(this));
   }
 
-  createFlow(options: FlowOptions = { name: 'New Flow', rules: {} = {}, terminalTypeColors: {} = {} }): Flow {
+  createFlow(options: FlowOptions = { name: 'New Flow', rules: {}, terminalTypeColors: {} }): Flow {
+    if (!options.rules) options.rules = {};
+    if (!options.terminalTypeColors) options.terminalTypeColors = {};
+
     options.rules = { ...options.rules, ...Constant.DefaultRules };
     let flow = new Flow(this, options.name, options.rules, options.terminalTypeColors);
     this.flows.push(flow);

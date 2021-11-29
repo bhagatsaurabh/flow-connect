@@ -9,7 +9,8 @@ import { Color } from "../core/color";
 
 export class Input extends UINode implements Serializable {
   label: Label;
-  private inputEl: HTMLInputElement;
+  /** @hidden */
+  inputEl: HTMLInputElement;
   private _value: string | number;
 
   get value(): string | number {
@@ -18,7 +19,7 @@ export class Input extends UINode implements Serializable {
   }
   set value(value: string | number) {
     let val: string | number;
-    if (this.style.type === InputType.Number && typeof value === 'string') val = parseInt(value);
+    if (this.style.type === InputType.Number && typeof value === 'string') val = parseFloat(value);
     else val = value;
 
     if (this.propName) this.node.props[this.propName] = val;
@@ -58,7 +59,7 @@ export class Input extends UINode implements Serializable {
     );
     this.height = height ? height : this.node.style.rowHeight;
 
-    if (this.style.type === InputType.Number && typeof value === 'string') value = parseInt(value);
+    if (this.style.type === InputType.Number && typeof value === 'string') value = parseFloat(value);
     this._value = value;
 
     this.label = new Label(this.node, this.value.toString(), null, false, false, {
@@ -80,7 +81,7 @@ export class Input extends UINode implements Serializable {
         this.inputEl.style.fontFamily = this.style.font;
         this.inputEl.style.fontSize = parseInt(this.style.fontSize.replace('px', '')) * this.node.flow.flowConnect.scale + 'px';
         this.inputEl.style.color = this.style.color;
-        this.inputEl.style.backgroundColor = this.style.backgroundColor;
+        this.inputEl.style.backgroundColor = this.inputEl.validity.patternMismatch ? 'red' : this.style.backgroundColor;
         this.inputEl.style.textAlign = this.style.align;
         this.inputEl.focus();
       }
@@ -90,17 +91,21 @@ export class Input extends UINode implements Serializable {
     this.inputEl = document.createElement('input');
     this.inputEl.className = 'flow-connect-input';
     this.inputEl.spellcheck = false;
-    this.inputEl.type = this.style.type;
+    if (this.style.pattern) this.inputEl.pattern = this.style.pattern;
+    if (this.style.type === InputType.Number && this.style.step) this.inputEl.step = this.style.step;
+    this.inputEl.type = this.style.pattern ? InputType.Text : this.style.type;
     this.inputEl.value = this.value.toString();
-    this.inputEl.onblur = () => {
+    this.inputEl.addEventListener('blur', () => {
       this.inputEl.style.visibility = 'hidden';
       this.inputEl.style.pointerEvents = 'none';
       this.value = this.inputEl.value;
       this.label.text = this.value.toString();
-    };
-    this.inputEl.onchange = (event: any) => {
-      // this.value = event.target.value;
-      // this.label.text = this.value.toString();
+    });
+    this.inputEl.oninput = () => {
+      if (this.style.pattern) {
+        this.inputEl.style.backgroundColor = this.inputEl.validity.patternMismatch ? 'red' : this.style.backgroundColor;
+        this.label.style.color = this.inputEl.validity.patternMismatch ? 'red' : this.style.color;
+      }
     }
     document.body.appendChild(this.inputEl);
 
@@ -152,7 +157,7 @@ export class Input extends UINode implements Serializable {
   /** @hidden */
   onPropChange(oldValue: any, newValue: any) {
     let val: string | number;
-    if (this.style.type === InputType.Number && typeof newValue === 'string') val = parseInt(newValue);
+    if (this.style.type === InputType.Number && typeof newValue === 'string') val = parseFloat(newValue);
     else val = newValue;
 
     this._value = val;

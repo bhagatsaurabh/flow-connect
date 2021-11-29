@@ -184,6 +184,7 @@ export class Flow extends Hooks implements Serializable {
   stop() {
     if (this.state === FlowState.Stopped) return;
     // what if GraphState is Running ?
+    this.executionGraph.stop();
     this.state = FlowState.Stopped;
     this.call('stop', this);
     this.flowConnect.stopGlobalTime();

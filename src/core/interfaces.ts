@@ -123,7 +123,9 @@ export interface InputStyle {
   font?: string,
   border?: string,
   type?: InputType,
-  align?: Align
+  align?: Align,
+  pattern?: string,
+  step?: string
 }
 export interface ButtonStyle {
   backgroundColor?: string,
