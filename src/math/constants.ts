@@ -3,6 +3,7 @@ import { Vector2 } from "./vector";
 
 export class Constant {
   static TAU = 0.017453292519943295;
+  static SIN_60 = 0.866;
 
   /** Default rules every [[Flow]] will have, for e.g. a string output can only be connected to string inputs.
    *  ```javascript

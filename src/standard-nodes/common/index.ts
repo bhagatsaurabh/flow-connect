@@ -8,3 +8,6 @@ export * from './array-source';
 export * from './random';
 export * from './boolean-source';
 export * from './json-source';
+export * from './compare';
+export * from './number-source';
+export * from './string-source';

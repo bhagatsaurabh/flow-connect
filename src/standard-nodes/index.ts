@@ -10,6 +10,9 @@ import * as arraySource from './common/array-source';
 import * as random from './common/random';
 import * as booleanSource from './common/boolean-source';
 import * as jsonSource from './common/json-source';
+import * as numberSource from './common/number-source';
+import * as stringSource from './common/string-source';
+import * as compare from './common/compare';
 
 export namespace StandardNodes {
     export import Timer = timer.Timer;
@@ -23,6 +26,8 @@ export namespace StandardNodes {
     export import ArraySource = arraySource.ArraySource;
     export import BooleanSource = booleanSource.BooleanSource;
     export import JsonSource = jsonSource.JsonSource;
+    export import NumberSource = numberSource.NumberSource;
+    export import StringSource = stringSource.StringSource;
     export import Random = random.Random;
-
+    export import Compare = compare.Compare;
 }

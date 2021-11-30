@@ -77,8 +77,8 @@ export class Select extends UINode implements Serializable {
     context.fillStyle = this.style.arrowColor;
     context.beginPath();
     context.moveTo(this.position.x, this.position.y + this.height / 2);
-    context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .15);
-    context.lineTo(this.position.x + this.width * .15, this.position.y + this.height * .85);
+    context.lineTo(this.position.x + this.height * Constant.SIN_60, this.position.y);
+    context.lineTo(this.position.x + this.height * Constant.SIN_60, this.position.y + this.height);
     context.lineTo(this.position.x, this.position.y + this.height / 2);
     context.closePath();
     context.fill();
@@ -86,8 +86,8 @@ export class Select extends UINode implements Serializable {
     context.fillStyle = this.style.arrowColor;
     context.beginPath();
     context.moveTo(this.position.x + this.width, this.position.y + this.height / 2);
-    context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .15);
-    context.lineTo(this.position.x + this.width * .85, this.position.y + this.height * .85);
+    context.lineTo(this.position.x + this.width - (this.height * Constant.SIN_60), this.position.y);
+    context.lineTo(this.position.x + this.width - (this.height * Constant.SIN_60), this.position.y + this.height);
     context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
     context.closePath();
     context.fill();
