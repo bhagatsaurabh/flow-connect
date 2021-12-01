@@ -7,7 +7,7 @@ import { Flow } from './flow';
 import { Group } from './group';
 import { Terminal } from './terminal';
 import { Hooks } from './hooks';
-import { ButtonStyle, DisplayStyle, Events, HorizontalLayoutStyle, ImageStyle, InputStyle, LabelStyle, NodeStyle, RenderState, SelectStyle, Serializable, SerializedContainer, SerializedNode, SerializedTerminal, SliderStyle, SourceStyle, TerminalStyle, ToggleStyle } from "./interfaces";
+import { ButtonStyle, DisplayStyle, Events, HorizontalLayoutStyle, ImageStyle, InputStyle, LabelStyle, NodeStyle, RenderState, SelectStyle, Serializable, SerializedContainer, SerializedNode, SerializedTerminal, SliderStyle, SourceStyle, TerminalOutputs, TerminalStyle, ToggleStyle } from "./interfaces";
 import { Connector } from "./connector";
 import { Log } from "../utils/logger";
 
@@ -383,37 +383,39 @@ export class Node extends Hooks implements Events, Serializable {
   getInputs(): any[] {
     return this.inputs.map(terminal => (terminal as any)['getData']());
   }
-  setOutput(terminal: string | number, data: any) {
-    if (typeof terminal === 'string') {
-      let outputTerminal = this.outputs.find(currTerm => (currTerm.name === terminal));
-      if (outputTerminal) return (outputTerminal as any)['setData'](data);
+  setOutputs(outputs: string | number | TerminalOutputs, data?: any) {
+    if (typeof outputs === 'string') {
+      let outputTerminal = this.outputs.find(term => (term.name === outputs));
+      if (outputTerminal) (outputTerminal as any)['setData'](data);
+    } else if (typeof outputs === 'number') {
+      if (this.outputs[outputs]) (this.outputs[outputs] as any)['setData'](data);
     } else {
-      if (this.outputs[terminal]) (this.outputs[terminal] as any)['setData'](data);
-    }
-  }
-  setOutputs(outputs: { [name: string]: any }) {
-    let outputData = new Map<Terminal, any>();
-    Object.entries(outputs).forEach(entry => {
-      let terminal = this.outputs.find(terminal => terminal.name === entry[0]);
-      if (terminal) outputData.set(terminal, entry[1]);
-      else throw Log.error("Terminal '" + entry[0] + "' not found");
-    });
-
-    let groupedConnectors = new Map<Node, Connector[]>();
-    let outputDataIterator = outputData.keys();
-    let curr: Terminal;
-    while ((curr = outputDataIterator.next().value) && curr) {
-      curr.connectors.forEach(connector => {
-        if (groupedConnectors.has(connector.endNode)) groupedConnectors.get(connector.endNode).push(connector);
-        else groupedConnectors.set(connector.endNode, [connector]);
+      let outputData = new Map<Terminal, any>();
+      Object.entries(outputs).forEach(entry => {
+        let terminal = this.outputs.find(terminal => terminal.name === entry[0]);
+        if (terminal) outputData.set(terminal, entry[1]);
+        else throw Log.error("Terminal '" + entry[0] + "' not found");
       });
+      let groupedConnectors = new Map<Node, Connector[]>();
+      let outputDataIterator = outputData.keys();
+      let curr: Terminal;
+      while ((curr = outputDataIterator.next().value) && curr) {
+        curr.connectors.forEach(connector => {
+          if (groupedConnectors.has(connector.endNode)) groupedConnectors.get(connector.endNode).push(connector);
+          else groupedConnectors.set(connector.endNode, [connector]);
+        });
+      }
+      let gCntrsIterator = groupedConnectors.values();
+      let connectors: Connector[];
+      while ((connectors = gCntrsIterator.next().value) && connectors) {
+        for (let i = 1; i < connectors.length; i += 1) connectors[i].setData(outputData.get(connectors[i].start));
+        connectors[0].data = outputData.get(connectors[0].start);
+      }
     }
 
-    let gCntrsIterator = groupedConnectors.values();
-    let connectors: Connector[];
-    while ((connectors = gCntrsIterator.next().value) && connectors) {
-      for (let i = 1; i < connectors.length; i += 1) connectors[i].setData(outputData.get(connectors[i].start));
-      connectors[0].data = outputData.get(connectors[0].start);
+    // If FlowState is Idle, start a partial run of all the dirty nodes this method has created
+    if (this.flow.state === FlowState.Idle) {
+      this.flow.executionGraph.start();
     }
   }
   toggleNodeState() {

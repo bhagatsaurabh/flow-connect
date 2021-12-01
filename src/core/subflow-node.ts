@@ -24,12 +24,12 @@ export class SubFlowNode extends Node {
 
     super(flow, name, position, width, inputs ? inputs : [], outputs ? outputs : [], style, terminalStyle, props, id, hitColor);
 
-    this.subFlow.on('add-input', (subFlow, tunnel: TunnelNode) => {
+    this.subFlow.on('add-input', (_, tunnel: TunnelNode) => {
       let proxyTerminal = new Terminal(this, TerminalType.IN, tunnel.outputs[0].dataType, tunnel.outputs[0].name);
       tunnel.proxyTerminal = proxyTerminal;
       this.addTerminal(proxyTerminal);
     });
-    this.subFlow.on('add-output', (subFlow, tunnel: TunnelNode) => {
+    this.subFlow.on('add-output', (_, tunnel: TunnelNode) => {
       let proxyTerminal = new Terminal(this, TerminalType.OUT, tunnel.inputs[0].dataType, tunnel.inputs[0].name);
       tunnel.proxyTerminal = proxyTerminal;
       this.addTerminal(proxyTerminal);
@@ -62,8 +62,6 @@ export class SubFlowNode extends Node {
   /** @hidden */
   run() {
     if (this.flow.state === FlowState.Stopped) return;
-
-    this.call('process', this);
     this.subFlow.start();
   }
   serialize(): SerializedNode {

@@ -1,5 +1,5 @@
 import { Vector2 } from "../math/vector";
-import { Constant, FlowState, GraphState, NodeState } from "../math/constants";
+import { Constant, FlowState, NodeState } from "../math/constants";
 import { getNewGUID } from "../utils/utils";
 import { Flow } from "./flow";
 import { Terminal } from './terminal';
@@ -19,8 +19,8 @@ export class Connector implements Serializable {
   set data(data: any) {
     this._data = data;
     this.end && this.end.call('data', this.end, data);
-    if (this.flow.state === FlowState.Running && this.flow.executionGraph.state !== GraphState.FullRun) {
-      this.flow.executionGraph.setDirtyNode(this.endNode);
+    if (this.flow.state !== FlowState.Stopped) {
+      this.flow.executionGraph.setDirty(this.endNode);
     }
   }
 

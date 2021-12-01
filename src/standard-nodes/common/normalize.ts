@@ -61,7 +61,7 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
                 normalized = data.map((item: number) => Number(normalize(item, node.props.min, node.props.max).toFixed(2)));
             }
         }
-        node.setOutput('normalized', normalized);
+        node.setOutputs('normalized', normalized);
     })
 
     return node;

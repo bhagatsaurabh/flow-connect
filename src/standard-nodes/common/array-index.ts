@@ -16,8 +16,8 @@ export const ArrayIndex = (flow: Flow, options: NodeCreatorOptions = {}) => {
     );
 
     node.on('process', (_, inputs) => {
-        if (!inputs || !inputs[0]) return;
-        node.setOutput(0, inputs[0][inputs[1]]);
+        if (!inputs || !inputs[0] || typeof inputs[1] !== 'number') return;
+        node.setOutputs(0, inputs[0][inputs[1]]);
     });
 
     return node;

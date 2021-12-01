@@ -21,7 +21,7 @@ export const Compare = (flow: Flow, options: NodeCreatorOptions = {}) => {
     );
 
     node.on('process', (_, inputs) => {
-        if (!inputs[0] || !inputs[1]) return;
+        if (inputs[0] === null || typeof inputs[0] === 'undefined' || inputs[1] === null || typeof inputs[1] === 'undefined') return;
         let res;
         switch (node.props.value) {
             case '==': { res = inputs[0] == inputs[1]; break; }
@@ -36,7 +36,7 @@ export const Compare = (flow: Flow, options: NodeCreatorOptions = {}) => {
             case '||': { res = inputs[0] || inputs[1]; break; }
             default: res = false;
         }
-        node.setOutput(0, res);
+        node.setOutputs(0, res);
     });
 
     return node;

@@ -20,7 +20,7 @@ export const StringSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
         node.createLabel('Value', null, false, false, { grow: '.3' } as any), input
     ], { spacing: 10 }));
 
-    node.on('process', () => node.setOutput(0, node.props.value));
+    node.on('process', () => node.setOutputs(0, node.props.value));
 
     return node;
 };

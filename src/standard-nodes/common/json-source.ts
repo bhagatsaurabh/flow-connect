@@ -20,7 +20,7 @@ export const JsonSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
         if (!input.value || input.value === '') return;
         try {
             let value = JSON.parse(input.value as string);
-            node.setOutput(0, value);
+            node.setOutputs(0, value);
         } catch (error) {
             input.inputEl.style.backgroundColor = 'red';
             Log.error("StandardNode 'JsonSource' json parse error", error);

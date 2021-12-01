@@ -22,7 +22,7 @@ export const API = (flow: Flow, options: NodeCreatorOptions = {}) => {
         if (!node.props.src || node.props.src === '') Log.error("Prop 'src' of API Node is invalid, cannot make an API call");
         else {
             let data = await (await fetch(node.props.src)).json();
-            node.setOutput(0, data);
+            node.setOutputs(0, data);
         }
     });
     return node;

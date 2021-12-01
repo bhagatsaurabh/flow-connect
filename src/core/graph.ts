@@ -1,4 +1,4 @@
-import { GraphState } from "../math/constants";
+import { FlowState } from "../math/constants";
 import { Log } from "../utils/logger";
 import { getNewGUID } from "../utils/utils";
 import { Flow } from "./flow";
@@ -31,7 +31,7 @@ export class GraphNode implements Serializable {
 
 /** @hidden */
 export class Graph implements Serializable {
-  state: GraphState = GraphState.Stopped;
+  state: FlowState = FlowState.Stopped;
   nodes: GraphNode[][];
   nodeToGraphNode: { [key: string]: GraphNode };
   dirtyNodes: { [key: string]: GraphNode };
@@ -82,63 +82,67 @@ export class Graph implements Serializable {
     return true;
   }
 
-  start() {
-    if (this.state !== GraphState.Stopped) return;
+  async start() {
+    if (this.state === FlowState.Stopped) {       // Full Run
+      this.state = FlowState.Running;
+      if (this.nodes[0]) {
+        try {
+          console.log(this.nodes[0]);
+          await this.runAll(this.nodes[0]);
 
-    this.state = GraphState.FullRun;
-
-    /* // Old - Run every node at every tree depth
-    this.nodes.forEach(groupedNodes => {
-      groupedNodes.forEach(graphNode => graphNode.flowNode.run());
-    }); */
-
-    // New - Only run nodes at first level, automatic cascade after that
-    if (this.nodes.length > 0) this.nodes[0].forEach(graphNode => graphNode.flowNode.run());
-
-    this.state = GraphState.Idle;
-  }
-  stop() {
-    this.state = GraphState.Stopped;
-  }
-  async partialRun() {
-    let result = await new Promise<boolean>((resolve, reject) => {
-      try {
-        this.processDirtyNodes();
-        resolve(true);
-      } catch (error) {
-        Log.error(error);
-        reject(false);
+          while (Object.values(this.dirtyNodes).length !== 0) {
+            console.log(Object.assign({}, this.dirtyNodes));
+            await this.runAll(this.lowestDirty(Object.values(this.dirtyNodes)));
+          }
+        } catch (error) {
+          Log.error('Error while executing graph', error);
+          this.state = FlowState.Stopped;
+          return;
+        }
       }
-    });
-
-    if (result && Object.keys(this.dirtyNodes).length > 0)
-      await this.partialRun();
-  }
-  setDirtyNode(node: Node | GraphNode) {
-    let graphNode = node instanceof Node ? this.nodeToGraphNode[node.id] : node;
-    if (!this.dirtyNodes[graphNode.id]) {
-      this.dirtyNodes[graphNode.id] = graphNode;
-
-      if (this.state === GraphState.Idle) {
-        this.state = GraphState.Running;
-
-        this.partialRun().then(() => (this.state = GraphState.Idle));
+    } else if (this.state === FlowState.Idle) {   // Partial Run
+      this.state = FlowState.Running;
+      try {
+        while (Object.values(this.dirtyNodes).length !== 0) {
+          console.log(Object.assign({}, this.dirtyNodes));
+          await this.runAll(this.lowestDirty(Object.values(this.dirtyNodes)));
+        }
+      } catch (error) {
+        Log.error('Error while executing graph', error);
+        this.state = FlowState.Stopped;
+        return;
       }
     }
-  }
-  clearDirtyNode(node: Node | GraphNode) {
-    let graphNode = node instanceof Node ? this.nodeToGraphNode[node.id] : node;
-    if (this.dirtyNodes[graphNode.id]) delete this.dirtyNodes[graphNode.id];
-  }
-  processDirtyNodes() {
-    let dirtyNodes = Object.values(this.dirtyNodes).sort((a, b) => (a.order - b.order));
-    Log.debug('Dirty Nodes: ', [...dirtyNodes]);
 
-    let queue: GraphNode[] = dirtyNodes;
-    queue.forEach(graphNode => {
-      graphNode.flowNode.run();
-      this.clearDirtyNode(graphNode);
-    });
+    this.state = FlowState.Idle;
+  }
+  stop() {
+    this.state = FlowState.Stopped;
+  }
+  // Runs selective nodes within the >same order< in async (how about parallel, future ?)
+  async runAll(graphNodes: GraphNode[]) {
+    await Promise.all(
+      graphNodes.map(
+        graphNode => new Promise<void>(resolve => {
+          graphNode.flowNode.run();
+          this.clearDirty(graphNode);
+          resolve();
+        })
+      )
+    );
+  }
+  setDirty(node: Node | GraphNode) {
+    let graphNode = node instanceof Node ? this.nodeToGraphNode[node.id] : node;
+    this.dirtyNodes[graphNode.id] = graphNode;
+  }
+  clearDirty(node: Node | GraphNode) {
+    let graphNode = node instanceof Node ? this.nodeToGraphNode[node.id] : node;
+    delete this.dirtyNodes[graphNode.id];
+  }
+  // Returns all dirty nodes with lowest order
+  lowestDirty(graphNodes: GraphNode[]) {
+    let lowestOrder = Math.min(...graphNodes.map(graphNode => graphNode.order));
+    return graphNodes.filter(graphNode => graphNode.order === lowestOrder);
   }
 
   serialize(): SerializedGraph {

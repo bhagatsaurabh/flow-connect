@@ -24,10 +24,10 @@ export const Buffer = (flow: Flow, options: NodeCreatorOptions = {}) => {
     ));
 
     node.on('process', (_, inputs) => {
-        if (!inputs[0]) return;
+        if (inputs[0] === null || typeof inputs[0] === 'undefined') return;
         if (node.props.buffer.length === node.props.size) node.props.buffer.shift();
         node.props.buffer.push(inputs[0]);
-        node.setOutput('buffer', node.props.buffer);
+        node.setOutputs('buffer', node.props.buffer);
     });
 
     return node;

@@ -28,6 +28,7 @@ export class Input extends UINode implements Serializable {
       this.label.text = this._value.toString();
       this.inputEl.value = this._value.toString();
     }
+    this.call('change', this, value);
   }
 
   constructor(
@@ -70,19 +71,21 @@ export class Input extends UINode implements Serializable {
     }, this.height);
     this.label.on('click', () => {
       if (document.activeElement !== this.inputEl) {
-        this.inputEl.style.visibility = 'visible';
-        this.inputEl.style.pointerEvents = 'all';
-
         let realPosition = this.position.transform(this.node.flow.flowConnect.transform);
-        this.inputEl.style.top = (realPosition.y + this.node.flow.flowConnect.canvasDimensions.top + 1) + 'px';
-        this.inputEl.style.left = (realPosition.x + this.node.flow.flowConnect.canvasDimensions.left + 1) + 'px';
-        this.inputEl.style.width = (this.width - 1) * this.node.flow.flowConnect.scale + 'px';
-        this.inputEl.style.height = (this.height - 1) * this.node.flow.flowConnect.scale + 'px';
-        this.inputEl.style.fontFamily = this.style.font;
-        this.inputEl.style.fontSize = parseInt(this.style.fontSize.replace('px', '')) * this.node.flow.flowConnect.scale + 'px';
-        this.inputEl.style.color = this.style.color;
-        this.inputEl.style.backgroundColor = this.inputEl.validity.patternMismatch ? 'red' : this.style.backgroundColor;
-        this.inputEl.style.textAlign = this.style.align;
+        Object.assign(this.inputEl.style, {
+          'visibility': 'visible',
+          'pointer-events': 'all',
+          'top': (realPosition.y + this.node.flow.flowConnect.canvasDimensions.top + 1) + 'px',
+          'left': (realPosition.x + this.node.flow.flowConnect.canvasDimensions.left + 1) + 'px',
+          'width': (this.width - 1) * this.node.flow.flowConnect.scale + 'px',
+          'height': (this.height - 1) * this.node.flow.flowConnect.scale + 'px',
+          'font-family': this.style.font,
+          'font-size': parseInt(this.style.fontSize.replace('px', '')) * this.node.flow.flowConnect.scale + 'px',
+          'color': this.style.color,
+          'background-color': this.inputEl.validity.patternMismatch ? 'red' : this.style.backgroundColor,
+          'text-align': this.style.align
+        });
+        if (this.style.type === InputType.Number) this.inputEl.step = this.style.step;
         this.inputEl.focus();
       }
     });
@@ -110,14 +113,18 @@ export class Input extends UINode implements Serializable {
     document.body.appendChild(this.inputEl);
 
     if (this.input) {
-      this.input.on('connect', (terminal, connector) => {
+      this.input.on('connect', (_, connector) => {
         if (connector.data) this.value = connector.data;
       });
       this.input.on('data', (_, data) => {
         if (data) this.value = data;
       });
     }
-    if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.value);
+    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.value);
+
+    this.node.on('process', () => {
+      if (this.output) (this.output as any).setData(this.value);
+    });
   }
 
   /** @hidden */
@@ -155,7 +162,7 @@ export class Input extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(oldValue: any, newValue: any) {
+  onPropChange(_: any, newValue: any) {
     let val: string | number;
     if (this.style.type === InputType.Number && typeof newValue === 'string') val = parseFloat(newValue);
     else val = newValue;

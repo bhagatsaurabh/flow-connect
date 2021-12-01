@@ -59,14 +59,18 @@ export class Slider extends UINode implements Serializable {
     this.value = parseFloat(value.toFixed(this.precision));
 
     if (this.input) {
-      this.input.on('connect', (terminal, connector) => {
+      this.input.on('connect', (_, connector) => {
         if (connector.data) this.value = connector.data;
       });
       this.input.on('data', (_, data) => {
         if (data) this.value = data;
       });
     }
-    if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.value);
+    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.value);
+
+    this.node.on('process', () => {
+      if (this.output) (this.output as any).setData(this.value);
+    });
   }
 
   /** @hidden */
@@ -124,7 +128,7 @@ export class Slider extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(oldValue: any, newValue: any) {
+  onPropChange(_: any, newValue: any) {
     this._value = newValue;
     this.reflow();
     this.call('change', this, this.value);

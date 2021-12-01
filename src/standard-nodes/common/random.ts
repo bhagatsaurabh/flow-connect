@@ -34,8 +34,8 @@ export const Random = (flow: Flow, options: NodeCreatorOptions = {}) => {
         if (node.props.fractional) return getRandom(node.props.min, node.props.max)
         else return Math.floor(getRandom(Math.floor(node.props.min), Math.floor(node.props.max)));
     }
-    node.inputs[0].on('event', () => node.setOutput(0, getValue()));
-    node.on('process', () => node.setOutput(0, getValue()));
+    node.inputs[0].on('event', () => node.setOutputs(0, getValue()));
+    node.on('process', () => node.setOutputs(0, getValue()));
 
     return node;
 };

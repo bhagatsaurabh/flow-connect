@@ -218,11 +218,6 @@ export enum UIType {
 }
 export enum FlowState {
   Running,
-  Stopped
-}
-export enum GraphState {
-  Running,
-  FullRun,
   Idle,
   Stopped
 }

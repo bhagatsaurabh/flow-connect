@@ -52,14 +52,18 @@ export class Toggle extends UINode implements Serializable {
     this.height = height ? height : this.node.style.rowHeight;
 
     if (this.input) {
-      this.input.on('connect', (terminal, connector) => {
+      this.input.on('connect', (_, connector) => {
         if (connector.data) this.checked = connector.data;
       });
       this.input.on('data', (_, data) => {
         if (typeof data !== 'undefined') this.checked = data;
       });
     }
-    if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.checked);
+    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.checked);
+
+    this.node.on('process', () => {
+      if (this.output) (this.output as any).setData(this.checked);
+    });
   }
 
   /** @hidden */
@@ -104,13 +108,12 @@ export class Toggle extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(oldValue: any, newValue: any) {
+  onPropChange(_: any, newValue: any) {
     this._checked = newValue;
     this.call('change', this, this.checked);
 
     this.output && (this.output as any)['setData'](this.checked);
   }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;

@@ -1,4 +1,3 @@
-import { FlowState } from "../math/constants";
 import { Vector2 } from "../math/vector";
 import { Color } from "./color";
 import { Flow } from "./flow";
@@ -37,7 +36,7 @@ export class TunnelNode extends Node {
         (this.proxyTerminal as any)['setData'](data);
       });
     } else {
-      this.outputs[0].on('connect', (terminal, connector) => {
+      this.outputs[0].on('connect', (_, connector) => {
         if (this.proxyTerminal.connectors.length > 0) {
           connector.data = this.proxyTerminal.connectors[0].data;
         }

@@ -64,14 +64,18 @@ export class Label extends UINode implements Serializable {
     else this.height = height;
 
     if (this.input) {
-      this.input.on('connect', (terminal, connector) => {
+      this.input.on('connect', (_, connector) => {
         if (connector.data) this.text = connector.data;
       });
       this.input.on('data', (_, data) => {
         if (data) this.text = data;
       });
     }
-    if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.text);
+    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.text);
+
+    this.node.on('process', () => {
+      if (this.output) (this.output as any).setData(this.text);
+    });
   }
 
   /** @hidden */
@@ -152,13 +156,12 @@ export class Label extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(oldValue: any, newValue: any) {
+  onPropChange(_: any, newValue: any) {
     this._text = newValue;
     this.reflow();
 
     this.output && (this.output as any)['setData'](this.text);
   }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;

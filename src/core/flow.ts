@@ -24,7 +24,7 @@ export class Flow extends Hooks implements Serializable {
   connectors: { [id: string]: Connector };
   inputs: TunnelNode[];
   outputs: TunnelNode[];
-  state: FlowState = FlowState.Stopped;
+  get state(): FlowState { return this.executionGraph.state; }
 
   /** @hidden */
   hitColorToNode: { [color: string]: Node };
@@ -83,6 +83,9 @@ export class Flow extends Hooks implements Serializable {
 
   addInput(name: string, dataType: string, position: Vector2): TunnelNode {
     let flowInput = new TunnelNode(this, 'Input', position, 100, [], [{ name: name, dataType: dataType }], {}, {}, {});
+    flowInput.on('process', () => {
+      (flowInput.outputs[0] as any).setData((flowInput.proxyTerminal as any).getData());
+    });
 
     this.inputs.push(flowInput);
     this.nodes[flowInput.id] = flowInput;
@@ -173,19 +176,15 @@ export class Flow extends Hooks implements Serializable {
     this.sortedNodes.forEach(node => node.render());
   }
   start() {
-    if (this.state === FlowState.Running) return;
-
-    this.state = FlowState.Running;
-    this.call('start', this);
+    if (this.state !== FlowState.Stopped) return;
+    this.call('beforestart', this);
     this.flowConnect.startGlobalTime();
-
     this.executionGraph.start();
   }
   stop() {
     if (this.state === FlowState.Stopped) return;
-    // what if GraphState is Running ?
+    // what if FlowState is Running ?
     this.executionGraph.stop();
-    this.state = FlowState.Stopped;
     this.call('stop', this);
     this.flowConnect.stopGlobalTime();
 

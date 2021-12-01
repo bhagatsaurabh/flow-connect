@@ -18,8 +18,8 @@ export class Hooks {
   /** @hidden */
   call(eventKey: string, ...args: any) {
     if (this.registeredEvents[eventKey]) {
-      if (args) Object.values(this.registeredEvents[eventKey]).forEach(callback => new Promise((resolve) => resolve(callback(...args))));
-      else Object.values(this.registeredEvents[eventKey]).forEach(callback => new Promise((resolve) => resolve(callback())));
+      if (!args) args = [];
+      Object.values(this.registeredEvents[eventKey]).forEach(callback => callback(...args));
     }
   }
   off(eventKey: string, id: number) {

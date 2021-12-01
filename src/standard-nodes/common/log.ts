@@ -21,18 +21,16 @@ export const Log = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.inputs[1].on('data', (terminal, data) => Logger.log(terminal.name, data));
 
     let addEventButton = node.createButton('Add Event', false, false, null, ({ grow: '.5' }) as any);
-    addEventButton.on('click', () => {
-        let newTerminal = new Terminal(node, TerminalType.IN, 'event', 'Log ' + (node.inputs.length + 1));
-        newTerminal.on('event', (terminal, data) => Logger.log(terminal.name, data));
-        node.addTerminal(newTerminal);
-    });
     let addDataButton = node.createButton('Add Data', false, false, null, ({ grow: '.5' }) as any);
-    addDataButton.on('click', () => {
-        let newTerminal = new Terminal(node, TerminalType.IN, 'any', 'Log ' + (node.inputs.length + 1));
-        newTerminal.on('data', (terminal, data) => Logger.log(terminal.name, data));
-        node.addTerminal(newTerminal);
-    });
     node.ui.append(node.createHozLayout([addEventButton, addDataButton], { spacing: 20 }));
+
+    let addTerminal = (type: string) => {
+        let newTerminal = new Terminal(node, TerminalType.IN, type === 'event' ? type : 'any', 'Log ' + (node.inputs.length + 1));
+        newTerminal.on(type, (terminal, data) => Logger.log(terminal.name, data));
+        node.addTerminal(newTerminal);
+    }
+    addEventButton.on('click', () => addTerminal('event'));
+    addDataButton.on('click', () => addTerminal('data'));
 
     return node;
 };

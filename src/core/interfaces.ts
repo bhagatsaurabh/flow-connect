@@ -1,6 +1,5 @@
 import { Vector2 } from "../math/vector";
 import { Align, InputType, LOD, NodeState, TerminalType, UIType, ViewPort } from '../math/constants';
-import { Color } from "./color";
 
 export interface Dimension {
   left: number,
@@ -50,6 +49,9 @@ export interface NodeCreatorOptions {
   props?: {},
   style?: NodeStyle,
   terminalStyle?: TerminalStyle
+}
+export interface TerminalOutputs {
+  [name: string]: any
 }
 
 export interface ConnectorStyle {

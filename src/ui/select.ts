@@ -61,14 +61,18 @@ export class Select extends UINode implements Serializable {
     this.children.push(this.label);
 
     if (this.input) {
-      this.input.on('connect', (terminal, connector) => {
+      this.input.on('connect', (_, connector) => {
         if (connector.data) this.selected = connector.data;
       });
       this.input.on('data', (_, data) => {
         if (data) this.selected = data;
       });
     }
-    if (this.output) this.output.on('connect', (terminal, connector) => connector.data = this.selected);
+    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.selected);
+
+    this.node.on('process', () => {
+      if (this.output) (this.output as any).setData(this.selected);
+    });
   }
 
   /** @hidden */
@@ -122,7 +126,7 @@ export class Select extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(oldValue: any, newValue: any) {
+  onPropChange(_: any, newValue: any) {
     let value = this.options.length === 0 ? 'None' : (this.options.includes(newValue) ? newValue : this.options[0]);
     this._selected = value;
     this.label.text = this.selected;
