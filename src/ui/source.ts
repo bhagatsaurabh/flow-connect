@@ -25,8 +25,9 @@ export class Source extends UINode implements Serializable {
     else {
       this._file = file;
       this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf("."));
-      this.call('change', this, this._file);
     }
+
+    this.call('change', this, file);
   }
 
   constructor(
@@ -128,10 +129,9 @@ export class Source extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(oldValue: any, newValue: any) {
+  onPropChange(_: any, newValue: any) {
     this._file = newValue;
     this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf("."));
-    this.call('change', this, this._file);
 
     this.output && (this.output as any)['setData'](this._file);
   }

@@ -27,6 +27,8 @@ export class Label extends UINode implements Serializable {
       this._text = text;
       this.reflow();
     }
+
+    this.call('change', this, text);
   }
 
   constructor(

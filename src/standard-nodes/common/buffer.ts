@@ -15,20 +15,25 @@ export const Buffer = (flow: Flow, options: NodeCreatorOptions = {}) => {
         options.props ? { buffer: [], size: 10, ...options.props } : { buffer: [], size: 10 }
     );
 
-    node.ui.append(node.createHozLayout(
-        [
-            node.createLabel('Size', null, false, false, { grow: '.3' } as any),
-            node.createInput(node.props.size, 'size', true, true, 20, { type: InputType.Number, grow: '.7' } as any)
-        ],
-        { spacing: 20 }
-    ));
-
-    node.on('process', (_, inputs) => {
+    let process = (inputs: any[]) => {
         if (inputs[0] === null || typeof inputs[0] === 'undefined') return;
-        if (node.props.buffer.length === node.props.size) node.props.buffer.shift();
+        if (node.props.buffer.length === node.props.size) {
+            node.props.buffer.shift();
+        } else if (node.props.buffer.length > node.props.size) {
+            node.props.buffer.splice(node.props.buffer.length - node.props.size + 1, node.props.buffer.length);
+        }
         node.props.buffer.push(inputs[0]);
         node.setOutputs('buffer', node.props.buffer);
-    });
+    }
+
+    let sizeInput = node.createInput(node.props.size, 'size', true, true, 20, { type: InputType.Number, grow: '.7' } as any);
+    node.ui.append(node.createHozLayout([
+        node.createLabel('Size', null, false, false, { grow: '.3' } as any),
+        sizeInput
+    ], { spacing: 20 }));
+
+    sizeInput.on('change', () => process(node.getInputs()));
+    node.on('process', (_, inputs) => process(inputs));
 
     return node;
 };

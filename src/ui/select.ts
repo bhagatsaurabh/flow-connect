@@ -26,6 +26,7 @@ export class Select extends UINode implements Serializable {
       this._selected = value;
       this.label.text = this.selected;
     }
+    this.call('change', this, this.selected);
   }
 
   constructor(
@@ -167,8 +168,6 @@ export class Select extends UINode implements Serializable {
     } else return;
     this.selected = this.options[(((this.options.indexOf(this.selected) + direction) % this.options.length) + this.options.length) % this.options.length];
     this.label.text = this.selected;
-
-    this.call('change', this, this.selected);
   }
   /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {

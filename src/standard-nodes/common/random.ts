@@ -17,25 +17,37 @@ export const Random = (flow: Flow, options: NodeCreatorOptions = {}) => {
         options.props ? { min: 0, max: 100, fractional: false, ...options.props } : { fractional: false, min: 0, max: 100 }
     );
 
-    node.ui.append(node.createHozLayout([
-        node.createLabel('Min:', null, false, false),
-        node.createInput(node.props.min, 'min', true, true, 20, { type: InputType.Number, grow: '.5', step: 'any' } as any)
-    ], { spacing: 20 }));
-    node.ui.append(node.createHozLayout([
-        node.createLabel('Max:', null, false, false),
-        node.createInput(node.props.max, 'max', true, true, 20, { type: InputType.Number, grow: '.5', step: 'any' } as any)
-    ], { spacing: 20 }));
-    node.ui.append(node.createHozLayout([
-        node.createLabel('Fractional ?', null, false, false),
-        node.createToggle('fractional', true, true, 10, { grow: '.2' } as any)
-    ], { spacing: 10 }));
+    let process = () => {
+        let random;
+        if (node.props.fractional) random = getRandom(node.props.min, node.props.max)
+        else random = Math.floor(getRandom(Math.floor(node.props.min), Math.floor(node.props.max)));
 
-    let getValue = () => {
-        if (node.props.fractional) return getRandom(node.props.min, node.props.max)
-        else return Math.floor(getRandom(Math.floor(node.props.min), Math.floor(node.props.max)));
+        node.setOutputs(0, random);
     }
-    node.inputs[0].on('event', () => node.setOutputs(0, getValue()));
-    node.on('process', () => node.setOutputs(0, getValue()));
+
+    let minInput = node.createInput(node.props.min, 'min', true, true, 20, { type: InputType.Number, grow: '.5', step: 'any' } as any);
+    let maxInput = node.createInput(node.props.max, 'max', true, true, 20, { type: InputType.Number, grow: '.5', step: 'any' } as any);
+    let fractional = node.createToggle('fractional', true, true, 10, { grow: '.2' } as any);
+    node.ui.append([
+        node.createHozLayout([
+            node.createLabel('Min:', null, false, false),
+            minInput
+        ], { spacing: 20 }),
+        node.createHozLayout([
+            node.createLabel('Max:', null, false, false),
+            maxInput
+        ], { spacing: 20 }),
+        node.createHozLayout([
+            node.createLabel('Fractional ?', null, false, false),
+            fractional
+        ], { spacing: 10 })
+    ]);
+
+    minInput.on('change', process);
+    maxInput.on('change', process);
+    fractional.on('change', process);
+    node.inputs[0].on('event', process);
+    node.on('process', process);
 
     return node;
 };

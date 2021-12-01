@@ -15,12 +15,7 @@ export const Compare = (flow: Flow, options: NodeCreatorOptions = {}) => {
         options.props ? { value: '==', ...options.props } : { value: '==' }
     );
 
-    node.ui.append(node.createSelect(
-        ['==', '===', '!=', '!==', '<', '<=', '>', '>=', '&&', '||'],
-        'value', true, true, 15, { fontSize: '14px' })
-    );
-
-    node.on('process', (_, inputs) => {
+    let process = (inputs: any[]) => {
         if (inputs[0] === null || typeof inputs[0] === 'undefined' || inputs[1] === null || typeof inputs[1] === 'undefined') return;
         let res;
         switch (node.props.value) {
@@ -37,7 +32,16 @@ export const Compare = (flow: Flow, options: NodeCreatorOptions = {}) => {
             default: res = false;
         }
         node.setOutputs(0, res);
-    });
+    }
+
+    let select = node.createSelect(
+        ['==', '===', '!=', '!==', '<', '<=', '>', '>=', '&&', '||'],
+        'value', true, true, 15, { fontSize: '14px' }
+    );
+    node.ui.append(select);
+
+    select.on('change', () => process(node.getInputs()));
+    node.on('process', (_, inputs) => process(inputs));
 
     return node;
 };

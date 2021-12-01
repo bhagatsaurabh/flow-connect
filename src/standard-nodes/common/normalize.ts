@@ -18,32 +18,7 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
         options.props ? { min: 0, max: 100, relative: false, ...options.props } : { min: 0, max: 100, relative: false }
     );
 
-    if (type === 'array') {
-        let relativeToggle = node.createToggle('relative', false, false, 10, { grow: '.2' } as any);
-        node.ui.append(node.createHozLayout([
-            node.createLabel('Relative ?', null, false, false),
-            relativeToggle
-        ], { spacing: 20 }));
-    }
-    if (type === 'number' || !node.props.relative) {
-        let minInput = node.createInput(node.props.min, 'min', false, false, 20, { type: InputType.Number, grow: '.3' } as any);
-        let maxInput = node.createInput(node.props.max, 'max', false, false, 20, { type: InputType.Number, grow: '.3' } as any);
-        node.ui.append(node.createHozLayout([
-            node.createLabel('Min', null, false, false, { grow: '.2' } as any),
-            minInput,
-            node.createLabel('Max', null, false, false, { grow: '.2' } as any),
-            maxInput
-        ], { spacing: 5 }));
-    }
-    if (node.props.constant) {
-        let constantInput = node.createInput(5, 'constant', true, true, 20, { type: InputType.Number, grow: '.5' } as any);
-        node.ui.append(node.createHozLayout([
-            node.createLabel('Constant', null, false, false),
-            constantInput
-        ], { spacing: 20 }));
-    }
-
-    node.on('process', () => {
+    let process = () => {
         let data = node.getInput(0);
         if (!data) return;
 
@@ -62,7 +37,40 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
             }
         }
         node.setOutputs('normalized', normalized);
-    })
+    }
+
+    if (type === 'array') {
+        let relativeToggle = node.createToggle('relative', false, false, 10, { grow: '.2' } as any);
+        node.ui.append(node.createHozLayout([
+            node.createLabel('Relative ?', null, false, false),
+            relativeToggle
+        ], { spacing: 20 }));
+        relativeToggle.on('change', process);
+    }
+    if (type === 'number' || !node.props.relative) {
+        let minInput = node.createInput(node.props.min, 'min', false, false, 20, { type: InputType.Number, grow: '.3' } as any);
+        let maxInput = node.createInput(node.props.max, 'max', false, false, 20, { type: InputType.Number, grow: '.3' } as any);
+        node.ui.append(node.createHozLayout([
+            node.createLabel('Min', null, false, false, { grow: '.2' } as any),
+            minInput,
+            node.createLabel('Max', null, false, false, { grow: '.2' } as any),
+            maxInput
+        ], { spacing: 5 }));
+
+        minInput.on('change', process);
+        maxInput.on('change', process);
+    }
+    if (node.props.constant) {
+        let constantInput = node.createInput(5, 'constant', true, true, 20, { type: InputType.Number, grow: '.5' } as any);
+        node.ui.append(node.createHozLayout([
+            node.createLabel('Constant', null, false, false),
+            constantInput
+        ], { spacing: 20 }));
+
+        constantInput.on('change', process);
+    }
+
+    node.on('process', process)
 
     return node;
 };

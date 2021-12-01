@@ -11,3 +11,6 @@ export * from './json-source';
 export * from './compare';
 export * from './number-source';
 export * from './string-source';
+export * from './file-source';
+export * from './property';
+export * from './sync';

@@ -14,14 +14,17 @@ export const BooleanSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
         options.props ? { value: false, ...options.props } : { value: false }
     );
 
+    let process = () => node.setOutputs(0, node.props.value);
+
     let toggle = node.createToggle('value', true, true, 10, { grow: '.3' } as any);
-    toggle.on('change', () => node.setOutputs(0, node.props.value));
     node.ui.append(node.createHozLayout([
         node.createLabel('Value', null, false, false),
         toggle
     ], { spacing: 20 }));
 
-    node.on('process', (_, inputs) => node.setOutputs(0, node.props.value));
+    toggle.on('change', process);
+
+    node.on('process', process);
 
     return node;
 };

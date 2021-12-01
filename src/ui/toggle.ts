@@ -17,8 +17,9 @@ export class Toggle extends UINode implements Serializable {
     if (this.propName) this.node.props[this.propName] = checked;
     else {
       this._checked = checked;
-      this.call('change', this, this.checked);
     }
+
+    this.call('change', this, checked);
   }
 
   constructor(
@@ -110,7 +111,6 @@ export class Toggle extends UINode implements Serializable {
   /** @hidden */
   onPropChange(_: any, newValue: any) {
     this._checked = newValue;
-    this.call('change', this, this.checked);
 
     this.output && (this.output as any)['setData'](this.checked);
   }

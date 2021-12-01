@@ -12,7 +12,10 @@ import * as booleanSource from './common/boolean-source';
 import * as jsonSource from './common/json-source';
 import * as numberSource from './common/number-source';
 import * as stringSource from './common/string-source';
+import * as fileSource from './common/file-source';
 import * as compare from './common/compare';
+import * as property from './common/property';
+import * as sync from './common/sync';
 
 export namespace StandardNodes {
     export import Timer = timer.Timer;
@@ -28,6 +31,9 @@ export namespace StandardNodes {
     export import JsonSource = jsonSource.JsonSource;
     export import NumberSource = numberSource.NumberSource;
     export import StringSource = stringSource.StringSource;
+    export import FileSource = fileSource.FileSource;
     export import Random = random.Random;
     export import Compare = compare.Compare;
+    export import Property = property.Property;
+    export import Sync = sync.Sync;
 }

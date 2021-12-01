@@ -28,13 +28,13 @@ export const JsonSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
     }
 
     let input = node.createInput('', null, true, true, 20, { type: InputType.Text, grow: '.7' } as any);
-    input.inputEl.addEventListener('blur', () => process());
     node.ui.append(node.createHozLayout([
         node.createLabel('Value', null, false, false, { grow: '.3' } as any),
         input
     ], { spacing: 20 }));
 
-    node.on('process', () => process());
+    input.on('change', process);
+    node.on('process', process);
 
     return node;
 };

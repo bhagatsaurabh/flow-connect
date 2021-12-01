@@ -20,9 +20,10 @@ export class Slider extends UINode implements Serializable {
     if (this.propName) this.node.props[this.propName] = value;
     else {
       this._value = value;
-      this.call('change', this, this.value);
       this.reflow();
     }
+
+    this.call('change', this, this.value);
   }
 
   constructor(
@@ -131,7 +132,6 @@ export class Slider extends UINode implements Serializable {
   onPropChange(_: any, newValue: any) {
     this._value = newValue;
     this.reflow();
-    this.call('change', this, this.value);
 
     this.output && (this.output as any)['setData'](this.value);
   }
