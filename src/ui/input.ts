@@ -3,7 +3,7 @@ import { UINode } from "./ui-node";
 import { Node } from '../core/node';
 import { Label } from './label';
 import { Terminal } from "../core/terminal";
-import { Constant, InputType, TerminalType, UIType } from "../math/constants";
+import { Constant, FlowState, InputType, TerminalType, UIType } from "../math/constants";
 import { InputStyle, Serializable, SerializedInput, SerializedTerminal } from "../core/interfaces";
 import { Color } from "../core/color";
 
@@ -14,7 +14,7 @@ export class Input extends UINode implements Serializable {
   private _value: string | number;
 
   get value(): string | number {
-    if (this.propName) return this.node.props[this.propName];
+    if (this.propName) return this.getProp();
     return this._value;
   }
   set value(value: string | number) {
@@ -22,13 +22,13 @@ export class Input extends UINode implements Serializable {
     if (this.style.type === InputType.Number && typeof value === 'string') val = parseFloat(value);
     else val = value;
 
-    if (this.propName) this.node.props[this.propName] = val;
+    if (this.propName) this.setProp(val);
     else {
       this._value = val;
       this.label.text = this._value.toString();
       this.inputEl.value = this._value.toString();
     }
-    this.call('change', this, value);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, value);
   }
 
   constructor(
@@ -94,10 +94,11 @@ export class Input extends UINode implements Serializable {
     this.inputEl = document.createElement('input');
     this.inputEl.className = 'flow-connect-input';
     this.inputEl.spellcheck = false;
-    if (this.style.pattern) this.inputEl.pattern = this.style.pattern;
-    if (this.style.type === InputType.Number && this.style.step) this.inputEl.step = this.style.step;
     this.inputEl.type = this.style.pattern ? InputType.Text : this.style.type;
     this.inputEl.value = this.value.toString();
+    if (this.style.pattern) this.inputEl.pattern = this.style.pattern;
+    if (this.style.type === InputType.Number && this.style.step) this.inputEl.step = this.style.step;
+    if (this.style.maxLength) this.inputEl.maxLength = this.style.maxLength;
     this.inputEl.addEventListener('blur', () => {
       this.inputEl.style.visibility = 'hidden';
       this.inputEl.style.pointerEvents = 'none';
@@ -162,18 +163,15 @@ export class Input extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(_: any, newValue: any) {
-    let val: string | number;
-    if (this.style.type === InputType.Number && typeof newValue === 'string') val = parseFloat(newValue);
-    else val = newValue;
+  onPropChange(_: any, newVal: any) {
+    if (this.style.type === InputType.Number && typeof newVal === 'string') newVal = parseFloat(newVal);
 
-    this._value = val;
+    this._value = newVal;
     this.label.text = this._value.toString();
     this.inputEl.value = this._value.toString();
 
     this.output && (this.output as any)['setData'](this.value);
   }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;

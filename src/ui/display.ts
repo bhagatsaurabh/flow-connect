@@ -1,50 +1,98 @@
 import { Color } from "../core/color";
-import { DisplayStyle, Serializable, SerializedDisplay } from "../core/interfaces";
+import { DisplayStyle, Serializable, SerializedDisplay, SerializedTerminal } from "../core/interfaces";
 import { Node } from "../core/node";
-import { Constant, UIType } from "../math/constants";
+import { Terminal } from "../core/terminal";
+import { Constant, CustomRendererType, TerminalType, UIType } from "../math/constants";
 import { Vector2 } from "../math/vector";
 import { UINode } from "./ui-node";
 
+export interface CustomOffCanvasConfig {
+  canvas: OffscreenCanvas | HTMLCanvasElement;
+  context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  rendererConfig: CustomRendererConfig,
+  shouldRender: boolean
+}
+export interface CustomRendererConfig {
+  type: CustomRendererType
+  renderer?: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => boolean
+};
+
 export class Display extends UINode implements Serializable {
-  customRenderer: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => void;
-  offCanvas: OffscreenCanvas | HTMLCanvasElement;
-  offContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  private _rendering: boolean = false;
+  offCanvases: CustomOffCanvasConfig[] = [];
+  manualOffCanvases: CustomOffCanvasConfig[] = [];
+  autoOffCanvases: CustomOffCanvasConfig[] = [];
 
   constructor(
     node: Node,
     height: number,
-    renderer: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => void,
+    customRenderers: CustomRendererConfig[],
     style: DisplayStyle = {},
     id?: string,
-    hitColor?: Color
+    hitColor?: Color,
+    clear?: SerializedTerminal
   ) {
 
-    super(node, Vector2.Zero(), UIType.Display, false, { ...Constant.DefaultDisplayStyle(), ...style }, null, null, null, id, hitColor);
-    this.customRenderer = renderer;
+    super(
+      node, Vector2.Zero(), UIType.Display, false,
+      { ...Constant.DefaultDisplayStyle(), ...style }, null,
+      typeof clear !== 'undefined' ?
+        Terminal.deSerialize(node, clear) :
+        new Terminal(node, TerminalType.IN, 'event', '', {}),
+      null, id, hitColor
+    );
     this.height = height;
-    if (typeof OffscreenCanvas !== 'undefined' && typeof OffscreenCanvasRenderingContext2D !== 'undefined') {
-      this.offCanvas = new OffscreenCanvas(this.node.width - 2 * this.node.style.padding, this.height);
-      this.offContext = this.offCanvas.getContext('2d');
+    if (typeof OffscreenCanvas !== 'undefined') {
+      customRenderers.forEach(rendererConfig => {
+        let offCanvas = new OffscreenCanvas(this.node.width - 2 * this.node.style.padding, this.height);
+        let offContext = offCanvas.getContext('2d');
+        let newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true }
+        if (rendererConfig.type === CustomRendererType.Manual) {
+          this.manualOffCanvases.push(newOffCanvasConfig);
+        } else {
+          this.autoOffCanvases.push(newOffCanvasConfig);
+        }
+        this.offCanvases.push(newOffCanvasConfig);
+      });
     } else {
-      this.offCanvas = document.createElement('canvas');
-      this.offCanvas.width = this.node.width - 2 * this.node.style.padding;
-      this.offCanvas.height = this.height;
-      this.offContext = this.offCanvas.getContext('2d');
+      customRenderers.forEach(rendererConfig => {
+        let offCanvas = document.createElement('canvas');
+        offCanvas.width = this.node.width - 2 * this.node.style.padding;
+        offCanvas.height = this.height;
+        let offContext = offCanvas.getContext('2d');
+        let newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true }
+        if (rendererConfig.type === CustomRendererType.Manual) {
+          this.manualOffCanvases.push(newOffCanvasConfig);
+        } else {
+          this.autoOffCanvases.push(newOffCanvasConfig);
+        }
+        this.offCanvases.push(newOffCanvasConfig);
+      });
     }
+
+    this.input.on('event', () => {
+      this.manualOffCanvases.forEach(offCanvas => {
+        offCanvas.context.clearRect(0, 0, offCanvas.canvas.width, offCanvas.canvas.height);
+      });
+    });
   }
 
-  private customRender() {
-    return new Promise<void>(resolve => {
-      this.offContext.clearRect(0, 0, this.offCanvas.width, this.offCanvas.height);
-
-      if (this.style.backgroundColor) {
-        this.offContext.fillStyle = this.style.backgroundColor;
-        this.offContext.fillRect(0, 0, this.offCanvas.width, this.offCanvas.height);
-      }
-      this.customRenderer(this.offContext, this.offCanvas.width, this.offCanvas.height);
-      resolve();
-    });
+  private customAutoRender() {
+    return Promise.all(this.autoOffCanvases.map(offCanvas => {
+      return new Promise<boolean>(resolve => {
+        if (offCanvas.shouldRender) {
+          offCanvas.context.clearRect(0, 0, offCanvas.canvas.width, offCanvas.canvas.height);
+          if (this.style.backgroundColor) {
+            offCanvas.context.fillStyle = this.style.backgroundColor;
+            offCanvas.context.fillRect(0, 0, offCanvas.canvas.width, offCanvas.canvas.height);
+          }
+          resolve(
+            offCanvas.rendererConfig.renderer(offCanvas.context, offCanvas.canvas.width, offCanvas.canvas.height)
+          );
+        } else {
+          resolve(false);
+        }
+      });
+    }));
   }
 
   /** @hidden */
@@ -54,17 +102,18 @@ export class Display extends UINode implements Serializable {
     context.lineWidth = 1;
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
-    if (!this._rendering) {
-      this._rendering = true;
-      this.customRender().finally(() => this._rendering = false);
-    }
+    this.customAutoRender().then((results: boolean[]) => {
+      results.forEach((result, index) => this.autoOffCanvases[index].shouldRender = result);
+    });
 
-    context.drawImage(
-      this.offCanvas, 0, 0,
-      this.offCanvas.width, this.offCanvas.height,
-      this.position.x, this.position.y,
-      this.node.width - 2 * this.node.style.padding, this.height
-    );
+    this.offCanvases.forEach(offCanvas => {
+      context.drawImage(
+        offCanvas.canvas, 0, 0,
+        offCanvas.canvas.width, offCanvas.canvas.height,
+        this.position.x, this.position.y,
+        this.node.width - 2 * this.node.style.padding, this.height
+      );
+    });
   }
   /** @hidden */
   paintLOD1() {
@@ -81,13 +130,14 @@ export class Display extends UINode implements Serializable {
   }
   /** @hidden */
   reflow(): void {
-    this.offCanvas.width = this.node.width - 2 * this.node.style.padding;
-    this.offCanvas.height = this.height;
+    this.offCanvases.forEach(offCanvas => {
+      offCanvas.canvas.width = this.node.width - 2 * this.node.style.padding;
+      offCanvas.canvas.height = this.height;
+    });
   }
 
   /** @hidden */
   onPropChange() { }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('over', this, screenPosition, realPosition);
@@ -135,6 +185,6 @@ export class Display extends UINode implements Serializable {
     };
   }
   static deSerialize(node: Node, data: SerializedDisplay): Display {
-    return new Display(node, data.height, null, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new Display(node, data.height, null, data.style, data.id, Color.deSerialize(data.hitColor), data.input);
   }
 }

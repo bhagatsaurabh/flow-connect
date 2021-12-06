@@ -97,7 +97,6 @@ export class Image extends UINode implements Serializable {
 
   /** @hidden */
   onPropChange() { }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('over', this, screenPosition, realPosition);

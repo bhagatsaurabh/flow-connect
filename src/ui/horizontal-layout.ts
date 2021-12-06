@@ -12,6 +12,7 @@ import { Label } from "./label";
 import { Select } from "./select";
 import { Slider } from "./slider";
 import { Source } from "./source";
+import { Stack } from "./stack";
 import { Toggle } from "./toggle";
 import { UINode } from "./ui-node";
 
@@ -40,7 +41,7 @@ export class HorizontalLayout extends UINode implements Serializable {
   }
   /** @hidden */
   reflow(): void {
-    let availableWidth = this.width - (this.children.length > 0 ? this.children.length - 1 : 0) * this.style.spacing;
+    let availableWidth = this.width - (this.children.length > 0 ? (this.children.length - 1) : 0) * this.style.spacing;
     let actualWidth = availableWidth;
     let x = this.position.x;
     let maxHeight = 0;
@@ -65,7 +66,6 @@ export class HorizontalLayout extends UINode implements Serializable {
 
   /** @hidden */
   onPropChange() { }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('over', this, screenPosition, realPosition);
@@ -117,6 +117,7 @@ export class HorizontalLayout extends UINode implements Serializable {
         case UIType.Container: return Container.deSerialize(node, serializedChild);
         case UIType.Display: return Display.deSerialize(node, serializedChild);
         case UIType.HorizontalLayout: return HorizontalLayout.deSerialize(node, serializedChild);
+        case UIType.Stack: return Stack.deSerialize(node, serializedChild);
         case UIType.Image: return Image.deSerialize(node, serializedChild);
         case UIType.Input: return Input.deSerialize(node, serializedChild);
         case UIType.Label: return Label.deSerialize(node, serializedChild);

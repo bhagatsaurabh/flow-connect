@@ -17,10 +17,11 @@ export const Buffer = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
     let process = (inputs: any[]) => {
         if (inputs[0] === null || typeof inputs[0] === 'undefined') return;
+        if (node.props.size <= 0) node.props.size = 1;
         if (node.props.buffer.length === node.props.size) {
             node.props.buffer.shift();
         } else if (node.props.buffer.length > node.props.size) {
-            node.props.buffer.splice(node.props.buffer.length - node.props.size + 1, node.props.buffer.length);
+            node.props.buffer.splice(0, node.props.buffer.length - node.props.size + 1);
         }
         node.props.buffer.push(inputs[0]);
         node.setOutputs('buffer', node.props.buffer);

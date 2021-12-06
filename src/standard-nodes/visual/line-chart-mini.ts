@@ -2,7 +2,7 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../math/vector";
 import { DisplayStyle, NodeCreatorOptions } from "../../core/interfaces";
 import { Color } from "../../core/color";
-import { InputType } from "../../math/constants";
+import { CustomRendererType, InputType } from "../../math/constants";
 
 export const LineChartMini = (flow: Flow, options: NodeCreatorOptions = {}, height: number, colors: string[], displayStyle: DisplayStyle) => {
 
@@ -16,20 +16,24 @@ export const LineChartMini = (flow: Flow, options: NodeCreatorOptions = {}, heig
         options.props ? { size: 10, ...options.props } : { size: 10 }
     );
 
-    let display = node.createDisplay(height, (context, width, height) => {
-        let data = node.getInputs();
-        if (!data || !data[0]) return;
-        data[0].forEach((input: number[], index: number) => {
-            if (!input) return;
-            let spacing = Number((width / (node.props.size - 1)).toFixed(2));
-            context.strokeStyle = colors[index] || Color.Random().rgbaCSSString;
-            context.lineWidth = 2;
-            context.beginPath();
-            context.moveTo(0, (1 - input[0]) * height);
-            for (let i = 1; i < input.length; i += 1) context.lineTo(i * spacing, (1 - input[i]) * height);
-            context.stroke();
-        });
-    }, displayStyle ? displayStyle : {});
+    let display = node.createDisplay(height, [{
+        type: CustomRendererType.Auto,
+        renderer: (context, width, height) => {
+            let data = node.getInputs();
+            if (!data || !data[0]) return true;
+            data[0].forEach((input: number[], index: number) => {
+                if (!input) return;
+                let spacing = Number((width / (node.props.size - 1)).toFixed(2));
+                context.strokeStyle = colors[index] || Color.Random().rgbaCSSString;
+                context.lineWidth = 2;
+                context.beginPath();
+                context.moveTo(0, (1 - input[0]) * height);
+                for (let i = 1; i < input.length; i += 1) context.lineTo(i * spacing, (1 - input[i]) * height);
+                context.stroke();
+            });
+            return true;
+        }
+    }], displayStyle ? displayStyle : {});
     node.ui.append(display);
     let sizeInput = node.createInput(node.props.size, 'size', true, true, 20, { type: InputType.Number, grow: '.5' } as any);
     node.ui.append(node.createHozLayout([

@@ -1,7 +1,7 @@
 import { Terminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../math/vector";
-import { Align, Constant, TerminalType, UIType } from '../math/constants';
+import { Align, Constant, FlowState, TerminalType, UIType } from '../math/constants';
 import { UINode } from "./ui-node";
 import { LabelStyle, Serializable, SerializedLabel, SerializedTerminal } from "../core/interfaces";
 import { Color } from "../core/color";
@@ -15,20 +15,21 @@ export class Label extends UINode implements Serializable {
 
   get text(): string {
     if (this.propName) {
-      if (typeof this.node.props[this.propName] !== 'string') return this.node.props[this.propName].toString();
-      return this.node.props[this.propName];
+      let value = this.getProp();
+      if (typeof value !== 'string') value = value.toString();
+      return value;
     }
     return this._text;
   }
   set text(text: string) {
     if (this.propName) {
-      this.node.props[this.propName] = text;
+      this.setProp(text);
     } else {
       this._text = text;
       this.reflow();
     }
 
-    this.call('change', this, text);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, text);
   }
 
   constructor(
@@ -59,7 +60,7 @@ export class Label extends UINode implements Serializable {
       id, hitColor
     );
 
-    this._text = this.propName ? this.node.props[this.propName] : text;
+    this._text = this.propName ? this.getProp() : text;
     this.reflow();
 
     if (!height) this.height = this.textHeight;

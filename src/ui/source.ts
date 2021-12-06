@@ -5,7 +5,7 @@ import { fileIcon } from "../resource/icons";
 import { Image } from "./image";
 import { Label } from "./label";
 import { UINode } from "./ui-node";
-import { Align, Constant, TerminalType, UIType } from "../math/constants";
+import { Align, Constant, FlowState, TerminalType, UIType } from "../math/constants";
 import { Serializable, SerializedSource, SerializedTerminal, SourceStyle } from "../core/interfaces";
 import { Color } from "../core/color";
 
@@ -17,17 +17,17 @@ export class Source extends UINode implements Serializable {
   private _file: File;
 
   get file(): File {
-    if (this.propName) return this.node.props[this.propName];
+    if (this.propName) return this.getProp();
     return this._file;
   }
   set file(file: File) {
-    if (this.propName) this.node.props[this.propName] = file;
+    if (this.propName) this.setProp(file);
     else {
       this._file = file;
       this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf("."));
     }
 
-    this.call('change', this, file);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, file);
   }
 
   constructor(
@@ -135,7 +135,6 @@ export class Source extends UINode implements Serializable {
 
     this.output && (this.output as any)['setData'](this._file);
   }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;

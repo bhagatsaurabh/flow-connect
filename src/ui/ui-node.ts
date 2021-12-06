@@ -47,7 +47,17 @@ export abstract class UINode extends Hooks implements Events {
     this.children = [];
     this.draggable = draggable;
     this.disabled = false;
-    if (this.propName) this.node.addPropObserver(this.propName, this.onPropChange.bind(this));
+    if (this.propName) {
+      this.node.addPropObserver(this.propName, (oldVal: any, newVal: any) => {
+        if (/^.+\[\d+\]$/g.test(this.propName)) {
+          let arrName = /^(.+)\[\d+\]$/g.exec(this.propName)[1];
+          let index = parseInt(/\[(\d+)\]/.exec(this.propName)[1]);
+          oldVal = this.node.props[arrName][index];
+          newVal = this.node.props[arrName][index];
+        }
+        this.onPropChange(oldVal, newVal);
+      });
+    }
 
     if (input) {
       this.node.inputsUI.push(this.input);
@@ -58,12 +68,15 @@ export abstract class UINode extends Hooks implements Events {
   }
 
   append(childs: UINode | UINode[]) {
-    if (Array.isArray(childs)) {
+    if (Array.isArray(childs))
       this.children.push(...childs);
-    } else {
+    else
       this.children.push(childs);
-    }
+
     this.update();
+
+    // To fix a bug, when appending childs to UINodes in-between the tree, UI container's height won't update
+    this.node.ui.update();
   }
   /** @hidden */
   update(): void {
@@ -128,6 +141,29 @@ export abstract class UINode extends Hooks implements Events {
   }
 
   /** @hidden */
+  getProp() {
+    if (/^.+\[\d+\]$/g.test(this.propName)) {
+      let arrName = /^(.+)\[\d+\]$/g.exec(this.propName)[1];
+      let index = parseInt(/\[(\d+)\]/.exec(this.propName)[1]);
+      return this.node.props[arrName][index];
+    }
+    return this.node.props[this.propName];
+  }
+  /** @hidden */
+  setProp(propValue: any) {
+    if (/^.+\[\d+\]$/g.test(this.propName)) {
+      let arrName = /^(.+)\[\d+\]$/g.exec(this.propName)[1];
+      let index = parseInt(/\[(\d+)\]/.exec(this.propName)[1]);
+
+      let newState = [...this.node.props[arrName]];
+      newState[index] = propValue;
+      this.node.props[arrName] = newState;
+    } else {
+      this.node.props[this.propName] = propValue;
+    }
+  }
+
+  /** @hidden */
   abstract reflow(): void;
   /** @hidden */
   abstract paint(): void;
@@ -152,7 +188,6 @@ export abstract class UINode extends Hooks implements Events {
   abstract onExit(screenPosition: Vector2, realPosition: Vector2): void;
   /** @hidden */
   abstract onContextMenu(): void;
-
   /** @hidden */
   abstract onPropChange(oldValue: any, newValue: any): void;
 }

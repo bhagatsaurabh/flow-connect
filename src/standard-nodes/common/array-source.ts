@@ -21,6 +21,7 @@ export const ArraySource = (flow: Flow, options: NodeCreatorOptions = {}) => {
             if (node.props.number) value = value.map(item => Number(item.trim()));
             node.props.value = value;
         }
+        node.setOutputs(0, node.props.value);
     };
 
     let numberToggle = node.createToggle('number', true, true, 10, { grow: '.3' } as any);
@@ -30,13 +31,9 @@ export const ArraySource = (flow: Flow, options: NodeCreatorOptions = {}) => {
         arrayInput
     ]);
 
-    numberToggle.on('change', () => {
-        process();
-        node.setOutputs(0, node.props.value);
-    });
+    numberToggle.on('change', process);
     arrayInput.on('change', process);
-
-    node.on('process', () => node.setOutputs(0, node.props.value));
+    node.on('process', process);
 
     return node;
 };

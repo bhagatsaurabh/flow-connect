@@ -24,7 +24,6 @@ export const ToArray = (flow: Flow, options: NodeCreatorOptions = {}, inputs: nu
     node.ui.append(addButton);
 
     addButton.on('click', () => node.addTerminal(new Terminal(node, TerminalType.IN, 'any', 'In ' + node.inputs.length + 1)));
-
     node.on('process', (_, inputs) => node.setOutputs(0, [...inputs]));
 
     return node;

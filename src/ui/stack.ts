@@ -1,12 +1,11 @@
 import { Color } from "../core/color";
-import { ContainerStyle, Serializable, SerializedContainer } from "../core/interfaces";
+import { Serializable, SerializedStackLayout, StackStyle } from "../core/interfaces";
 import { Node } from "../core/node";
 import { Constant, UIType } from "../math/constants";
 import { Vector2 } from "../math/vector";
 import { Button } from "./button";
+import { Container } from "./container";
 import { Display } from "./display";
-import { HorizontalLayout } from "./horizontal-layout";
-import { Stack } from "./stack";
 import { Image } from './image';
 import { Input } from "./input";
 import { Label } from "./label";
@@ -16,48 +15,24 @@ import { Source } from "./source";
 import { Toggle } from "./toggle";
 import { UINode } from "./ui-node";
 
-/** @hidden */
-export class Container extends UINode implements Serializable {
-  contentWidth: number;
+export class Stack extends UINode implements Serializable {
 
   constructor(
     node: Node,
-    width?: number,
-    style: ContainerStyle = {},
+    childs?: UINode[],
+    style: StackStyle = {},
     id?: string,
     hitColor?: Color
   ) {
 
-    super(node, node.position, UIType.Container, false, { ...Constant.DefaultContainerStyle(), ...style }, null, null, null, id, hitColor);
-    this.width = typeof width !== 'undefined' ? width : 0;
-    this.height = this.node.style.padding * 2;
-    this.contentWidth = this.width - 2 * this.node.style.padding;
+    super(node, Vector2.Zero(), UIType.Stack, false, { ...Constant.DefaultStackStyle(), ...style }, null, null, null, id, hitColor);
+    if (childs) this.children.push(...childs);
   }
 
   /** @hidden */
-  paint(): void {
-    let context = this.context;
-    context.shadowColor = this.style.shadowColor;
-    context.shadowBlur = 3;
-    context.shadowOffsetX = this.style.shadowOffset.x;
-    context.shadowOffsetY = this.style.shadowOffset.y;
-    context.fillStyle = this.style.backgroundColor;
-    context.strokeStyle = this.style.borderColor;
-    context.lineWidth = this.style.borderWidth;
-    context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
-    context.stroke();
-    context.fill();
-  }
+  paint(): void { }
   /** @hidden */
-  paintLOD1() {
-    let context = this.context;
-    context.fillStyle = this.style.backgroundColor;
-    context.strokeStyle = this.style.borderColor;
-    context.lineWidth = this.style.borderWidth;
-    context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
-    context.stroke();
-    context.fill();
-  }
+  paintLOD1() { }
   /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
@@ -65,17 +40,17 @@ export class Container extends UINode implements Serializable {
   }
   /** @hidden */
   reflow(): void {
-    this.position = this.node.position;
-    let terminalsDisplayHeight = Math.max(this.node.inputs.length, this.node.outputs.length) * this.node.style.terminalRowHeight + this.node.style.titleHeight;
-    let x = this.position.x + this.node.style.padding;
-    let y = this.position.y + terminalsDisplayHeight;
+    let actualTotalHeight = this.children.reduce((acc, curr) => acc += curr.height, 0);
+    let effectiveSpacing = (this.children.length - 1) * this.style.spacing;
+    this.height = actualTotalHeight + effectiveSpacing;
+
+    let y = this.position.y;
+
     this.children.forEach(child => {
-      y += this.node.style.spacing;
-      child.width = this.width - this.node.style.padding * 2;
-      child.position = new Vector2(x, y);
-      y += child.height;
+      child.position = new Vector2(this.position.x, y);
+      child.width = this.width;
+      y += child.height + this.style.spacing;
     });
-    this.height = y + this.node.style.padding - this.position.y;
   }
 
   /** @hidden */
@@ -111,7 +86,7 @@ export class Container extends UINode implements Serializable {
   /** @hidden */
   onContextMenu(): void { }
 
-  serialize(): SerializedContainer {
+  serialize(): SerializedStackLayout {
     return {
       id: this.id,
       type: this.type,
@@ -119,26 +94,18 @@ export class Container extends UINode implements Serializable {
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
-      width: this.width,
-      style: {
-        backgroundColor: this.style.backgroundColor,
-        shadowColor: this.style.shadowColor,
-        shadowBlur: this.style.shadowBlur,
-        shadowOffset: this.style.shadowOffset.serialize(),
-        borderWidth: this.style.borderWidth,
-        borderColor: this.style.borderColor
-      },
+      style: this.style,
       childs: this.children.map(child => (child as any).serialize())
     }
   }
-  static deSerialize(node: Node, data: SerializedContainer): Container {
-    let uiContainer = new Container(node, data.width, data.style, data.id, Color.deSerialize(data.hitColor));
-    uiContainer.children.push(...data.childs.map(serializedChild => {
+  static deSerialize(node: Node, data: SerializedStackLayout): Stack {
+    let stack = new Stack(node, [], data.style, data.id, Color.deSerialize(data.hitColor));
+    stack.children.push(...data.childs.map(serializedChild => {
       switch (serializedChild.type) {
         case UIType.Button: return Button.deSerialize(node, serializedChild);
         case UIType.Container: return Container.deSerialize(node, serializedChild);
         case UIType.Display: return Display.deSerialize(node, serializedChild);
-        case UIType.HorizontalLayout: return HorizontalLayout.deSerialize(node, serializedChild);
+        case UIType.HorizontalLayout: return Stack.deSerialize(node, serializedChild);
         case UIType.Stack: return Stack.deSerialize(node, serializedChild);
         case UIType.Image: return Image.deSerialize(node, serializedChild);
         case UIType.Input: return Input.deSerialize(node, serializedChild);
@@ -150,6 +117,6 @@ export class Container extends UINode implements Serializable {
         default: return;
       }
     }));
-    return uiContainer;
+    return stack;
   }
 }

@@ -2,7 +2,13 @@ import { Rules } from "../core/interfaces";
 import { Vector2 } from "./vector";
 
 export class Constant {
-  static TAU = 0.017453292519943295;
+  static TAU = 0.0174532925199432;
+  static PI = 3.1415926535897932;
+  static PHI = 1.6180339887498948;    // golden ratio
+  static LN2 = 0.6931471805599453;    // natural logarithm of 2
+  static LN10 = 2.302585092994046;    // natural logarithm of 10
+  static LOG2E = 1.4426950408889634;  // base2 logarithm of e
+  static LOG10E = 0.4342944819032518; // base10 logarithm of e
   static SIN_60 = 0.866;
 
   /** Default rules every [[Flow]] will have, for e.g. a string output can only be connected to string inputs.
@@ -23,6 +29,7 @@ export class Constant {
     'array': ['array', 'any'],
     'file': ['file', 'any'],
     'event': ['event', 'any'],
+    'vector2': ['vector2', 'any'],
     'any': ['any']
   };
   /** Default colors for [[Group]]s */
@@ -118,6 +125,12 @@ export class Constant {
     };
   };
   /** @hidden */
+  static DefaultStackStyle = () => {
+    return {
+      spacing: 0
+    };
+  };
+  /** @hidden */
   static DefaultImageStyle = () => {
     return {
       align: Align.Left
@@ -208,6 +221,7 @@ export enum UIType {
   Container,
   Display,
   HorizontalLayout,
+  Stack,
   Image,
   Input,
   Label,
@@ -220,4 +234,8 @@ export enum FlowState {
   Running,
   Idle,
   Stopped
+}
+export enum CustomRendererType {
+  Manual,
+  Auto
 }

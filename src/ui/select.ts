@@ -3,7 +3,7 @@ import { Node } from "../core/node";
 import { Vector2 } from "../math/vector";
 import { Label } from "./label";
 import { UINode } from "./ui-node";
-import { Align, Constant, TerminalType, UIType } from "../math/constants";
+import { Align, Constant, FlowState, TerminalType, UIType } from "../math/constants";
 import { SelectStyle, Serializable, SerializedSelect, SerializedTerminal } from "../core/interfaces";
 import { Color } from "../core/color";
 
@@ -13,7 +13,7 @@ export class Select extends UINode implements Serializable {
 
   get selected(): string {
     if (this.propName) {
-      let value = this.node.props[this.propName];
+      let value = this.getProp();
       value = this.options.length === 0 ? 'None' : (this.options.includes(value) ? value : this.options[0]);
       return value;
     }
@@ -21,12 +21,12 @@ export class Select extends UINode implements Serializable {
   }
   set selected(selected: string) {
     let value = this.options.length === 0 ? 'None' : (this.options.includes(selected) ? selected : this.options[0]);
-    if (this.propName) this.node.props[this.propName] = value;
+    if (this.propName) this.setProp(value);
     else {
       this._selected = value;
       this.label.text = this.selected;
     }
-    this.call('change', this, this.selected);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, this.selected);
   }
 
   constructor(

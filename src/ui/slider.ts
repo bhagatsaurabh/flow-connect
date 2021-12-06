@@ -3,7 +3,7 @@ import { Node } from "../core/node";
 import { Vector2 } from "../math/vector";
 import { clamp, denormalize, normalize } from "../utils/utils";
 import { UINode } from "./ui-node";
-import { Constant, TerminalType, UIType } from "../math/constants";
+import { Constant, FlowState, TerminalType, UIType } from "../math/constants";
 import { Serializable, SerializedSlider, SerializedTerminal, SliderStyle } from "../core/interfaces";
 import { Color } from "../core/color";
 
@@ -12,18 +12,18 @@ export class Slider extends UINode implements Serializable {
   private _value: number;
 
   get value(): number {
-    if (this.propName) return this.node.props[this.propName];
+    if (this.propName) return this.getProp();
     return this._value;
   }
   set value(value: number) {
     value = clamp(value, this.min, this.max);
-    if (this.propName) this.node.props[this.propName] = value;
+    if (this.propName) this.setProp(value);
     else {
       this._value = value;
       this.reflow();
     }
 
-    this.call('change', this, this.value);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, this.value);
   }
 
   constructor(
@@ -135,7 +135,6 @@ export class Slider extends UINode implements Serializable {
 
     this.output && (this.output as any)['setData'](this.value);
   }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;

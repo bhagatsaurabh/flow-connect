@@ -177,23 +177,22 @@ export class Flow extends Hooks implements Serializable {
   }
   start() {
     if (this.state !== FlowState.Stopped) return;
-    this.call('beforestart', this);
     this.flowConnect.startGlobalTime();
     this.executionGraph.start();
+    this.call('start', this);
   }
   stop() {
     if (this.state === FlowState.Stopped) return;
     // what if FlowState is Running ?
     this.executionGraph.stop();
-    this.call('stop', this);
     this.flowConnect.stopGlobalTime();
-
     Object.values(this.nodes).forEach(node => {
       if (node instanceof SubFlowNode) {
         node.subFlow.stop();
         // maybe stop in reverse execution sequence... ?
       }
-    })
+    });
+    this.call('stop', this);
   }
 
   serialize(): SerializedFlow {

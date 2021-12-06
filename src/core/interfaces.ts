@@ -127,7 +127,8 @@ export interface InputStyle {
   type?: InputType,
   align?: Align,
   pattern?: string,
-  step?: string
+  step?: string,
+  maxLength?: number,
 }
 export interface ButtonStyle {
   backgroundColor?: string,
@@ -149,6 +150,9 @@ export interface DisplayStyle {
   backgroundColor?: string
 }
 export interface HorizontalLayoutStyle {
+  spacing?: number
+}
+export interface StackStyle {
   spacing?: number
 }
 export interface ImageStyle {
@@ -237,8 +241,8 @@ export interface SerializedButton extends SerializedUINode {
 export interface SerializedDisplay extends SerializedUINode {
   height: number
 }
-export interface SerializedHorizontalLayout extends SerializedUINode {
-}
+export interface SerializedHorizontalLayout extends SerializedUINode { }
+export interface SerializedStackLayout extends SerializedUINode { }
 export interface SerializedImage extends SerializedUINode {
   source: string
 }

@@ -23,7 +23,6 @@ export const BooleanSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
     ], { spacing: 20 }));
 
     toggle.on('change', process);
-
     node.on('process', process);
 
     return node;

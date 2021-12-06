@@ -1,7 +1,6 @@
 export * from './timer';
 export * from './log';
 export * from './buffer';
-export * from './normalize';
 export * from './to-array';
 export * from './array-index';
 export * from './array-source';
@@ -14,3 +13,6 @@ export * from './string-source';
 export * from './file-source';
 export * from './property';
 export * from './sync';
+export * from './delay';
+export * from './to-vector2';
+export * from './number-range';

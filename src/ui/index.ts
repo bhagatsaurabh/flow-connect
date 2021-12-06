@@ -4,6 +4,7 @@ export * from './label';
 export * from './image';
 export * from './slider';
 export * from './horizontal-layout';
+export * from './stack';
 export * from './button';
 export * from './toggle';
 export * from './select';

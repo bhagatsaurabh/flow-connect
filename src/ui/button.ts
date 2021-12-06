@@ -85,7 +85,6 @@ export class Button extends UINode implements Serializable {
 
   /** @hidden */
   onPropChange() { }
-
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;

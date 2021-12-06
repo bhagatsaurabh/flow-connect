@@ -2,7 +2,7 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../math/vector";
 import { NodeCreatorOptions } from "../../core/interfaces";
 import { Terminal } from "../../core/terminal";
-import { TerminalType } from "../../math";
+import { TerminalType } from "../../math/constants";
 
 export const Sync = (flow: Flow, options: NodeCreatorOptions = {}, events?: number) => {
 

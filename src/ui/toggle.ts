@@ -2,7 +2,7 @@ import { Terminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../math/vector";
 import { UINode } from "./ui-node";
-import { Constant, TerminalType, UIType } from "../math/constants";
+import { Constant, FlowState, TerminalType, UIType } from "../math/constants";
 import { Serializable, SerializedTerminal, SerializedToggle, ToggleStyle } from "../core/interfaces";
 import { Color } from "../core/color";
 
@@ -10,16 +10,16 @@ export class Toggle extends UINode implements Serializable {
   private _checked: boolean = false;
 
   get checked(): boolean {
-    if (this.propName) return this.node.props[this.propName];
+    if (this.propName) return this.getProp();
     return this._checked;
   }
   set checked(checked: boolean) {
-    if (this.propName) this.node.props[this.propName] = checked;
+    if (this.propName) this.setProp(checked);
     else {
       this._checked = checked;
     }
 
-    this.call('change', this, checked);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, checked);
   }
 
   constructor(
@@ -49,7 +49,7 @@ export class Toggle extends UINode implements Serializable {
       id, hitColor
     );
 
-    this._checked = this.propName ? this.node.props[this.propName] : false;
+    this._checked = this.propName ? this.getProp() : false;
     this.height = height ? height : this.node.style.rowHeight;
 
     if (this.input) {

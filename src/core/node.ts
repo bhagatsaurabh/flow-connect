@@ -1,13 +1,13 @@
 import { Vector2 } from "../math/vector";
 import { ViewPort, NodeState, LOD, TerminalType, Align, Constant, FlowState } from '../math/constants';
-import { Container, Label, Slider, UINode, Button, Image, HorizontalLayout, Toggle, Select, Source, Display, Input } from "../ui/index";
+import { Container, Label, Slider, UINode, Button, Image, HorizontalLayout, Toggle, Select, Source, Display, Input, Stack, CustomRendererConfig } from "../ui/index";
 import { getNewGUID, intersects } from "../utils/utils";
 import { Color } from "./color";
 import { Flow } from './flow';
 import { Group } from './group';
 import { Terminal } from './terminal';
 import { Hooks } from './hooks';
-import { ButtonStyle, DisplayStyle, Events, HorizontalLayoutStyle, ImageStyle, InputStyle, LabelStyle, NodeStyle, RenderState, SelectStyle, Serializable, SerializedContainer, SerializedNode, SerializedTerminal, SliderStyle, SourceStyle, TerminalOutputs, TerminalStyle, ToggleStyle } from "./interfaces";
+import { StackStyle, ButtonStyle, DisplayStyle, Events, HorizontalLayoutStyle, ImageStyle, InputStyle, LabelStyle, NodeStyle, RenderState, SelectStyle, Serializable, SerializedContainer, SerializedNode, SerializedTerminal, SliderStyle, SourceStyle, TerminalOutputs, TerminalStyle, ToggleStyle } from "./interfaces";
 import { Connector } from "./connector";
 import { Log } from "../utils/logger";
 
@@ -65,7 +65,7 @@ export class Node extends Hooks implements Events, Serializable {
   private _zIndex: number;
   private nodeButtons: NodeButton[] = [];
   private _position: Vector2;
-  private propObservers: { [key: string]: Array<(oldVal: any, newVal: any) => void> } = {};
+  private propObservers: any = {};
   /** @hidden */
   renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeState.MAXIMIZED, lod: LOD.LOD2 };
   /** @hidden */
@@ -144,7 +144,7 @@ export class Node extends Hooks implements Events, Serializable {
     this.outputs.push(...outputs.map(output => new Terminal(this, TerminalType.OUT, output.dataType, output.name, output.style ? output.style : { ...terminalStyle }, output.id ? output.id : null, output.hitColor ? Color.deSerialize(output.hitColor) : null)));
     this.ui = ui ? (ui instanceof Container ? ui : Container.deSerialize(this, ui)) : new Container(this, width);
 
-    this.addNodeButton(() => this.toggleNodeState(), (nodeButton: NodeButton, position: Vector2) => {
+    this.addNodeButton(() => this.toggleNodeState(), (_: NodeButton, position: Vector2) => {
       this.context.fillStyle = this.style.maximizeButtonColor;
       this.context.fillRect(position.x, position.y, this.style.nodeButtonSize, this.style.nodeButtonSize);
     }, Align.Left);
@@ -156,20 +156,15 @@ export class Node extends Hooks implements Events, Serializable {
   }
 
   //#region Methods
-  private setupProps(props: { [key: string]: any }) {
-    let propsTarget: { [key: string]: any } = {};
-    this.props = new Proxy(propsTarget, {
-      set: (target, prop: string, value) => {
+  private setupProps(props: any) {
+    this.props = new Proxy<any>({}, {
+      set: (target, prop, value) => {
         if (typeof target[prop] === 'undefined') {
           this.propObservers[prop] = [];
         }
         let oldValue = target[prop];
         target[prop] = value;
-        this.propObservers[prop].forEach(callback => callback(oldValue, value));
-
-        if (this.registeredEvents['propchange']) {
-          this.call('propchange', this, prop, oldValue, value);
-        }
+        this.propObservers[prop].forEach((callback: any) => callback(oldValue, value));
         return true;
       }
     });
@@ -180,8 +175,17 @@ export class Node extends Hooks implements Events, Serializable {
   }
   /** @hidden */
   addPropObserver(propName: string, callback: (oldVal: any, newVal: any) => void) {
-    if (typeof this.props[propName] !== 'undefined') {
+    if (/^.+\[\d+\]$/g.test(propName)) {
+      let arrName = /^(.+)\[\d+\]$/g.exec(propName)[1];
+      if (Array.isArray(this.props[arrName])) {
+        this.propObservers[arrName].push(callback);
+      } else {
+        Log.error('Indexed prop observer can only be added for array-like props');
+      }
+    } else if (typeof this.props[propName] !== 'undefined') {
       this.propObservers[propName].push(callback);
+    } else {
+      Log.error('Prop \'', propName, '\' not found');
     }
   }
   /** @hidden */
@@ -550,6 +554,9 @@ export class Node extends Hooks implements Events, Serializable {
   createHozLayout(childs?: UINode[], style?: HorizontalLayoutStyle) {
     return new HorizontalLayout(this, childs, style);
   }
+  createStack(childs?: UINode[], style?: StackStyle) {
+    return new Stack(this, childs, style);
+  }
   createButton(text: string, input?: boolean, output?: boolean, height?: number, style?: ButtonStyle) {
     return new Button(this, text, input, output, height, style);
   }
@@ -562,8 +569,8 @@ export class Node extends Hooks implements Events, Serializable {
   createSource(accept?: string, propName?: string, input?: boolean, output?: boolean, height?: number, style?: SourceStyle) {
     return new Source(this, accept, propName, input, output, height, style);
   }
-  createDisplay(height: number, render: (context: CanvasRenderingContext2D, width: number, height: number) => void, style?: DisplayStyle) {
-    return new Display(this, height, render, style);
+  createDisplay(height: number, renderers: CustomRendererConfig[], style?: DisplayStyle) {
+    return new Display(this, height, renderers, style);
   }
   createInput(value: string | number, propName?: string, input?: boolean, output?: boolean, height?: number, style?: InputStyle) {
     return new Input(this, value, propName, input, output, height, style);

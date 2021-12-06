@@ -1,6 +1,6 @@
 let flow = flowConnect.createFlow({
     name: 'Stock Flow',
-    rules: { 'array': ['array', 'any'] },
+    rules: {},
     terminalTypeColors: {
         'number': '#7aff66',
         'string': '#ffe366',
@@ -10,9 +10,9 @@ let flow = flowConnect.createFlow({
     }
 });
 
-let timer = StandardNodes.Timer(flow, { props: { delay: 1000 } });
-let api = StandardNodes.API(flow, { props: { src: 'https://public.polygon.io/v2/market/now' } });
-let log = StandardNodes.Log(flow);
+let timer = StandardNodes.Common.Timer(flow, { props: { delay: 1000 } });
+let api = StandardNodes.Net.API(flow, { props: { src: 'https://public.polygon.io/v2/market/now' } });
+let log = StandardNodes.Common.Log(flow);
 let extract = flow.createNode('Data Extract', new Vector2(50, 50), 100, [{ name: 'data', dataType: 'any' }],
     [{ name: 'BTC', dataType: 'number' }, { name: 'ETH', dataType: 'number' }, { name: 'LTC', dataType: 'number' }]
 );
@@ -24,25 +24,25 @@ extract.on('process', (_, inputs) => {
         'LTC': inputs[0].crypto['X:LTCUSD'].lastTrade.p
     });
 });
-let btcBuffer = StandardNodes.Buffer(flow, { props: { size: 30 } });
-let ethBuffer = StandardNodes.Buffer(flow, { props: { size: 30 } });
-let ltcBuffer = StandardNodes.Buffer(flow, { props: { size: 30 } });
-let btcNormalize = StandardNodes.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
-let ethNormalize = StandardNodes.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
-let ltcNormalize = StandardNodes.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
-let btcEthToArray = StandardNodes.ToArray(flow, {}, 2);
-let btcLtcToArray = StandardNodes.ToArray(flow, {}, 2);
-let btcEthLtcToArray = StandardNodes.ToArray(flow, {}, 3);
+let btcBuffer = StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
+let ethBuffer = StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
+let ltcBuffer = StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
+let btcNormalize = StandardNodes.Math.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
+let ethNormalize = StandardNodes.Math.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
+let ltcNormalize = StandardNodes.Math.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
+let btcEthToArray = StandardNodes.Common.ToArray(flow, {}, 2);
+let btcLtcToArray = StandardNodes.Common.ToArray(flow, {}, 2);
+let btcEthLtcToArray = StandardNodes.Common.ToArray(flow, {}, 3);
 
-let btcEthChart = StandardNodes.LineChartMini(
+let btcEthChart = StandardNodes.Visual.LineChartMini(
     flow, { name: 'BTC : ETH', width: 250 },
     100, ['#ff6666', '#66d4ff'], { backgroundColor: '#7a7a7a' }
 );
-let btcLtcChart = StandardNodes.LineChartMini(
+let btcLtcChart = StandardNodes.Visual.LineChartMini(
     flow, { name: 'BTC : LTC', width: 250 },
     100, ['#ffb066', '#668fff'], { backgroundColor: '#7a7a7a' }
 );
-let btcEthLtcChart = StandardNodes.LineChartMini(
+let btcEthLtcChart = StandardNodes.Visual.LineChartMini(
     flow, { name: 'BTC : ETH : LTC', width: 250 },
     100, ['#ff66ad', '#669eff', '#66ffe3'], { backgroundColor: '#7a7a7a' }
 );

@@ -35,7 +35,7 @@ export const canConnect = (source: Terminal, destination: Terminal, rules: Rules
   if (!rules[source.dataType].includes(destination.dataType)) return false;
   if (!executionGraph.canConnect(source.node, destination.node)) return false;
   return true;
-}
+};
 /** @hidden */
 export const binarySearch = ({ max, getValue, match }: { max: number, getValue: Function, match: number }) => {
   let min = 0;
