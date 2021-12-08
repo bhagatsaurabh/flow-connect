@@ -1,21 +1,21 @@
 {
-    "compileOnSave": false,
-    "compilerOptions": {
-        "target": "ES5",
-        "module": "CommonJS",
-        "lib": [
-            "ES2015",
-            "DOM"
-        ],
-        "noImplicitAny": true,
-        "removeComments": true,
-        "preserveConstEnums": true,
-        "sourceMap": true,
-        "rootDir": "./src",
-        "outDir": "lib",
-        "declaration": true
-    },
-    "include": [
-        "src/**/*.ts"
-    ]
+  "compileOnSave": false,
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "CommonJS",
+    "lib": [
+      "ES2015",
+      "DOM"
+    ],
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "rootDir": "./src",
+    "outDir": "lib",
+    "declaration": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
 }

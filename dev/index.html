@@ -102,6 +102,7 @@
         <option value="5">Layout 5</option>
       </select>
     </div>
+    <canvas id="debug-canvas"></canvas>
   </div>
 
   <script>
@@ -373,6 +374,25 @@
         }
         default: return;
       }
+    }
+    let debugCanvas = document.getElementById('debug-canvas');
+    let debugContext = debugCanvas.getContext('2d');
+
+    let setupDebug = (canvas) => {
+      debugCanvas.width = canvas.width;
+      debugCanvas.height = canvas.height;
+    }
+    let drawDebug = (canvas, x, y) => {
+      debugContext.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
+      debugContext.drawImage(canvas, 0, 0, debugCanvas.width, debugCanvas.height);
+      requestAnimationFrame(() => drawDebug(canvas, x, y));
+    }
+    let showDebug = () => {
+      Object.assign(debugCanvas.style, {
+        position: 'absolute',
+        top: 0, left: 0,
+        zIndex: 100
+      });
     }
   </script>
   <script src="scripts/index.js"></script>

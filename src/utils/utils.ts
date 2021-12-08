@@ -1,7 +1,7 @@
 import { Graph } from "../core/graph";
-import { Rules } from "../core/interfaces";
+import { Rules } from "../common/interfaces";
 import { Terminal } from "../core/terminal";
-import { ViewPort } from "../math/constants";
+import { ViewPort } from "../common/enums";
 
 export const getNewGUID = () => {
   var S4 = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);

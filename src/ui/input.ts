@@ -1,11 +1,12 @@
-import { Vector2 } from "../math/vector";
-import { UINode } from "./ui-node";
+import { Vector2 } from "../core/vector";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
 import { Node } from '../core/node';
 import { Label } from './label';
-import { Terminal } from "../core/terminal";
-import { Constant, FlowState, InputType, TerminalType, UIType } from "../math/constants";
-import { InputStyle, Serializable, SerializedInput, SerializedTerminal } from "../core/interfaces";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
+import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
+import { FlowState } from "../core/flow";
+import { Align } from "../common/enums";
 
 export class Input extends UINode implements Serializable {
   label: Label;
@@ -19,6 +20,7 @@ export class Input extends UINode implements Serializable {
   }
   set value(value: string | number) {
     let val: string | number;
+    let prevVal = this.value;
     if (this.style.type === InputType.Number && typeof value === 'string') val = parseFloat(value);
     else val = value;
 
@@ -28,7 +30,7 @@ export class Input extends UINode implements Serializable {
       this.label.text = this._value.toString();
       this.inputEl.value = this._value.toString();
     }
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, value);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, value, prevVal);
   }
 
   constructor(
@@ -43,7 +45,7 @@ export class Input extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Input, false, { ...Constant.DefaultInputStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Input, false, false, { ...DefaultInputStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, style.type === InputType.Text ? 'string' : 'number', '', {}) :
@@ -215,6 +217,10 @@ export class Input extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -237,3 +243,39 @@ export class Input extends UINode implements Serializable {
     return new Input(node, data.value, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
+
+export enum InputType {
+  Text = "text",
+  Number = "number"
+}
+
+export interface InputStyle {
+  backgroundColor?: string,
+  color?: string,
+  fontSize?: string,
+  font?: string,
+  border?: string,
+  type?: InputType,
+  align?: Align,
+  pattern?: string,
+  step?: string,
+  maxLength?: number,
+}
+
+export interface SerializedInput extends SerializedUINode {
+  value: string | number,
+  height: number
+}
+
+/** @hidden */
+let DefaultInputStyle = () => {
+  return {
+    backgroundColor: '#eee',
+    color: '#000',
+    fontSize: '11px',
+    font: 'arial',
+    border: '1px solid black',
+    align: Align.Left,
+    type: InputType.Text
+  };
+};

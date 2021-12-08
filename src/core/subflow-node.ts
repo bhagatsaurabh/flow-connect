@@ -1,11 +1,10 @@
-import { Align, FlowState, TerminalType } from '../math/constants';
-import { Vector2 } from '../math/vector';
+import { Vector2 } from './vector';
 import { Color } from './color';
-import { Flow } from './flow';
-import { NodeStyle, SerializedNode, TerminalStyle } from './interfaces';
-import { Node, NodeButton } from './node';
-import { Terminal } from './terminal';
+import { Flow, FlowState } from './flow';
+import { Node, NodeButton, NodeStyle, SerializedNode } from './node';
+import { Terminal, TerminalType, TerminalStyle } from './terminal';
 import { TunnelNode } from './tunnel-node';
+import { Align } from '../common/enums';
 
 export class SubFlowNode extends Node {
 

@@ -1,21 +1,9 @@
 import { Color } from "../core/color";
-import { DisplayStyle, Serializable, SerializedDisplay, SerializedTerminal } from "../core/interfaces";
+import { Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
-import { Terminal } from "../core/terminal";
-import { Constant, CustomRendererType, TerminalType, UIType } from "../math/constants";
-import { Vector2 } from "../math/vector";
-import { UINode } from "./ui-node";
-
-export interface CustomOffCanvasConfig {
-  canvas: OffscreenCanvas | HTMLCanvasElement;
-  context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  rendererConfig: CustomRendererConfig,
-  shouldRender: boolean
-}
-export interface CustomRendererConfig {
-  type: CustomRendererType
-  renderer?: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => boolean
-};
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
+import { Vector2 } from "../core/vector";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
 
 export class Display extends UINode implements Serializable {
   offCanvases: CustomOffCanvasConfig[] = [];
@@ -33,8 +21,8 @@ export class Display extends UINode implements Serializable {
   ) {
 
     super(
-      node, Vector2.Zero(), UIType.Display, false,
-      { ...Constant.DefaultDisplayStyle(), ...style }, null,
+      node, Vector2.Zero(), UIType.Display, true, true,
+      { ...DefaultDisplayStyle(), ...style }, null,
       typeof clear !== 'undefined' ?
         Terminal.deSerialize(node, clear) :
         new Terminal(node, TerminalType.IN, 'event', '', {}),
@@ -73,6 +61,10 @@ export class Display extends UINode implements Serializable {
       this.manualOffCanvases.forEach(offCanvas => {
         offCanvas.context.clearRect(0, 0, offCanvas.canvas.width, offCanvas.canvas.height);
       });
+    });
+
+    this.node.flow.flowConnect.on('scale', () => {
+      this.reflow();
     });
   }
 
@@ -130,10 +122,24 @@ export class Display extends UINode implements Serializable {
   }
   /** @hidden */
   reflow(): void {
+    let newWidth = (this.node.width - 2 * this.node.style.padding) * this.node.flow.flowConnect.scale;
+    let newHeight = this.height * this.node.flow.flowConnect.scale;
+
     this.offCanvases.forEach(offCanvas => {
-      offCanvas.canvas.width = this.node.width - 2 * this.node.style.padding;
-      offCanvas.canvas.height = this.height;
+      // Optimization: Do not trigger re-render if width/height is same
+      if (Math.floor(offCanvas.canvas.width) !== Math.floor(newWidth) || Math.floor(offCanvas.canvas.height) !== Math.floor(newHeight)) {
+        offCanvas.canvas.width = newWidth;
+        offCanvas.canvas.height = newHeight;
+
+        if (!offCanvas.shouldRender) {
+          offCanvas.rendererConfig.renderer(offCanvas.context, offCanvas.canvas.width, offCanvas.canvas.height);
+          offCanvas.shouldRender = false;
+        }
+      }
     });
+
+    this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
+    this.input.position.y = this.position.y + this.height / 2;
   }
 
   /** @hidden */
@@ -167,6 +173,10 @@ export class Display extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void {
     this.call('rightclick', this);
   }
@@ -188,3 +198,36 @@ export class Display extends UINode implements Serializable {
     return new Display(node, data.height, null, data.style, data.id, Color.deSerialize(data.hitColor), data.input);
   }
 }
+
+export enum CustomRendererType {
+  Manual,
+  Auto
+}
+
+export interface CustomOffCanvasConfig {
+  canvas: OffscreenCanvas | HTMLCanvasElement;
+  context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  rendererConfig: CustomRendererConfig,
+  shouldRender: boolean
+}
+
+export interface CustomRendererConfig {
+  type: CustomRendererType
+  renderer?: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => boolean
+};
+
+export interface DisplayStyle {
+  borderColor?: string,
+  backgroundColor?: string
+}
+
+export interface SerializedDisplay extends SerializedUINode {
+  height: number
+}
+
+/** @hidden */
+let DefaultDisplayStyle = () => {
+  return {
+    borderColor: '#000'
+  };
+};

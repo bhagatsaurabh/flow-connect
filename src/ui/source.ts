@@ -1,13 +1,14 @@
-import { Terminal } from "../core/terminal";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { Vector2 } from "../math/vector";
+import { Vector2 } from "../core/vector";
 import { fileIcon } from "../resource/icons";
 import { Image } from "./image";
 import { Label } from "./label";
-import { UINode } from "./ui-node";
-import { Align, Constant, FlowState, TerminalType, UIType } from "../math/constants";
-import { Serializable, SerializedSource, SerializedTerminal, SourceStyle } from "../core/interfaces";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
+import { FlowState } from "../core/flow";
+import { Align } from "../common/enums";
 
 export class Source extends UINode implements Serializable {
   label: Label;
@@ -42,7 +43,7 @@ export class Source extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Source, false, { ...Constant.DefaultSourceStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Source, false, false, { ...DefaultSourceStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'file', '', {}) :
@@ -178,6 +179,10 @@ export class Source extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -200,3 +205,22 @@ export class Source extends UINode implements Serializable {
     return new Source(node, data.accept, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
+
+export interface SourceStyle {
+  borderColor?: string,
+  font?: string,
+  fontSize?: string,
+  color?: string
+}
+
+export interface SerializedSource extends SerializedUINode {
+  accept: string,
+  height: number
+}
+
+/** @hidden */
+let DefaultSourceStyle = () => {
+  return {
+    borderColor: '#000'
+  };
+};

@@ -1,8 +1,7 @@
 import { Color } from "../core/color";
-import { Serializable, SerializedStackLayout, StackStyle } from "../core/interfaces";
+import { Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
-import { Constant, UIType } from "../math/constants";
-import { Vector2 } from "../math/vector";
+import { Vector2 } from "../core/vector";
 import { Button } from "./button";
 import { Container } from "./container";
 import { Display } from "./display";
@@ -13,7 +12,7 @@ import { Select } from "./select";
 import { Slider } from "./slider";
 import { Source } from "./source";
 import { Toggle } from "./toggle";
-import { UINode } from "./ui-node";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
 
 export class Stack extends UINode implements Serializable {
 
@@ -25,7 +24,7 @@ export class Stack extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Stack, false, { ...Constant.DefaultStackStyle(), ...style }, null, null, null, id, hitColor);
+    super(node, Vector2.Zero(), UIType.Stack, false, false, { ...DefaultStackStyle(), ...style }, null, null, null, id, hitColor);
     if (childs) this.children.push(...childs);
   }
 
@@ -84,6 +83,10 @@ export class Stack extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void { }
 
   serialize(): SerializedStackLayout {
@@ -120,3 +123,16 @@ export class Stack extends UINode implements Serializable {
     return stack;
   }
 }
+
+export interface StackStyle {
+  spacing?: number
+}
+
+export interface SerializedStackLayout extends SerializedUINode { }
+
+/** @hidden */
+let DefaultStackStyle = () => {
+  return {
+    spacing: 0
+  };
+};

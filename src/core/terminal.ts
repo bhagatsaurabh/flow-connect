@@ -1,12 +1,10 @@
-import { Vector2 } from "../math/vector";
-import { Constant, TerminalType } from '../math/constants';
+import { Vector2 } from "./vector";
 import { getNewGUID, canConnect } from "../utils/utils";
-import { Color } from "./color";
-import { Connector } from './connector';
+import { Color, SerializedColor } from "./color";
+import { Connector, ConnectorStyle } from './connector';
 import { Hooks } from './hooks';
 import { Node } from './node';
-import { Events, Serializable, SerializedTerminal, TerminalStyle } from "./interfaces";
-import { ConnectorStyle } from "./interfaces";
+import { Events, Serializable } from "../common/interfaces";
 
 export class Terminal extends Hooks implements Events, Serializable {
   connectors: Connector[];
@@ -28,7 +26,7 @@ export class Terminal extends Hooks implements Events, Serializable {
 
     super();
     this.hitColor = hitColor;
-    this.style = { ...Constant.DefaultTerminalStyle(), ...style };
+    this.style = { ...DefaultTerminalStyle(), ...style };
     this.id = id ? id : getNewGUID();
     this.setHitColor(hitColor);
     this.connectors = [];
@@ -202,3 +200,40 @@ export class Terminal extends Hooks implements Events, Serializable {
     return new Terminal(node, data.type, data.dataType, data.name, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
+
+export enum TerminalType {
+  IN = 1,
+  OUT = 2
+}
+
+export interface TerminalTypeColors {
+  [terminalType: string]: string;
+}
+
+export interface TerminalStyle {
+  borderColor?: string,
+  shadowColor?: string,
+  shadowBlur?: number,
+  focusColor?: string,
+  radius?: number
+}
+
+export interface SerializedTerminal {
+  id: string;
+  hitColor: SerializedColor;
+  type: TerminalType;
+  dataType: string;
+  name: string;
+  style: TerminalStyle
+}
+
+/** @hidden */
+let DefaultTerminalStyle = () => {
+  return {
+    radius: 4,
+    borderColor: '#222',
+    shadowBlur: 0,
+    shadowColor: '#ccc',
+    focusColor: '#bbbbbb80'
+  };
+};

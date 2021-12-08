@@ -1,11 +1,26 @@
-import { Color } from "../core/color";
+import { Color, SerializedColor } from "../core/color";
 import { Hooks } from "../core/hooks";
-import { Node } from "../core/node";
-import { Terminal } from "../core/terminal";
-import { Vector2 } from "../math/vector";
-import { LOD, NodeState, UIType, ViewPort } from '../math/constants';
+import { Node, NodeState } from "../core/node";
+import { SerializedTerminal, Terminal } from "../core/terminal";
+import { Vector2 } from "../core/vector";
+import { LOD, ViewPort } from '../common/enums';
 import { getNewGUID, intersects } from "../utils/utils";
-import { Events } from "../core/interfaces";
+import { Events } from "../common/interfaces";
+
+export enum UIType {
+  Button,
+  Container,
+  Display,
+  HorizontalLayout,
+  Stack,
+  Image,
+  Input,
+  Label,
+  Select,
+  Slider,
+  Source,
+  Toggle
+}
 
 export abstract class UINode extends Hooks implements Events {
   /** @hidden */
@@ -15,6 +30,7 @@ export abstract class UINode extends Hooks implements Events {
   hitColor: Color;
 
   draggable: boolean;
+  zoomable: boolean;
   width: number = 0;
   height: number = 0;
   children: UINode[];
@@ -32,6 +48,7 @@ export abstract class UINode extends Hooks implements Events {
     position: Vector2,
     public type: UIType,
     draggable: boolean,
+    zoomable: boolean,
     public style: any,
     public propName?: string,
     public input: Terminal = null, public output: Terminal = null,
@@ -46,6 +63,7 @@ export abstract class UINode extends Hooks implements Events {
     this.position = position;
     this.children = [];
     this.draggable = draggable;
+    this.zoomable = zoomable;
     this.disabled = false;
     if (this.propName) {
       this.node.addPropObserver(this.propName, (oldVal: any, newVal: any) => {
@@ -187,7 +205,20 @@ export abstract class UINode extends Hooks implements Events {
   /** @hidden */
   abstract onExit(screenPosition: Vector2, realPosition: Vector2): void;
   /** @hidden */
+  abstract onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2): void;
+  /** @hidden */
   abstract onContextMenu(): void;
   /** @hidden */
   abstract onPropChange(oldValue: any, newValue: any): void;
+}
+
+export interface SerializedUINode {
+  id: string,
+  type: UIType
+  hitColor: SerializedColor,
+  style: any,
+  propName: string,
+  input: SerializedTerminal,
+  output: SerializedTerminal,
+  childs: any[]
 }

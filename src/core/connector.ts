@@ -1,10 +1,9 @@
-import { Vector2 } from "../math/vector";
-import { Constant, FlowState, NodeState } from "../math/constants";
+import { Vector2 } from "./vector";
 import { getNewGUID } from "../utils/utils";
-import { Flow } from "./flow";
+import { Flow, FlowState } from "./flow";
 import { Terminal } from './terminal';
-import { ConnectorStyle, Serializable, SerializedConnector } from "./interfaces";
-import { Node } from "./node";
+import { Serializable } from "../common/interfaces";
+import { Node, NodeState } from "./node";
 
 export class Connector implements Serializable {
   start: Terminal;
@@ -34,7 +33,7 @@ export class Connector implements Serializable {
     isDeserialization: boolean = false
   ) {
 
-    this.style = { ...Constant.DefaultConnectorStyle(), ...style };
+    this.style = { ...DefaultConnectorStyle(), ...style };
     this.start = start;
     this.end = end;
     if (this.start) this.startNode = this.start.node;
@@ -179,3 +178,25 @@ export class Connector implements Serializable {
     return new Connector(flow, start, end, null, data.style, data.id, true);
   }
 }
+
+export interface ConnectorStyle {
+  width?: number,
+  color?: string
+}
+
+export interface SerializedConnector {
+  startNodeId: string,
+  endNodeId: string,
+  startId: string,
+  endId: string,
+  id: string,
+  style: ConnectorStyle
+}
+
+/** @hidden */
+let DefaultConnectorStyle = () => {
+  return {
+    width: 5,
+    color: '#7fff00aa'
+  };
+};

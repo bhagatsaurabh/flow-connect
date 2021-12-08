@@ -1,4 +1,4 @@
-import { Serializable, SerializedVector2 } from '../core/interfaces';
+import { Serializable } from '../common/interfaces';
 
 export class Vector2 implements Serializable {
   x: number;
@@ -130,4 +130,8 @@ export class Vector2 implements Serializable {
   static deSerialize(data: SerializedVector2): Vector2 {
     return new Vector2(data.x, data.y);
   }
+}
+
+export interface SerializedVector2 {
+  x: number, y: number
 }

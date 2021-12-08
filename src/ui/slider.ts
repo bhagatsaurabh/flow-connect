@@ -1,11 +1,11 @@
-import { Terminal } from "../core/terminal";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { Vector2 } from "../math/vector";
+import { Vector2 } from "../core/vector";
 import { clamp, denormalize, normalize } from "../utils/utils";
-import { UINode } from "./ui-node";
-import { Constant, FlowState, TerminalType, UIType } from "../math/constants";
-import { Serializable, SerializedSlider, SerializedTerminal, SliderStyle } from "../core/interfaces";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
+import { FlowState } from "../core/flow";
 
 export class Slider extends UINode implements Serializable {
   private thumbFill: number;
@@ -40,7 +40,7 @@ export class Slider extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Slider, true, { ...Constant.DefaultSliderStyle(height), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Slider, true, false, { ...DefaultSliderStyle(height), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'number', '', {}) :
@@ -182,6 +182,10 @@ export class Slider extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -205,5 +209,30 @@ export class Slider extends UINode implements Serializable {
   }
   static deSerialize(node: Node, data: SerializedSlider) {
     return new Slider(node, data.min, data.max, data.value, data.precision, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
+  }
+}
+
+export interface SliderStyle {
+  railHeight?: number,
+  thumbRadius?: number,
+  color?: string,
+  thumbColor?: string
+}
+
+export interface SerializedSlider extends SerializedUINode {
+  min: number,
+  max: number,
+  value: number,
+  precision: number,
+  height: number
+}
+
+/** @hidden */
+let DefaultSliderStyle = (height: number) => {
+  return {
+    color: '#444',
+    thumbColor: '#000',
+    railHeight: 3,
+    thumbRadius: height / 2
   }
 }

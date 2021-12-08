@@ -5,19 +5,19 @@ const fs = require('fs');
 const examples = fs.readdirSync('dev/scripts/examples/');
 
 module.exports = merge(common, {
-    mode: 'development',
-    devtool: 'source-map',
-    devServer: {
-        static: [
-            { directory: path.join(__dirname, 'dev') },
-            { directory: path.join(__dirname, 'bundles') }
-        ],
-        onBeforeSetupMiddleware: (devServer) => {
-            devServer.app.get("/examples", function (_req, res) {
-                res.json(examples);
-            });
-        },
-        compress: true,
-        port: 9000
-    }
+  mode: 'development',
+  devtool: 'source-map',
+  devServer: {
+    static: [
+      { directory: path.join(__dirname, 'dev') },
+      { directory: path.join(__dirname, 'bundles') }
+    ],
+    onBeforeSetupMiddleware: (devServer) => {
+      devServer.app.get("/examples", function (_req, res) {
+        res.json(examples);
+      });
+    },
+    compress: true,
+    port: 9000
+  }
 });

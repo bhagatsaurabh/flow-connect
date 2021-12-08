@@ -1,55 +1,16 @@
-import { Vector2 } from "../math/vector";
-import { ViewPort, NodeState, LOD, TerminalType, Align, Constant, FlowState } from '../math/constants';
-import { Container, Label, Slider, UINode, Button, Image, HorizontalLayout, Toggle, Select, Source, Display, Input, Stack, CustomRendererConfig } from "../ui/index";
+import { SerializedVector2, Vector2 } from "./vector";
+import { ViewPort, LOD, Align } from '../common/enums';
+import { Container, Label, Slider, UINode, Button, Image, HorizontalLayout, Toggle, Select, Source, Display, Input, Stack, CustomRendererConfig, ToggleStyle, SourceStyle, SliderStyle, SelectStyle, LabelStyle, InputStyle, ButtonStyle, DisplayStyle, HorizontalLayoutStyle, StackStyle, ImageStyle } from "../ui/index";
 import { getNewGUID, intersects } from "../utils/utils";
-import { Color } from "./color";
-import { Flow } from './flow';
+import { Color, SerializedColor } from "./color";
+import { Flow, FlowState, SerializedFlow } from './flow';
 import { Group } from './group';
-import { Terminal } from './terminal';
+import { Terminal, TerminalType, TerminalStyle, SerializedTerminal } from './terminal';
 import { Hooks } from './hooks';
-import { StackStyle, ButtonStyle, DisplayStyle, Events, HorizontalLayoutStyle, ImageStyle, InputStyle, LabelStyle, NodeStyle, RenderState, SelectStyle, Serializable, SerializedContainer, SerializedNode, SerializedTerminal, SliderStyle, SourceStyle, TerminalOutputs, TerminalStyle, ToggleStyle } from "./interfaces";
+import { Events, RenderState, Serializable, TerminalOutputs } from "../common/interfaces";
 import { Connector } from "./connector";
 import { Log } from "../utils/logger";
-
-/** @hidden */
-export class NodeButton {
-  hitColor: Color;
-  deltaX: number = 0;
-
-  constructor(
-    public node: Node,
-    public callback: () => void,
-    public _render: (nodeButton: NodeButton, position: Vector2) => void,
-    public align: Align
-  ) {
-    this.setHitColor();
-  }
-
-  private setHitColor() {
-    let color = Color.Random();
-    while (this.node.hitColorToNodeButton[color.rgbaString]) color = Color.Random();
-    this.hitColor = color;
-    this.node.hitColorToNodeButton[this.hitColor.rgbaString] = this;
-  }
-  render() {
-    this.node.context.save();
-    this._render(this, this.node.position.add(this.deltaX, this.node.style.titleHeight / 2 - this.node.style.nodeButtonSize / 2));
-    this.node.context.restore();
-
-    this.node.offUIContext.save();
-    this._offUIRender();
-    this.node.offUIContext.restore();
-  }
-  private _offUIRender() {
-    this.node.offUIContext.fillStyle = this.hitColor.rgbaCSSString;
-    this.node.offUIContext.fillRect(
-      this.node.position.x + this.deltaX,
-      this.node.position.y + this.node.style.titleHeight / 2 - this.node.style.nodeButtonSize / 2,
-      this.node.style.nodeButtonSize,
-      this.node.style.nodeButtonSize
-    );
-  }
-}
+import { SerializedContainer } from "../ui/container";
 
 export class Node extends Hooks implements Events, Serializable {
   //#region Properties
@@ -132,7 +93,7 @@ export class Node extends Hooks implements Events, Serializable {
     super();
     this.hitColor = hitColor;
     this._width = width;
-    this.style = { ...Constant.DefaultNodeStyle(), ...style }
+    this.style = { ...DefaultNodeStyle(), ...style }
     this._position = position;
     this.setupProps(props);
     this.hitColorToUI = {};
@@ -280,7 +241,8 @@ export class Node extends Hooks implements Events, Serializable {
 
     return hitTerminal;
   }
-  private getHitUINode(hitColor: string): UINode {
+  /** @hidden */
+  getHitUINode(hitColor: string): UINode {
     let uiNode = this.hitColorToUI[hitColor];
     if (uiNode instanceof Container) return null;
     return uiNode;
@@ -533,11 +495,32 @@ export class Node extends Hooks implements Events, Serializable {
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     this.call('drag', this, screenPosition, realPosition);
 
-    this.currHitUINode && this.currHitUINode.draggable && this.currHitUINode.onDrag(screenPosition, realPosition);
+    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+    let hitUINodeWhileDragging = this.getHitUINode(hitColor);
+
+    if (this.currHitUINode && this.currHitUINode.draggable) {
+      if (hitUINodeWhileDragging === this.currHitUINode) {
+        this.currHitUINode.onDrag(screenPosition, realPosition);
+      } else {
+        this.currHitUINode.onExit(screenPosition, realPosition);
+        this.currHitUINode = null;
+        this.flow.flowConnect.currHitNode = null;
+        this.flow.flowConnect.pointers = [];
+      }
+    }
   }
   /** @hidden */
   onContextMenu(): void {
     this.call('rightclick', this);
+  }
+  /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2): void {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+
+    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+    let hitUINode = this.getHitUINode(hitColor);
+
+    hitUINode && hitUINode.zoomable && hitUINode.onWheel(direction, screenPosition, realPosition);
   }
   //#endregion
 
@@ -599,3 +582,107 @@ export class Node extends Hooks implements Events, Serializable {
     return new Node(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, data.style, data.terminalStyle, data.props, data.id, Color.deSerialize(data.hitColor), data.ui);
   }
 }
+
+export interface NodeStyle {
+  font?: string,
+  fontSize?: string,
+  titleFont?: string,
+  titleFontSize?: string,
+  padding?: number,
+  spacing?: number,
+  rowHeight?: number,
+  color?: string,
+  titleColor?: string,
+  titleHeight?: number,
+  terminalRowHeight?: number,
+  terminalStripMargin?: number,
+  maximizeButtonColor?: string,
+  expandButtonColor?: string;
+  nodeButtonSize?: number,
+  nodeButtonSpacing?: number,
+}
+
+export enum NodeState {
+  MAXIMIZED,
+  MINIMIZED
+}
+
+export interface SerializedNode {
+  hitColor: SerializedColor,
+  zIndex: number,
+  focused: boolean,
+  id: string,
+  position: SerializedVector2,
+  props: { [key: string]: any },
+  renderState: RenderState,
+  inputs: SerializedTerminal[],
+  outputs: SerializedTerminal[],
+  name: string,
+  style: NodeStyle,
+  terminalStyle: TerminalStyle,
+  ui: SerializedContainer,
+  width: number,
+  subFlow?: SerializedFlow
+}
+
+/** @hidden */
+export class NodeButton {
+  hitColor: Color;
+  deltaX: number = 0;
+
+  constructor(
+    public node: Node,
+    public callback: () => void,
+    public _render: (nodeButton: NodeButton, position: Vector2) => void,
+    public align: Align
+  ) {
+    this.setHitColor();
+  }
+
+  private setHitColor() {
+    let color = Color.Random();
+    while (this.node.hitColorToNodeButton[color.rgbaString]) color = Color.Random();
+    this.hitColor = color;
+    this.node.hitColorToNodeButton[this.hitColor.rgbaString] = this;
+  }
+  render() {
+    this.node.context.save();
+    this._render(this, this.node.position.add(this.deltaX, this.node.style.titleHeight / 2 - this.node.style.nodeButtonSize / 2));
+    this.node.context.restore();
+
+    this.node.offUIContext.save();
+    this._offUIRender();
+    this.node.offUIContext.restore();
+  }
+  private _offUIRender() {
+    this.node.offUIContext.fillStyle = this.hitColor.rgbaCSSString;
+    this.node.offUIContext.fillRect(
+      this.node.position.x + this.deltaX,
+      this.node.position.y + this.node.style.titleHeight / 2 - this.node.style.nodeButtonSize / 2,
+      this.node.style.nodeButtonSize,
+      this.node.style.nodeButtonSize
+    );
+  }
+}
+
+/** @hidden */
+let DefaultNodeStyle = () => {
+  return {
+    font: 'arial',
+    fontSize: '.75rem',
+    titleFont: 'arial',
+    titleFontSize: '.85rem',
+    color: '#000',
+    titleColor: '#000',
+    maximizeButtonColor: 'darkgrey',
+    nodeButtonSize: 10,
+    nodeButtonSpacing: 5,
+    expandButtonColor: '#000',
+    padding: 10,
+    spacing: 10,
+    rowHeight: 20,
+    titleHeight: 29,
+    terminalRowHeight: 24,
+    terminalStripMargin: 8
+  };
+};

@@ -1,11 +1,11 @@
-import { Vector2 } from "../math/vector";
-import { Constant, ViewPort } from '../math/constants';
+import { SerializedVector2, Vector2 } from "./vector";
 import { getNewGUID, intersects } from "../utils/utils";
-import { Color } from "./color";
+import { Color, SerializedColor } from "./color";
 import { Flow } from './flow';
 import { Hooks } from './hooks';
 import { Node } from './node';
-import { GroupStyle, Serializable, SerializedGroup } from "./interfaces";
+import { Serializable } from "../common/interfaces";
+import { ViewPort } from "../common/enums";
 
 export class Group extends Hooks implements Serializable {
   nodes: Node[] = [];
@@ -44,11 +44,11 @@ export class Group extends Hooks implements Serializable {
 
     super();
     this.hitColor = hitColor;
-    this.style = { ...Constant.DefaultGroupStyle(), ...style };
+    this.style = { ...DefaultGroupStyle(), ...style };
     this.id = getNewGUID();
     this._position = position;
     if (!this.style.color || !this.style.borderColor) {
-      let colors = Constant.DefaultGroupColors.Random();
+      let colors = DefaultGroupColors.Random();
       this.style.borderColor = colors[0];
       this.style.color = colors[1];
     }
@@ -198,3 +198,45 @@ export class Group extends Hooks implements Serializable {
     return group;
   }
 }
+
+export interface GroupStyle {
+  color?: string;
+  borderColor?: string;
+  titleColor?: string;
+  fontSize?: string;
+  font?: string;
+}
+
+export interface SerializedGroup {
+  position: SerializedVector2,
+  width: number,
+  height: number,
+  name: string,
+  style: GroupStyle,
+  id: string,
+  hitColor: SerializedColor,
+  nodes: string[],
+  nodeDeltas: SerializedVector2[]
+}
+
+/** @hidden */
+let DefaultGroupColors = {
+  colors: [
+    ['rgba(239, 134, 119, 1)', 'rgba(239, 134, 119, .5)'],
+    ['rgba(160, 231, 125, 1)', 'rgba(160, 231, 125, .5)'],
+    ['rgba(130, 182, 217, 1)', 'rgba(130, 182, 217, .5)']
+  ],
+  RED: () => DefaultGroupColors.colors[0],
+  GREEN: () => DefaultGroupColors.colors[1],
+  BLUE: () => DefaultGroupColors.colors[2],
+  Random: () => DefaultGroupColors.colors[Math.floor(Math.random() * DefaultGroupColors.colors.length)]
+};
+
+/** @hidden */
+let DefaultGroupStyle = () => {
+  return {
+    titleColor: '#000',
+    fontSize: '16px',
+    font: 'arial'
+  };
+};

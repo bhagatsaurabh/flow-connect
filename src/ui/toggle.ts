@@ -1,10 +1,10 @@
-import { Terminal } from "../core/terminal";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { Vector2 } from "../math/vector";
-import { UINode } from "./ui-node";
-import { Constant, FlowState, TerminalType, UIType } from "../math/constants";
-import { Serializable, SerializedTerminal, SerializedToggle, ToggleStyle } from "../core/interfaces";
+import { Vector2 } from "../core/vector";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
+import { FlowState } from "../core/flow";
 
 export class Toggle extends UINode implements Serializable {
   private _checked: boolean = false;
@@ -33,7 +33,7 @@ export class Toggle extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Toggle, false, { ...Constant.DefaultToggleStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Toggle, false, false, { ...DefaultToggleStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'boolean', '', {}) :
@@ -159,6 +159,10 @@ export class Toggle extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -181,3 +185,21 @@ export class Toggle extends UINode implements Serializable {
     return new Toggle(node, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
+
+export interface ToggleStyle {
+  backgroundColor?: string,
+  color?: string
+}
+
+export interface SerializedToggle extends SerializedUINode {
+  checked: boolean,
+  height: number
+}
+
+/** @hidden */
+let DefaultToggleStyle = () => {
+  return {
+    backgroundColor: '#999',
+    color: '#000'
+  };
+};

@@ -1,33 +1,8 @@
-import { FlowState } from "../math/constants";
 import { Log } from "../utils/logger";
 import { getNewGUID } from "../utils/utils";
-import { Flow } from "./flow";
-import { Serializable, SerializedGraph, SerializedGraphNode } from "./interfaces";
+import { Flow, FlowState } from "./flow";
+import { Serializable } from "../common/interfaces";
 import { Node } from "./node";
-
-/** @hidden */
-export class GraphNode implements Serializable {
-  id: string;
-  childs: GraphNode[] = [];
-  order: number;
-
-  constructor(public flowNode: Node, order?: number, id?: string) {
-    this.order = order ? order : 0;
-    this.id = id ? id : getNewGUID();
-  }
-
-  serialize(): SerializedGraphNode {
-    return {
-      id: this.id,
-      nodeId: this.flowNode.id,
-      order: this.order,
-      childs: this.childs.map(child => child.id)
-    };
-  }
-  static deSerialize(node: Node, data: SerializedGraphNode): GraphNode {
-    return new GraphNode(node, data.order, data.id);
-  }
-}
 
 /** @hidden */
 export class Graph implements Serializable {
@@ -87,11 +62,11 @@ export class Graph implements Serializable {
       this.state = FlowState.Running;
       if (this.nodes[0]) {
         try {
-          console.log(this.nodes[0]);
+          // console.log(this.nodes[0]);
           await this.runAll(this.nodes[0]);
 
           while (Object.values(this.dirtyNodes).length !== 0) {
-            console.log(Object.assign({}, this.dirtyNodes));
+            // console.log(Object.assign({}, this.dirtyNodes));
             await this.runAll(this.lowestDirty(Object.values(this.dirtyNodes)));
           }
         } catch (error) {
@@ -104,7 +79,7 @@ export class Graph implements Serializable {
       this.state = FlowState.Running;
       try {
         while (Object.values(this.dirtyNodes).length !== 0) {
-          console.log(Object.assign({}, this.dirtyNodes));
+          // console.log(Object.assign({}, this.dirtyNodes));
           await this.runAll(this.lowestDirty(Object.values(this.dirtyNodes)));
         }
       } catch (error) {
@@ -178,4 +153,39 @@ export class Graph implements Serializable {
 
     return graph;
   }
+}
+
+export interface SerializedGraph {
+  nodes: SerializedGraphNode[][],
+  nodeToGraphNode: { [key: string]: string }
+}
+
+/** @hidden */
+export class GraphNode implements Serializable {
+  id: string;
+  childs: GraphNode[] = [];
+  order: number;
+
+  constructor(public flowNode: Node, order?: number, id?: string) {
+    this.order = order ? order : 0;
+    this.id = id ? id : getNewGUID();
+  }
+
+  serialize(): SerializedGraphNode {
+    return {
+      id: this.id,
+      nodeId: this.flowNode.id,
+      order: this.order,
+      childs: this.childs.map(child => child.id)
+    };
+  }
+  static deSerialize(node: Node, data: SerializedGraphNode): GraphNode {
+    return new GraphNode(node, data.order, data.id);
+  }
+}
+export interface SerializedGraphNode {
+  id: string,
+  nodeId: string,
+  order: number,
+  childs: string[]
 }

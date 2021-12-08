@@ -1,10 +1,11 @@
 import { Connector, Flow, Group, Node, Color, Hooks } from "./core/index";
-import { Vector2 } from "./math/vector";
-import { Constant, TerminalType, ViewPort } from './math/constants';
-import { Dimension, FlowOptions, Pointer, SerializedFlow, Rules } from "./core/interfaces";
+import { Vector2 } from "./core/vector";
+import { Dimension, Pointer, Rules } from "./common/interfaces";
 import { intersects } from "./utils/utils";
-import { FlowState } from './math/constants';
 import { Log } from './utils/logger';
+import { TerminalType } from './core/terminal';
+import { FlowState, FlowOptions, SerializedFlow } from './core/flow';
+import { ViewPort } from './common/enums';
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -58,7 +59,7 @@ export class FlowConnect extends Hooks {
   flows: Flow[] = [];
 
   /** Reference of the current/previous Nodes/Groups under user-interaction (mouse, touch) */
-  private currHitNode: Node;
+  currHitNode: Node;
   private prevHitNode: Node;
   private currHitGroup: Group;
 
@@ -70,7 +71,7 @@ export class FlowConnect extends Hooks {
   floatingConnector: Connector;
 
   /** For controlling user-interaction */
-  private pointers: Pointer[] = [];
+  pointers: Pointer[] = [];
   private keymap: { [key: string]: boolean } = {};
   private touchControls: { [control: string]: boolean } = { 'CreateGroup': false };
 
@@ -367,26 +368,29 @@ export class FlowConnect extends Hooks {
       }
 
       if (this.currHitNode) {
+        // If dragging UINode outside its bounds, Node can pre-empt currHitNode
         this.currHitNode.onDrag(screenPosition.clone(), realPosition.clone());
-        if ((!this.currHitNode.currHitUINode || !this.currHitNode.currHitUINode.draggable) && !this.currHitNode.currHitTerminal && !this.floatingConnector) {
-          this.currHitNode.position = realPosition.add(dragDelta);
+        if (this.currHitNode) {
+          if ((!this.currHitNode.currHitUINode || !this.currHitNode.currHitUINode.draggable) && !this.currHitNode.currHitTerminal && !this.floatingConnector) {
+            this.currHitNode.position = realPosition.add(dragDelta);
 
-          let hitGroup = this.getHitGroup(screenPosition);
-          if (hitGroup && hitGroup === this.currHitNode.group) {
-            let groupRealPos = hitGroup.position.transform(this._transform);
-            let nodeRealPos = this.currHitNode.position.transform(this._transform);
+            let hitGroup = this.getHitGroup(screenPosition);
+            if (hitGroup && hitGroup === this.currHitNode.group) {
+              let groupRealPos = hitGroup.position.transform(this._transform);
+              let nodeRealPos = this.currHitNode.position.transform(this._transform);
 
-            let intersection = intersects(groupRealPos.x, groupRealPos.y,
-              groupRealPos.x + hitGroup.width * this.scale,
-              groupRealPos.y + hitGroup.height * this.scale,
-              nodeRealPos.x, nodeRealPos.y,
-              nodeRealPos.x + this.currHitNode.width * this.scale,
-              nodeRealPos.y + this.currHitNode.ui.height * this.scale
-            );
+              let intersection = intersects(groupRealPos.x, groupRealPos.y,
+                groupRealPos.x + hitGroup.width * this.scale,
+                groupRealPos.y + hitGroup.height * this.scale,
+                nodeRealPos.x, nodeRealPos.y,
+                nodeRealPos.x + this.currHitNode.width * this.scale,
+                nodeRealPos.y + this.currHitNode.ui.height * this.scale
+              );
 
-            if (intersection === ViewPort.INSIDE) {
-              let nodeIndex = hitGroup.nodes.findIndex(node => node.id === this.currHitNode.id);
-              hitGroup.nodeDeltas[nodeIndex] = this.currHitNode.position.subtract(hitGroup.position);
+              if (intersection === ViewPort.INSIDE) {
+                let nodeIndex = hitGroup.nodes.findIndex(node => node.id === this.currHitNode.id);
+                hitGroup.nodeDeltas[nodeIndex] = this.currHitNode.position.subtract(hitGroup.position);
+              }
             }
           }
         }
@@ -439,7 +443,20 @@ export class FlowConnect extends Hooks {
     this.canvas.onwheel = (ev: WheelEvent) => {
       if (!this.currFlow) return;
 
-      this.handleZoom(ev.deltaY < 0, this.getRelativePosition(ev), this.wheelScaleDelta);
+      let screenPosition = this.getRelativePosition(ev);
+      let hitNode = this.getHitNode(screenPosition);
+      if (hitNode) {
+        let hitColor = Color.rgbaToString(this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+        let hitUINode = hitNode.getHitUINode(hitColor);
+
+        // Need to add touch compability for pinch on UINodes
+        if (hitUINode && hitUINode.zoomable) {
+          hitNode.onWheel(ev.deltaY < 0, screenPosition, screenPosition.transform(this.inverseTransform));
+          return;
+        }
+      }
+
+      this.handleZoom(ev.deltaY < 0, screenPosition, this.wheelScaleDelta);
     }
   }
   private setGenericInput() {
@@ -485,6 +502,7 @@ export class FlowConnect extends Hooks {
   private handleZoom(zoomIn: boolean, origin: Vector2, scaleDelta: number) {
     if ((this._transform.a >= this.maxScale && zoomIn) || (this._transform.a <= this.minScale && !zoomIn)) return;
     this.updateTransform(zoomIn ? scaleDelta : (1 / scaleDelta), origin, null);
+    this.call('scale', this.scale);
   }
   private handleGrouping(screenPosition: Vector2) {
     let hitGroup = this.getHitGroup(screenPosition);
@@ -682,7 +700,7 @@ export class FlowConnect extends Hooks {
     if (!options.rules) options.rules = {};
     if (!options.terminalTypeColors) options.terminalTypeColors = {};
 
-    options.rules = { ...options.rules, ...Constant.DefaultRules };
+    options.rules = { ...options.rules, ...DefaultRules() };
     let flow = new Flow(this, options.name, options.rules, options.terminalTypeColors);
     this.flows.push(flow);
     return flow;
@@ -728,7 +746,30 @@ export class FlowConnect extends Hooks {
   }
 }
 
+/** Default rules every [[Flow]] will have, for e.g. a string output can only be connected to string inputs.
+   *  ```javascript
+   *  {
+   *    'string': ['string'],
+   *    'number': ['number'],
+   *    'boolean': ['boolean'],
+   *    'file': ['file'],
+   *    'event': ['event']
+   *  }
+   *  ```
+   */
+let DefaultRules: () => Rules = () => ({
+  'string': ['string', 'any'],
+  'number': ['number', 'any'],
+  'boolean': ['boolean', 'any'],
+  'array': ['array', 'any'],
+  'file': ['file', 'any'],
+  'event': ['event', 'any'],
+  'vector2': ['vector2', 'any'],
+  'any': ['any']
+});
+
+export * from './common/index';
 export * from './core/index';
-export * from './math/index';
+export { Constant } from './resource/constants';
 export * from './ui/index';
 export * from './utils/index';

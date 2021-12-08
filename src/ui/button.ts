@@ -1,11 +1,11 @@
 import { Node } from "../core/node";
-import { Terminal } from '../core/terminal';
-import { Vector2 } from "../math/vector";
-import { Align, Constant, TerminalType, UIType } from '../math/constants';
+import { Terminal, TerminalType, SerializedTerminal } from '../core/terminal';
+import { Vector2 } from "../core/vector";
 import { Label } from "./label";
-import { UINode } from './ui-node';
-import { ButtonStyle, Serializable, SerializedButton, SerializedTerminal } from "../core/interfaces";
+import { SerializedUINode, UINode, UIType } from './ui-node';
+import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
+import { Align } from "../common/enums";
 
 export class Button extends UINode implements Serializable {
   label: Label;
@@ -21,7 +21,7 @@ export class Button extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Button, false, { ...Constant.DefaultButtonStyle(), ...style }, null,
+    super(node, Vector2.Zero(), UIType.Button, false, false, { ...DefaultButtonStyle(), ...style }, null,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'event', '', {}) :
@@ -128,6 +128,10 @@ export class Button extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
 
@@ -152,3 +156,27 @@ export class Button extends UINode implements Serializable {
     return new Button(node, data.text, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
+
+export interface ButtonStyle {
+  backgroundColor?: string,
+  color?: string,
+  fontSize?: string,
+  font?: string,
+  padding?: number
+}
+
+export interface SerializedButton extends SerializedUINode {
+  text: string,
+  height: number
+}
+
+/** @hidden */
+let DefaultButtonStyle = () => {
+  return {
+    backgroundColor: '#666',
+    padding: 5,
+    color: '#fff',
+    font: 'arial',
+    fontSize: '11px'
+  };
+};

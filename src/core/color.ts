@@ -1,5 +1,5 @@
 import { getRandom, normalize } from "../utils/utils";
-import { Serializable, SerializedColor } from "./interfaces";
+import { Serializable } from "../common/interfaces";
 
 export class Color implements Serializable {
   hexValue: string;
@@ -44,4 +44,8 @@ export class Color implements Serializable {
   static deSerialize(data: SerializedColor) {
     return new Color(data.rgba);
   }
+}
+
+export interface SerializedColor {
+  rgba: number[]
 }

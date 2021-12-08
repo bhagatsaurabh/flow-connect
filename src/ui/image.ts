@@ -1,11 +1,11 @@
 import { Color } from "../core/color";
-import { ImageStyle, Serializable, SerializedImage } from "../core/interfaces";
+import { Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
-import { Align, Constant, UIType } from "../math/constants";
-import { Vector2 } from "../math/vector";
+import { Vector2 } from "../core/vector";
 import { imageIcon } from "../resource/icons";
 import { Log } from "../utils/logger";
-import { UINode } from "./ui-node";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { Align } from "../common/enums";
 
 export class Image extends UINode implements Serializable {
   private imageCanvas: OffscreenCanvas | HTMLCanvasElement;
@@ -21,7 +21,7 @@ export class Image extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Image, false, { ...Constant.DefaultImageStyle(), ...style }, propName, null, null, id, hitColor);
+    super(node, Vector2.Zero(), UIType.Image, false, false, { ...DefaultImageStyle(), ...style }, propName, null, null, id, hitColor);
     this.source = document.createElement('img');
 
     this.source.onload = () => {
@@ -126,6 +126,10 @@ export class Image extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void { }
 
   serialize(): SerializedImage {
@@ -145,3 +149,18 @@ export class Image extends UINode implements Serializable {
     return new Image(node, data.source, data.propName, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
+
+export interface ImageStyle {
+  align?: Align
+}
+
+export interface SerializedImage extends SerializedUINode {
+  source: string
+}
+
+/** @hidden */
+let DefaultImageStyle = () => {
+  return {
+    align: Align.Left
+  };
+};

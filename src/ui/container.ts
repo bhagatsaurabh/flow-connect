@@ -1,8 +1,7 @@
 import { Color } from "../core/color";
-import { ContainerStyle, Serializable, SerializedContainer } from "../core/interfaces";
+import { Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
-import { Constant, UIType } from "../math/constants";
-import { Vector2 } from "../math/vector";
+import { Vector2 } from "../core/vector";
 import { Button } from "./button";
 import { Display } from "./display";
 import { HorizontalLayout } from "./horizontal-layout";
@@ -14,7 +13,7 @@ import { Select } from "./select";
 import { Slider } from "./slider";
 import { Source } from "./source";
 import { Toggle } from "./toggle";
-import { UINode } from "./ui-node";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
 
 /** @hidden */
 export class Container extends UINode implements Serializable {
@@ -28,7 +27,7 @@ export class Container extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, node.position, UIType.Container, false, { ...Constant.DefaultContainerStyle(), ...style }, null, null, null, id, hitColor);
+    super(node, node.position, UIType.Container, false, false, { ...DefaultContainerStyle(), ...style }, null, null, null, id, hitColor);
     this.width = typeof width !== 'undefined' ? width : 0;
     this.height = this.node.style.padding * 2;
     this.contentWidth = this.width - 2 * this.node.style.padding;
@@ -109,6 +108,10 @@ export class Container extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void { }
 
   serialize(): SerializedContainer {
@@ -153,3 +156,28 @@ export class Container extends UINode implements Serializable {
     return uiContainer;
   }
 }
+
+export interface ContainerStyle {
+  backgroundColor?: string,
+  shadowColor?: string,
+  shadowBlur?: number,
+  shadowOffset?: Vector2,
+  borderColor?: string,
+  borderWidth?: number
+}
+
+export interface SerializedContainer extends SerializedUINode {
+  width: number
+}
+
+/** @hidden */
+let DefaultContainerStyle = () => {
+  return {
+    backgroundColor: '#dddddd',
+    shadowColor: '#666',
+    shadowBlur: 3,
+    shadowOffset: new Vector2(3, 3),
+    borderWidth: 1,
+    borderColor: '#444'
+  };
+};

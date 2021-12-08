@@ -1,11 +1,12 @@
-import { Terminal } from "../core/terminal";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { Vector2 } from "../math/vector";
-import { Align, Constant, FlowState, TerminalType, UIType } from '../math/constants';
-import { UINode } from "./ui-node";
-import { LabelStyle, Serializable, SerializedLabel, SerializedTerminal } from "../core/interfaces";
+import { Vector2 } from "../core/vector";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { binarySearch } from "../utils/utils";
+import { FlowState } from "../core/flow";
+import { Align } from "../common/enums";
 
 export class Label extends UINode implements Serializable {
   private displayText: string;
@@ -44,7 +45,7 @@ export class Label extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Label, false, { ...Constant.DefaultLabelStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Label, false, false, { ...DefaultLabelStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'string', '', {}) :
@@ -208,6 +209,10 @@ export class Label extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -230,3 +235,25 @@ export class Label extends UINode implements Serializable {
     return new Label(node, data.text, data.propName, data.input, data.output, data.style, data.height, data.id, Color.deSerialize(data.hitColor));
   }
 }
+
+export interface LabelStyle {
+  color?: string,
+  fontSize?: string,
+  font?: string,
+  align?: Align
+}
+
+export interface SerializedLabel extends SerializedUINode {
+  text: string,
+  height: number
+}
+
+/** @hidden */
+let DefaultLabelStyle = () => {
+  return {
+    color: '#000',
+    fontSize: '11px',
+    font: 'arial',
+    align: Align.Left
+  };
+};

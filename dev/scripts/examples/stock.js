@@ -1,28 +1,28 @@
 let flow = flowConnect.createFlow({
-    name: 'Stock Flow',
-    rules: {},
-    terminalTypeColors: {
-        'number': '#7aff66',
-        'string': '#ffe366',
-        'array': '#66e6ff',
-        'any': '#6675ff',
-        'event': '#ffb066',
-    }
+  name: 'Stock Flow',
+  rules: {},
+  terminalTypeColors: {
+    'number': '#7aff66',
+    'string': '#ffe366',
+    'array': '#66e6ff',
+    'any': '#6675ff',
+    'event': '#ffb066',
+  }
 });
 
 let timer = StandardNodes.Common.Timer(flow, { props: { delay: 1000 } });
 let api = StandardNodes.Net.API(flow, { props: { src: 'https://public.polygon.io/v2/market/now' } });
 let log = StandardNodes.Common.Log(flow);
 let extract = flow.createNode('Data Extract', new Vector2(50, 50), 100, [{ name: 'data', dataType: 'any' }],
-    [{ name: 'BTC', dataType: 'number' }, { name: 'ETH', dataType: 'number' }, { name: 'LTC', dataType: 'number' }]
+  [{ name: 'BTC', dataType: 'number' }, { name: 'ETH', dataType: 'number' }, { name: 'LTC', dataType: 'number' }]
 );
 extract.on('process', (_, inputs) => {
-    if (!inputs[0]) return;
-    extract.setOutputs({
-        'BTC': inputs[0].crypto['X:BTCUSD'].lastTrade.p,
-        'ETH': inputs[0].crypto['X:ETHUSD'].lastTrade.p,
-        'LTC': inputs[0].crypto['X:LTCUSD'].lastTrade.p
-    });
+  if (!inputs[0]) return;
+  extract.setOutputs({
+    'BTC': inputs[0].crypto['X:BTCUSD'].lastTrade.p,
+    'ETH': inputs[0].crypto['X:ETHUSD'].lastTrade.p,
+    'LTC': inputs[0].crypto['X:LTCUSD'].lastTrade.p
+  });
 });
 let btcBuffer = StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
 let ethBuffer = StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
@@ -35,16 +35,16 @@ let btcLtcToArray = StandardNodes.Common.ToArray(flow, {}, 2);
 let btcEthLtcToArray = StandardNodes.Common.ToArray(flow, {}, 3);
 
 let btcEthChart = StandardNodes.Visual.LineChartMini(
-    flow, { name: 'BTC : ETH', width: 250 },
-    100, ['#ff6666', '#66d4ff'], { backgroundColor: '#7a7a7a' }
+  flow, { name: 'BTC : ETH', width: 250 },
+  100, ['#ff6666', '#66d4ff'], { backgroundColor: '#7a7a7a' }
 );
 let btcLtcChart = StandardNodes.Visual.LineChartMini(
-    flow, { name: 'BTC : LTC', width: 250 },
-    100, ['#ffb066', '#668fff'], { backgroundColor: '#7a7a7a' }
+  flow, { name: 'BTC : LTC', width: 250 },
+  100, ['#ffb066', '#668fff'], { backgroundColor: '#7a7a7a' }
 );
 let btcEthLtcChart = StandardNodes.Visual.LineChartMini(
-    flow, { name: 'BTC : ETH : LTC', width: 250 },
-    100, ['#ff66ad', '#669eff', '#66ffe3'], { backgroundColor: '#7a7a7a' }
+  flow, { name: 'BTC : ETH : LTC', width: 250 },
+  100, ['#ff66ad', '#669eff', '#66ffe3'], { backgroundColor: '#7a7a7a' }
 );
 
 timer.outputs[0].connect(api.inputs[0]);
@@ -69,9 +69,9 @@ ethNormalize.outputs[0].connect(btcEthLtcToArray.inputs[1]);
 ltcNormalize.outputs[0].connect(btcEthLtcToArray.inputs[2]);
 // btcEthLtcToArray.outputs[0].connect(log.inputs[3]);
 
-btcBuffer.outputsUI[0].connect(btcEthChart.inputsUI[0]);
-btcBuffer.outputsUI[0].connect(btcLtcChart.inputsUI[0]);
-btcBuffer.outputsUI[0].connect(btcEthLtcChart.inputsUI[0]);
+btcBuffer.outputsUI[0].connect(btcEthChart.inputsUI[1]);
+btcBuffer.outputsUI[0].connect(btcLtcChart.inputsUI[1]);
+btcBuffer.outputsUI[0].connect(btcEthLtcChart.inputsUI[1]);
 
 btcEthToArray.outputs[0].connect(btcEthChart.inputs[0]);
 btcLtcToArray.outputs[0].connect(btcLtcChart.inputs[0]);

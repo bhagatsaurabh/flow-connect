@@ -1,9 +1,8 @@
-import { Vector2 } from "../math/vector";
+import { Vector2 } from "./vector";
 import { Color } from "./color";
 import { Flow } from "./flow";
-import { NodeStyle, SerializedTunnelNode, TerminalStyle } from "./interfaces";
-import { Node } from "./node";
-import { Terminal } from "./terminal";
+import { Node, NodeStyle, SerializedNode } from "./node";
+import { Terminal, TerminalStyle } from "./terminal";
 
 export class TunnelNode extends Node {
   private _proxyTerminal: Terminal;
@@ -66,4 +65,8 @@ export class TunnelNode extends Node {
   static deSerialize(flow: Flow, data: SerializedTunnelNode): TunnelNode {
     return new TunnelNode(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, data.style, data.terminalStyle, data.props, data.id, Color.deSerialize(data.hitColor));
   }
+}
+
+export interface SerializedTunnelNode extends SerializedNode {
+  proxyTerminalId: string
 }

@@ -1,18 +1,17 @@
 import { FlowConnect } from "../flow-connect";
-import { Vector2 } from "../math/vector";
-import { Node } from "./node";
+import { Vector2 } from "./vector";
+import { Node, NodeStyle, SerializedNode } from "./node";
 import { Hooks } from './hooks';
-import { Group } from './group';
-import { Connector } from './connector';
+import { Group, SerializedGroup } from './group';
+import { Connector, SerializedConnector } from './connector';
 import { AVLTree } from "../utils/avl-tree";
-import { NodeStyle, Serializable, SerializedFlow, TerminalStyle } from './interfaces';
+import { Serializable } from '../common/interfaces';
 import { SubFlowNode } from "./subflow-node";
-import { TunnelNode } from "./tunnel-node";
+import { TunnelNode, SerializedTunnelNode } from "./tunnel-node";
 import { getNewGUID } from "../utils/utils";
-import { FlowState } from "../math/constants";
-import { Graph } from "./graph";
-import { Rules } from "./interfaces";
-import { TerminalTypeColors } from "./interfaces";
+import { Graph, SerializedGraph } from "./graph";
+import { Rules } from "../common/interfaces";
+import { TerminalTypeColors, TerminalStyle } from "./terminal";
 
 /** A Flow is a set of [[Node]]s, [[Connector]]s and [[Group]]s, it can also contain [[SubFlowNode]]s thereby creating a tree of Flows.
  *  ![](media://example.png)
@@ -25,6 +24,7 @@ export class Flow extends Hooks implements Serializable {
   inputs: TunnelNode[];
   outputs: TunnelNode[];
   get state(): FlowState { return this.executionGraph.state; }
+  globalEvents: Hooks = new Hooks();
 
   /** @hidden */
   hitColorToNode: { [color: string]: Node };
@@ -253,4 +253,29 @@ export class Flow extends Hooks implements Serializable {
 
     return flow;
   }
+}
+
+export enum FlowState {
+  Running,
+  Idle,
+  Stopped
+}
+
+export interface FlowOptions {
+  name: string,
+  rules: Rules,
+  terminalTypeColors: TerminalTypeColors
+}
+
+export interface SerializedFlow {
+  id: string,
+  name: string,
+  rules: { [type: string]: string[] },
+  terminalTypeColors: { [key: string]: string },
+  nodes: SerializedNode[],
+  groups: SerializedGroup[],
+  connectors: SerializedConnector[],
+  inputs: SerializedTunnelNode[],
+  outputs: SerializedTunnelNode[],
+  executionGraph: SerializedGraph
 }

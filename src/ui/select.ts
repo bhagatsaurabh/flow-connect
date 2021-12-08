@@ -1,11 +1,13 @@
-import { Terminal } from "../core/terminal";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { Vector2 } from "../math/vector";
+import { Vector2 } from "../core/vector";
 import { Label } from "./label";
-import { UINode } from "./ui-node";
-import { Align, Constant, FlowState, TerminalType, UIType } from "../math/constants";
-import { SelectStyle, Serializable, SerializedSelect, SerializedTerminal } from "../core/interfaces";
+import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { Constant } from "../resource/constants";
+import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
+import { FlowState } from "../core/flow";
+import { Align } from "../common/enums";
 
 export class Select extends UINode implements Serializable {
   label: Label;
@@ -41,7 +43,7 @@ export class Select extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Select, false, { ...Constant.DefaultSelectStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Select, false, false, { ...DefaultSelectStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'string', '', {}) :
@@ -188,6 +190,10 @@ export class Select extends UINode implements Serializable {
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -210,3 +216,22 @@ export class Select extends UINode implements Serializable {
     return new Select(node, data.options, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
+
+export interface SelectStyle {
+  font?: string,
+  fontSize?: string,
+  color?: string,
+  arrowColor?: string
+}
+
+export interface SerializedSelect extends SerializedUINode {
+  options: string[],
+  height: number
+}
+
+/** @hidden */
+let DefaultSelectStyle = () => {
+  return {
+    arrowColor: '#000'
+  };
+};

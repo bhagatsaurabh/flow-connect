@@ -1,17 +1,4 @@
 /** @hidden */
-export class AVLTreeNode<T> {
-  height: number;
-  left: AVLTreeNode<T>;
-  right: AVLTreeNode<T>;
-
-  constructor(public data: T[]) {
-    this.height = 1;
-    this.left = null;
-    this.right = null;
-  }
-}
-
-/** @hidden */
 export class AVLTree<T> {
   root: AVLTreeNode<T>;
   dataRefToTreeNode: { [key: string]: AVLTreeNode<T> };
@@ -175,5 +162,18 @@ export class AVLTree<T> {
       node.data.forEach(data => action(data));
       this._inorder(node.left, action);
     }
+  }
+}
+
+/** @hidden */
+export class AVLTreeNode<T> {
+  height: number;
+  left: AVLTreeNode<T>;
+  right: AVLTreeNode<T>;
+
+  constructor(public data: T[]) {
+    this.height = 1;
+    this.left = null;
+    this.right = null;
   }
 }
