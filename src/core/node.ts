@@ -135,7 +135,7 @@ export class Node extends Hooks implements Events, Serializable {
     });
   }
   /** @hidden */
-  addPropObserver(propName: string, callback: (oldVal: any, newVal: any) => void) {
+  watch(propName: string, callback: (oldVal: any, newVal: any) => void) {
     if (/^.+\[\d+\]$/g.test(propName)) {
       let arrName = /^(.+)\[\d+\]$/g.exec(propName)[1];
       if (Array.isArray(this.props[arrName])) {

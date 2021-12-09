@@ -3,7 +3,7 @@ import { Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Vector2 } from "../core/vector";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 
 export class Display extends UINode implements Serializable {
   offCanvases: CustomOffCanvasConfig[] = [];
@@ -21,8 +21,7 @@ export class Display extends UINode implements Serializable {
   ) {
 
     super(
-      node, Vector2.Zero(), UIType.Display, true, true,
-      { ...DefaultDisplayStyle(), ...style }, null,
+      node, Vector2.Zero(), UIType.Display, true, true, true, { ...DefaultDisplayStyle(), ...style }, null,
       typeof clear !== 'undefined' ?
         Terminal.deSerialize(node, clear) :
         new Terminal(node, TerminalType.IN, 'event', '', {}),
@@ -216,7 +215,7 @@ export interface CustomRendererConfig {
   renderer?: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => boolean
 };
 
-export interface DisplayStyle {
+export interface DisplayStyle extends UINodeStyle {
   borderColor?: string,
   backgroundColor?: string
 }
@@ -228,6 +227,7 @@ export interface SerializedDisplay extends SerializedUINode {
 /** @hidden */
 let DefaultDisplayStyle = () => {
   return {
-    borderColor: '#000'
+    borderColor: '#000',
+    visible: true
   };
 };

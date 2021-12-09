@@ -6,6 +6,7 @@ import { SerializedUINode, UINode, UIType } from './ui-node';
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { Align } from "../common/enums";
+import { UINodeStyle } from "./ui-node";
 
 export class Button extends UINode implements Serializable {
   label: Label;
@@ -21,7 +22,7 @@ export class Button extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Button, false, false, { ...DefaultButtonStyle(), ...style }, null,
+    super(node, Vector2.Zero(), UIType.Button, false, false, true, { ...DefaultButtonStyle(), ...style }, null,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'event', '', {}) :
@@ -157,7 +158,7 @@ export class Button extends UINode implements Serializable {
   }
 }
 
-export interface ButtonStyle {
+export interface ButtonStyle extends UINodeStyle {
   backgroundColor?: string,
   color?: string,
   fontSize?: string,
@@ -177,6 +178,7 @@ let DefaultButtonStyle = () => {
     padding: 5,
     color: '#fff',
     font: 'arial',
-    fontSize: '11px'
+    fontSize: '11px',
+    visible: true
   };
 };

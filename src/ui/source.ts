@@ -4,7 +4,7 @@ import { Vector2 } from "../core/vector";
 import { fileIcon } from "../resource/icons";
 import { Image } from "./image";
 import { Label } from "./label";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
@@ -43,7 +43,7 @@ export class Source extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Source, false, false, { ...DefaultSourceStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Source, false, false, true, { ...DefaultSourceStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'file', '', {}) :
@@ -206,7 +206,7 @@ export class Source extends UINode implements Serializable {
   }
 }
 
-export interface SourceStyle {
+export interface SourceStyle extends UINodeStyle  {
   borderColor?: string,
   font?: string,
   fontSize?: string,
@@ -221,6 +221,7 @@ export interface SerializedSource extends SerializedUINode {
 /** @hidden */
 let DefaultSourceStyle = () => {
   return {
-    borderColor: '#000'
+    borderColor: '#000',
+    visible: true
   };
 };

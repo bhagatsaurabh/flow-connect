@@ -1,7 +1,7 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType } from "../../ui/input";
+import { InputType, Input } from "../../ui/input";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Evaluator } from "../../utils/evaluator";
 import { Log } from "../../utils/logger";
@@ -50,20 +50,48 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expressions?:
   node.addTerminal(fChangedTerminal);
 
   let process = () => {
+    let bulkEvalIterations = -1;
     node.props.evaluator.variables = {};
     for (let i = 0; i < node.inputs.length; i += 1) {
       let data = (node.inputs[i] as any).getData();
+
+      // Some checks to determine if the intention is to pass variables to this function which are arrays
+      // Which should mean its a bulk evaluation (t=[2,5,6,8...], f(t)=cos(t)  ==>  f(t)=[cos(2),cos(5),cos(6),cos(8)...])
+      if (Array.isArray(data)) {
+        node.props.expressions.map((expr: string) => {
+          let regex = new RegExp('([a-z]+)\\(' + node.inputs[i].name + '\\)', 'g');
+          expr = expr.replace(/\s+/g, '');
+          let matches = [...expr.matchAll(regex)];
+          let result = matches
+            .map(match => !Evaluator.multiargFunctions.includes(match[1]))
+            .reduce((acc, curr) => acc = acc && curr, true);
+
+          if (result) bulkEvalIterations = Math.max(bulkEvalIterations, data.length);
+        });
+      }
+
       node.props.evaluator.variables[node.inputs[i].name] = (typeof data !== 'undefined' && data !== null) ? data : 0;
     }
     try {
       let result: any = {};
       node.props.expressions.forEach((expr: string, index: number) => {
-        result[node.outputs[index + 1].name] = node.props.evaluator.evaluate(expr);
+        if (bulkEvalIterations !== -1) {
+          let resultArr = [];
+          for (let i = 0; i < bulkEvalIterations; i += 1) {
+            resultArr.push(node.props.evaluator.evaluate(expr, i));
+          }
+          result[node.outputs[index + 1].name] = resultArr;
+        } else {
+          result[node.outputs[index + 1].name] = node.props.evaluator.evaluate(expr);
+        }
       });
       node.setOutputs(result);
     } catch (error) {
       Log.error('Error while evaluating one of the expressions: ', node.props.expressions, error);
     }
+  }
+  let lowerCase = (input: Input) => {
+    if (/[A-Z]/g.test(input.inputEl.value as string)) input.inputEl.value = (input.inputEl.value as string).toLowerCase();
   }
 
   vars.forEach(variable => node.addTerminal(new Terminal(node, TerminalType.IN, 'any', variable)));
@@ -76,6 +104,7 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expressions?:
       20, { type: InputType.Text, grow: .9 } as any
     );
     exprInput.on('change', () => { fChangedTerminal.emit(null); process(); });
+    exprInput.on('input', lowerCase);
     exprStack.append(
       node.createHozLayout([
         node.createLabel('𝒇' + (i + 1), null, false, false, { grow: .1 } as any),
@@ -107,6 +136,7 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expressions?:
       20, { type: InputType.Text, grow: .9 } as any
     );
     exprInput.on('change', () => { fChangedTerminal.emit(null); process(); });
+    exprInput.on('input', lowerCase);
     exprStack.append(
       node.createHozLayout([
         node.createLabel('𝒇' + (index + 1), null, false, false, { grow: .1 } as any),

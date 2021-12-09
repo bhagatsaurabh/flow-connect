@@ -12,7 +12,7 @@ import { Select } from "./select";
 import { Slider } from "./slider";
 import { Source } from "./source";
 import { Toggle } from "./toggle";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 
 export class Stack extends UINode implements Serializable {
 
@@ -24,7 +24,7 @@ export class Stack extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Stack, false, false, { ...DefaultStackStyle(), ...style }, null, null, null, id, hitColor);
+    super(node, Vector2.Zero(), UIType.Stack, false, false, true, { ...DefaultStackStyle(), ...style }, null, null, null, id, hitColor);
     if (childs) this.children.push(...childs);
   }
 
@@ -39,13 +39,14 @@ export class Stack extends UINode implements Serializable {
   }
   /** @hidden */
   reflow(): void {
-    let actualTotalHeight = this.children.reduce((acc, curr) => acc += curr.height, 0);
-    let effectiveSpacing = (this.children.length - 1) * this.style.spacing;
+    let children = this.children.filter(child => child.visible);
+    let actualTotalHeight = children.reduce((acc, curr) => acc += curr.height, 0);
+    let effectiveSpacing = (children.length - 1) * this.style.spacing;
     this.height = actualTotalHeight + effectiveSpacing;
 
     let y = this.position.y;
 
-    this.children.forEach(child => {
+    children.forEach(child => {
       child.position = new Vector2(this.position.x, y);
       child.width = this.width;
       y += child.height + this.style.spacing;
@@ -124,7 +125,7 @@ export class Stack extends UINode implements Serializable {
   }
 }
 
-export interface StackStyle {
+export interface StackStyle extends UINodeStyle  {
   spacing?: number
 }
 
@@ -133,6 +134,7 @@ export interface SerializedStackLayout extends SerializedUINode { }
 /** @hidden */
 let DefaultStackStyle = () => {
   return {
-    spacing: 0
+    spacing: 0,
+    visible: true
   };
 };

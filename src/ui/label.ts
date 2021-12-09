@@ -1,7 +1,7 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { binarySearch } from "../utils/utils";
@@ -45,7 +45,7 @@ export class Label extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Label, false, false, { ...DefaultLabelStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Label, false, false, true, { ...DefaultLabelStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'string', '', {}) :
@@ -236,7 +236,7 @@ export class Label extends UINode implements Serializable {
   }
 }
 
-export interface LabelStyle {
+export interface LabelStyle extends UINodeStyle  {
   color?: string,
   fontSize?: string,
   font?: string,
@@ -254,6 +254,7 @@ let DefaultLabelStyle = () => {
     color: '#000',
     fontSize: '11px',
     font: 'arial',
-    align: Align.Left
+    align: Align.Left,
+    visible: true
   };
 };

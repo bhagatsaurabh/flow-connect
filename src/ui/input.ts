@@ -1,5 +1,5 @@
 import { Vector2 } from "../core/vector";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Node } from '../core/node';
 import { Label } from './label';
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
@@ -45,7 +45,7 @@ export class Input extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Input, false, false, { ...DefaultInputStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Input, false, false, true, { ...DefaultInputStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, style.type === InputType.Text ? 'string' : 'number', '', {}) :
@@ -112,6 +112,7 @@ export class Input extends UINode implements Serializable {
         this.inputEl.style.backgroundColor = this.inputEl.validity.patternMismatch ? 'red' : this.style.backgroundColor;
         this.label.style.color = this.inputEl.validity.patternMismatch ? 'red' : this.style.color;
       }
+      this.call('input', this);
     }
     document.body.appendChild(this.inputEl);
 
@@ -249,7 +250,7 @@ export enum InputType {
   Number = "number"
 }
 
-export interface InputStyle {
+export interface InputStyle extends UINodeStyle {
   backgroundColor?: string,
   color?: string,
   fontSize?: string,
@@ -276,6 +277,7 @@ let DefaultInputStyle = () => {
     font: 'arial',
     border: '1px solid black',
     align: Align.Left,
-    type: InputType.Text
+    type: InputType.Text,
+    visible: true
   };
 };

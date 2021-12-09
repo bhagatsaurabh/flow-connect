@@ -1,7 +1,7 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
@@ -33,7 +33,7 @@ export class Toggle extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Toggle, false, false, { ...DefaultToggleStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Toggle, false, false, true, { ...DefaultToggleStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'boolean', '', {}) :
@@ -186,7 +186,7 @@ export class Toggle extends UINode implements Serializable {
   }
 }
 
-export interface ToggleStyle {
+export interface ToggleStyle extends UINodeStyle  {
   backgroundColor?: string,
   color?: string
 }
@@ -200,6 +200,7 @@ export interface SerializedToggle extends SerializedUINode {
 let DefaultToggleStyle = () => {
   return {
     backgroundColor: '#999',
-    color: '#000'
+    color: '#000',
+    visible: true
   };
 };

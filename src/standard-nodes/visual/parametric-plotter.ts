@@ -9,7 +9,7 @@ export const ParametricPlotter = (flow: Flow, options: NodeCreatorOptions = {}, 
     options.name || 'Parametric Plotter',
     options.position || new Vector2(50, 50),
     options.width || 300,
-    [{ name: 'data', dataType: 'vector2' }], [],
+    [{ name: 'data', dataType: 'any' }], [],
     options.style || { rowHeight: 10 },
     options.terminalStyle || {},
     options.props
@@ -114,21 +114,12 @@ export const ParametricPlotter = (flow: Flow, options: NodeCreatorOptions = {}, 
 
   node.inputsUI[0].on('event', () => node.props.points = []);
   node.on('process', (_, inputs) => {
-    node.props.points.push(inputs[0]);
-    functionRenderer(display.manualOffCanvases[0].context, display.manualOffCanvases[0].canvas.width, display.manualOffCanvases[0].canvas.height);
-    /* let x = xCoordToPix(node.props.config.xMax, node.props.config.xMin, display.manualOffCanvases[0].canvas.width, inputs[0].x);
-    let y = yCoordToPix(node.props.config.yMax, node.props.config.yMin, display.manualOffCanvases[0].canvas.height, inputs[0].y);
-
-    context.beginPath();
-    if (node.props.points.length === 1) {
-        context.moveTo(x, y);
-    } else if (node.props.points.length > 1) {
-        let prevX = xCoordToPix(node.props.config.xMax, node.props.config.xMin, display.manualOffCanvases[0].canvas.width, node.props.points[node.props.points.length - 2].x);
-        let prevY = yCoordToPix(node.props.config.yMax, node.props.config.yMin, display.manualOffCanvases[0].canvas.height, node.props.points[node.props.points.length - 2].y);
-        context.moveTo(prevX, prevY);
-        context.lineTo(x, y);
+    if (Array.isArray(inputs[0])) {
+      node.props.points = inputs[0];
+    } else {
+      node.props.points.push(inputs[0]);
     }
-    context.stroke(); */
+    functionRenderer(display.manualOffCanvases[0].context, display.manualOffCanvases[0].canvas.width, display.manualOffCanvases[0].canvas.height);
   });
 
   let xCoordToPix = (config: any, width: number, xCoord: number) => {

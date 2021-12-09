@@ -13,6 +13,12 @@ export class Lexer {
     this.numberBuffer = [];
     this.letterBuffer = [];
 
+    // Replace all variable spread operators with their equivalent capital letter
+    let index;
+    while ((index = expr.indexOf('...')) !== -1) {
+      expr = expr.substring(0, index) + expr.charAt(index + 3).toUpperCase() + expr.substring(index + 4);
+    }
+
     expr = this.replaceConstants(expr);
     let chars = expr.replace(/\s+/g, "").split("");
 
@@ -84,7 +90,7 @@ export class Lexer {
   }
   private isComma(char: string) { return (char === ","); }
   private isDigit(char: string) { return /\d/.test(char); }
-  private isLetter(char: string) { return /[a-z]/.test(char); }
+  private isLetter(char: string) { return /[a-zA-Z]/.test(char); }
   private isOperator(char: string) { return Lexer.operators.includes(char); }
   private isLeftParenthesis(char: string) { return char === "(" }
   private isRightParenthesis(char: string) { return char == ")" }

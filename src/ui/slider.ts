@@ -2,7 +2,7 @@ import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
 import { clamp, denormalize, normalize } from "../utils/utils";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
@@ -40,7 +40,7 @@ export class Slider extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Slider, true, false, { ...DefaultSliderStyle(height), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Slider, true, false, true, { ...DefaultSliderStyle(height), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'number', '', {}) :
@@ -212,7 +212,7 @@ export class Slider extends UINode implements Serializable {
   }
 }
 
-export interface SliderStyle {
+export interface SliderStyle extends UINodeStyle  {
   railHeight?: number,
   thumbRadius?: number,
   color?: string,
@@ -233,6 +233,7 @@ let DefaultSliderStyle = (height: number) => {
     color: '#444',
     thumbColor: '#000',
     railHeight: 3,
-    thumbRadius: height / 2
+    thumbRadius: height / 2,
+    visible: true
   }
 }

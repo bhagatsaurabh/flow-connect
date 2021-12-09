@@ -7,21 +7,6 @@ import { LOD, ViewPort } from '../common/enums';
 import { getNewGUID, intersects } from "../utils/utils";
 import { Events } from "../common/interfaces";
 
-export enum UIType {
-  Button,
-  Container,
-  Display,
-  HorizontalLayout,
-  Stack,
-  Image,
-  Input,
-  Label,
-  Select,
-  Slider,
-  Source,
-  Toggle
-}
-
 export abstract class UINode extends Hooks implements Events {
   /** @hidden */
   renderState: ViewPort;
@@ -31,6 +16,9 @@ export abstract class UINode extends Hooks implements Events {
 
   draggable: boolean;
   zoomable: boolean;
+  private _visible: boolean;
+  get visible(): boolean { return this._visible };
+  set visible(value: boolean) { this._visible = value; this.node.ui.update(); };
   width: number = 0;
   height: number = 0;
   children: UINode[];
@@ -44,11 +32,8 @@ export abstract class UINode extends Hooks implements Events {
   }
 
   constructor(
-    public node: Node,
-    position: Vector2,
-    public type: UIType,
-    draggable: boolean,
-    zoomable: boolean,
+    public node: Node, position: Vector2, public type: UIType,
+    draggable: boolean, zoomable: boolean, visible: boolean,
     public style: any,
     public propName?: string,
     public input: Terminal = null, public output: Terminal = null,
@@ -64,9 +49,10 @@ export abstract class UINode extends Hooks implements Events {
     this.children = [];
     this.draggable = draggable;
     this.zoomable = zoomable;
+    this._visible = visible;
     this.disabled = false;
     if (this.propName) {
-      this.node.addPropObserver(this.propName, (oldVal: any, newVal: any) => {
+      this.node.watch(this.propName, (oldVal: any, newVal: any) => {
         if (/^.+\[\d+\]$/g.test(this.propName)) {
           let arrName = /^(.+)\[\d+\]$/g.exec(this.propName)[1];
           let index = parseInt(/\[(\d+)\]/.exec(this.propName)[1]);
@@ -127,6 +113,7 @@ export abstract class UINode extends Hooks implements Events {
     this.node.hitColorToUI[this.hitColor.rgbaString] = this;
   }
   render() {
+    if (!this.visible) return;
     if (this.renderState === ViewPort.OUTSIDE) return;
 
     let context = this.context;
@@ -212,6 +199,10 @@ export abstract class UINode extends Hooks implements Events {
   abstract onPropChange(oldValue: any, newValue: any): void;
 }
 
+export interface UINodeStyle {
+  visible?: boolean;
+}
+
 export interface SerializedUINode {
   id: string,
   type: UIType
@@ -221,4 +212,19 @@ export interface SerializedUINode {
   input: SerializedTerminal,
   output: SerializedTerminal,
   childs: any[]
+}
+
+export enum UIType {
+  Button,
+  Container,
+  Display,
+  HorizontalLayout,
+  Stack,
+  Image,
+  Input,
+  Label,
+  Select,
+  Slider,
+  Source,
+  Toggle
 }

@@ -13,7 +13,7 @@ import { Slider } from "./slider";
 import { Source } from "./source";
 import { Stack } from "./stack";
 import { Toggle } from "./toggle";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 
 export class HorizontalLayout extends UINode implements Serializable {
 
@@ -25,7 +25,7 @@ export class HorizontalLayout extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.HorizontalLayout, false, false, { ...DefaultHorizontalLayoutStyle(), ...style }, null, null, null, id, hitColor);
+    super(node, Vector2.Zero(), UIType.HorizontalLayout, false, false, true, { ...DefaultHorizontalLayoutStyle(), ...style }, null, null, null, id, hitColor);
     if (childs) this.children.push(...childs);
   }
 
@@ -40,15 +40,16 @@ export class HorizontalLayout extends UINode implements Serializable {
   }
   /** @hidden */
   reflow(): void {
-    let availableWidth = this.width - (this.children.length > 0 ? (this.children.length - 1) : 0) * this.style.spacing;
+    let children = this.children.filter(child => child.visible);
+    let availableWidth = this.width - (children.length > 0 ? (children.length - 1) : 0) * this.style.spacing;
     let actualWidth = availableWidth;
     let x = this.position.x;
     let maxHeight = 0;
-    this.children.forEach(child => maxHeight = Math.max(maxHeight, child.height));
+    children.forEach(child => maxHeight = Math.max(maxHeight, child.height));
     this.height = maxHeight;
 
-    this.children.forEach(child => {
-      let childWidth = child.style.grow ? child.style.grow * actualWidth : (1 / this.children.length) * actualWidth;
+    children.forEach(child => {
+      let childWidth = child.style.grow ? child.style.grow * actualWidth : (1 / children.length) * actualWidth;
       if (childWidth > availableWidth) childWidth = availableWidth;
       child.width = childWidth;
 
@@ -135,7 +136,7 @@ export class HorizontalLayout extends UINode implements Serializable {
   }
 }
 
-export interface HorizontalLayoutStyle {
+export interface HorizontalLayoutStyle extends UINodeStyle {
   spacing?: number
 }
 
@@ -144,6 +145,7 @@ export interface SerializedHorizontalLayout extends SerializedUINode { }
 /** @hidden */
 let DefaultHorizontalLayoutStyle = () => {
   return {
-    spacing: 0
+    spacing: 0,
+    visible: true
   };
 };

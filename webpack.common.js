@@ -1,10 +1,9 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   entry: {
     'flow-connect': './src/flow-connect.ts',
-    'flow-connect.min': './src/flow-connect.ts',
     'standard-nodes': {
       import: './src/standard-nodes/index.ts',
       dependOn: 'flow-connect'
@@ -27,9 +26,7 @@ module.exports = {
     }]
   },
   optimization: {
-    minimizer: [new UglifyJsPlugin({
-      sourceMap: true,
-      include: /\.min\.js$/
-    })]
+    minimize: true,
+    minimizer: [new TerserPlugin()]
   }
 }

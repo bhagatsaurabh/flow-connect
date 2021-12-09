@@ -13,7 +13,7 @@ import { Select } from "./select";
 import { Slider } from "./slider";
 import { Source } from "./source";
 import { Toggle } from "./toggle";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 
 /** @hidden */
 export class Container extends UINode implements Serializable {
@@ -27,7 +27,7 @@ export class Container extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, node.position, UIType.Container, false, false, { ...DefaultContainerStyle(), ...style }, null, null, null, id, hitColor);
+    super(node, node.position, UIType.Container, false, false, true, { ...DefaultContainerStyle(), ...style }, null, null, null, id, hitColor);
     this.width = typeof width !== 'undefined' ? width : 0;
     this.height = this.node.style.padding * 2;
     this.contentWidth = this.width - 2 * this.node.style.padding;
@@ -68,7 +68,7 @@ export class Container extends UINode implements Serializable {
     let terminalsDisplayHeight = Math.max(this.node.inputs.length, this.node.outputs.length) * this.node.style.terminalRowHeight + this.node.style.titleHeight;
     let x = this.position.x + this.node.style.padding;
     let y = this.position.y + terminalsDisplayHeight;
-    this.children.forEach(child => {
+    this.children.filter(child => child.visible).forEach(child => {
       y += this.node.style.spacing;
       child.width = this.width - this.node.style.padding * 2;
       child.position = new Vector2(x, y);
@@ -157,7 +157,7 @@ export class Container extends UINode implements Serializable {
   }
 }
 
-export interface ContainerStyle {
+export interface ContainerStyle extends UINodeStyle {
   backgroundColor?: string,
   shadowColor?: string,
   shadowBlur?: number,
@@ -178,6 +178,7 @@ let DefaultContainerStyle = () => {
     shadowBlur: 3,
     shadowOffset: new Vector2(3, 3),
     borderWidth: 1,
-    borderColor: '#444'
+    borderColor: '#444',
+    visible: true
   };
 };

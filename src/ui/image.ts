@@ -4,7 +4,7 @@ import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
 import { imageIcon } from "../resource/icons";
 import { Log } from "../utils/logger";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Align } from "../common/enums";
 
 export class Image extends UINode implements Serializable {
@@ -21,7 +21,7 @@ export class Image extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Image, false, false, { ...DefaultImageStyle(), ...style }, propName, null, null, id, hitColor);
+    super(node, Vector2.Zero(), UIType.Image, false, false, true, { ...DefaultImageStyle(), ...style }, propName, null, null, id, hitColor);
     this.source = document.createElement('img');
 
     this.source.onload = () => {
@@ -150,7 +150,7 @@ export class Image extends UINode implements Serializable {
   }
 }
 
-export interface ImageStyle {
+export interface ImageStyle extends UINodeStyle  {
   align?: Align
 }
 
@@ -161,6 +161,7 @@ export interface SerializedImage extends SerializedUINode {
 /** @hidden */
 let DefaultImageStyle = () => {
   return {
-    align: Align.Left
+    align: Align.Left,
+    visible: true
   };
 };

@@ -1,4 +1,4 @@
-import { TokenType } from "./lexer";
+import { Token, TokenType } from "./lexer";
 import { Constant } from "../resource/constants";
 import { Parser } from "./parser";
 
@@ -90,11 +90,28 @@ export class Evaluator {
       return res;
     }
   };
+  static multiargFunctions = ['max', 'min', 'hypot', 'sum', 'mean', 'median', 'std', 'var'];
 
-  constructor(public variables: { [name: string]: number }) { this.parser = new Parser(); }
+  // Optimization: If the curr expr is present in history
+  // no need to invoke lexer and parser, get postfix token array from here
+  history: { [expr: string]: Token[] } = {};
+  orderedExprs: string[] = [];
+  historyLimit: number = 3;
 
-  evaluate(expr: string) {
-    let postFix = this.parser.parse(expr);
+  constructor(public variables: { [name: string]: any }) { this.parser = new Parser(); }
+
+  evaluate(expr: string, index?: number) {
+    let postFix;
+    if (this.history[expr]) postFix = this.history[expr];
+    else {
+      if (this.orderedExprs.length === this.historyLimit) {
+        let oldestExpr = this.orderedExprs.shift();
+        delete this.history[oldestExpr];
+      }
+      this.orderedExprs.push(expr);
+      this.history[expr] = this.parser.parse(expr);
+      postFix = this.history[expr];
+    }
     let result: number[] = [];
 
     for (let token of postFix) {
@@ -104,7 +121,18 @@ export class Evaluator {
           break;
         }
         case TokenType.Variable: {
-          result.push(this.variables[token.value]);
+          // Character is uppercase = expression contained spread operator e.g ...a => A (this is done in lexical analysis)
+          if (token.value !== (token.value as string).toLowerCase()) {
+            if (!Array.isArray(this.variables[token.value])) {
+              throw new Error('Spread operator only allowed for array variables: ' + (token.value as string).toLowerCase());
+            } else result.push(this.variables[token.value]);
+          } else {
+            if (Array.isArray(this.variables[token.value]) && typeof index !== 'undefined') {
+              result.push(this.variables[token.value][index]);
+            } else {
+              result.push(this.variables[token.value]);
+            }
+          }
           break;
         }
         case TokenType.Operator: {

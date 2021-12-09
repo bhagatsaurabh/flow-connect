@@ -2,7 +2,7 @@ import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
 import { Label } from "./label";
-import { SerializedUINode, UINode, UIType } from "./ui-node";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Constant } from "../resource/constants";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
@@ -43,7 +43,7 @@ export class Select extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Select, false, false, { ...DefaultSelectStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Select, false, false, true, { ...DefaultSelectStyle(), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'string', '', {}) :
@@ -217,7 +217,7 @@ export class Select extends UINode implements Serializable {
   }
 }
 
-export interface SelectStyle {
+export interface SelectStyle extends UINodeStyle  {
   font?: string,
   fontSize?: string,
   color?: string,
@@ -232,6 +232,7 @@ export interface SerializedSelect extends SerializedUINode {
 /** @hidden */
 let DefaultSelectStyle = () => {
   return {
-    arrowColor: '#000'
+    arrowColor: '#000',
+    visible: true
   };
 };
