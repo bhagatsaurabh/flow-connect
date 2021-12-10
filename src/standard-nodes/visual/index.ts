@@ -1,2 +1,2 @@
 export * from './line-chart-mini';
-export * from './parametric-plotter';
+export * from './function-plotter';

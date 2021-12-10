@@ -4,7 +4,8 @@
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "main": "lib/flow-connect.js",
   "scripts": {
-    "test": "npx cypress run -b chrome",
+    "test": "npx cypress run",
+    "test:chrome": "npx cypress run -b chrome",
     "test:headless": "npx cypress run -b chrome --headless",
     "clean": "shx rm -rf bundles lib lib-esm",
     "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack --config=webpack.prod.js",
@@ -12,10 +13,13 @@
     "dev": "npx webpack serve --config=webpack.dev.js"
   },
   "keywords": [
-    "Node editor",
-    "Node-based editor",
+    "node editor",
+    "node-based editor",
     "HTML5 node editor",
-    "node-editor framework"
+    "node-editor framework",
+    "flow-connect",
+    "flow connect",
+    "canvas library"
   ],
   "author": "Saurabh Bhagat",
   "license": "MIT",

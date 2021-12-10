@@ -3,7 +3,7 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { CustomRendererType } from "../../ui/display";
 
-export const ParametricPlotter = (flow: Flow, options: NodeCreatorOptions = {}, height: number, style: { axisColor?: string, gridColor?: string, plotColor?: string } = new Object()) => {
+export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, height: number, style: { axisColor?: string, gridColor?: string, plotColor?: string } = new Object()) => {
 
   let node = flow.createNode(
     options.name || 'Parametric Plotter',
@@ -13,8 +13,8 @@ export const ParametricPlotter = (flow: Flow, options: NodeCreatorOptions = {}, 
     options.style || { rowHeight: 10 },
     options.terminalStyle || {},
     options.props
-      ? { points: [], config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 }, ...options.props }
-      : { points: [], config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 } }
+      ? { points: [], polar: false, config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 }, ...options.props }
+      : { points: [], polar: false, config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 } }
   );
 
   let gridRenderer = (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => {
@@ -26,7 +26,12 @@ export const ParametricPlotter = (flow: Flow, options: NodeCreatorOptions = {}, 
     { type: CustomRendererType.Auto, renderer: gridRenderer },
     { type: CustomRendererType.Manual }
   ]);
-  node.ui.append(display);
+  let polarToggle = node.createToggle('polar', false, false, 10, { grow: .1 } as any);
+  node.ui.append([
+    display,
+    node.createHozLayout([node.createLabel('Polar ?', null, false, false, { grow: .2 } as any), polarToggle], { spacing: 5 })
+  ]);
+  polarToggle.on('change', () => process(node.getInputs()));
 
   let dragStart: Vector2 = null;
   display.on('up', () => dragStart = null);
@@ -112,15 +117,26 @@ export const ParametricPlotter = (flow: Flow, options: NodeCreatorOptions = {}, 
     display.manualOffCanvases[0].canvas.height
   ));
 
-  node.inputsUI[0].on('event', () => node.props.points = []);
-  node.on('process', (_, inputs) => {
+  let process = (inputs: any) => {
     if (Array.isArray(inputs[0])) {
-      node.props.points = inputs[0];
+      if (node.props.polar) {
+        node.props.points = [];
+        for (let i = 0; i < inputs[0].length; i += 1) {
+          node.props.points.push({ x: inputs[0][i].x * Math.cos(inputs[0][i].y), y: inputs[0][i].x * Math.sin(inputs[0][i].y) });
+        }
+      } else {
+        node.props.points = inputs[0];
+      }
     } else {
-      node.props.points.push(inputs[0]);
+      node.props.points.push(node.props.polar
+        ? { x: inputs[0].x * Math.cos(inputs[0].y), y: inputs[0].x * Math.sin(inputs[0].y) }
+        : inputs[0]
+      );
     }
     functionRenderer(display.manualOffCanvases[0].context, display.manualOffCanvases[0].canvas.width, display.manualOffCanvases[0].canvas.height);
-  });
+  }
+  node.inputsUI[0].on('event', () => node.props.points = []);
+  node.on('process', (_, inputs) => process(inputs));
 
   let xCoordToPix = (config: any, width: number, xCoord: number) => {
     const xDiff = config.xMax - config.xMin;

@@ -28,7 +28,7 @@ import * as func from './math/func';
 
 import * as api from './net/api';
 
-import * as parametricPlotter from './visual/parametric-plotter';
+import * as functionPlotter from './visual/function-plotter';
 import * as lineChartMini from './visual/line-chart-mini';
 
 export namespace StandardNodes.Common {
@@ -66,5 +66,5 @@ export namespace StandardNodes.Net {
 }
 export namespace StandardNodes.Visual {
   export import LineChartMini = lineChartMini.LineChartMini;
-  export import ParametricPlotter = parametricPlotter.ParametricPlotter;
+  export import FunctionPlotter = functionPlotter.FunctionPlotter;
 }
