@@ -39,6 +39,10 @@ export class Connector implements Serializable {
     if (this.start) this.startNode = this.start.node;
     if (this.end) this.endNode = this.end.node;
     if (start && end) {
+      /* if (start.dataType === 'audio' && !checkAudioBeforeConnection(start, end)) {
+        throw new Error('Cannot connect, either in or out terminal does not have an audio node for audio connection, ' +
+          'please assign a WebAudio node to both in and out terminals before making an audio connection');
+      } */
       this.floatingTip = null;
 
       this.start.connectors.push(this);
@@ -48,8 +52,8 @@ export class Connector implements Serializable {
       } else this.end.connectors.push(this);
 
       if (!isDeserialization) this.flow.executionGraph.connect(this.startNode, this.endNode);
-      this.start.call('connect', this.start, this);
-      this.end.call('connect', this.end, this);
+      this.start.onConnect(this);
+      this.end.onConnect(this);
     };
   }
 
@@ -73,8 +77,8 @@ export class Connector implements Serializable {
     this.endNode.currHitTerminal = null;
 
     this.flow.executionGraph.connect(this.startNode, this.endNode);
-    this.start.call('connect', this.start, this);
-    this.end.call('connect', this.end, this);
+    this.start.onConnect(this);
+    this.end.onConnect(this);
   }
   /** @hidden */
   removeConnection() {

@@ -67,6 +67,7 @@ export class Source extends UINode implements Serializable {
     this.htmlInput.onchange = () => {
       if (this.htmlInput.files.length > 0) {
         this.file = this.htmlInput.files[0];
+        if (this.node.flow.state === FlowState.Stopped) this.call('upload', this, this.file);
       }
     };
 
@@ -206,7 +207,7 @@ export class Source extends UINode implements Serializable {
   }
 }
 
-export interface SourceStyle extends UINodeStyle  {
+export interface SourceStyle extends UINodeStyle {
   borderColor?: string,
   font?: string,
   fontSize?: string,

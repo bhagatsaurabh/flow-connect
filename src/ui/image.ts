@@ -45,7 +45,7 @@ export class Image extends UINode implements Serializable {
 
   /** @hidden */
   paint(): void {
-    if (this.imageCanvas) {
+    if (this.imageCanvas && this.imageCanvas.width > 0 && this.imageCanvas.height > 0) {
       let x = this.position.x;
       if (this.source.width < this.node.ui.contentWidth) {
         if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;

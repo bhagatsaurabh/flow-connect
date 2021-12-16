@@ -15,42 +15,59 @@ declare global {
   }
 }
 /**
- * FlowConnect is like a placeholder that contains references to all [[Flow]]s created by this instance and can render one flow at a time on-screen
+ * FlowConnect is like a placeholder that contains references to all Flows created by this instance and can render one flow at a time on-screen
  * 
  * One FlowConnect instance is bound to exactly one HTMLCanvasElement, this instance maintains/tracks the dimensions of HTMLCanvasElement,
  * it registers user-interaction events (mouse, keyboard, touch) and creates additional OffScreenCanvas's to track/act-upon these events
  */
 export class FlowConnect extends Hooks {
+  static async create(mount?: HTMLCanvasElement | HTMLDivElement): Promise<FlowConnect> {
+    let flowConnect = new FlowConnect(mount);
+    await flowConnect.setupAudioContext();
+    return flowConnect;
+  }
+
   /** Reference to the canvas element on which the flows will be rendered by FlowConnect instance */
   canvas: HTMLCanvasElement;
   private _context: CanvasRenderingContext2D;
   get context(): CanvasRenderingContext2D { return this._context };
 
-  /** For rendering color hit-maps for [[Node]]s */
+  /** Reference to the AudioContext (one FlowConnect instance will only have one audio context) */
+  private _audioContext: AudioContext;
+  get audioContext(): AudioContext { return this._audioContext };
+
+  /** @hidden Only used for audio stuff */
+  audioBufferCache: Map<ArrayBuffer, AudioBuffer> = new Map();
+  /** @hidden Only used for audio stuff */
+  arrayBufferCache: Map<string, ArrayBuffer> = new Map();
+
+  /** For rendering color hit-maps for Nodes */
   offCanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offContext };
 
-  /** For rendering color hit-maps for UI elements of [[Node]]s */
+  /** For rendering color hit-maps for UI elements and Terminals of Nodes */
   offUICanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offUIContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offUIContext };
 
-  /** For rendering color hit-maps for [[Group]]s */
+  /** For rendering color hit-maps for Groups */
   offGroupCanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offGroupContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   get offGroupContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offGroupContext };
 
-  /** Canvas's absolute position and dimension from viewport origin (top-left) (for e.g. if the canvas element is inside a scrollable div) */
+  /** Canvas's absolute position and dimension from viewport origin (top-left) (for e.g. if the canvas element is inside a scrollable parent) */
   canvasDimensions: Dimension = { top: 0, left: 0, width: 0, height: 0 };
 
   get cursor(): string { return this.canvas.style.cursor; }
   set cursor(cursor: string) { this.canvas.style.cursor = cursor; }
 
+  state: FlowConnectState = FlowConnectState.Stopped;
+
   /** Id recieved from *requestAnimationFrame* */
   private frameId: number;
 
-  /** Root flow of the flow-tree ([[Flow]] that contains [[SubFlowNode]]s that again contains SubFlowNodes and so on...) */
+  /** Root flow of the flow-tree (Flow that contains SubFlowNodes that again contains SubFlowNodes and so on...) */
   private rootFlow: Flow;
   /** Flow which is currently rendered on the canvas */
   private currFlow: Flow;
@@ -75,9 +92,9 @@ export class FlowConnect extends Hooks {
   private keymap: { [key: string]: boolean } = {};
   private touchControls: { [control: string]: boolean } = { 'CreateGroup': false };
 
-  /** @hidden HTML input overlayed on canvas */
+  /** @hidden HTML input overlayed on canvas when focused */
   private genericInput: HTMLInputElement = document.createElement('input');
-  /** @hidden */
+  /** @hidden ResizeObservers to trigger re-render when dimensions change */
   private parentResizeObserver: ResizeObserver;
   private bodyResizeObserver: ResizeObserver;
 
@@ -100,9 +117,9 @@ export class FlowConnect extends Hooks {
   get time(): number { return (this.startTime < 0) ? this.startTime : (performance.now() - this.startTime) };
 
   /**
-   * @param mount HTML element (div or canvas) on which FlowConnect will render [[Flow]]s, if no mount is provided, a new canvas element will be created and attached to document.body
+   * @param mount HTML element (div or canvas) on which FlowConnect will render Flows, if no mount is provided, a new canvas element will be created and attached to document.body
    */
-  constructor(mount?: HTMLCanvasElement | HTMLDivElement) {
+  private constructor(mount?: HTMLCanvasElement | HTMLDivElement) {
     super();
     this.prepareCanvas(mount);
     this.setupHitCanvas();
@@ -474,6 +491,49 @@ export class FlowConnect extends Hooks {
 
     document.body.appendChild(this.genericInput);
   }
+  private async setupAudioContext() {
+    this._audioContext = new AudioContext();
+
+    // This one-time setup is not at all related to FlowConnect, couldn't find any place to do this
+    // Might be a better idea to this somewhere in StandardNodes.Audio scope
+
+    // Creates a AudioWorkletProcessor to setup custom AudioParams for AudioBufferSourceNodes, for automation
+    let URLProxyParamForSource = URL.createObjectURL(new Blob([
+      `registerProcessor('proxy-param-for-source', class ProxyParamForSource extends AudioWorkletProcessor {
+          static get parameterDescriptors() {
+            return [{
+              name: 'detune',
+              defaultValue: 0,
+              minValue: -2400,
+              maxValue: 2400,
+              automationRate: 'k-rate'
+            }, {
+              name: 'playbackRate',
+              defaultValue: 1,
+              minValue: 0.25,
+              maxValue: 3,
+              automationRate: 'k-rate'
+            }]
+          }
+          process(inputs, outputs, parameters) {
+            outputs[0].forEach(channel => {
+              for (let i = 0; i < channel.length; i++) {
+                // wierd bug, the detune is off by -1200 cents, have to offset this anomaly
+                channel[i] = (parameters['detune'].length > 1 ? parameters['detune'][i] : parameters['detune'][0]) - 1200;
+              }
+            });
+            outputs[1].forEach(channel => {
+              for (let i = 0; i < channel.length; i++) {
+                channel[i] = (parameters['playbackRate'].length > 1 ? parameters['playbackRate'][i] : parameters['playbackRate'][0]);
+              }
+            });
+            return true;
+          }
+        })`
+    ], { type: 'application/javascript' }));
+
+    await this.audioContext.audioWorklet.addModule(URLProxyParamForSource);
+  }
   /** @hidden */
   showGenericInput(position: Vector2 | DOMPoint, value: string, styles: { [key: string]: any }, attributes: { [key: string]: any }, callback: (value: string) => void) {
     if (document.activeElement === this.genericInput) return;
@@ -580,8 +640,8 @@ export class FlowConnect extends Hooks {
           let index = destination.connectors[0].start.connectors.indexOf(destination.connectors[0]);
           let [oldConnector] = destination.connectors[0].start.connectors.splice(index, 1);
           delete this.currFlow.connectors[oldConnector.id];
-          oldConnector.start.call('disconnect', oldConnector.start, oldConnector);
-          oldConnector.end.call('disconnect', oldConnector.end, oldConnector);
+          oldConnector.start.onDisconnect(oldConnector);
+          oldConnector.end.onDisconnect(oldConnector);
 
           this.floatingConnector.completeConnection(destination);
           hitNode.currHitTerminal = null;
@@ -665,6 +725,8 @@ export class FlowConnect extends Hooks {
     if (this.startTime < 0) {
       this.startTime = performance.now();
       this._startGlobalTime();
+      this.state = FlowConnectState.Running;
+      this.call('start', this);
     }
   }
   private _startGlobalTime() {
@@ -673,17 +735,19 @@ export class FlowConnect extends Hooks {
   }
   /** @hidden */
   stopGlobalTime() {
-    let allFlowsStopped = true;
-    for (let flow of this.flows) {
-      if (flow.state !== FlowState.Stopped) {
-        allFlowsStopped = false;
-        break;
-      }
-    }
-    if (allFlowsStopped) {
+    if (this.isRootFlowStopped()) {
       cancelAnimationFrame(this.timerId);
       this.startTime = -1;
+      this.state = FlowConnectState.Stopped;
       this.call('tickreset', this);
+      this.call('stop', this);
+    }
+  }
+  private isRootFlowStopped(): boolean {
+    let root = this.currFlow;
+    while (true) {
+      if (root.parentFlow) root = root.parentFlow;
+      else return root.state === FlowState.Stopped;
     }
   }
   private _render() {
@@ -703,6 +767,10 @@ export class FlowConnect extends Hooks {
     options.rules = { ...options.rules, ...DefaultRules() };
     let flow = new Flow(this, options.name, options.rules, options.terminalTypeColors);
     this.flows.push(flow);
+
+    flow.on('start', () => this.startGlobalTime());
+    flow.on('stop', () => this.stopGlobalTime());
+
     return flow;
   }
   render(flow: Flow) {
@@ -722,7 +790,7 @@ export class FlowConnect extends Hooks {
     this.render(this.rootFlow);
   }
   /** Creates a flow from json
-   * @param json Json string with schema [[SerializedFlow]]
+   * @param json Json string with schema SerializedFlow
    */
   fromJson(json: string): Flow {
     let data: SerializedFlow;
@@ -746,25 +814,33 @@ export class FlowConnect extends Hooks {
   }
 }
 
-/** Default rules every [[Flow]] will have, for e.g. a string output can only be connected to string inputs.
+export enum FlowConnectState {
+  Stopped,
+  Running
+}
+
+/** Default rules every Flow will have, for e.g. a string output can only be connected to string inputs.
    *  ```javascript
    *  {
    *    'string': ['string'],
    *    'number': ['number'],
    *    'boolean': ['boolean'],
    *    'file': ['file'],
-   *    'event': ['event']
+   *    'event': ['event'], ...
    *  }
    *  ```
    */
 let DefaultRules: () => Rules = () => ({
   'string': ['string', 'any'],
-  'number': ['number', 'any'],
+  'number': ['number', 'audioparam', 'any'],
   'boolean': ['boolean', 'any'],
   'array': ['array', 'any'],
   'file': ['file', 'any'],
   'event': ['event', 'any'],
   'vector2': ['vector2', 'any'],
+  'array-buffer': ['array-buffer', 'any'],
+  'audio': ['audio'],
+  'audioparam': ['audioparam'],
   'any': ['any']
 });
 

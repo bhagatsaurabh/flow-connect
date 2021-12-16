@@ -225,6 +225,7 @@ export enum UIType {
   Label,
   Select,
   Slider,
+  Dial,
   Source,
   Toggle
 }

@@ -5,10 +5,19 @@ import { Connector, ConnectorStyle } from './connector';
 import { Hooks } from './hooks';
 import { Node } from './node';
 import { Events, Serializable } from "../common/interfaces";
+import { Log } from "../utils/logger";
 
 export class Terminal extends Hooks implements Events, Serializable {
   connectors: Connector[];
   focus: boolean;
+
+  /**
+   * Terminals can hold any user-defined reference, using this variable to store a reference to something (and thereby binding it to this terminal) is helpful in special applications
+   * for e.g audio connections - terminal can hold a reference to WebAudio Node which can be used to connect said AudioNodes when two terminals are connected,
+   * almost all StandardNodes.Audio nodes uses this variable.
+   * This can be ignored for other applications where such pattern is not useful or doesn't make sense.
+  **/
+  ref: any;
 
   /** @hidden */
   position: Vector2;
@@ -94,10 +103,57 @@ export class Terminal extends Hooks implements Events, Serializable {
 
     // Check if these terminals can be connected
     if (canConnect(this, otherTerminal, this.node.flow.rules, this.node.flow.executionGraph)) {
+      let start: Terminal, end: Terminal;
+      if (this.type === TerminalType.OUT) { start = this; end = otherTerminal; }
+      else { start = otherTerminal; end = this; }
+
       let newConnector = new Connector(this.node.flow, this.type === TerminalType.OUT ? this : otherTerminal, this.type === TerminalType.IN ? this : otherTerminal, null, style);
       this.node.flow.connectors[newConnector.id] = newConnector;
+
+      /* start.onConnect(newConnector);
+      end.onConnect(newConnector); */
+
       return true;
     } else return false;
+  }
+  /**
+   * Disconnects terminal to terminal connections.
+   * If no parameters are passed and the terminal on which this method is called is an output terminal then,
+   * all the connections going out from this terminal will be diconnected.
+   * 
+   * @param connector optional connector Id or reference, used only when the terminal on which this method is called is an Output terminal
+   * @returns 
+   */
+  disconnect(connector?: string | Connector): boolean {
+    if (this.type === TerminalType.IN) {
+      this._disconnect(this.connectors[0]);
+      return true;
+    } else {
+      if (typeof connector === 'string') {
+        let cntr = this.connectors.find((cntr => cntr.id === connector));
+        if (!cntr) {
+          Log.error('Connector not found while disconnecting', connector);
+          return false;
+        }
+        this._disconnect(cntr);
+      } else if (connector instanceof Connector) {
+        if (!this.connectors.find(cntr => cntr.id === connector.id)) {
+          Log.error('Connector cannot be disconnected from the terminal because its not associated with it', connector);
+          return false;
+        }
+        this._disconnect(connector);
+      } else {
+        this.connectors.forEach(cntr => this._disconnect(cntr));
+      }
+      return true;
+    }
+  }
+  private _disconnect(connector: Connector): void {
+    delete this.node.flow.connectors[connector.id];
+    connector.start.connectors.splice(connector.start.connectors.findIndex(cntr => cntr.id === connector.id), 1);
+    connector.end.connectors.pop();
+    connector.start.onDisconnect(connector);
+    connector.end.onDisconnect(connector);
   }
   private offUIRender() {
     let context = this.node.offUIContext;
@@ -135,8 +191,8 @@ export class Terminal extends Hooks implements Events, Serializable {
         this.connectors[0].end = null;
         this.connectors[0].floatingTip = realPosition;
         this.node.flow.flowConnect.floatingConnector = this.connectors[0];
-        this.connectors[0].start.call('disconnect', this.connectors[0].start, this.connectors[0]);
-        this.call('disconnect', this, this.connectors[0]);
+        this.connectors[0].start.onDisconnect(this.connectors[0]);
+        this.onDisconnect(this.connectors[0]);
         this.connectors.pop();
       } else {
         if (this.node.flow.flowConnect.floatingConnector) return;
@@ -172,6 +228,14 @@ export class Terminal extends Hooks implements Events, Serializable {
     this.call('rightclick', this);
   }
 
+  /** @hidden */
+  onConnect(connector: Connector) {
+    this.call('connect', this, connector);
+  }
+  /** @hidden */
+  onDisconnect(connector: Connector) {
+    this.call('disconnect', this, connector);
+  }
   /** @hidden */
   onEvent(data: any): void {
     if (this.type === TerminalType.IN) {

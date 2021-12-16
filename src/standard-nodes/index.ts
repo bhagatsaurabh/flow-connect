@@ -31,6 +31,11 @@ import * as api from './net/api';
 import * as functionPlotter from './visual/function-plotter';
 import * as lineChartMini from './visual/line-chart-mini';
 
+import * as source from './audio/source';
+import * as destination from './audio/destination';
+
+import * as dial from './ui/dial';
+
 export namespace StandardNodes.Common {
   export import Timer = timer.Timer;
   export import Log = log.Log;
@@ -67,4 +72,14 @@ export namespace StandardNodes.Net {
 export namespace StandardNodes.Visual {
   export import LineChartMini = lineChartMini.LineChartMini;
   export import FunctionPlotter = functionPlotter.FunctionPlotter;
+}
+export namespace StandardNodes.Audio {
+  export import Source = source.Source;
+  export import Destination = destination.Destination;
+}
+export namespace StandardNodes.UI {
+  export import Dial = dial.Dial;
+}
+export namespace StandardNodes.Image {
+
 }

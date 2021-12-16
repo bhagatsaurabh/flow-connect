@@ -6,10 +6,15 @@ import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
+import { Constant } from "../resource/constants";
 
-export class Slider extends UINode implements Serializable {
-  private thumbFill: number;
+export class Dial extends UINode implements Serializable {
   private _value: number;
+  private thumbStart: Vector2 = Vector2.Zero();
+  private thumbEnd: Vector2 = Vector2.Zero();
+  private lastAngle: number;
+  private deltaValue: number;
+  private temp: number;
 
   get value(): number {
     if (this.propName) return this.getProp();
@@ -20,8 +25,8 @@ export class Slider extends UINode implements Serializable {
     if (this.propName) this.setProp(value);
     else {
       this._value = value;
-      this.reflow();
     }
+    this.temp = normalize(value, this.min, this.max);
 
     if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, this.value);
   }
@@ -30,16 +35,16 @@ export class Slider extends UINode implements Serializable {
     node: Node,
     public min: number, public max: number,
     value: number,
+    height: number,
     propName?: string,
     input?: boolean | SerializedTerminal,
     output?: boolean | SerializedTerminal,
-    height?: number,
-    style: SliderStyle = {},
+    style: DialStyle = {},
     id?: string,
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Slider, true, false, true, { ...DefaultSliderStyle(height), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Dial, true, false, true, { ...DefaultDialStyle(height), ...style }, propName,
       input ?
         (typeof input === 'boolean' ?
           new Terminal(node, TerminalType.IN, 'number', '', {}) :
@@ -55,8 +60,9 @@ export class Slider extends UINode implements Serializable {
       id, hitColor
     );
 
-    this.height = height ? height : this.node.style.rowHeight;
-    this.value = value;
+    this.height = height;
+    this._value = value;
+    this.temp = normalize(this._value, this.min, this.max);
 
     if (this.input) {
       this.input.on('connect', (_, connector) => {
@@ -76,29 +82,29 @@ export class Slider extends UINode implements Serializable {
   /** @hidden */
   paint(): void {
     let context = this.context;
-    context.lineWidth = this.style.railHeight;
-    context.strokeStyle = this.style.color;
-    context.lineCap = 'butt';
+    let size = Math.min(this.width, this.height);
 
-    let start = Math.max(this.position.x, this.position.x + this.thumbFill - 3);
-    if (start !== this.position.x) {
-      context.beginPath();
-      context.moveTo(this.position.x, this.position.y + this.height / 2);
-      context.lineTo(start, this.position.y + this.height / 2);
-      context.stroke();
-    }
-    start = Math.min(this.position.x + 2 * this.style.thumbRadius + this.thumbFill + 3, this.position.x + this.width);
-    if (start !== (this.position.x + this.width)) {
-      context.beginPath();
-      context.moveTo(start, this.position.y + this.height / 2);
-      context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
-      context.stroke();
-    }
-
-    context.fillStyle = this.style.thumbColor;
+    context.fillStyle = this.style.color;
+    context.strokeStyle = this.style.borderColor;
+    context.lineWidth = this.style.borderWidth;
+    context.shadowColor = this.style.shadowColor;
+    context.shadowBlur = this.style.shadowBlur;
+    context.shadowOffsetX = 3;
+    context.shadowOffsetY = 3;
     context.beginPath();
-    context.arc(this.position.x + this.style.thumbRadius + this.thumbFill, this.position.y + this.height / 2, this.style.thumbRadius, 0, 2 * Math.PI);
+    context.arc(this.position.x + this.width / 2, this.position.y + this.height / 2, size / 2, 0, 2 * Math.PI);
+    context.stroke();
     context.fill();
+
+    context.lineCap = 'round';
+    context.lineWidth = 10;
+    context.strokeStyle = this.style.thumbColor;
+    context.shadowColor = this.style.thumbShadowColor;
+    context.shadowBlur = this.style.thumbShadowBlur;
+    context.beginPath();
+    context.moveTo(this.thumbStart.x, this.thumbStart.y);
+    context.lineTo(this.thumbEnd.x, this.thumbEnd.y);
+    context.stroke();
   }
   /** @hidden */
   paintLOD1() {
@@ -110,12 +116,23 @@ export class Slider extends UINode implements Serializable {
   }
   /** @hidden */
   offPaint(): void {
-    this.offUIContext.fillStyle = this.hitColor.hexValue;
-    this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
+    let context = this.offUIContext;
+    let size = Math.min(this.width, this.height);
+
+    context.fillStyle = this.hitColor.hexValue;
+    context.beginPath();
+    context.arc(this.position.x + this.width / 2, this.position.y + this.height / 2, size / 2, 0, 2 * Math.PI);
+    context.fill();
   }
   /** @hidden */
   reflow(): void {
-    this.thumbFill = denormalize(normalize(this.value, this.min, this.max), 0, this.width - 2 * this.style.thumbRadius);
+    let center = this.position.add(this.width / 2, this.height / 2);
+    let angle = normalize(this.value, this.min, this.max) * Constant.TAU + (Math.PI / 2);
+    let size = Math.min(this.width, this.height);
+    this.thumbStart.x = center.x + Math.cos(angle) * (size / 5);
+    this.thumbStart.y = center.y + Math.sin(angle) * (size / 5);
+    this.thumbEnd.x = center.x + Math.cos(angle) * (size / 2 - 10);
+    this.thumbEnd.y = center.y + Math.sin(angle) * (size / 2 - 10);
 
     if (this.input) {
       this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
@@ -127,9 +144,17 @@ export class Slider extends UINode implements Serializable {
     }
   }
 
+  private pointToValue(position: Vector2): number {
+    let diff = position.subtract(this.position.add(this.width / 2, this.height / 2));
+    let angle = Math.atan2(diff.y, diff.x);
+    if (angle < 0) angle += Constant.TAU;
+    return (((angle / Constant.TAU) - 0.25) + 1) % 1;
+  }
+
   /** @hidden */
   onPropChange(_: any, newValue: any) {
     this._value = newValue;
+    this.temp = normalize(newValue, this.min, this.max);
     this.reflow();
 
     this.output && (this.output as any)['setData'](this.value);
@@ -144,7 +169,13 @@ export class Slider extends UINode implements Serializable {
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
+    this.lastAngle = undefined;
+    this.deltaValue = this.pointToValue(realPosition);
+    this.temp = normalize(this.value, this.min, this.max);
+
     this.call('down', this, screenPosition, realPosition);
+
+    this.onDrag(screenPosition, realPosition);
   }
   /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
@@ -162,11 +193,25 @@ export class Slider extends UINode implements Serializable {
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
-    this.call('drag', this, screenPosition, realPosition);
+    let currValue = this.pointToValue(realPosition);
+    let diffValue = currValue - this.deltaValue;
+    diffValue = (Math.abs(diffValue) > 0.5) ? 0 : diffValue;
+    this.deltaValue = currValue;
+    this.temp = this.temp + diffValue;
+    this.temp = clamp(this.temp, 0, 1);
 
-    let y = this.position.y + this.height / 2 - this.style.railHeight / 2;
-    this.thumbFill = realPosition.clamp(this.position.x + this.style.thumbRadius, this.position.x + this.width - this.style.thumbRadius, y, y).subtract(this.position.x + this.style.thumbRadius, 0).x;
-    this.value = denormalize(normalize(this.thumbFill, 0, this.width - 2 * this.style.thumbRadius), this.min, this.max);
+    let angle = this.temp * Constant.TAU;
+    if (angle < 0) angle += Constant.TAU;
+    if (typeof this.lastAngle !== 'undefined' && Math.abs(this.lastAngle - angle) > 2) {
+      angle = this.lastAngle > 3 ? Constant.TAU : 0;
+    }
+    this.lastAngle = angle;
+    let normalizedValue = angle / Constant.TAU;
+    this.value = denormalize(clamp(normalizedValue, 0, 1), this.min, this.max);
+    this.temp = normalizedValue;
+    this.reflow();
+
+    this.call('drag', this, screenPosition, realPosition);
   }
   /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
@@ -177,6 +222,8 @@ export class Slider extends UINode implements Serializable {
   /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
+
+    this.lastAngle = undefined;
 
     this.call('exit', this, screenPosition, realPosition);
   }
@@ -189,7 +236,7 @@ export class Slider extends UINode implements Serializable {
     if (this.disabled) return;
   }
 
-  serialize(): SerializedSlider {
+  serialize(): SerializedDial {
     return {
       id: this.id,
       type: this.type,
@@ -201,36 +248,47 @@ export class Slider extends UINode implements Serializable {
       min: this.min,
       max: this.max,
       value: this.value,
-      height: this.height,
+      size: this.height,
       childs: []
     }
   }
-  static deSerialize(node: Node, data: SerializedSlider) {
-    return new Slider(node, data.min, data.max, data.value, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
+  static deSerialize(node: Node, data: SerializedDial) {
+    return new Dial(node, data.min, data.max, data.value, data.size, data.propName, data.input, data.output, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
 
-export interface SliderStyle extends UINodeStyle {
-  railHeight?: number,
-  thumbRadius?: number,
+export interface DialStyle extends UINodeStyle {
   color?: string,
-  thumbColor?: string
+  borderColor?: string,
+  borderWidth?: number,
+  shadowColor?: string,
+  shadowBlur?: number,
+  thumbColor?: string,
+  thumbBorderColor?: string,
+  thumbBorderWidth?: number,
+  thumbShadowColor?: string,
+  thumbShadowBlur?: number
 }
 
-export interface SerializedSlider extends SerializedUINode {
+export interface SerializedDial extends SerializedUINode {
   min: number,
   max: number,
   value: number,
-  height: number
+  size: number
 }
 
 /** @hidden */
-let DefaultSliderStyle = (height: number) => {
+let DefaultDialStyle = (size: number) => {
   return {
-    color: '#444',
-    thumbColor: '#000',
-    railHeight: 3,
-    thumbRadius: height / 2,
+    color: '#e3e3e3',
+    borderColor: '#000',
+    borderWidth: 1,
+    shadowColor: 'grey',
+    shadowBlur: 5,
+    thumbColor: '#c9c9c9',
+    thumbShadowColor: '#858585',
+    thumbShadowBlur: 5,
+    size,
     visible: true
   }
 }

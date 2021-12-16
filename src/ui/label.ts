@@ -10,19 +10,19 @@ import { Align } from "../common/enums";
 
 export class Label extends UINode implements Serializable {
   private displayText: string;
-  private _text: string;
+  private _text: string | number;
   private textWidth: number;
   private textHeight: number;
 
   get text(): string {
-    if (this.propName) {
-      let value = this.getProp();
-      if (typeof value !== 'string') value = value.toString();
-      return value;
-    }
-    return this._text;
+    let value;
+    if (this.propName) value = this.getProp();
+    else value = this._text;
+
+    if (typeof value === 'number') value = this.format(value);
+    return value;
   }
-  set text(text: string) {
+  set text(text: string | number) {
     if (this.propName) {
       this.setProp(text);
     } else {
@@ -35,7 +35,7 @@ export class Label extends UINode implements Serializable {
 
   constructor(
     node: Node,
-    text: string = '',
+    text: string | number,
     propName?: string,
     input?: boolean | SerializedTerminal,
     output?: boolean | SerializedTerminal,
@@ -64,7 +64,7 @@ export class Label extends UINode implements Serializable {
     this._text = this.propName ? this.getProp() : text;
     this.reflow();
 
-    if (!height) this.height = this.textHeight;
+    if (!height) this.height = this.textHeight + 5;
     else this.height = height;
 
     if (this.input) {
@@ -90,12 +90,10 @@ export class Label extends UINode implements Serializable {
     context.textBaseline = 'top';
     let y = this.position.y + this.height / 2 - this.textHeight / 2;
     let x = this.position.x;
-    if (this.style.align === Align.Left) {
-      x += 5;
-    } else if (this.style.align === Align.Center) {
+    if (this.style.align === Align.Center) {
       x += this.width / 2 - this.textWidth / 2;
     } else if (this.style.align === Align.Right) {
-      x += this.width - this.textWidth - 5;
+      x += this.width - this.textWidth;
     }
     context.fillText(this.displayText, x, y);
   }
@@ -121,7 +119,7 @@ export class Label extends UINode implements Serializable {
     context.font = null;
     this.textWidth = metrics.width;
 
-    this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + 5;
     if (typeof this.textHeight === 'undefined') {
       let d = document.createElement("span");
       d.style.font = this.style.fontSize + ' ' + this.style.font;
@@ -157,6 +155,10 @@ export class Label extends UINode implements Serializable {
     });
 
     return text.substring(0, index) + ellipsis;
+  }
+  /** @hidden */
+  format(value: number): string {
+    return (typeof this.style.precision !== 'undefined') ? value.toFixed(this.style.precision) : value.toString();
   }
 
   /** @hidden */
@@ -236,11 +238,12 @@ export class Label extends UINode implements Serializable {
   }
 }
 
-export interface LabelStyle extends UINodeStyle  {
+export interface LabelStyle extends UINodeStyle {
   color?: string,
   fontSize?: string,
   font?: string,
-  align?: Align
+  align?: Align,
+  precision?: number
 }
 
 export interface SerializedLabel extends SerializedUINode {

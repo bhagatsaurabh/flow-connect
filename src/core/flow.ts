@@ -12,8 +12,9 @@ import { getNewGUID } from "../utils/utils";
 import { Graph, SerializedGraph } from "./graph";
 import { Rules } from "../common/interfaces";
 import { TerminalTypeColors, TerminalStyle } from "./terminal";
+import { Log } from '../utils/logger';
 
-/** A Flow is a set of [[Node]]s, [[Connector]]s and [[Group]]s, it can also contain [[SubFlowNode]]s thereby creating a tree of Flows.
+/** A Flow is a set of Nodes, Connectors and Groups, it can also contain SubFlowNodes thereby creating a tree of Flows.
  *  ![](media://example.png)
  */
 export class Flow extends Hooks implements Serializable {
@@ -25,6 +26,7 @@ export class Flow extends Hooks implements Serializable {
   outputs: TunnelNode[];
   get state(): FlowState { return this.executionGraph.state; }
   globalEvents: Hooks = new Hooks();
+  parentFlow: Flow = null;
 
   /** @hidden */
   hitColorToNode: { [color: string]: Node };
@@ -107,6 +109,10 @@ export class Flow extends Hooks implements Serializable {
     return flowOutput;
   }
   addSubFlow(flow: Flow, position: Vector2): SubFlowNode {
+    if (flow.parentFlow) {
+      Log.error('Flow is already a sub-flow, a sub-flow cannot have multiple parent flows');
+      return null;
+    }
     let subFlowNode = new SubFlowNode(
       this,
       flow.name,
@@ -120,6 +126,8 @@ export class Flow extends Hooks implements Serializable {
     this.nodes[subFlowNode.id] = subFlowNode;
     this.sortedNodes.add(subFlowNode);
     this.executionGraph.add(subFlowNode);
+    flow.parentFlow = this;
+
     return subFlowNode;
   }
   createNode(name: string, position: Vector2, width: number, inputs?: any[], outputs?: any[], style: NodeStyle = {}, terminalStyle: TerminalStyle = {}, props?: { [key: string]: any }): Node {
@@ -177,21 +185,22 @@ export class Flow extends Hooks implements Serializable {
   }
   start() {
     if (this.state !== FlowState.Stopped) return;
-    this.flowConnect.startGlobalTime();
     this.executionGraph.start();
     this.call('start', this);
   }
   stop() {
+    // Bottom-up, all child sub-flows gets stopped first before parent
+    // What if FlowState is Running ?
     if (this.state === FlowState.Stopped) return;
-    // what if FlowState is Running ?
+
+    // Bottom-up, sub-flows are stopped from highest order to lowest (order = depth of node in the tree)
+    for (let order = this.executionGraph.nodes.length - 1; order >= 0; order -= 1) {
+      this.executionGraph.nodes[order]
+        .filter(graphNode => graphNode.flowNode instanceof SubFlowNode)
+        .map(graphNode => graphNode.flowNode)
+        .forEach((subFlowNode: SubFlowNode) => subFlowNode.subFlow.stop());
+    }
     this.executionGraph.stop();
-    this.flowConnect.stopGlobalTime();
-    Object.values(this.nodes).forEach(node => {
-      if (node instanceof SubFlowNode) {
-        node.subFlow.stop();
-        // maybe stop in reverse execution sequence... ?
-      }
-    });
     this.call('stop', this);
   }
 

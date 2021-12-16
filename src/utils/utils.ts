@@ -2,6 +2,8 @@ import { Graph } from "../core/graph";
 import { Rules } from "../common/interfaces";
 import { Terminal } from "../core/terminal";
 import { ViewPort } from "../common/enums";
+import { Vector2 } from "../core/vector";
+import { Constant } from "../flow-connect";
 
 export const getNewGUID = () => {
   var S4 = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -36,6 +38,10 @@ export const canConnect = (source: Terminal, destination: Terminal, rules: Rules
   if (!executionGraph.canConnect(source.node, destination.node)) return false;
   return true;
 };
+export const isEmpty = (obj: any): boolean => {
+  for (let key in obj) return false;
+  return true;
+};
 /** @hidden */
 export const binarySearch = ({ max, getValue, match }: { max: number, getValue: Function, match: number }) => {
   let min = 0;
@@ -49,3 +55,4 @@ export const binarySearch = ({ max, getValue, match }: { max: number, getValue: 
   }
   return max;
 };
+

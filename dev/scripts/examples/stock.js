@@ -48,7 +48,7 @@ let btcEthLtcChart = StandardNodes.Visual.LineChartMini(
 );
 
 timer.outputs[0].connect(api.inputs[0]);
-api.outputs[0].connect(extract.inputs[0]);
+api.outputs[1].connect(extract.inputs[0]);
 extract.outputs[0].connect(btcBuffer.inputs[0]);
 extract.outputs[1].connect(ethBuffer.inputs[0]);
 extract.outputs[2].connect(ltcBuffer.inputs[0]);

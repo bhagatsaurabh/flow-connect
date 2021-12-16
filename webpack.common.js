@@ -24,9 +24,5 @@ module.exports = {
       use: 'ts-loader',
       exclude: /node_modules/
     }]
-  },
-  optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin()]
   }
 }

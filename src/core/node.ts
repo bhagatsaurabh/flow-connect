@@ -11,6 +11,7 @@ import { Events, RenderState, Serializable, TerminalOutputs } from "../common/in
 import { Connector } from "./connector";
 import { Log } from "../utils/logger";
 import { SerializedContainer } from "../ui/container";
+import { Dial, DialStyle } from "../ui/dial";
 
 export class Node extends Hooks implements Events, Serializable {
   //#region Properties
@@ -525,14 +526,17 @@ export class Node extends Hooks implements Events, Serializable {
   //#endregion
 
   //#region UICreators
-  createLabel(text: string, propName?: string, input?: boolean, output?: boolean, style?: LabelStyle): Label {
-    return new Label(this, text, propName, input, output, style);
+  createLabel(text: string, propName?: string, input?: boolean, output?: boolean, style?: LabelStyle, height?: number): Label {
+    return new Label(this, text, propName, input, output, style, height);
   }
   createImage(source: string, propName?: string, style?: ImageStyle): Image {
     return new Image(this, source, propName, style);
   }
-  createSlider(min: number, max: number, value: number, precision?: number, propName?: string, input?: boolean, output?: boolean, height?: number, style?: SliderStyle) {
-    return new Slider(this, min, max, value, precision, propName, input, output, height, style);
+  createSlider(min: number, max: number, value: number, propName?: string, input?: boolean, output?: boolean, height?: number, style?: SliderStyle) {
+    return new Slider(this, min, max, value, propName, input, output, height, style);
+  }
+  createDial(min: number, max: number, value: number, size: number, propName?: string, input?: boolean, output?: boolean, style?: DialStyle) {
+    return new Dial(this, min, max, value, size, propName, input, output, style);
   }
   createHozLayout(childs?: UINode[], style?: HorizontalLayoutStyle) {
     return new HorizontalLayout(this, childs, style);
