@@ -13,6 +13,12 @@ export class Color implements Serializable {
     this.rgbaString = Color.rgbaToString(this.rgbaValue);
     this.rgbaCSSString = Color.rgbaToCSSString(this.rgbaValue);
   }
+  isEqual(color: Color) {
+    return color.rgbaValue[0] === this.rgbaValue[0]
+      && color.rgbaValue[1] === this.rgbaValue[1]
+      && color.rgbaValue[2] === this.rgbaValue[2]
+      && color.rgbaValue[3] === this.rgbaValue[3];
+  }
 
   static Random(): Color {
     return new Color(new Uint8ClampedArray(

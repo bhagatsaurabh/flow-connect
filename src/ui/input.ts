@@ -69,7 +69,8 @@ export class Input extends UINode implements Serializable {
       fontSize: this.style.fontSize,
       font: this.style.font,
       align: this.style.align,
-      color: this.style.color
+      color: this.style.color,
+      paddingLeft: 5
     }, this.height);
     this.label.on('click', () => {
       if (document.activeElement !== this.inputEl) {
@@ -106,6 +107,8 @@ export class Input extends UINode implements Serializable {
       this.inputEl.style.pointerEvents = 'none';
       this.value = this.inputEl.value;
       this.label.text = this.value.toString();
+
+      this.call('blur', this);
     });
     this.inputEl.oninput = () => {
       if (this.style.pattern) {

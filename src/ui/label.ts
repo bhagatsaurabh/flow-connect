@@ -95,6 +95,8 @@ export class Label extends UINode implements Serializable {
     } else if (this.style.align === Align.Right) {
       x += this.width - this.textWidth;
     }
+    x += this.style.paddingLeft;
+
     context.fillText(this.displayText, x, y);
   }
   /** @hidden */
@@ -243,7 +245,8 @@ export interface LabelStyle extends UINodeStyle {
   fontSize?: string,
   font?: string,
   align?: Align,
-  precision?: number
+  precision?: number,
+  paddingLeft?: number
 }
 
 export interface SerializedLabel extends SerializedUINode {
@@ -258,6 +261,7 @@ let DefaultLabelStyle = () => {
     fontSize: '11px',
     font: 'arial',
     align: Align.Left,
+    paddingLeft: 0,
     visible: true
   };
 };

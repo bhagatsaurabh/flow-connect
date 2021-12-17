@@ -12,6 +12,7 @@ import { Connector } from "./connector";
 import { Log } from "../utils/logger";
 import { SerializedContainer } from "../ui/container";
 import { Dial, DialStyle } from "../ui/dial";
+import { Envelope, EnvelopeStyle } from "../ui/envelope";
 
 export class Node extends Hooks implements Events, Serializable {
   //#region Properties
@@ -561,6 +562,9 @@ export class Node extends Hooks implements Events, Serializable {
   }
   createInput(value: string | number, propName?: string, input?: boolean, output?: boolean, height?: number, style?: InputStyle) {
     return new Input(this, value, propName, input, output, height, style);
+  }
+  createEnvelope(height: number, value?: Vector2[], propName?: string, input?: boolean, output?: boolean, style?: EnvelopeStyle): Envelope {
+    return new Envelope(this, height, value, propName, input, output, style);
   }
   //#endregion
 

@@ -33,6 +33,7 @@ import * as lineChartMini from './visual/line-chart-mini';
 
 import * as source from './audio/source';
 import * as destination from './audio/destination';
+import * as automate from './audio/automate';
 
 import * as dial from './ui/dial';
 
@@ -76,6 +77,7 @@ export namespace StandardNodes.Visual {
 export namespace StandardNodes.Audio {
   export import Source = source.Source;
   export import Destination = destination.Destination;
+  export import Automate = automate.Automate;
 }
 export namespace StandardNodes.UI {
   export import Dial = dial.Dial;

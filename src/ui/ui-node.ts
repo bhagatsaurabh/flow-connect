@@ -227,5 +227,6 @@ export enum UIType {
   Slider,
   Dial,
   Source,
-  Toggle
+  Toggle,
+  Envelope
 }

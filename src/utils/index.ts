@@ -5,3 +5,4 @@ export * from './linked-list';
 export * from './logger';
 export * from './parser';
 export * from './utils';
+export * from './bidirectional-map';

@@ -17,7 +17,10 @@ export class LinkedList<T> extends Hooks {
   tail: LinkedListNode<T> = null;
   length: number = 0;
 
-  constructor(public comparator: (a: T, b: T) => number) { super(); }
+  constructor(public comparator: (a: T, b: T) => number, source?: Array<T>) {
+    super();
+    if (source) source.forEach(value => this.append(value));
+  }
 
   prepend(data: T) {
     let newNode = new LinkedListNode(data);
@@ -112,6 +115,11 @@ export class LinkedList<T> extends Hooks {
       callback(curr);
       curr = curr.next;
     }
+  }
+  map(callback: (node: LinkedListNode<T>) => any): any[] {
+    let mapped: any[] = [];
+    this.forEach(node => mapped.push(callback(node)));
+    return mapped;
   }
   toArray(): T[] {
     let data: T[] = [];

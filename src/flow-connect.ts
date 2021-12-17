@@ -495,9 +495,9 @@ export class FlowConnect extends Hooks {
     this._audioContext = new AudioContext();
 
     // This one-time setup is not at all related to FlowConnect, couldn't find any place to do this
-    // Might be a better idea to this somewhere in StandardNodes.Audio scope
+    // Might be a better idea to do this somewhere in StandardNodes.Audio scope
 
-    // Creates a AudioWorkletProcessor to setup custom AudioParams for AudioBufferSourceNodes, for automation
+    // Creates a AudioWorkletProcessor to setup custom AudioParams for AudioBufferSourceNode's automation (because of their fire-forget-destroy behaviour)
     let URLProxyParamForSource = URL.createObjectURL(new Blob([
       `registerProcessor('proxy-param-for-source', class ProxyParamForSource extends AudioWorkletProcessor {
           static get parameterDescriptors() {
@@ -518,7 +518,7 @@ export class FlowConnect extends Hooks {
           process(inputs, outputs, parameters) {
             outputs[0].forEach(channel => {
               for (let i = 0; i < channel.length; i++) {
-                // wierd bug, the detune is off by -1200 cents, have to offset this anomaly
+                // wierd bug, the detune is off by 1200 cents, have to offset this anomaly
                 channel[i] = (parameters['detune'].length > 1 ? parameters['detune'][i] : parameters['detune'][0]) - 1200;
               }
             });
@@ -532,7 +532,42 @@ export class FlowConnect extends Hooks {
         })`
     ], { type: 'application/javascript' }));
 
+    // Same as above, but not specifically optimized for AudioBufferSourceNodes, this is more general purpose
+    let URLProxyParam = URL.createObjectURL(new Blob([
+      `registerProcessor('proxy-param', class ProxyParam extends AudioWorkletProcessor {
+          static get parameterDescriptors() {
+            return [{
+              name: 'param',
+              defaultValue: 0,
+              minValue: -340282346638528859811704183484516925439,
+              maxValue: 340282346638528859811704183484516925439,
+              automationRate: 'k-rate'
+            }]
+          }
+
+          min = -340282346638528859811704183484516925439;
+          max =  340282346638528859811704183484516925439;
+          constructor(...args) {
+            super(...args);
+            this.port.onmessage = (e) => {
+              this.min = e.data.min;
+              this.max = e.data.max;
+            }
+          }
+          clamp(value) { return Math.min(Math.max(value, this.min), this.max); }
+          process(inputs, outputs, parameters) {
+            outputs[0].forEach(channel => {
+              for (let i = 0; i < channel.length; i++) {
+                channel[i] = this.clamp((parameters['param'].length > 1 ? parameters['param'][i] : parameters['param'][0]));
+              }
+            });
+            return true;
+          }
+        })`
+    ], { type: 'application/javascript' }));
+
     await this.audioContext.audioWorklet.addModule(URLProxyParamForSource);
+    await this.audioContext.audioWorklet.addModule(URLProxyParam);
   }
   /** @hidden */
   showGenericInput(position: Vector2 | DOMPoint, value: string, styles: { [key: string]: any }, attributes: { [key: string]: any }, callback: (value: string) => void) {
@@ -839,7 +874,7 @@ let DefaultRules: () => Rules = () => ({
   'event': ['event', 'any'],
   'vector2': ['vector2', 'any'],
   'array-buffer': ['array-buffer', 'any'],
-  'audio': ['audio'],
+  'audio': ['audio', 'audioparam'],
   'audioparam': ['audioparam'],
   'any': ['any']
 });

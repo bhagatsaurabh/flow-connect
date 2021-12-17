@@ -109,6 +109,9 @@ export const Source = (flow: Flow, options: NodeCreatorOptions = {}) => {
   node.outputs[0].on('connect', (_, connector) => {
     node.outputs[0].ref.connect(connector.end.ref);
   });
+  node.outputs[0].on('disconnect', (_, connector) => {
+    node.outputs[0].ref.disconnect(connector.end.ref);
+  });
 
   return node;
 };
