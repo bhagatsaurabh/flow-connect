@@ -134,7 +134,7 @@ export class Select extends UINode implements Serializable {
     this._selected = value;
     this.label.text = this.selected;
 
-    this.output && (this.output as any)['setData'](this.selected);
+    this.output && this.output.setData(this.selected);
   }
 
   /** @hidden */
@@ -217,7 +217,7 @@ export class Select extends UINode implements Serializable {
   }
 }
 
-export interface SelectStyle extends UINodeStyle  {
+export interface SelectStyle extends UINodeStyle {
   font?: string,
   fontSize?: string,
   color?: string,

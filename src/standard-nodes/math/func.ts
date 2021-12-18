@@ -30,7 +30,7 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expressions?:
   try {
     tokensArr.forEach(tokens => tokens.forEach(token => {
       if (token.type === TokenType.Variable) {
-        if ((token.value as string).length > 1) throw 'Only single character variables are allowed: ' + token.value;
+        if ((token.value as string).length > 1) throw new Error('Only single character variables are allowed: ' + token.value);
         else vars.add(token.value as string);
       }
     }));
@@ -98,21 +98,24 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expressions?:
   node.props.expressions = expressions;
 
   let exprStack = node.createStack([], { spacing: 10 });
-  for (let i = 0; i < expressions.length; i += 1) {
-    let exprInput = node.createInput(
-      node.props.expressions[i], `expressions[${i}]`, true, true,
-      20, { type: InputType.Text, grow: .9 } as any
-    );
-    exprInput.on('change', () => { fChangedTerminal.emit(null); process(); });
-    exprInput.on('input', lowerCase);
-    exprStack.append(
-      node.createHozLayout([
-        node.createLabel('𝒇' + (i + 1), null, false, false, { grow: .1 } as any),
-        exprInput
-      ], { spacing: 10 })
-    );
-    node.addTerminal(new Terminal(node, TerminalType.OUT, 'number', `𝒇${i + 1}`));
+  let addExprInputs = () => {
+    for (let i = 0; i < node.props.expressions.length; i += 1) {
+      let exprInput = node.createInput(
+        node.props.expressions[i], `expressions[${i}]`, true, true,
+        20, { type: InputType.Text, grow: .9 } as any
+      );
+      exprInput.on('change', () => { fChangedTerminal.emit(null); process(); });
+      exprInput.on('input', lowerCase);
+      exprStack.append(
+        node.createHozLayout([
+          node.createLabel('𝒇' + (i + 1), null, false, false, { grow: .1 } as any),
+          exprInput
+        ], { spacing: 10 })
+      );
+      node.addTerminal(new Terminal(node, TerminalType.OUT, 'number', `𝒇${i + 1}`));
+    }
   }
+  addExprInputs();
 
   let addExprButton = node.createButton('Add Function', false, false, 20, { grow: '.5' } as any);
   let addVarButton = node.createButton('Add', false, false, 20, { grow: .4 } as any);
@@ -124,6 +127,11 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expressions?:
       addVarButton
     ], { spacing: 10 })
   ]);
+
+  node.watch('expressions', () => {
+    exprStack.children = [];
+    addExprInputs();
+  });
 
   addExprButton.on('click', () => {
     let index = exprStack.children.length;

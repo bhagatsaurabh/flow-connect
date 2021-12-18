@@ -1,7 +1,7 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { LinkedList, LinkedListNode } from "../../utils/linked-list";
+import { List, ListNode } from "../../utils/linked-list";
 import { InputType } from "../../ui/input";
 
 interface BufferedEvent {
@@ -28,7 +28,7 @@ export const Delay = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.createInput(node.props.delay, 'delay', true, true, 20, { type: InputType.Number, grow: .7 } as any)
   ], { spacing: 10 }));
 
-  node.props.eventQueue = new LinkedList<BufferedEvent>((a, b) => a.timeoutId - b.timeoutId);
+  node.props.eventQueue = new List<BufferedEvent>((a, b) => a.timeoutId - b.timeoutId);
   node.props.eventQueue.on('removefirst', () => {
     while (node.props.eventQueue.head && (performance.now() - node.props.eventQueue.head.data.start) >= node.props.delay) {
       let bufferedEvent = node.props.eventQueue.removeFirst(false);
@@ -36,7 +36,7 @@ export const Delay = (flow: Flow, options: NodeCreatorOptions = {}) => {
     }
   });
   node.inputs[0].on('event', (_, data) => {
-    let eventNode = new LinkedListNode<BufferedEvent>();
+    let eventNode = new ListNode<BufferedEvent>();
     eventNode.data = {
       data,
       timeoutId: window.setTimeout(() => {
@@ -50,7 +50,7 @@ export const Delay = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.props.eventQueue.append(eventNode);
   });
   flow.on('start', () => {
-    node.props.eventQueue.forEach((eventNode: LinkedListNode<BufferedEvent>) => {
+    node.props.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
       eventNode.data.start = performance.now() + eventNode.data.remaining - node.props.delay;
       eventNode.data.timeoutId = window.setTimeout(() => {
         if (eventNode === node.props.eventQueue.head) {
@@ -61,7 +61,7 @@ export const Delay = (flow: Flow, options: NodeCreatorOptions = {}) => {
     })
   });
   flow.on('stop', () => {
-    node.props.eventQueue.forEach((eventNode: LinkedListNode<BufferedEvent>) => {
+    node.props.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
       clearTimeout(eventNode.data.timeoutId);
       eventNode.data.remaining = performance.now() - eventNode.data.start;
     });

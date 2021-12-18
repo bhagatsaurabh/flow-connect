@@ -135,7 +135,7 @@ export class Source extends UINode implements Serializable {
     this._file = newValue;
     this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf("."));
 
-    this.output && (this.output as any)['setData'](this._file);
+    this.output && this.output.setData(this._file);
   }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {

@@ -13,8 +13,8 @@ export const Automate = (flow: Flow, options: NodeCreatorOptions = {}) => {
     options.style || { rowHeight: 10, spacing: 15 },
     options.terminalStyle || {},
     options.props
-      ? { min: 0, max: 1, value: 0.5, duration: 1, envelope: [], ...options.props }
-      : { min: 0, max: 1, value: 0.5, duration: 1, envelope: [] }
+      ? { min: 0, max: 1, value: 0.5, duration: 1, envelope: [new Vector2(.2, .5), new Vector2(.5, .8), new Vector2(.9, .2)], ...options.props }
+      : { min: 0, max: 1, value: 0.5, duration: 1, envelope: [new Vector2(.2, .5), new Vector2(.5, .8), new Vector2(.9, .2)] }
   );
 
   let setMinMax = () => {
@@ -29,7 +29,7 @@ export const Automate = (flow: Flow, options: NodeCreatorOptions = {}) => {
   setMinMax();
   node.outputs[0].ref = node.props.proxyParamNode;
 
-  let envelope = node.createEnvelope(145, [new Vector2(.2, .5), new Vector2(.5, .8), new Vector2(.9, .2)], 'envelope', true, true);
+  let envelope = node.createEnvelope(145, node.props.envelope, 'envelope', true, true);
   let minInput = node.createInput(node.props.min, 'min', false, false, 20, { type: InputType.Number, grow: .4, step: 'any' } as any);
   let maxInput = node.createInput(node.props.max, 'max', false, false, 20, { type: InputType.Number, grow: .4, step: 'any' } as any);
   let durationInput = node.createInput(node.props.duration, 'duration', false, false, 20, { type: InputType.Number, step: 'any', grow: .5 } as any);

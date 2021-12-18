@@ -1,20 +1,8 @@
 import { Hooks } from "../core/hooks";
 
-export class LinkedListNode<T> {
-  prev: LinkedListNode<T>;
-  next: LinkedListNode<T>;
-  data: T;
-
-  constructor(data?: T) {
-    this.prev = null;
-    this.next = null;
-    this.data = data ? data : null;
-  }
-}
-
-export class LinkedList<T> extends Hooks {
-  head: LinkedListNode<T> = null;
-  tail: LinkedListNode<T> = null;
+export class List<T> extends Hooks {
+  head: ListNode<T> = null;
+  tail: ListNode<T> = null;
   length: number = 0;
 
   constructor(public comparator: (a: T, b: T) => number, source?: Array<T>) {
@@ -23,7 +11,7 @@ export class LinkedList<T> extends Hooks {
   }
 
   prepend(data: T) {
-    let newNode = new LinkedListNode(data);
+    let newNode = new ListNode(data);
     if (this.head === null) {
       this.head = newNode;
       this.tail = newNode;
@@ -37,8 +25,8 @@ export class LinkedList<T> extends Hooks {
     this.call('prepend', this, newNode);
     return newNode;
   }
-  append(data: T | LinkedListNode<T>) {
-    let newNode = data instanceof LinkedListNode ? data : new LinkedListNode(data);
+  append(data: T | ListNode<T>) {
+    let newNode = data instanceof ListNode ? data : new ListNode(data);
     if (this.tail === null) {
       this.head = newNode;
       this.tail = newNode;
@@ -51,14 +39,6 @@ export class LinkedList<T> extends Hooks {
     this.length += 1;
     this.call('append', this, newNode);
     return newNode;
-  }
-  search(data: T): LinkedListNode<T> {
-    let curr = this.head;
-    while (curr !== null) {
-      if (this.comparator(curr.data, data) === 0) return curr;
-      curr = curr.next;
-    }
-    return null;
   }
   removeFirst(hook: boolean = true): T {
     let removed;
@@ -94,6 +74,59 @@ export class LinkedList<T> extends Hooks {
     this.call('removelast', this, removed);
     return removed;
   }
+  addAfter(data: T, node: ListNode<T>): ListNode<T> {
+    let newNode = new ListNode<T>(data);
+    newNode.next = node.next;
+    newNode.prev = node;
+    node.next = newNode;
+    if (newNode.next) newNode.next.prev = newNode;
+    if (node === this.tail) this.tail = newNode;
+    this.length += 1;
+
+    return newNode;
+  }
+  addBefore(data: T, node: ListNode<T>): ListNode<T> {
+    let newNode = new ListNode<T>(data);
+    newNode.prev = node.prev;
+    newNode.next = node;
+    node.prev = newNode;
+    if (newNode.prev) newNode.prev.next = newNode;
+    if (node === this.head) this.head = newNode;
+    this.length += 1;
+
+    return newNode;
+  }
+  delete(node: ListNode<T>) {
+    if (this.length === 1) {
+      this.head = null;
+      this.tail = null;
+    }
+    else if (node === this.head)
+      this.removeFirst();
+    else if (node === this.tail)
+      this.removeLast();
+    else {
+      if (node.prev) node.prev.next = node.next;
+      if (node.next) node.next.prev = node.prev;
+      this.length -= 1;
+    }
+  }
+  searchHead(callback: (node: ListNode<T>) => boolean): ListNode<T> {
+    let curr = this.head;
+    while (curr !== null) {
+      if (callback(curr)) return curr;
+      curr = curr.next;
+    }
+    return null;
+  }
+  searchTail(callback: (node: ListNode<T>) => boolean): ListNode<T> {
+    let curr = this.tail;
+    while (curr !== null) {
+      if (callback(curr)) return curr;
+      curr = curr.prev;
+    }
+    return null;
+  }
   get(index: number): T {
     if (index >= this.length) return null;
     else if (index === 0) return this.head ? this.head.data : null;
@@ -109,14 +142,15 @@ export class LinkedList<T> extends Hooks {
       return null;
     }
   }
-  forEach(callback: (node: LinkedListNode<T>) => void) {
+
+  forEach(callback: (node: ListNode<T>) => void) {
     let curr = this.head;
     while (curr !== null) {
       callback(curr);
       curr = curr.next;
     }
   }
-  map(callback: (node: LinkedListNode<T>) => any): any[] {
+  map(callback: (node: ListNode<T>) => any): any[] {
     let mapped: any[] = [];
     this.forEach(node => mapped.push(callback(node)));
     return mapped;
@@ -125,5 +159,20 @@ export class LinkedList<T> extends Hooks {
     let data: T[] = [];
     this.forEach(node => data.push(node.data));
     return data;
+  }
+  toString(): string {
+    return this.toArray().join(', ');
+  }
+}
+
+export class ListNode<T> {
+  prev: ListNode<T>;
+  next: ListNode<T>;
+  data: T;
+
+  constructor(data?: T) {
+    this.prev = null;
+    this.next = null;
+    this.data = data ? data : null;
   }
 }

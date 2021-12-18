@@ -41,14 +41,16 @@ export class Terminal extends Hooks implements Events, Serializable {
     this.connectors = [];
     this.position = Vector2.Zero();
     this.focus = false;
+  }
 
-    if (this.type === TerminalType.IN) (this as any)['getData'] = () => {
-      if (this.connectors.length > 0) return this.connectors[0].data;
-      return null;
-    };
-    else (this as any)['setData'] = (data: any) => {
-      this.connectors.forEach(connector => connector.data = data);
-    };
+  getData(): any {
+    if (this.type === TerminalType.OUT) { Log.error("Cannot call 'getData' on output terminal"); return; }
+    if (this.connectors.length > 0) return this.connectors[0].data;
+    return null;
+  }
+  setData(data: any) {
+    if (this.type === TerminalType.IN) { Log.error("Cannot call 'setData' on input terminal"); return; }
+    this.connectors.forEach(connector => connector.data = data);
   }
 
   private setHitColor(hitColor: Color) {

@@ -157,7 +157,7 @@ export class Dial extends UINode implements Serializable {
     this.temp = normalize(newValue, this.min, this.max);
     this.reflow();
 
-    this.output && (this.output as any)['setData'](this.value);
+    this.output && this.output.setData(this.value);
   }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {

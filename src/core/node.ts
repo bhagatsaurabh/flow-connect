@@ -148,7 +148,7 @@ export class Node extends Hooks implements Events, Serializable {
     } else if (typeof this.props[propName] !== 'undefined') {
       this.propObservers[propName].push(callback);
     } else {
-      Log.error('Prop \'', propName, '\' not found');
+      Log.error(`Prop '${propName}' not found`);
     }
   }
   /** @hidden */
@@ -342,21 +342,21 @@ export class Node extends Hooks implements Events, Serializable {
   getInput(terminal: string | number): any {
     if (typeof terminal === 'string') {
       let inputTerminal = this.inputs.find(currTerm => (currTerm.name === terminal));
-      if (inputTerminal) return (inputTerminal as any)['getData']();
+      if (inputTerminal) return inputTerminal.getData();
     } else {
-      if (this.inputs[terminal]) return (this.inputs[terminal] as any)['getData']();
+      if (this.inputs[terminal]) return this.inputs[terminal].getData();
     }
     return null;
   }
   getInputs(): any[] {
-    return this.inputs.map(terminal => (terminal as any)['getData']());
+    return this.inputs.map(terminal => terminal.getData());
   }
   setOutputs(outputs: string | number | TerminalOutputs, data?: any) {
     if (typeof outputs === 'string') {
       let outputTerminal = this.outputs.find(term => (term.name === outputs));
-      if (outputTerminal) (outputTerminal as any)['setData'](data);
+      if (outputTerminal) outputTerminal.setData(data);
     } else if (typeof outputs === 'number') {
-      if (this.outputs[outputs]) (this.outputs[outputs] as any)['setData'](data);
+      if (this.outputs[outputs]) this.outputs[outputs].setData(data);
     } else {
       let outputData = new Map<Terminal, any>();
       Object.entries(outputs).forEach(entry => {

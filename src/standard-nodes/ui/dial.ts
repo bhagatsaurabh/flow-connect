@@ -9,7 +9,7 @@ export const Dial = (flow: Flow, options: NodeCreatorOptions = new Object(), dia
   let node = flow.createNode(
     options.name || 'Dial',
     options.position || new Vector2(50, 50),
-    options.width || 80, [], [],
+    options.width || 90, [], [],
     options.style || { rowHeight: 10, padding: 5, spacing: 10 },
     options.terminalStyle || {},
     options.props

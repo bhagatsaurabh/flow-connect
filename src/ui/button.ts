@@ -2,11 +2,10 @@ import { Node } from "../core/node";
 import { Terminal, TerminalType, SerializedTerminal } from '../core/terminal';
 import { Vector2 } from "../core/vector";
 import { Label } from "./label";
-import { SerializedUINode, UINode, UIType } from './ui-node';
+import { SerializedUINode, UINode, UIType, UINodeStyle } from './ui-node';
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { Align } from "../common/enums";
-import { UINodeStyle } from "./ui-node";
 
 export class Button extends UINode implements Serializable {
   label: Label;

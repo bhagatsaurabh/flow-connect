@@ -176,7 +176,7 @@ export class Input extends UINode implements Serializable {
     this.label.text = this._value.toString();
     this.inputEl.value = this._value.toString();
 
-    this.output && (this.output as any)['setData'](this.value);
+    this.output && this.output.setData(this.value);
   }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {

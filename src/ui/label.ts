@@ -87,8 +87,8 @@ export class Label extends UINode implements Serializable {
     let context = this.context;
     context.fillStyle = this.style.color;
     context.font = this.style.fontSize + ' ' + this.style.font;
-    context.textBaseline = 'top';
-    let y = this.position.y + this.height / 2 - this.textHeight / 2;
+    context.textBaseline = 'middle';
+    let y = this.position.y + this.height / 2;
     let x = this.position.x;
     if (this.style.align === Align.Center) {
       x += this.width / 2 - this.textWidth / 2;
@@ -168,7 +168,7 @@ export class Label extends UINode implements Serializable {
     this._text = newValue;
     this.reflow();
 
-    this.output && (this.output as any)['setData'](this.text);
+    this.output && this.output.setData(this.text);
   }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {

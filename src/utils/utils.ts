@@ -27,7 +27,7 @@ export const intersects = (start1X: number, start1Y: number, end1X: number, end1
   } else return ViewPort.OUTSIDE;
 };
 export const clamp = (value: number, min: number, max: number): number => {
-  return value <= min ? min : (value > max ? max : value);
+  return Math.min(Math.max(value, min), max);
 };
 export const canConnect = (source: Terminal, destination: Terminal, rules: Rules, executionGraph: Graph) => {
   if (!destination) return false;

@@ -112,7 +112,7 @@ export class Toggle extends UINode implements Serializable {
   onPropChange(_: any, newValue: any) {
     this._checked = newValue;
 
-    this.output && (this.output as any)['setData'](this.checked);
+    this.output && this.output.setData(this.checked);
   }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
@@ -186,7 +186,7 @@ export class Toggle extends UINode implements Serializable {
   }
 }
 
-export interface ToggleStyle extends UINodeStyle  {
+export interface ToggleStyle extends UINodeStyle {
   backgroundColor?: string,
   color?: string
 }
