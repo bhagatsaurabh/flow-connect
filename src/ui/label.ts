@@ -85,6 +85,10 @@ export class Label extends UINode implements Serializable {
   /** @hidden */
   paint(): void {
     let context = this.context;
+
+    context.fillStyle = this.style.backgroundColor;
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
+
     context.fillStyle = this.style.color;
     context.font = this.style.fontSize + ' ' + this.style.font;
     context.textBaseline = 'middle';
@@ -93,9 +97,10 @@ export class Label extends UINode implements Serializable {
     if (this.style.align === Align.Center) {
       x += this.width / 2 - this.textWidth / 2;
     } else if (this.style.align === Align.Right) {
-      x += this.width - this.textWidth;
-    }
-    x += this.style.paddingLeft;
+      x += this.width - this.textWidth - this.style.padding;
+    } else {
+      x += this.style.padding
+    };
 
     context.fillText(this.displayText, x, y);
   }
@@ -242,11 +247,12 @@ export class Label extends UINode implements Serializable {
 
 export interface LabelStyle extends UINodeStyle {
   color?: string,
+  backgroundColor?: string,
   fontSize?: string,
   font?: string,
   align?: Align,
   precision?: number,
-  paddingLeft?: number
+  padding?: number
 }
 
 export interface SerializedLabel extends SerializedUINode {
@@ -258,10 +264,11 @@ export interface SerializedLabel extends SerializedUINode {
 let DefaultLabelStyle = () => {
   return {
     color: '#000',
+    backgroundColor: 'transparent',
     fontSize: '11px',
     font: 'arial',
     align: Align.Left,
-    paddingLeft: 0,
+    padding: 5,
     visible: true
   };
 };

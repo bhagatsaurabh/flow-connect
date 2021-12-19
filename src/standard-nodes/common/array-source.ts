@@ -58,6 +58,7 @@ export const ArraySource = (flow: Flow, options: NodeCreatorOptions = {}) => {
   maxInput.on('change', process);
   numberToggle.on('change', () => process);
   arrayInput.on('change', process);
+  stepInput.on('change', process);
   node.on('process', process);
 
   let numberToggled = () => {

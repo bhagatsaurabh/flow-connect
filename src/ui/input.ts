@@ -70,7 +70,7 @@ export class Input extends UINode implements Serializable {
       font: this.style.font,
       align: this.style.align,
       color: this.style.color,
-      paddingLeft: 5
+      padding: 5
     }, this.height);
     this.label.on('click', () => {
       if (document.activeElement !== this.inputEl) {

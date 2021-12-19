@@ -1,0 +1,256 @@
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
+import { Node } from "../core/node";
+import { Vector2 } from "../core/vector";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
+import { Serializable } from "../common/interfaces";
+import { Color } from "../core/color";
+import { FlowState } from "../core/flow";
+import { Label } from "./label";
+import { Align } from "../common/enums";
+
+export class RadioGroup extends UINode implements Serializable {
+  private options: string[];
+  private _selected: string;
+
+  get selected(): string {
+    if (this.propName) return this.getProp();
+    return this._selected;
+  }
+  set selected(selected: string) {
+    if (!this.options.includes(selected)) selected = this.options[0];
+
+    if (this.propName) this.setProp(selected);
+    else this._selected = selected;
+
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, selected);
+  }
+
+  constructor(
+    node: Node,
+    options: string[] = ['default'],
+    selected: string = 'default',
+    propName?: string,
+    input?: boolean | SerializedTerminal,
+    output?: boolean | SerializedTerminal,
+    height?: number,
+    style: RadioGroupStyle = {},
+    id?: string,
+    hitColor?: Color
+  ) {
+
+    super(node, Vector2.Zero(), UIType.RadioGroup, false, false, true, { ...DefaultRadioGroupStyle(), ...style }, propName,
+      input ?
+        (typeof input === 'boolean' ?
+          new Terminal(node, TerminalType.IN, 'boolean', '', {}) :
+          Terminal.deSerialize(node, input)
+        ) :
+        null,
+      output ?
+        (typeof output === 'boolean' ?
+          new Terminal(node, TerminalType.OUT, 'boolean', '', {}) :
+          Terminal.deSerialize(node, output)
+        ) :
+        null,
+      id, hitColor
+    );
+
+    if (options.length === 0) options = ['default'];
+    this.options = options;
+    let selectedValue = this.propName ? this.getProp() : selected;
+    if (this.options.includes(selectedValue)) this._selected = selectedValue;
+    else this._selected = this.options[0];
+    this.height = height ? height : this.node.style.rowHeight;
+
+    if (this.input) {
+      this.input.on('connect', (_, connector) => {
+        if (connector.data) this._selected = connector.data;
+      });
+      this.input.on('data', (_, data) => {
+        if (typeof data !== 'undefined') this._selected = data;
+      });
+    }
+    if (this.output) this.output.on('connect', (_, connector) => connector.data = this._selected);
+
+    this.children.push(...this.options.map(option => {
+      let label = new Label(this.node, option, null, false, false, { align: Align.Center, backgroundColor: this.style.backgroundColor, color: this.style.color });
+      label.on('click', (selectedLabel: Label) => {
+        if (selectedLabel.text === this.selected) return;
+        let lastSelectedLabel = this.children[this.options.indexOf(this.selected)];
+        Object.assign(lastSelectedLabel.style, {
+          backgroundColor: this.style.backgroundColor,
+          color: this.style.color
+        });
+        Object.assign(selectedLabel.style, {
+          backgroundColor: this.style.selectedBackgroundColor,
+          color: this.style.selectedColor
+        });
+        this.selected = selectedLabel.text;
+      });
+      return label;
+    }));
+    Object.assign(this.children[this.options.indexOf(this._selected)].style, {
+      backgroundColor: this.style.selectedBackgroundColor,
+      color: this.style.selectedColor
+    });
+
+    this.node.on('process', () => {
+      if (this.output) (this.output as any).setData(this._selected);
+    });
+  }
+
+  /** @hidden */
+  paint(): void {
+    let context = this.context;
+    context.strokeStyle = this.style.borderColor;
+    context.lineWidth = this.style.borderWidth
+    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+
+    let commonWidth = this.width / this.children.length;
+    let x = this.position.x + commonWidth;
+    for (let i = 0; i < this.children.length - 1; i += 1) {
+      context.beginPath();
+      context.moveTo(x, this.position.y);
+      context.lineTo(x, this.position.y + this.height);
+      context.stroke();
+      x += commonWidth;
+    }
+  }
+  /** @hidden */
+  paintLOD1() {
+    let context = this.context;
+    context.strokeStyle = this.style.borderColor;
+    context.fillStyle = this.style.backgroundColor;
+    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+  /** @hidden */
+  offPaint(): void {
+    this.offUIContext.fillStyle = this.hitColor.hexValue;
+    this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+  /** @hidden */
+  reflow(): void {
+    let x = this.position.x;
+    this.children.forEach(child => {
+      child.height = this.height;
+      child.width = this.width / this.children.length;
+      child.position.x = x;
+      child.position.y = this.position.y;
+      x += child.width;
+    });
+
+    if (this.input) {
+      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
+      this.input.position.y = this.position.y + this.height / 2;
+    }
+    if (this.output) {
+      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
+      this.output.position.y = this.position.y + this.height / 2;
+    }
+  }
+
+  /** @hidden */
+  onPropChange(_: any, newValue: any) {
+    if (!this.options.includes(newValue)) newValue = this.options[0];
+    this._selected = newValue;
+
+    this.output && this.output.setData(this._selected);
+  }
+  /** @hidden */
+  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
+    this.call('over', this, screenPosition, realPosition);
+  }
+  /** @hidden */
+  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
+    this.call('down', this, screenPosition, realPosition);
+  }
+  /** @hidden */
+  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
+    this.call('up', this, screenPosition, realPosition);
+  }
+  /** @hidden */
+  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
+    this.call('click', this, screenPosition, realPosition);
+  }
+  /** @hidden */
+  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
+    this.call('drag', this, screenPosition, realPosition);
+  }
+  /** @hidden */
+  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
+    this.call('enter', this, screenPosition, realPosition);
+  }
+  /** @hidden */
+  onExit(screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
+    this.call('exit', this, screenPosition, realPosition);
+  }
+  /** @hidden */
+  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    this.call('wheel', this, direction, screenPosition, realPosition);
+  }
+  /** @hidden */
+  onContextMenu(): void {
+    if (this.disabled) return;
+  }
+
+  serialize(): SerializedRadioGroup {
+    return {
+      id: this.id,
+      type: this.type,
+      hitColor: this.hitColor.serialize(),
+      style: this.style,
+      propName: this.propName,
+      input: this.input ? this.input.serialize() : null,
+      output: this.output ? this.output.serialize() : null,
+      options: this.options,
+      selected: this.selected,
+      height: this.height,
+      childs: []
+    }
+  }
+  static deSerialize(node: Node, data: SerializedRadioGroup): RadioGroup {
+    return new RadioGroup(node, data.options, data.selected, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
+  }
+}
+
+export interface RadioGroupStyle extends UINodeStyle {
+  color?: string,
+  selectedColor?: string,
+  backgroundColor?: string,
+  selectedBackgroundColor?: string,
+  borderColor?: string,
+  borderWidth?: number,
+}
+
+export interface SerializedRadioGroup extends SerializedUINode {
+  options: string[],
+  selected: string,
+  height: number
+}
+
+/** @hidden */
+let DefaultRadioGroupStyle = () => {
+  return {
+    color: '#000',
+    selectedColor: '#fff',
+    backgroundColor: 'transparent',
+    selectedBackgroundColor: '#555',
+    borderColor: '#000',
+    borderWidth: 1,
+    visible: true
+  };
+};

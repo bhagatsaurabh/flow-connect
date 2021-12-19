@@ -52,15 +52,7 @@ export abstract class UINode extends Hooks implements Events {
     this._visible = visible;
     this.disabled = false;
     if (this.propName) {
-      this.node.watch(this.propName, (oldVal: any, newVal: any) => {
-        if (/^.+\[\d+\]$/g.test(this.propName)) {
-          let arrName = /^(.+)\[\d+\]$/g.exec(this.propName)[1];
-          let index = parseInt(/\[(\d+)\]/.exec(this.propName)[1]);
-          oldVal = this.node.props[arrName][index];
-          newVal = this.node.props[arrName][index];
-        }
-        this.onPropChange(oldVal, newVal);
-      });
+      this.node.watch(this.propName, (oldVal, newVal) => this.onPropChange(oldVal, newVal));
     }
 
     if (input) {
@@ -103,8 +95,6 @@ export abstract class UINode extends Hooks implements Events {
     this.children.forEach(child => child.updateRenderState());
   }
   private setHitColor(hitColor: Color) {
-    //if (typeof this.hitColor !== 'undefined') return;
-
     if (!hitColor) {
       hitColor = Color.Random();
       while (this.node.hitColorToUI[hitColor.rgbaString] || this.node.hitColorToTerminal[hitColor.rgbaString]) hitColor = Color.Random();
@@ -147,26 +137,11 @@ export abstract class UINode extends Hooks implements Events {
 
   /** @hidden */
   getProp() {
-    if (/^.+\[\d+\]$/g.test(this.propName)) {
-      let arrName = /^(.+)\[\d+\]$/g.exec(this.propName)[1];
-      let index = parseInt(/\[(\d+)\]/.exec(this.propName)[1]);
-      return this.node.props[arrName][index];
-    }
     return this.node.props[this.propName];
   }
   /** @hidden */
   setProp(propValue: any) {
-    if (/^.+\[\d+\]$/g.test(this.propName)) {
-      let arrName = /^(.+)\[\d+\]$/g.exec(this.propName)[1];
-      let index = parseInt(/\[(\d+)\]/.exec(this.propName)[1]);
-
-      let newState = [...this.node.props[arrName]];
-      newState[index] = propValue;
-      this.node.props[arrName] = newState;
-    } else {
-      this.node.props[this.propName] = propValue;
-    }
-    // this.node.props[this.propName] = propValue;
+    this.node.props[this.propName] = propValue;
   }
 
   /** @hidden */
@@ -229,5 +204,6 @@ export enum UIType {
   Dial,
   Source,
   Toggle,
-  Envelope
+  Envelope,
+  RadioGroup
 }

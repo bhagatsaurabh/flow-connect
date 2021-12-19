@@ -13,6 +13,7 @@ import { Log } from "../utils/logger";
 import { SerializedContainer } from "../ui/container";
 import { Dial, DialStyle } from "../ui/dial";
 import { Envelope, EnvelopeStyle } from "../ui/envelope";
+import { RadioGroup, RadioGroupStyle } from "../ui/radio-group";
 
 export class Node extends Hooks implements Events, Serializable {
   //#region Properties
@@ -125,9 +126,11 @@ export class Node extends Hooks implements Events, Serializable {
         if (typeof target[prop] === 'undefined') {
           this.propObservers[prop] = [];
         }
+
         let oldValue = target[prop];
         target[prop] = value;
         this.propObservers[prop].forEach((callback: any) => callback(oldValue, value));
+
         return true;
       }
     });
@@ -136,25 +139,18 @@ export class Node extends Hooks implements Events, Serializable {
       this.props[key] = props[key];
     });
   }
-  /** @hidden */
   watch(propName: string, callback: (oldVal: any, newVal: any) => void) {
-    if (/^.+\[\d+\]$/g.test(propName)) {
-      let arrName = /^(.+)\[\d+\]$/g.exec(propName)[1];
-      if (Array.isArray(this.props[arrName])) {
-        this.propObservers[arrName].push(callback);
-      } else {
-        Log.error('Indexed prop observer can only be added for array-like props');
-      }
-    } else if (typeof this.props[propName] !== 'undefined') {
+    if (typeof this.props[propName] !== 'undefined') {
       this.propObservers[propName].push(callback);
     } else {
-      Log.error(`Prop '${propName}' not found`);
+      Log.error(`Cannot watch prop '${propName}', prop not found`);
     }
   }
-  /** @hidden */
-  removePropObserver(propName: string, callback: (oldVal: any, newVal: any) => void) {
-    if (this.propObservers[propName]) {
+  unwatch(propName: string, callback: (oldVal: any, newVal: any) => void) {
+    if (typeof this.props[propName] !== 'undefined') {
       this.propObservers[propName].splice(this.propObservers[propName].indexOf(callback), 1);
+    } else {
+      Log.error(`Cannot unwatch prop '${propName}', prop not found`);
     }
   }
   private setHitColor(hitColor: Color) {
@@ -550,6 +546,9 @@ export class Node extends Hooks implements Events, Serializable {
   }
   createToggle(propName?: string, input?: boolean, output?: boolean, height?: number, style?: ToggleStyle) {
     return new Toggle(this, propName, input, output, height, style);
+  }
+  createRadioGroup(options?: string[], selected?: string, propName?: string, input?: boolean, output?: boolean, height?: number, style?: RadioGroupStyle) {
+    return new RadioGroup(this, options, selected, propName, input, output, height, style);
   }
   createSelect(options: string[], propName?: string, input?: boolean, output?: boolean, height?: number, style?: SelectStyle) {
     return new Select(this, options, propName, input, output, height, style);

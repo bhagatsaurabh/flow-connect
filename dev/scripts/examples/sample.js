@@ -28,8 +28,8 @@ node.ui.append([
   node.createLabel(null, 'labelText', true, true, { align: Align.Center, fontSize: '17px' }),
   node.createImage(null, null, { align: Align.Center }),
   node.createHozLayout([
-    node.createLabel(57, 'sliderValue', false, false, { grow: .2 }),
-    node.createSlider(0, 150, 57, 0, 'sliderValue', true, true, 15, { grow: .8, railHeight: 5 })
+    node.createLabel(57, 'sliderValue', false, false, { grow: .2, precision: 2 }),
+    node.createSlider(0, 150, 57, 'sliderValue', true, true, 15, { grow: .8, railHeight: 5 })
   ]),
   node.createButton('Click Me !', true, true),
   node.createHozLayout([
