@@ -28,15 +28,17 @@ export const Dial = (flow: Flow, options: NodeCreatorOptions = new Object(), dia
   let dial = node.createDial(node.props.min, node.props.max, node.props.value, node.width, 'value', true, true, dialStyle);
   node.ui.append([
     dial,
-    node.createStack([
-      node.createHozLayout([
-        node.createLabel(node.props.min, 'min', false, false, { precision: 1, fontSize: '11px', align: Align.Left } as any),
-        node.createLabel(node.props.max, 'max', false, false, { precision: 1, fontSize: '11px', align: Align.Right } as any)
-      ]),
-      node.createHozLayout([
-        node.createLabel(node.props.value, 'value', false, false, { precision: 1, fontSize: '20px', align: Align.Center } as any)
-      ])
-    ], { spacing: 5 })
+    node.createStack({
+      childs: [
+        node.createHozLayout([
+          node.createLabel('', { propName: 'min', style: { precision: 1, fontSize: '11px', align: Align.Left } }),
+          node.createLabel('', { propName: 'max', style: { precision: 1, fontSize: '11px', align: Align.Right } })
+        ]),
+        node.createHozLayout([
+          node.createLabel('', { propName: 'value', style: { precision: 1, fontSize: '20px', align: Align.Center } })
+        ])
+      ], style: { spacing: 5 }
+    })
   ]);
 
   return node;

@@ -18,20 +18,21 @@ export class Stack extends UINode implements Serializable {
 
   constructor(
     node: Node,
-    childs?: UINode[],
-    style: StackStyle = {},
-    id?: string,
-    hitColor?: Color
+    options: StackOptions = DefaultStackOptions()
   ) {
 
-    super(node, Vector2.Zero(), UIType.Stack, false, false, true, { ...DefaultStackStyle(), ...style }, null, null, null, id, hitColor);
-    if (childs) this.children.push(...childs);
+    super(
+      node, Vector2.Zero(), UIType.Stack, false, false, true,
+      options.style ? { ...DefaultStackStyle(), ...options.style } : DefaultStackStyle(),
+      null, null, null, options.id, options.hitColor
+    );
+    if (options.childs) this.children.push(...options.childs);
   }
 
   /** @hidden */
-  paint(): void { }
+  paint(): void { /**/ }
   /** @hidden */
-  paintLOD1() { }
+  paintLOD1() { /**/ }
   /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
@@ -40,70 +41,86 @@ export class Stack extends UINode implements Serializable {
   /** @hidden */
   reflow(): void {
     let children = this.children.filter(child => child.visible);
-    let actualTotalHeight = children.reduce((acc, curr) => acc += curr.height, 0);
+    let actualTotalHeight = children.reduce((acc, curr) => (acc + curr.height), 0);
     let effectiveSpacing = (children.length - 1) * this.style.spacing;
     this.height = actualTotalHeight + effectiveSpacing;
 
     let y = this.position.y;
-
     children.forEach(child => {
-      child.position = new Vector2(this.position.x, y);
+      child.position.assign(this.position.x, y);
       child.width = this.width;
       y += child.height + this.style.spacing;
     });
   }
 
   /** @hidden */
-  onPropChange() { }
+  onPropChange() { /**/ }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('over', this, screenPosition, realPosition);
   }
   /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('down', this, screenPosition, realPosition);
   }
   /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('up', this, screenPosition, realPosition);
   }
   /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('click', this, screenPosition, realPosition);
   }
   /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('drag', this, screenPosition, realPosition);
   }
   /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('enter', this, screenPosition, realPosition);
   }
   /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
-  onContextMenu(): void { }
+  onContextMenu(): void { /**/ }
 
   serialize(): SerializedStackLayout {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
-      propName: this.propName,
-      input: this.input ? this.input.serialize() : null,
-      output: this.output ? this.output.serialize() : null,
       style: this.style,
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      type: this.type,
+      propName: null,
+      input: null,
+      output: null,
       childs: this.children.map(child => (child as any).serialize())
     }
   }
   static deSerialize(node: Node, data: SerializedStackLayout): Stack {
-    let stack = new Stack(node, [], data.style, data.id, Color.deSerialize(data.hitColor));
+    let stack = new Stack(node, { style: data.style, id: data.id, hitColor: Color.deSerialize(data.hitColor), childs: [] });
+
     stack.children.push(...data.childs.map(serializedChild => {
       switch (serializedChild.type) {
         case UIType.Button: return Button.deSerialize(node, serializedChild);
@@ -125,16 +142,26 @@ export class Stack extends UINode implements Serializable {
   }
 }
 
-export interface StackStyle extends UINodeStyle  {
+export interface StackStyle extends UINodeStyle {
   spacing?: number
 }
-
-export interface SerializedStackLayout extends SerializedUINode { }
-
 /** @hidden */
 let DefaultStackStyle = () => {
   return {
     spacing: 0,
     visible: true
   };
+};
+
+export interface SerializedStackLayout extends SerializedUINode { }
+
+interface StackOptions {
+  childs?: UINode[],
+  style?: StackStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultStackOptions = () => {
+  return {}
 };

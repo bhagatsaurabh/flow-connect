@@ -7,9 +7,10 @@ import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { Label } from "./label";
 import { Align } from "../common/enums";
+import { get } from "../utils";
 
 export class RadioGroup extends UINode implements Serializable {
-  private options: string[];
+  private _values: string[];
   private _selected: string;
 
   get selected(): string {
@@ -17,49 +18,43 @@ export class RadioGroup extends UINode implements Serializable {
     return this._selected;
   }
   set selected(selected: string) {
-    if (!this.options.includes(selected)) selected = this.options[0];
+    if (!this._values.includes(selected)) selected = this._values[0];
 
-    if (this.propName) this.setProp(selected);
-    else this._selected = selected;
+    let oldVal = this.selected;
+    let newVal = selected;
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, selected);
+    if (this.propName) this.setProp(newVal);
+    else this._selected = newVal;
+
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
   }
 
   constructor(
     node: Node,
-    options: string[] = ['default'],
+    values: string[] = ['default'],
     selected: string = 'default',
-    propName?: string,
-    input?: boolean | SerializedTerminal,
-    output?: boolean | SerializedTerminal,
-    height?: number,
-    style: RadioGroupStyle = {},
-    id?: string,
-    hitColor?: Color
+    options: RadioGroupOptions = DefaultRadioGroupOptions(node)
   ) {
 
-    super(node, Vector2.Zero(), UIType.RadioGroup, false, false, true, { ...DefaultRadioGroupStyle(), ...style }, propName,
-      input ?
-        (typeof input === 'boolean' ?
-          new Terminal(node, TerminalType.IN, 'boolean', '', {}) :
-          Terminal.deSerialize(node, input)
-        ) :
-        null,
-      output ?
-        (typeof output === 'boolean' ?
-          new Terminal(node, TerminalType.OUT, 'boolean', '', {}) :
-          Terminal.deSerialize(node, output)
-        ) :
-        null,
-      id, hitColor
+    super(
+      node, Vector2.Zero(), UIType.RadioGroup, false, false, true,
+      options.style ? { ...DefaultRadioGroupStyle(), ...options.style } : DefaultRadioGroupStyle(),
+      options.propName,
+      options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, 'boolean', '', {})
+        : Terminal.deSerialize(node, options.input)),
+      options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, 'boolean', '', {})
+        : Terminal.deSerialize(node, options.output)),
+      options.id, options.hitColor
     );
 
-    if (options.length === 0) options = ['default'];
-    this.options = options;
+    if (values.length === 0) values = ['default'];
+    this._values = values;
     let selectedValue = this.propName ? this.getProp() : selected;
-    if (this.options.includes(selectedValue)) this._selected = selectedValue;
-    else this._selected = this.options[0];
-    this.height = height ? height : this.node.style.rowHeight;
+    if (this._values.includes(selectedValue)) this._selected = selectedValue;
+    else this._selected = this._values[0];
+    this.height = get(options.height, this.node.style.rowHeight);
 
     if (this.input) {
       this.input.on('connect', (_, connector) => {
@@ -71,11 +66,22 @@ export class RadioGroup extends UINode implements Serializable {
     }
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this._selected);
 
-    this.children.push(...this.options.map(option => {
-      let label = new Label(this.node, option, null, false, false, { align: Align.Center, backgroundColor: this.style.backgroundColor, color: this.style.color });
+    this.setupLabels();
+
+    this.node.on('process', () => {
+      if (this.output) (this.output as any).setData(this._selected);
+    });
+  }
+
+  setupLabels() {
+    this.children.push(...this._values.map(option => {
+      let label = new Label(this.node, option, {
+        style: { align: Align.Center, backgroundColor: this.style.backgroundColor, color: this.style.color }
+      });
+
       label.on('click', (selectedLabel: Label) => {
         if (selectedLabel.text === this.selected) return;
-        let lastSelectedLabel = this.children[this.options.indexOf(this.selected)];
+        let lastSelectedLabel = this.children[this._values.indexOf(this.selected)];
         Object.assign(lastSelectedLabel.style, {
           backgroundColor: this.style.backgroundColor,
           color: this.style.color
@@ -86,15 +92,12 @@ export class RadioGroup extends UINode implements Serializable {
         });
         this.selected = selectedLabel.text;
       });
+
       return label;
     }));
-    Object.assign(this.children[this.options.indexOf(this._selected)].style, {
+    Object.assign(this.children[this._values.indexOf(this._selected)].style, {
       backgroundColor: this.style.selectedBackgroundColor,
       color: this.style.selectedColor
-    });
-
-    this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this._selected);
     });
   }
 
@@ -134,25 +137,28 @@ export class RadioGroup extends UINode implements Serializable {
     this.children.forEach(child => {
       child.height = this.height;
       child.width = this.width / this.children.length;
-      child.position.x = x;
-      child.position.y = this.position.y;
+      child.position.assign(x, this.position.y);
       x += child.width;
     });
 
     if (this.input) {
-      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-      this.input.position.y = this.position.y + this.height / 2;
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
     }
     if (this.output) {
-      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
-      this.output.position.y = this.position.y + this.height / 2;
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
     }
   }
 
   /** @hidden */
-  onPropChange(_: any, newValue: any) {
-    if (!this.options.includes(newValue)) newValue = this.options[0];
-    this._selected = newValue;
+  onPropChange(_oldVal: any, newVal: any) {
+    if (!this._values.includes(newVal)) newVal = this._values[0];
+    this._selected = newVal;
 
     this.output && this.output.setData(this._selected);
   }
@@ -200,6 +206,8 @@ export class RadioGroup extends UINode implements Serializable {
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
@@ -209,21 +217,29 @@ export class RadioGroup extends UINode implements Serializable {
 
   serialize(): SerializedRadioGroup {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
-      style: this.style,
+      values: this._values,
+      selected: this.selected,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
-      options: this.options,
-      selected: this.selected,
       height: this.height,
+      style: this.style,
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      type: this.type,
       childs: []
     }
   }
   static deSerialize(node: Node, data: SerializedRadioGroup): RadioGroup {
-    return new RadioGroup(node, data.options, data.selected, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new RadioGroup(node, data.values, data.selected, {
+      propName: data.propName,
+      input: data.input,
+      output: data.output,
+      height: data.height,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
 
@@ -235,13 +251,6 @@ export interface RadioGroupStyle extends UINodeStyle {
   borderColor?: string,
   borderWidth?: number,
 }
-
-export interface SerializedRadioGroup extends SerializedUINode {
-  options: string[],
-  selected: string,
-  height: number
-}
-
 /** @hidden */
 let DefaultRadioGroupStyle = () => {
   return {
@@ -253,4 +262,25 @@ let DefaultRadioGroupStyle = () => {
     borderWidth: 1,
     visible: true
   };
+};
+
+export interface SerializedRadioGroup extends SerializedUINode {
+  values: string[],
+  selected: string,
+  height: number
+}
+
+interface RadioGroupOptions {
+  propName?: string,
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
+  height?: number,
+  style?: RadioGroupStyle,
+  id?: string,
+  hitColor?: Color
+}
+let DefaultRadioGroupOptions = (node: Node): RadioGroupOptions => {
+  return {
+    height: node.style.rowHeight * 1.5
+  }
 };

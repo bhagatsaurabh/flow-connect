@@ -23,7 +23,7 @@ export const SyncData = (flow: Flow, options: NodeCreatorOptions = {}, inputs?: 
       node.addTerminal(new Terminal(node, TerminalType.IN, 'any', 'Data ' + (node.inputs.length + 1)));
   }
 
-  let syncTypeInput = node.createRadioGroup(['partial', 'full'], node.props.syncType, 'syncType', false, false, 20);
+  let syncTypeInput = node.createRadioGroup(['partial', 'full'], node.props.syncType, { propName: 'syncType', height: 20 });
   let addButton = node.createButton('Add', true, true, 20);
   node.ui.append([syncTypeInput, addButton]);
   addButton.on('click', () => {

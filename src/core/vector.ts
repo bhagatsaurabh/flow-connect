@@ -125,13 +125,40 @@ export class Vector2 implements Serializable {
   clamp(min: number, max: number, minY?: number, maxY?: number): Vector2 {
     return new Vector2(this.x, this.y).clampInPlace(min, max, minY, maxY);
   }
+  isInside(start: Vector2, end: Vector2): boolean;
+  isInside(x1: number, y1: number, x2: number, y2: number): boolean;
+  isInside(arg1: number | Vector2, arg2: number | Vector2, arg3?: number, arg4?: number): boolean {
+    if (arg1 instanceof Vector2 && arg2 instanceof Vector2) {
+      if (this.x < arg1.x || this.x > arg2.x) return false;
+      if (this.y < arg1.y || this.y > arg2.y) return false;
+    } else {
+      if (this.x < arg1 || this.x > arg3) return false;
+      if (this.y < arg2 || this.y > arg4) return false;
+    }
+
+    return true;
+  }
+  assign(vector: Vector2): void;
+  assign(scalar: number): void;
+  assign(x: number, y: number): void;
+  assign(arg1: number | Vector2, arg2?: number): void {
+    if (arg1 instanceof Vector2) {
+      this.x = arg1.x;
+      this.y = arg1.y;
+    } else if (typeof arg2 === 'undefined') {
+      this.x = arg1;
+      this.y = arg1;
+    } else {
+      this.x = arg1;
+      this.y = arg2;
+    }
+  }
   transform(transform: DOMMatrix): Vector2 {
     return new Vector2(this.x, this.y).transformInPlace(transform);
   }
   abs(): Vector2 {
     return new Vector2(this.x, this.y).absInPlace();
   }
-
   toString() {
     return '[' + this.x.toFixed(3) + ', ' + this.y.toFixed(3) + ']';
   }
@@ -147,19 +174,6 @@ export class Vector2 implements Serializable {
     }
 
     return this.x === vector.x && this.y === vector.y;
-  }
-  isInside(start: Vector2, end: Vector2): boolean;
-  isInside(x1: number, y1: number, x2: number, y2: number): boolean;
-  isInside(arg1: number | Vector2, arg2: number | Vector2, arg3?: number, arg4?: number): boolean {
-    if (arg1 instanceof Vector2 && arg2 instanceof Vector2) {
-      if (this.x < arg1.x || this.x > arg2.x) return false;
-      if (this.y < arg1.y || this.y > arg2.y) return false;
-    } else {
-      if (this.x < arg1 || this.x > arg3) return false;
-      if (this.y < arg2 || this.y > arg4) return false;
-    }
-
-    return true;
   }
 
   static Distance(vector1OrX1: Vector2 | number, vector2OrY1: Vector2 | number, x2?: number, y2?: number): number {

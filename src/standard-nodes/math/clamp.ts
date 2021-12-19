@@ -17,15 +17,15 @@ export const Clamp = (flow: Flow, options: NodeCreatorOptions = {}) => {
     options.props ? { min: 0, max: 100, ...options.props } : { min: 0, max: 100 }
   );
 
-  let minInput = node.createInput(node.props.min, 'min', true, true, 20, { type: InputType.Number, grow: .7 } as any);
-  let maxInput = node.createInput(node.props.max, 'max', true, true, 20, { type: InputType.Number, grow: .7 } as any);
+  let minInput = node.createInput({ propName: 'min', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
+  let maxInput = node.createInput({ propName: 'max', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
   node.ui.append([
     node.createHozLayout([
-      node.createLabel('Min', null, false, false, { grow: .3 } as any),
+      node.createLabel('Min', { style: { grow: .3 } }),
       minInput
     ], { spacing: 10 }),
     node.createHozLayout([
-      node.createLabel('Max', null, false, false, { grow: .3 } as any),
+      node.createLabel('Max', { style: { grow: .3 } }),
       maxInput
     ], { spacing: 10 })
   ]);

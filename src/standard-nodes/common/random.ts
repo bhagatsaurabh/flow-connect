@@ -25,20 +25,20 @@ export const Random = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.setOutputs(0, random);
   }
 
-  let minInput = node.createInput(node.props.min, 'min', true, true, 20, { type: InputType.Number, grow: '.5', step: 'any' } as any);
-  let maxInput = node.createInput(node.props.max, 'max', true, true, 20, { type: InputType.Number, grow: '.5', step: 'any' } as any);
-  let fractional = node.createToggle('fractional', true, true, 10, { grow: '.2' } as any);
+  let minInput = node.createInput({ propName: 'min', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .5, step: 'any' } });
+  let maxInput = node.createInput({ propName: 'max', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .5, step: 'any' } });
+  let fractional = node.createToggle({ propName: 'fractional', input: true, output: true, height: 10, style: { grow: .2 } });
   node.ui.append([
     node.createHozLayout([
-      node.createLabel('Min:', null, false, false),
+      node.createLabel('Min:'),
       minInput
     ], { spacing: 20 }),
     node.createHozLayout([
-      node.createLabel('Max:', null, false, false),
+      node.createLabel('Max:'),
       maxInput
     ], { spacing: 20 }),
     node.createHozLayout([
-      node.createLabel('Fractional ?', null, false, false),
+      node.createLabel('Fractional ?'),
       fractional
     ], { spacing: 10 })
   ]);

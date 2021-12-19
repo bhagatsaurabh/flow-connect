@@ -17,9 +17,9 @@ export const StringSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
   let process = () => node.setOutputs(0, node.props.value);
 
-  let input = node.createInput('', 'value', true, true, 20, { type: InputType.Text, grow: '.7' } as any)
+  let input = node.createInput({ value: '', propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .7 } })
   node.ui.append(node.createHozLayout([
-    node.createLabel('Value', null, false, false, { grow: '.3' } as any), input
+    node.createLabel('Value', { style: { grow: .3 } }), input
   ], { spacing: 10 }));
 
   input.on('change', process);

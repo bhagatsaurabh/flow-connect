@@ -27,9 +27,9 @@ export const Buffer = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.setOutputs('buffer', node.props.buffer);
   }
 
-  let sizeInput = node.createInput(node.props.size, 'size', true, true, 20, { type: InputType.Number, grow: '.7' } as any);
+  let sizeInput = node.createInput({ propName: 'size', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
   node.ui.append(node.createHozLayout([
-    node.createLabel('Size', null, false, false, { grow: '.3' } as any),
+    node.createLabel('Size', { style: { grow: .3 } }),
     sizeInput
   ], { spacing: 20 }));
 

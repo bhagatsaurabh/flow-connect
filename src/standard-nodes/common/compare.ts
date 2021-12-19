@@ -36,7 +36,7 @@ export const Compare = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
   let select = node.createSelect(
     ['==', '===', '!=', '!==', '<', '<=', '>', '>=', '&&', '||'],
-    'value', true, true, 15, { fontSize: '14px' }
+    { propName: 'value', input: true, output: true, height: 15, style: { fontSize: '14px' } }
   );
   node.ui.append(select);
 

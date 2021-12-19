@@ -40,20 +40,20 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
   }
 
   if (type === 'array') {
-    let relativeToggle = node.createToggle('relative', false, false, 10, { grow: '.2' } as any);
+    let relativeToggle = node.createToggle({ propName: 'relative', height: 10, style: { grow: .2 } });
     node.ui.append(node.createHozLayout([
-      node.createLabel('Relative ?', null, false, false),
+      node.createLabel('Relative ?'),
       relativeToggle
     ], { spacing: 20 }));
     relativeToggle.on('change', process);
   }
   if (type === 'number' || !node.props.relative) {
-    let minInput = node.createInput(node.props.min, 'min', false, false, 20, { type: InputType.Number, grow: '.3' } as any);
-    let maxInput = node.createInput(node.props.max, 'max', false, false, 20, { type: InputType.Number, grow: '.3' } as any);
+    let minInput = node.createInput({ propName: 'min', height: 20, style: { type: InputType.Number, grow: .3 } });
+    let maxInput = node.createInput({ propName: 'max', height: 20, style: { type: InputType.Number, grow: .3 } });
     node.ui.append(node.createHozLayout([
-      node.createLabel('Min', null, false, false, { grow: '.2' } as any),
+      node.createLabel('Min', { style: { grow: .2 } }),
       minInput,
-      node.createLabel('Max', null, false, false, { grow: '.2' } as any),
+      node.createLabel('Max', { style: { grow: .2 } }),
       maxInput
     ], { spacing: 5 }));
 
@@ -61,9 +61,9 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
     maxInput.on('change', process);
   }
   if (node.props.constant) {
-    let constantInput = node.createInput(5, 'constant', true, true, 20, { type: InputType.Number, grow: '.5' } as any);
+    let constantInput = node.createInput({ propName: 'constant', height: 20, style: { type: InputType.Number, grow: .5 } });
     node.ui.append(node.createHozLayout([
-      node.createLabel('Constant', null, false, false),
+      node.createLabel('Constant'),
       constantInput
     ], { spacing: 20 }));
 

@@ -523,14 +523,14 @@ export class Node extends Hooks implements Events, Serializable {
   //#endregion
 
   //#region UICreators
-  createLabel(text: string, propName?: string, input?: boolean, output?: boolean, style?: LabelStyle, height?: number): Label {
-    return new Label(this, text, propName, input, output, style, height);
+  createLabel(text: string | number, options?: LabelCreatorOptions): Label {
+    return new Label(this, text, options);
   }
   createImage(source: string, propName?: string, style?: ImageStyle): Image {
     return new Image(this, source, propName, style);
   }
-  createSlider(min: number, max: number, value: number, propName?: string, input?: boolean, output?: boolean, height?: number, style?: SliderStyle) {
-    return new Slider(this, min, max, value, propName, input, output, height, style);
+  createSlider(min: number, max: number, options?: SliderCreatorOptions) {
+    return new Slider(this, min, max, options);
   }
   createDial(min: number, max: number, value: number, size: number, propName?: string, input?: boolean, output?: boolean, style?: DialStyle) {
     return new Dial(this, min, max, value, size, propName, input, output, style);
@@ -538,32 +538,32 @@ export class Node extends Hooks implements Events, Serializable {
   createHozLayout(childs?: UINode[], style?: HorizontalLayoutStyle) {
     return new HorizontalLayout(this, childs, style);
   }
-  createStack(childs?: UINode[], style?: StackStyle) {
-    return new Stack(this, childs, style);
+  createStack(options?: StackCreatorOptions) {
+    return new Stack(this, options);
   }
   createButton(text: string, input?: boolean, output?: boolean, height?: number, style?: ButtonStyle) {
     return new Button(this, text, input, output, height, style);
   }
-  createToggle(propName?: string, input?: boolean, output?: boolean, height?: number, style?: ToggleStyle) {
-    return new Toggle(this, propName, input, output, height, style);
+  createToggle(options?: ToggleCreatorOptions) {
+    return new Toggle(this, options);
   }
-  createRadioGroup(options?: string[], selected?: string, propName?: string, input?: boolean, output?: boolean, height?: number, style?: RadioGroupStyle) {
-    return new RadioGroup(this, options, selected, propName, input, output, height, style);
+  createRadioGroup(values?: string[], selected?: string, options?: RadioGroupCreatorOptions) {
+    return new RadioGroup(this, values, selected, options);
   }
-  createSelect(options: string[], propName?: string, input?: boolean, output?: boolean, height?: number, style?: SelectStyle) {
-    return new Select(this, options, propName, input, output, height, style);
+  createSelect(values: string[], options?: SelectCreatorOptions) {
+    return new Select(this, values, options);
   }
-  createSource(accept?: string, propName?: string, input?: boolean, output?: boolean, height?: number, style?: SourceStyle) {
-    return new Source(this, accept, propName, input, output, height, style);
+  createSource(options?: SourceCreatorOptions) {
+    return new Source(this, options);
   }
   createDisplay(height: number, renderers: CustomRendererConfig[], style?: DisplayStyle) {
     return new Display(this, height, renderers, style);
   }
-  createInput(value: string | number, propName?: string, input?: boolean, output?: boolean, height?: number, style?: InputStyle) {
-    return new Input(this, value, propName, input, output, height, style);
+  createInput(options?: InputCreatorOptions) {
+    return new Input(this, options);
   }
-  createEnvelope(height: number, value?: Vector2[], propName?: string, input?: boolean, output?: boolean, style?: EnvelopeStyle): Envelope {
-    return new Envelope(this, height, value, propName, input, output, style);
+  createEnvelope(height: number, value?: Vector2[], input?: boolean, output?: boolean, style?: EnvelopeStyle): Envelope {
+    return new Envelope(this, height, value, input, output, style);
   }
   //#endregion
 
@@ -608,6 +608,27 @@ export interface NodeStyle {
   nodeButtonSize?: number,
   nodeButtonSpacing?: number,
 }
+/** @hidden */
+let DefaultNodeStyle = () => {
+  return {
+    font: 'arial',
+    fontSize: '.75rem',
+    titleFont: 'arial',
+    titleFontSize: '.85rem',
+    color: '#000',
+    titleColor: '#000',
+    maximizeButtonColor: 'darkgrey',
+    nodeButtonSize: 10,
+    nodeButtonSpacing: 5,
+    expandButtonColor: '#000',
+    padding: 10,
+    spacing: 10,
+    rowHeight: 20,
+    titleHeight: 29,
+    terminalRowHeight: 24,
+    terminalStripMargin: 8
+  };
+};
 
 export enum NodeState {
   MAXIMIZED,
@@ -672,24 +693,59 @@ export class NodeButton {
   }
 }
 
-/** @hidden */
-let DefaultNodeStyle = () => {
-  return {
-    font: 'arial',
-    fontSize: '.75rem',
-    titleFont: 'arial',
-    titleFontSize: '.85rem',
-    color: '#000',
-    titleColor: '#000',
-    maximizeButtonColor: 'darkgrey',
-    nodeButtonSize: 10,
-    nodeButtonSpacing: 5,
-    expandButtonColor: '#000',
-    padding: 10,
-    spacing: 10,
-    rowHeight: 20,
-    titleHeight: 29,
-    terminalRowHeight: 24,
-    terminalStripMargin: 8
-  };
-};
+interface ToggleCreatorOptions {
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  height?: number,
+  style?: ToggleStyle
+}
+interface StackCreatorOptions {
+  childs?: UINode[],
+  style?: StackStyle
+}
+interface SourceCreatorOptions {
+  accept?: string,
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  height?: number,
+  style?: SourceStyle
+}
+interface SliderCreatorOptions {
+  value?: number,
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  height?: number,
+  style?: SliderStyle
+}
+interface SelectCreatorOptions {
+  height?: number,
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  style?: SelectStyle
+}
+interface RadioGroupCreatorOptions {
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  height?: number,
+  style?: RadioGroupStyle
+}
+interface LabelCreatorOptions {
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  style?: LabelStyle,
+  height?: number
+}
+interface InputCreatorOptions {
+  value?: string | number,
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  height?: number,
+  style?: InputStyle
+}

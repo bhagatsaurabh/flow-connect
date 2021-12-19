@@ -37,11 +37,11 @@ export const Source = (flow: Flow, options: NodeCreatorOptions = {}) => {
   node.outputs[0].ref = node.props.volumeGainNode;
 
 
-  let fileInput = node.createSource('', null, true, true, 25, { grow: .7 } as any);
-  let loopToggle = node.createToggle('loop', true, true, 10, { grow: .1 } as any);
+  let fileInput = node.createSource({ input: true, output: true, height: 25, style: { grow: .7 } });
+  let loopToggle = node.createToggle({ propName: 'loop', input: true, output: true, height: 10, style: { grow: .2 } });
   node.ui.append([
-    node.createHozLayout([node.createLabel('File', null, false, false, { grow: .3 } as any), fileInput], { spacing: 5 }),
-    node.createHozLayout([node.createLabel('Loop ?', null, false, false, { grow: .3 } as any), loopToggle], { spacing: 5 })
+    node.createHozLayout([node.createLabel('File', { style: { grow: .3 } }), fileInput], { spacing: 5 }),
+    node.createHozLayout([node.createLabel('Loop ?'), loopToggle], { spacing: 5 })
   ]);
 
   let processFile = async (file: File) => {
@@ -95,8 +95,8 @@ export const Source = (flow: Flow, options: NodeCreatorOptions = {}) => {
     }
     processArrayBuffer(data);
   });
-  fileInput.on('change', (_, file: File) => processFile(file));
-  fileInput.on('upload', (_, file: File) => processFile(file));
+  fileInput.on('change', (_inst, _oldVal: File, newVal: File) => processFile(newVal));
+  fileInput.on('upload', (_inst, _oldVal: File, newVal: File) => processFile(newVal));
 
   flow.flowConnect.on('start', () => {
     playSource();

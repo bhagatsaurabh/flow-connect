@@ -24,8 +24,8 @@ export const Delay = (flow: Flow, options: NodeCreatorOptions = {}) => {
   );
 
   node.ui.append(node.createHozLayout([
-    node.createLabel('Delay', null, false, false, { grow: .3 } as any),
-    node.createInput(node.props.delay, 'delay', true, true, 20, { type: InputType.Number, grow: .7 } as any)
+    node.createLabel('Delay', { style: { grow: .3 } }),
+    node.createInput({ propName: 'delay', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } })
   ], { spacing: 10 }));
 
   node.props.eventQueue = new List<BufferedEvent>((a, b) => a.timeoutId - b.timeoutId);

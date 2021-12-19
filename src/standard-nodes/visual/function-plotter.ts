@@ -26,10 +26,10 @@ export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, he
     { type: CustomRendererType.Auto, renderer: gridRenderer },
     { type: CustomRendererType.Manual }
   ]);
-  let polarToggle = node.createToggle('polar', false, false, 10, { grow: .1 } as any);
+  let polarToggle = node.createToggle({ propName: 'polar', height: 10, style: { grow: .1 } });
   node.ui.append([
     display,
-    node.createHozLayout([node.createLabel('Polar ?', null, false, false, { grow: .2 } as any), polarToggle], { spacing: 5 })
+    node.createHozLayout([node.createLabel('Polar ?', { style: { grow: .2 } }), polarToggle], { spacing: 5 })
   ]);
   polarToggle.on('change', () => process(node.getInputs()));
 

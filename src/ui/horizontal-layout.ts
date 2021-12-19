@@ -14,6 +14,7 @@ import { Source } from "./source";
 import { Stack } from "./stack";
 import { Toggle } from "./toggle";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
+import { clamp } from "../utils/utils";
 
 export class HorizontalLayout extends UINode implements Serializable {
 
@@ -41,16 +42,34 @@ export class HorizontalLayout extends UINode implements Serializable {
   /** @hidden */
   reflow(): void {
     let children = this.children.filter(child => child.visible);
+
     let availableWidth = this.width - (children.length > 0 ? (children.length - 1) : 0) * this.style.spacing;
-    let actualWidth = availableWidth;
-    let x = this.position.x;
+    let originalWidth = availableWidth;
+
     let maxHeight = 0;
     children.forEach(child => maxHeight = Math.max(maxHeight, child.height));
     this.height = maxHeight;
 
+    let fixedWidthChilds = this.children.filter(child => !!child.width);
+    fixedWidthChilds.forEach(child => child.width = clamp(child.width, 0, availableWidth));
+    let fixedWidth = fixedWidthChilds.reduce((acc, curr) => acc += curr.width, 0);
+
+    let remainingWidth = originalWidth;
+    fixedWidth = clamp(fixedWidth, 0, remainingWidth);
+    remainingWidth -= fixedWidth;
+    let flexWidth = remainingWidth;
+
+    let x = this.position.x;
     children.forEach(child => {
-      let childWidth = child.style.grow ? child.style.grow * actualWidth : (1 / children.length) * actualWidth;
-      if (childWidth > availableWidth) childWidth = availableWidth;
+      let childWidth;
+      if (!!child.width) childWidth = child.width;
+      else if (typeof child.style.grow === 'number') {
+        childWidth = child.style.grow * flexWidth;
+      } else {
+        childWidth = 0;
+      }
+
+      childWidth = clamp(childWidth, 0, availableWidth);
       child.width = childWidth;
 
       if (child.height < this.height) child.height = this.height;

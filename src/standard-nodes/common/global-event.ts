@@ -24,9 +24,9 @@ export const GlobalEvent = (flow: Flow, options: NodeCreatorOptions = {}, type: 
   node.props.prevEvent = name;
   node.props.name = name;
 
-  let eventInput = node.createInput(name, 'name', false, false, 20, { type: InputType.Text, grow: .6 } as any);
+  let eventInput = node.createInput({ propName: 'name', height: 20, style: { type: InputType.Text, grow: .6 } });
   node.ui.append(node.createHozLayout([
-    node.createLabel('Event', null, false, false, { grow: .4 } as any),
+    node.createLabel('Event', { style: { grow: .4 } }),
     eventInput
   ], { spacing: 10 }));
 

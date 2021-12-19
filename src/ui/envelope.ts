@@ -17,32 +17,24 @@ export class Envelope extends UINode implements Serializable {
   private pointDiameter: number = 10;
 
   get value(): Vector2[] {
-    if (this.propName) return this.getProp();
     return this._value.toArray();
   }
   set value(value: Vector2[]) {
+    let prevVal = this.value;
     value.forEach(vector => vector.clampInPlace(0, 1, 0, 1));
     value.sort((a, b) => a.x - b.x);
-
     this._value = new List((a, b) => a.x - b.x, value);
     this.pointHitColorPoint.clear();
     this._value.forEach(node => this.pointHitColorPoint.set(Color.Random().hexValue, node));
-
-    let prevVal = this.value;
-    let newVal = this._value.toArray();
-
-    if (this.propName) this.setProp(newVal);
-
     this.renderOffPoints();
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, newVal, prevVal);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, prevVal, this._value.toArray());
   }
 
   constructor(
     node: Node,
     height: number,
     value: Vector2[] = [],
-    propName?: string,
     input?: boolean | SerializedTerminal,
     output?: boolean | SerializedTerminal,
     style: EnvelopeStyle = {},
@@ -50,7 +42,7 @@ export class Envelope extends UINode implements Serializable {
     hitColor?: Color
   ) {
 
-    super(node, Vector2.Zero(), UIType.Envelope, true, false, true, { ...DefaultEnvelopeStyle(), ...style }, propName,
+    super(node, Vector2.Zero(), UIType.Envelope, true, false, true, { ...DefaultEnvelopeStyle(), ...style }, null,
       input
         ? (typeof input === 'boolean' ? new Terminal(node, TerminalType.IN, 'array', '', {}) : Terminal.deSerialize(node, input))
         : null,
@@ -194,18 +186,7 @@ export class Envelope extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(_: any, newVal: Vector2[]) {
-    newVal.forEach((vector: Vector2) => vector.clampInPlace(0, 1, 0, 1));
-    newVal.sort((a: Vector2, b: Vector2) => a.x - b.x);
-
-    this._value = new List((a, b) => a.x - b.x, newVal);
-    this.pointHitColorPoint.clear();
-    this._value.forEach(node => this.pointHitColorPoint.set(Color.Random().hexValue, node));
-
-    this.renderOffPoints();
-
-    this.output && this.output.setData(this.value);
-  }
+  onPropChange() { }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
@@ -232,6 +213,8 @@ export class Envelope extends UINode implements Serializable {
     if (!this.currHitPoint && this.lastDownPosition) {
       // New Point
       if (Vector2.Distance(this.lastDownPosition, realPosition) <= 2) {
+        let prevVal = this._value.toArray();
+
         let newPoint = realPosition
           .subtract(this.position.add(this.pointDiameter / 2))
           .normalize(0, width, 0, height);
@@ -244,18 +227,23 @@ export class Envelope extends UINode implements Serializable {
 
         this.pointHitColorPoint.set(Color.Random().hexValue, newPointNode);
         this.renderOffPoints();
-        // Maybe setter ? onchange ? props ?
+
+        if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, prevVal, this._value.toArray());
       }
-    } else if (this.currHitPoint && this.lastDownPosition) {
-      if (this.currHitPoint === this.getHitPoint(realPosition)
-        && this.lastDownPosition.isEqual(realPosition, 0.5)
-      ) {
-        // Delete Point
-        this._value.delete(this.currHitPoint);
-        this.pointHitColorPoint.delete(this.currHitPoint);
-        this.renderOffPoints();
-        // Maybe setter ? onchange ? props ?
-      }
+    } else if (
+      this.currHitPoint && this.currHitPoint === this.getHitPoint(realPosition)
+      && this.lastDownPosition && this.lastDownPosition.isEqual(realPosition, 0.5)
+    ) {
+      // Delete Point
+      let prevVal = this._value.toArray();
+      this._value.delete(this.currHitPoint);
+      this.pointHitColorPoint.delete(this.currHitPoint);
+      this.renderOffPoints();
+
+      if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, prevVal, this._value.toArray());
+    } else if (this.currHitPoint) {
+      // Point has finished moving
+      if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, null, this._value.toArray());
     }
 
     this.currHitPoint = null;
@@ -287,7 +275,10 @@ export class Envelope extends UINode implements Serializable {
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
-    if (this.currHitPoint) this.movePoint(realPosition);
+    if (this.currHitPoint) {
+      this.movePoint(realPosition);
+      if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, null, this._value.toArray());
+    };
     this.currHitPoint = null;
     this.lastDownPosition = null;
 
@@ -317,7 +308,7 @@ export class Envelope extends UINode implements Serializable {
     }
   }
   static deSerialize(node: Node, data: SerializedEnvelope): Envelope {
-    return new Envelope(node, data.height, data.value.map(serialVec => Vector2.deSerialize(serialVec)), data.propName, data.input, data.output, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new Envelope(node, data.height, data.value.map(serialVec => Vector2.deSerialize(serialVec)), data.input, data.output, data.style, data.id, Color.deSerialize(data.hitColor));
   }
 }
 

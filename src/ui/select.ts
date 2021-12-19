@@ -8,6 +8,7 @@ import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { Align } from "../common/enums";
+import { get } from "../utils";
 
 export class Select extends UINode implements Serializable {
   label: Label;
@@ -16,51 +17,49 @@ export class Select extends UINode implements Serializable {
   get selected(): string {
     if (this.propName) {
       let value = this.getProp();
-      value = this.options.length === 0 ? 'None' : (this.options.includes(value) ? value : this.options[0]);
+      let slctdVal = this.values.includes(value) ? value : this.values[0];
+      value = this.values.length === 0 ? 'None' : slctdVal;
       return value;
     }
     return this._selected;
   }
   set selected(selected: string) {
-    let value = this.options.length === 0 ? 'None' : (this.options.includes(selected) ? selected : this.options[0]);
-    if (this.propName) this.setProp(value);
+    let slctdVal = this.values.includes(selected) ? selected : this.values[0];
+
+    let oldVal = this.selected;
+    let newVal = this.values.length === 0 ? 'None' : slctdVal;
+
+    if (this.propName) this.setProp(newVal);
     else {
-      this._selected = value;
-      this.label.text = this.selected;
+      this._selected = newVal;
+      this.label.text = newVal;
     }
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, this.selected);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
   }
 
   constructor(
     node: Node,
-    public options: string[] = [],
-    propName?: string,
-    input?: boolean | SerializedTerminal,
-    output?: boolean | SerializedTerminal,
-    height?: number,
-    style: SelectStyle = {},
-    id?: string,
-    hitColor?: Color
+    public values: string[] = [],
+    options: SelectOptions = DefaultSelectOptions(node)
   ) {
 
-    super(node, Vector2.Zero(), UIType.Select, false, false, true, { ...DefaultSelectStyle(), ...style }, propName,
-      input ?
-        (typeof input === 'boolean' ?
-          new Terminal(node, TerminalType.IN, 'string', '', {}) :
-          Terminal.deSerialize(node, input)
-        ) :
-        null,
-      output ?
-        (typeof output === 'boolean' ?
-          new Terminal(node, TerminalType.OUT, 'string', '', {}) :
-          Terminal.deSerialize(node, output)
-        ) :
-        null,
-      id, hitColor
+    super(
+      node, Vector2.Zero(), UIType.Select, false, false, true,
+      options.style ? { ...DefaultSelectStyle(), ...options.style } : DefaultSelectStyle(),
+      options.propName,
+      options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, 'string', '', {})
+        : Terminal.deSerialize(node, options.input)),
+      options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, 'string', '', {})
+        : Terminal.deSerialize(node, options.output)),
+      options.id, options.hitColor
     );
-    this.height = height ? height : this.node.style.rowHeight;
-    this._selected = this.options.length === 0 ? 'None' : this.options[0];
-    this.label = new Label(this.node, this.selected, null, false, false, { align: Align.Center, ...this.style }, this.height);
+
+    this.height = get(options.height, this.node.style.rowHeight);
+    this._selected = this.values.length === 0 ? 'None' : this.values[0];
+
+    this.label = new Label(this.node, this.selected, { style: { align: Align.Center, ...this.style }, height: this.height });
     this.children.push(this.label);
 
     if (this.input) {
@@ -115,24 +114,31 @@ export class Select extends UINode implements Serializable {
   /** @hidden */
   reflow(): void {
     this.label.width = this.width * .7;
-    this.label.position.x = this.position.x + this.width * .15;
-    this.label.position.y = this.position.y + this.height / 2 - this.label.height / 2;
+    this.label.position.assign(
+      this.position.x + this.width * .15,
+      this.position.y + this.height / 2 - this.label.height / 2
+    );
 
     if (this.input) {
-      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-      this.input.position.y = this.position.y + this.height / 2;
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
     }
     if (this.output) {
-      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
-      this.output.position.y = this.position.y + this.height / 2;
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
     }
   }
 
   /** @hidden */
-  onPropChange(_: any, newValue: any) {
-    let value = this.options.length === 0 ? 'None' : (this.options.includes(newValue) ? newValue : this.options[0]);
+  onPropChange(_oldVal: any, newValue: any) {
+    let slctdVal = this.values.includes(newValue) ? newValue : this.values[0];
+    let value = this.values.length === 0 ? 'None' : slctdVal;
     this._selected = value;
-    this.label.text = this.selected;
+    this.label.text = this._selected;
 
     this.output && this.output.setData(this.selected);
   }
@@ -159,17 +165,19 @@ export class Select extends UINode implements Serializable {
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
-    this.call('click', this, screenPosition, realPosition);
-
-    if (this.options.length === 0) return;
+    if (this.values.length === 0) return;
     let direction;
     if (realPosition.x < this.position.x + this.width * .15) {
       direction = -1;
     } else if (realPosition.x > this.position.x + this.width * .85) {
       direction = 1;
     } else return;
-    this.selected = this.options[(((this.options.indexOf(this.selected) + direction) % this.options.length) + this.options.length) % this.options.length];
+
+    let length = this.values.length;
+    this.selected = this.values[(((this.values.indexOf(this.selected) + direction) % length) + length) % length];
     this.label.text = this.selected;
+
+    this.call('click', this, screenPosition, realPosition);
   }
   /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
@@ -191,6 +199,8 @@ export class Select extends UINode implements Serializable {
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
@@ -200,20 +210,28 @@ export class Select extends UINode implements Serializable {
 
   serialize(): SerializedSelect {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
-      style: this.style,
+      values: this.values,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
-      options: this.options,
       height: this.height,
+      style: this.style,
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      type: this.type,
       childs: []
     }
   }
   static deSerialize(node: Node, data: SerializedSelect): Select {
-    return new Select(node, data.options, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new Select(node, data.values, {
+      propName: data.propName,
+      input: data.input,
+      output: data.output,
+      height: data.height,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
 
@@ -223,12 +241,6 @@ export interface SelectStyle extends UINodeStyle {
   color?: string,
   arrowColor?: string
 }
-
-export interface SerializedSelect extends SerializedUINode {
-  options: string[],
-  height: number
-}
-
 /** @hidden */
 let DefaultSelectStyle = () => {
   return {
@@ -236,3 +248,24 @@ let DefaultSelectStyle = () => {
     visible: true
   };
 };
+
+export interface SerializedSelect extends SerializedUINode {
+  values: string[],
+  height: number
+}
+
+interface SelectOptions {
+  propName?: string,
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
+  height?: number,
+  style?: SelectStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultSelectOptions = (node: Node): SelectOptions => {
+  return {
+    height: node.style.rowHeight * 1.5
+  }
+}

@@ -25,28 +25,30 @@ let node = flow.createNode(
   { labelText: 'Label Text', sliderValue: 50, toggle: false, selectedValue: null, file: null, inputValue: 365 }
 );
 node.ui.append([
-  node.createLabel(null, 'labelText', true, true, { align: Align.Center, fontSize: '17px' }),
+  node.createLabel('', { propName: 'labelText', input: true, output: true, style: { align: Align.Center, fontSize: '17px' } }),
   node.createImage(null, null, { align: Align.Center }),
   node.createHozLayout([
-    node.createLabel(57, 'sliderValue', false, false, { grow: .2, precision: 2 }),
-    node.createSlider(0, 150, 57, 'sliderValue', true, true, 15, { grow: .8, railHeight: 5 })
+    node.createLabel('', { propName: 'sliderValue', style: { grow: .2, precision: 2 } }),
+    node.createSlider(0, 150, { propName: 'sliderValue', input: true, output: true, height: 15, style: { grow: .8, railHeight: 5 } })
   ]),
   node.createButton('Click Me !', true, true),
   node.createHozLayout([
-    node.createLabel('Toggle: ', null, false, false, { grow: .8 }),
-    node.createToggle('toggle', true, true, null, { grow: .2 })
+    node.createLabel('Toggle: ', { style: { grow: .8 } }),
+    node.createToggle({ propName: 'toggle', input: true, output: true, style: { grow: .2 } })
   ]),
   node.createHozLayout([
-    node.createLabel('Select: ', null, false, false, { grow: .3 }),
-    node.createSelect(['ABC', 'DEF', 'GHI', 'JKL', 'MNO'], 'selectedValue', true, true, 20, { grow: .7 })
+    node.createLabel('Select: ', { style: { grow: .3 } }),
+    node.createSelect(['ABC', 'DEF', 'GHI', 'JKL', 'MNO'], { propName: 'selectedValue', input: true, output: true, height: 20, style: { grow: .7 } })
   ]),
   node.createHozLayout([
-    node.createLabel('Source: ', null, false, false, { grow: .5 }),
-    node.createSource(null, 'file', true, true, 20, { grow: .5 })
+    node.createLabel('Source: ', { style: { grow: .5 } }),
+    node.createSource({ propName: 'file', input: true, output: true, height: 20, style: { grow: .5 } })
   ]),
   node.createHozLayout([
-    node.createLabel('Input: ', null, false, false, { grow: .4 }),
-    node.createInput(45, 'inputValue', true, true, 20, { type: InputType.Number, grow: .6, align: Align.Right })
+    node.createLabel('Input: ', { style: { grow: .4 } }),
+    node.createInput({
+      propName: 'inputValue', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .6, align: Align.Right }
+    })
   ])
 ]);
 let numberNode = flow.createNode(
@@ -56,7 +58,9 @@ let numberNode = flow.createNode(
   { padding: 10, spacing: 10, rowHeight: 10 }, {},
   { value: 15 }
 );
-numberNode.ui.append(numberNode.createInput(45, 'value', true, true, 20, { type: InputType.Number, grow: .6, align: Align.Right }));
+numberNode.ui.append(numberNode.createInput({
+  propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .6, align: Align.Right }
+}));
 let textNode = flow.createNode(
   'Text Source',
   new Vector2(50, 120),
@@ -64,7 +68,9 @@ let textNode = flow.createNode(
   { padding: 10, spacing: 10, rowHeight: 10 }, {},
   { value: 'Example Text' }
 );
-textNode.ui.append(textNode.createInput('', 'value', true, true, 20, { type: InputType.Text, grow: .6, align: Align.Right }));
+textNode.ui.append(textNode.createInput({
+  propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .6, align: Align.Right }
+}));
 let toggleNode = flow.createNode(
   'Toggle Source',
   new Vector2(50, 190),
@@ -72,7 +78,7 @@ let toggleNode = flow.createNode(
   { padding: 10, spacing: 10, rowHeight: 10 }, {},
   { value: true }
 );
-toggleNode.ui.append(toggleNode.createToggle('value', true, true, null, { grow: .2 }));
+toggleNode.ui.append(toggleNode.createToggle({ propName: 'value', input: true, output: true, style: { grow: .2 } }));
 
 node.on('process', () => console.log('Test Node'));
 numberNode.on('process', () => console.log('Number Source'));

@@ -5,6 +5,7 @@ import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
+import { get } from "../utils/utils";
 
 export class Toggle extends UINode implements Serializable {
   private _checked: boolean = false;
@@ -14,43 +15,39 @@ export class Toggle extends UINode implements Serializable {
     return this._checked;
   }
   set checked(checked: boolean) {
-    if (this.propName) this.setProp(checked);
-    else {
-      this._checked = checked;
-    }
+    let oldVal = this.checked;
+    let newVal = checked;
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, checked);
+    if (this.propName)
+      this.setProp(newVal);
+    else
+      this._checked = newVal;
+
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
   }
 
   constructor(
     node: Node,
-    propName?: string,
-    input?: boolean | SerializedTerminal,
-    output?: boolean | SerializedTerminal,
-    height?: number,
-    style: ToggleStyle = {},
-    id?: string,
-    hitColor?: Color
+    options: ToggleOptions = DefaultToggleOptions(node)
   ) {
 
-    super(node, Vector2.Zero(), UIType.Toggle, false, false, true, { ...DefaultToggleStyle(), ...style }, propName,
-      input ?
-        (typeof input === 'boolean' ?
-          new Terminal(node, TerminalType.IN, 'boolean', '', {}) :
-          Terminal.deSerialize(node, input)
-        ) :
-        null,
-      output ?
-        (typeof output === 'boolean' ?
-          new Terminal(node, TerminalType.OUT, 'boolean', '', {}) :
-          Terminal.deSerialize(node, output)
-        ) :
-        null,
-      id, hitColor
+    super(
+      node, Vector2.Zero(), UIType.Toggle, false, false, true,
+      options.style
+        ? { ...DefaultToggleStyle(), ...options.style }
+        : DefaultToggleStyle(),
+      options.propName,
+      options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, 'boolean', '', {})
+        : Terminal.deSerialize(node, options.input)),
+      options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, 'boolean', '', {})
+        : Terminal.deSerialize(node, options.output)),
+      options.id, options.hitColor
     );
 
-    this._checked = this.propName ? this.getProp() : false;
-    this.height = height ? height : this.node.style.rowHeight;
+    this._checked = this.propName ? this.getProp() : options.value
+    this.height = get(options.height, this.node.style.rowHeight);
 
     if (this.input) {
       this.input.on('connect', (_, connector) => {
@@ -80,7 +77,10 @@ export class Toggle extends UINode implements Serializable {
 
     context.fillStyle = this.style.color;
     context.beginPath();
-    context.arc(this.checked ? this.position.x + this.width - this.height / 2 : this.position.x + this.height / 2, this.position.y + this.height / 2, this.height / 2, 0, 2 * Math.PI);
+    context.arc(
+      this.checked ? this.position.x + this.width - this.height / 2 : this.position.x + this.height / 2,
+      this.position.y + this.height / 2, this.height / 2, 0, 2 * Math.PI
+    );
     context.fill();
   }
   /** @hidden */
@@ -99,18 +99,22 @@ export class Toggle extends UINode implements Serializable {
   /** @hidden */
   reflow(): void {
     if (this.input) {
-      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-      this.input.position.y = this.position.y + this.height / 2;
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
     }
     if (this.output) {
-      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
-      this.output.position.y = this.position.y + this.height / 2;
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
     }
   }
 
   /** @hidden */
-  onPropChange(_: any, newValue: any) {
-    this._checked = newValue;
+  onPropChange(_oldVal: any, newVal: any) {
+    this._checked = newVal;
 
     this.output && this.output.setData(this.checked);
   }
@@ -136,9 +140,9 @@ export class Toggle extends UINode implements Serializable {
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
-    this.call('click', this, screenPosition, realPosition);
-
     this.checked = !this.checked;
+
+    this.call('click', this, screenPosition, realPosition);
   }
   /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
@@ -160,6 +164,8 @@ export class Toggle extends UINode implements Serializable {
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
@@ -169,33 +175,53 @@ export class Toggle extends UINode implements Serializable {
 
   serialize(): SerializedToggle {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
-      style: this.style,
+      checked: this.checked,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
-      checked: this.checked,
       height: this.height,
+      style: this.style,
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      type: this.type,
       childs: []
     }
   }
   static deSerialize(node: Node, data: SerializedToggle): Toggle {
-    return new Toggle(node, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new Toggle(node, {
+      propName: data.propName,
+      input: data.input,
+      output: data.output,
+      height: data.height,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
+
+export interface ToggleOptions {
+  value?: boolean,
+  propName?: string,
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
+  height?: number,
+  style?: ToggleStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultToggleOptions = (node: Node): ToggleOptions => {
+  return {
+    value: false,
+    height: node.style.rowHeight * 1.5,
+  }
+};
 
 export interface ToggleStyle extends UINodeStyle {
   backgroundColor?: string,
   color?: string
 }
-
-export interface SerializedToggle extends SerializedUINode {
-  checked: boolean,
-  height: number
-}
-
 /** @hidden */
 let DefaultToggleStyle = () => {
   return {
@@ -204,3 +230,8 @@ let DefaultToggleStyle = () => {
     visible: true
   };
 };
+
+export interface SerializedToggle extends SerializedUINode {
+  checked: boolean,
+  height: number
+}

@@ -36,9 +36,9 @@ export const LineChartMini = (flow: Flow, options: NodeCreatorOptions = {}, heig
     }
   }], displayStyle ? displayStyle : {});
   node.ui.append(display);
-  let sizeInput = node.createInput(node.props.size, 'size', true, true, 20, { type: InputType.Number, grow: '.5' } as any);
+  let sizeInput = node.createInput({ propName: 'size', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .5 } });
   node.ui.append(node.createHozLayout([
-    node.createLabel('Size', null, false, false),
+    node.createLabel('Size'),
     sizeInput
   ], { spacing: 20 }));
 

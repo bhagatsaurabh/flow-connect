@@ -86,25 +86,23 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expression?: 
     if (/[A-Z]/g.test(input.inputEl.value)) input.inputEl.value = input.inputEl.value.toLowerCase();
   }
 
-  let exprInput = node.createInput(
-    node.props.expression, 'expression', true, true,
-    20, { type: InputType.Text, grow: .9 } as any
-  );
-  exprInput.on('change', () => { });
+  let exprInput = node.createInput({
+    propName: 'expression', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .9 }
+  });
   exprInput.on('input', lowerCase);
   let addVarButton = node.createButton('Add', false, false, 20, { grow: .4 } as any);
   node.ui.append([
     node.createHozLayout([
-      node.createLabel('𝒇', null, false, false, { grow: .1 } as any),
+      node.createLabel('𝒇', { style: { grow: .1 } }),
       exprInput
     ], { spacing: 10 }),
     node.createHozLayout([
-      node.createInput(node.props.newVar, 'newVar', false, false, 20, { type: InputType.Text, maxLength: 1, grow: .6 } as any),
+      node.createInput({ propName: 'newVar', height: 20, style: { type: InputType.Text, maxLength: 1, grow: .6 } }),
       addVarButton
     ], { spacing: 10 })
   ]);
 
-  node.watch('expression', () => { });
+  node.watch('expression', () => process);
 
   addVarButton.on('click', () => {
     if (!node.props.newVar || node.props.newVar.trim() === '') return;

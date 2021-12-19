@@ -21,14 +21,16 @@ export class Dial extends UINode implements Serializable {
     return this._value;
   }
   set value(value: number) {
-    value = clamp(value, this.min, this.max);
-    if (this.propName) this.setProp(value);
-    else {
-      this._value = value;
-    }
-    this.temp = normalize(value, this.min, this.max);
+    let prevVal = this.value;
+    let newValue = clamp(value, this.min, this.max);
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, this.value);
+    if (this.propName) this.setProp(newValue);
+    else {
+      this._value = newValue;
+    }
+    this.temp = normalize(newValue, this.min, this.max);
+
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, prevVal, newValue);
   }
 
   constructor(

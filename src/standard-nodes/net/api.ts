@@ -18,7 +18,7 @@ export const API = (flow: Flow, options: NodeCreatorOptions = {}) => {
     options.props ? { src: '', ...options.props } : { src: '' }
   );
 
-  node.ui.append(node.createLabel('', 'src', true, true, { align: Align.Center }));
+  node.ui.append(node.createLabel('', { propName: 'src', input: true, output: true, style: { align: Align.Center } }));
   node.inputs[0].on('event', async () => {
     if (!node.props.src || node.props.src === '') Log.error("Prop 'src' of API Node is invalid, cannot make an API call");
     else {

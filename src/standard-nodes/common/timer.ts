@@ -16,7 +16,7 @@ export const Timer = (flow: Flow, options: NodeCreatorOptions = {}) => {
     options.props ? { delay: 1000, ...options.props } : { delay: 1000 }
   );
 
-  node.ui.append(node.createInput(node.props.delay, 'delay', false, false, 20, { type: InputType.Number }));
+  node.ui.append(node.createInput({ propName: 'delay', height: 20, style: { type: InputType.Number } }));
 
   flow.flowConnect.on('tickreset', () => lastTrigger = Number.MIN_VALUE);
   flow.flowConnect.on('tick', () => {

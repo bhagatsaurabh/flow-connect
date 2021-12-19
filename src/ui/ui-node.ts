@@ -177,6 +177,7 @@ export abstract class UINode extends Hooks implements Events {
 
 export interface UINodeStyle {
   visible?: boolean;
+  grow?: number
 }
 
 export interface SerializedUINode {

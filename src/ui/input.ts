@@ -7,10 +7,10 @@ import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { Align } from "../common/enums";
+import { get } from "../utils";
 
 export class Input extends UINode implements Serializable {
   label: Label;
-  /** @hidden */
   inputEl: HTMLInputElement;
   private _value: string | number;
 
@@ -20,58 +20,72 @@ export class Input extends UINode implements Serializable {
   }
   set value(value: string | number) {
     let val: string | number;
-    let prevVal = this.value;
     if (this.style.type === InputType.Number && typeof value === 'string') val = parseFloat(value);
     else val = value;
 
-    if (this.propName) this.setProp(val);
+    let oldVal = this.value;
+    let newVal = val;
+
+    if (this.propName) this.setProp(newVal);
     else {
-      this._value = val;
+      this._value = newVal;
       this.label.text = this._value.toString();
       this.inputEl.value = this._value.toString();
     }
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, value, prevVal);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, newVal, oldVal);
   }
 
   constructor(
     node: Node,
-    value: string | number,
-    propName?: string,
-    input?: boolean | SerializedTerminal,
-    output?: boolean | SerializedTerminal,
-    height?: number,
-    style: InputStyle = {},
-    id?: string,
-    hitColor?: Color
+    options: InputOptions = DefaultInputOptions(node)
   ) {
 
-    super(node, Vector2.Zero(), UIType.Input, false, false, true, { ...DefaultInputStyle(), ...style }, propName,
-      input ?
-        (typeof input === 'boolean' ?
-          new Terminal(node, TerminalType.IN, style.type === InputType.Text ? 'string' : 'number', '', {}) :
-          Terminal.deSerialize(node, input)
-        ) :
-        null,
-      output ?
-        (typeof output === 'boolean' ?
-          new Terminal(node, TerminalType.OUT, style.type === InputType.Text ? 'string' : 'number', '', {}) :
-          Terminal.deSerialize(node, output)
-        ) :
-        null,
-      id, hitColor
+    super(
+      node, Vector2.Zero(), UIType.Input, false, false, true,
+      options.style ? { ...DefaultInputStyle(), ...options.style } : DefaultInputStyle(),
+      options.propName,
+      options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, options.style.type, '', {})
+        : Terminal.deSerialize(node, options.input)),
+      options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, options.style.type, '', {})
+        : Terminal.deSerialize(node, options.output)),
+      options.id, options.hitColor
     );
-    this.height = height ? height : this.node.style.rowHeight;
 
-    if (this.style.type === InputType.Number && typeof value === 'string') value = parseFloat(value);
-    this._value = value;
+    this.height = get(options.height, this.node.style.rowHeight);
 
-    this.label = new Label(this.node, this.value.toString(), null, false, false, {
-      fontSize: this.style.fontSize,
-      font: this.style.font,
-      align: this.style.align,
-      color: this.style.color,
-      padding: 5
-    }, this.height);
+    if (this.style.type === InputType.Number && typeof options.value === 'string') options.value = parseFloat(options.value);
+    this._value = options.value;
+
+    this.setupLabel();
+    this.setupInputElement();
+
+    if (this.input) {
+      this.input.on('connect', (_, connector) => {
+        if (connector.data) this.value = connector.data;
+      });
+      this.input.on('data', (_, data) => {
+        if (data) this.value = data;
+      });
+    }
+    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.value);
+
+    this.node.on('process', () => {
+      if (this.output) (this.output as any).setData(this.value);
+    });
+  }
+
+  setupLabel() {
+    this.label = new Label(this.node, this.value.toString(), {
+      style: {
+        fontSize: this.style.fontSize,
+        font: this.style.font,
+        align: this.style.align,
+        color: this.style.color,
+        padding: 5
+      }, height: this.height
+    });
     this.label.on('click', () => {
       if (document.activeElement !== this.inputEl) {
         let realPosition = this.position.transform(this.node.flow.flowConnect.transform);
@@ -93,15 +107,18 @@ export class Input extends UINode implements Serializable {
       }
     });
     this.children.push(this.label);
-
+  }
+  setupInputElement() {
     this.inputEl = document.createElement('input');
     this.inputEl.className = 'flow-connect-input';
     this.inputEl.spellcheck = false;
-    this.inputEl.type = this.style.pattern ? InputType.Text : this.style.type;
+    let inputType = this.style.type === 'string' ? 'text' : this.style.type
+    this.inputEl.type = this.style.pattern ? 'text' : inputType;
     this.inputEl.value = this.value.toString();
     if (this.style.pattern) this.inputEl.pattern = this.style.pattern;
     if (this.style.type === InputType.Number && this.style.step) this.inputEl.step = this.style.step;
     if (this.style.maxLength) this.inputEl.maxLength = this.style.maxLength;
+
     this.inputEl.addEventListener('blur', () => {
       this.inputEl.style.visibility = 'hidden';
       this.inputEl.style.pointerEvents = 'none';
@@ -112,26 +129,12 @@ export class Input extends UINode implements Serializable {
     });
     this.inputEl.oninput = () => {
       if (this.style.pattern) {
-        this.inputEl.style.backgroundColor = this.inputEl.validity.patternMismatch ? 'red' : this.style.backgroundColor;
-        this.label.style.color = this.inputEl.validity.patternMismatch ? 'red' : this.style.color;
+        this.inputEl.style.backgroundColor = this.inputEl.validity.patternMismatch ? 'orange' : this.style.backgroundColor;
+        this.label.style.color = this.inputEl.validity.patternMismatch ? 'orange' : this.style.color;
       }
       this.call('input', this);
     }
     document.body.appendChild(this.inputEl);
-
-    if (this.input) {
-      this.input.on('connect', (_, connector) => {
-        if (connector.data) this.value = connector.data;
-      });
-      this.input.on('data', (_, data) => {
-        if (data) this.value = data;
-      });
-    }
-    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.value);
-
-    this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this.value);
-    });
   }
 
   /** @hidden */
@@ -159,24 +162,28 @@ export class Input extends UINode implements Serializable {
     this.label.width = this.width;
 
     if (this.input) {
-      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-      this.input.position.y = this.position.y + this.height / 2;
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
     }
     if (this.output) {
-      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
-      this.output.position.y = this.position.y + this.height / 2;
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
     }
   }
 
   /** @hidden */
-  onPropChange(_: any, newVal: any) {
+  onPropChange(_oldVal: any, newVal: any) {
     if (this.style.type === InputType.Number && typeof newVal === 'string') newVal = parseFloat(newVal);
 
     this._value = newVal;
     this.label.text = this._value.toString();
     this.inputEl.value = this._value.toString();
 
-    this.output && this.output.setData(this.value);
+    this.output && this.output.setData(this._value);
   }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
@@ -222,6 +229,8 @@ export class Input extends UINode implements Serializable {
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
@@ -231,26 +240,35 @@ export class Input extends UINode implements Serializable {
 
   serialize(): SerializedInput {
     return {
-      id: this.id,
-      hitColor: this.hitColor.serialize(),
-      type: this.type,
-      style: this.style,
+      value: this.value,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
-      value: this.value,
       height: this.height,
+      style: this.style,
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      type: this.type,
       childs: []
     }
   }
   static deSerialize(node: Node, data: SerializedInput): Input {
-    return new Input(node, data.value, data.propName, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new Input(node, {
+      value: data.value,
+      propName: data.propName,
+      input: data.input,
+      output: data.output,
+      height: data.height,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
 
 export enum InputType {
-  Text = "text",
-  Number = "number"
+  Text = 'string',
+  Number = 'number'
 }
 
 export interface InputStyle extends UINodeStyle {
@@ -265,12 +283,6 @@ export interface InputStyle extends UINodeStyle {
   step?: string,
   maxLength?: number,
 }
-
-export interface SerializedInput extends SerializedUINode {
-  value: string | number,
-  height: number
-}
-
 /** @hidden */
 let DefaultInputStyle = () => {
   return {
@@ -284,3 +296,25 @@ let DefaultInputStyle = () => {
     visible: true
   };
 };
+
+export interface SerializedInput extends SerializedUINode {
+  value: string | number,
+  height: number
+}
+
+interface InputOptions {
+  value?: string | number,
+  propName?: string,
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
+  height?: number,
+  style?: InputStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultInputOptions = (node: Node): InputOptions => {
+  return {
+    height: node.style.rowHeight * 1.5
+  };
+}

@@ -36,20 +36,20 @@ export const NumberRange = (flow: Flow, options: NodeCreatorOptions = {}) => {
     }
   };
 
-  let minInput = node.createInput(node.props.min, 'min', true, true, 20, { type: InputType.Number, grow: .3, step: 'any' } as any);
-  let maxInput = node.createInput(node.props.max, 'max', true, true, 20, { type: InputType.Number, grow: .3, step: 'any' } as any);
-  let stepInput = node.createInput(node.props.step, 'step', true, true, 20, { type: InputType.Number, grow: .3, step: 'any' } as any);
-  let loopToggle = node.createToggle('loop', true, true, 10, { grow: .2 } as any);
+  let minInput = node.createInput({ propName: 'min', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .3, step: 'any' } });
+  let maxInput = node.createInput({ propName: 'max', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .3, step: 'any' } });
+  let stepInput = node.createInput({ propName: 'step', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .3, step: 'any' } });
+  let loopToggle = node.createToggle({ propName: 'loop', input: true, output: true, height: 10, style: { grow: .2 } });
   node.ui.append([
     node.createHozLayout([
-      node.createLabel('Min', null, false, false, { grow: .2 } as any), minInput,
-      node.createLabel('Max', null, false, false, { grow: .2 } as any), maxInput
+      node.createLabel('Min', { style: { grow: .2 } }), minInput,
+      node.createLabel('Max', { style: { grow: .2 } }), maxInput
     ], { spacing: 5 }),
     node.createHozLayout([
-      node.createLabel('Step', null, false, false, { grow: .2 } as any), stepInput
+      node.createLabel('Step', { style: { grow: .2 } }), stepInput
     ], { spacing: 5 }),
     node.createHozLayout([
-      node.createLabel('Loop ?', null, false, false, { grow: .2 } as any), loopToggle
+      node.createLabel('Loop ?', { style: { grow: .2 } }), loopToggle
     ], { spacing: 10 })
   ]);
 

@@ -42,6 +42,10 @@ export const isEmpty = (obj: any): boolean => {
   for (let key in obj) return false;
   return true;
 };
+export const get = <T>(value: T, defaultVal: T): T => {
+  if (typeof value === 'undefined') return defaultVal;
+  return value;
+};
 /** @hidden */
 export const binarySearch = ({ max, getValue, match }: { max: number, getValue: Function, match: number }) => {
   let min = 0;

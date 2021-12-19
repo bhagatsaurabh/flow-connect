@@ -40,12 +40,15 @@ export class Button extends UINode implements Serializable {
     if (this.input) this.input.on('event', () => this.call('click', this));
     this.height = height ? height : (this.node.style.rowHeight + 2 * this.style.padding);
 
-    this.label = new Label(this.node, text, null, false, false, {
-      fontSize: this.style.fontSize,
-      font: this.style.font,
-      align: Align.Center,
-      color: this.style.color
-    }, this.height);
+    this.label = new Label(this.node, text, {
+      style: {
+        fontSize: this.style.fontSize,
+        font: this.style.font,
+        align: Align.Center,
+        color: this.style.color
+      },
+      height: this.height
+    });
     this.label.on('click', (_node: Node, position: Vector2) => this.call('click', this, position));
 
     this.children.push(this.label);

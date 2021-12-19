@@ -4,14 +4,15 @@ import { Vector2 } from "../core/vector";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
-import { binarySearch } from "../utils/utils";
+import { binarySearch, get } from "../utils/utils";
 import { FlowState } from "../core/flow";
 import { Align } from "../common/enums";
 
 export class Label extends UINode implements Serializable {
   private displayText: string;
   private _text: string | number;
-  private textWidth: number;
+  private textWidth: number;    // This may be smaller due to surrounding width constraints (this is som...)
+  private orgTextWidth: number; // While this is the actual width                           (this is some text)
   private textHeight: number;
 
   get text(): string {
@@ -23,49 +24,43 @@ export class Label extends UINode implements Serializable {
     return value;
   }
   set text(text: string | number) {
+    let oldVal = this._text;
+    let newVal = text;
+
     if (this.propName) {
-      this.setProp(text);
+      this.setProp(newVal);
     } else {
-      this._text = text;
+      this._text = newVal;
       this.reflow();
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, text);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
   }
 
   constructor(
     node: Node,
     text: string | number,
-    propName?: string,
-    input?: boolean | SerializedTerminal,
-    output?: boolean | SerializedTerminal,
-    style: LabelStyle = {},
-    height?: number,
-    id?: string,
-    hitColor?: Color
+    options: LabelOptions = DefaultLabelOptions(node)
   ) {
 
-    super(node, Vector2.Zero(), UIType.Label, false, false, true, { ...DefaultLabelStyle(), ...style }, propName,
-      input ?
-        (typeof input === 'boolean' ?
-          new Terminal(node, TerminalType.IN, 'string', '', {}) :
-          Terminal.deSerialize(node, input)
-        ) :
-        null,
-      output ?
-        (typeof output === 'boolean' ?
-          new Terminal(node, TerminalType.OUT, 'string', '', {}) :
-          Terminal.deSerialize(node, output)
-        ) :
-        null,
-      id, hitColor
+    super(
+      node, Vector2.Zero(), UIType.Label, false, false, true,
+      options.style ? { ...DefaultLabelStyle(), ...options.style } : DefaultLabelStyle(),
+      options.propName,
+      options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, 'string', '', {})
+        : Terminal.deSerialize(node, options.input)),
+      options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, 'string', '', {})
+        : Terminal.deSerialize(node, options.output)),
+      options.id, options.hitColor
     );
 
     this._text = this.propName ? this.getProp() : text;
     this.reflow();
 
-    if (!height) this.height = this.textHeight + 5;
-    else this.height = height;
+    this.height = get(options.height, this.textHeight + 5);
+    if (!this.style.grow) this.width = this.orgTextWidth;
 
     if (this.input) {
       this.input.on('connect', (_, connector) => {
@@ -121,28 +116,34 @@ export class Label extends UINode implements Serializable {
   reflow(): void {
     let context = this.context;
     context.font = this.style.fontSize + ' ' + this.style.font;
+    this.orgTextWidth = context.measureText(this.text).width;
     this.displayText = this.getBestFitString();
     let metrics = context.measureText(this.displayText);
     context.font = null;
     this.textWidth = metrics.width;
 
     this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + 5;
-    if (typeof this.textHeight === 'undefined') {
+    // For better browser support
+    /* if (typeof this.textHeight === 'undefined') {
       let d = document.createElement("span");
       d.style.font = this.style.fontSize + ' ' + this.style.font;
       d.textContent = "M";
       document.body.appendChild(d);
       this.textHeight = d.offsetHeight;
       document.body.removeChild(d);
-    }
+    } */
 
     if (this.input) {
-      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-      this.input.position.y = this.position.y + this.height / 2;
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
     }
     if (this.output) {
-      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
-      this.output.position.y = this.position.y + this.height / 2;
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
     }
   }
   /** @hidden */
@@ -157,7 +158,7 @@ export class Label extends UINode implements Serializable {
 
     const index = binarySearch({
       max: text.length,
-      getValue: (index: number) => this.context.measureText(text.substring(0, index)).width,
+      getValue: (idx: number) => this.context.measureText(text.substring(0, idx)).width,
       match: this.width - ellipsisWidth,
     });
 
@@ -169,11 +170,11 @@ export class Label extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(_: any, newValue: any) {
-    this._text = newValue;
+  onPropChange(_oldVal: any, newVal: any) {
+    this._text = newVal;
     this.reflow();
 
-    this.output && this.output.setData(this.text);
+    this.output && this.output.setData(this._text);
   }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
@@ -219,6 +220,8 @@ export class Label extends UINode implements Serializable {
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
@@ -228,20 +231,28 @@ export class Label extends UINode implements Serializable {
 
   serialize(): SerializedLabel {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
-      style: this.style,
+      text: this.text,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
       height: this.height,
-      text: this.text,
+      style: this.style,
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      type: this.type,
       childs: []
     }
   }
   static deSerialize(node: Node, data: SerializedLabel): Label {
-    return new Label(node, data.text, data.propName, data.input, data.output, data.style, data.height, data.id, Color.deSerialize(data.hitColor));
+    return new Label(node, data.text, {
+      propName: data.propName,
+      input: data.input,
+      output: data.output,
+      height: data.height,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
 
@@ -254,12 +265,6 @@ export interface LabelStyle extends UINodeStyle {
   precision?: number,
   padding?: number
 }
-
-export interface SerializedLabel extends SerializedUINode {
-  text: string,
-  height: number
-}
-
 /** @hidden */
 let DefaultLabelStyle = () => {
   return {
@@ -268,7 +273,28 @@ let DefaultLabelStyle = () => {
     fontSize: '11px',
     font: 'arial',
     align: Align.Left,
-    padding: 5,
+    padding: 0,
     visible: true
   };
+};
+
+export interface SerializedLabel extends SerializedUINode {
+  text: string,
+  height: number
+}
+
+interface LabelOptions {
+  propName?: string,
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
+  height?: number,
+  style?: LabelStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultLabelOptions = (node: Node): LabelOptions => {
+  return {
+    height: node.style.rowHeight * 1.5
+  }
 };

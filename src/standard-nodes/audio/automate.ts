@@ -3,7 +3,7 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { InputType } from "../../ui";
 
-export const Automate = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export const Automate = (flow: Flow, options: NodeCreatorOptions = {}, envelope: Array<Vector2> = [new Vector2(.2, .5), new Vector2(.5, .8), new Vector2(.9, .2)]) => {
 
   let node = flow.createNode(
     options.name || 'Automate',
@@ -13,8 +13,8 @@ export const Automate = (flow: Flow, options: NodeCreatorOptions = {}) => {
     options.style || { rowHeight: 10, spacing: 15 },
     options.terminalStyle || {},
     options.props
-      ? { min: 0, max: 1, value: 0.5, duration: 1, envelope: [new Vector2(.2, .5), new Vector2(.5, .8), new Vector2(.9, .2)], ...options.props }
-      : { min: 0, max: 1, value: 0.5, duration: 1, envelope: [new Vector2(.2, .5), new Vector2(.5, .8), new Vector2(.9, .2)] }
+      ? { min: 0, max: 1, value: 0.5, duration: 1, ...options.props }
+      : { min: 0, max: 1, value: 0.5, duration: 1 }
   );
 
   let setMinMax = () => {
@@ -29,25 +29,31 @@ export const Automate = (flow: Flow, options: NodeCreatorOptions = {}) => {
   setMinMax();
   node.outputs[0].ref = node.props.proxyParamNode;
 
-  let envelope = node.createEnvelope(145, node.props.envelope, 'envelope', true, true);
-  let minInput = node.createInput(node.props.min, 'min', false, false, 20, { type: InputType.Number, grow: .4, step: 'any' } as any);
-  let maxInput = node.createInput(node.props.max, 'max', false, false, 20, { type: InputType.Number, grow: .4, step: 'any' } as any);
-  let durationInput = node.createInput(node.props.duration, 'duration', false, false, 20, { type: InputType.Number, step: 'any', grow: .5 } as any);
+  let envelopeInput = node.createEnvelope(145, envelope, true, true);
+  let minInput = node.createInput({
+    propName: 'min', height: 20, style: { type: InputType.Number, grow: .5, step: 'any' }
+  });
+  let maxInput = node.createInput({
+    propName: 'max', height: 20, style: { type: InputType.Number, grow: .5, step: 'any' }
+  });
+  let durationInput = node.createInput({
+    propName: 'duration', height: 20, style: { type: InputType.Number, step: 'any', grow: .5 }
+  });
   node.ui.append([
-    envelope,
+    envelopeInput,
     node.createHozLayout([
-      node.createLabel('Min', null, false, false, { grow: .1 } as any), minInput,
-      node.createLabel('Max', null, false, false, { grow: .1 } as any), maxInput
+      node.createLabel('Min'), minInput,
+      node.createLabel('Max'), maxInput
     ], { spacing: 5 }),
     node.createHozLayout([
-      node.createLabel('Duration (seconds)', null, false, false, { grow: .5 } as any),
+      node.createLabel('Duration (seconds)', { style: { grow: .5 } }),
       durationInput
     ], { spacing: 5 })
   ]);
 
   minInput.on('blur', setMinMax);
   maxInput.on('blur', setMinMax);
-  envelope.on('change', () => {
+  envelopeInput.on('change', () => {
     // Schedule/Reschedule automation of connected param
   });
   durationInput.on('change', () => {

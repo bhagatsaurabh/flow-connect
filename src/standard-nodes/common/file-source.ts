@@ -16,7 +16,7 @@ export const FileSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
   let process = () => node.setOutputs(0, node.props.file);
 
-  let fileInput = node.createSource(null, 'file', true, true, 20);
+  let fileInput = node.createSource({ propName: 'file', input: true, output: true, height: 20 });
   node.ui.append(fileInput);
 
   fileInput.on('change', process);

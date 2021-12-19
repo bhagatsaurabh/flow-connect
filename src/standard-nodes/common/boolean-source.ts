@@ -16,9 +16,9 @@ export const BooleanSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
   let process = () => node.setOutputs(0, node.props.value);
 
-  let toggle = node.createToggle('value', true, true, 10, { grow: '.3' } as any);
+  let toggle = node.createToggle({ propName: 'value', input: true, output: true, height: 10, style: { grow: .3 } });
   node.ui.append(node.createHozLayout([
-    node.createLabel('Value', null, false, false),
+    node.createLabel('Value'),
     toggle
   ], { spacing: 20 }));
 
