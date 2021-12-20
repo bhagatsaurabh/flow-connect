@@ -41,18 +41,18 @@ export class Source extends UINode implements Serializable {
     options: SourceOptions = DefaultSourceOptions(node)
   ) {
 
-    super(
-      node, Vector2.Zero(), UIType.Source, false, false, true,
-      options.style ? { ...DefaultSourceStyle(), ...options.style } : DefaultSourceStyle(),
-      options.propName,
-      options.input && (typeof options.input === 'boolean'
+    super(node, Vector2.Zero(), UIType.Source, {
+      style: options.style ? { ...DefaultSourceStyle(), ...options.style } : DefaultSourceStyle(),
+      propName: options.propName,
+      input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, 'file', '', {})
         : Terminal.deSerialize(node, options.input)),
-      options.output && (typeof options.output === 'boolean'
+      output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, 'file', '', {})
         : Terminal.deSerialize(node, options.output)),
-      options.id, options.hitColor
-    );
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     this.accept = options.accept;
     this.height = get(options.height, this.node.style.rowHeight);
@@ -75,7 +75,7 @@ export class Source extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.file);
 
     this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this.file);
+      if (this.output) this.output.setData(this.file);
     });
   }
 

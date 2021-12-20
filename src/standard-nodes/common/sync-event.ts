@@ -37,7 +37,7 @@ export const SyncEvent = (flow: Flow, options: NodeCreatorOptions = {}, events?:
     node.outputs[0].emit(hold);
   }
 
-  let addButton = node.createButton('Add', true, true, 20);
+  let addButton = node.createButton('Add', { input: true, output: true, height: 20 });
   node.ui.append(addButton);
 
   addButton.on('click', () => {

@@ -40,11 +40,11 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
   }
 
   if (type === 'array') {
-    let relativeToggle = node.createToggle({ propName: 'relative', height: 10, style: { grow: .2 } });
+    let relativeToggle = node.createToggle({ propName: 'relative', height: 10, style: { grow: .5 } });
     node.ui.append(node.createHozLayout([
       node.createLabel('Relative ?'),
       relativeToggle
-    ], { spacing: 20 }));
+    ], { style: { spacing: 20 } }));
     relativeToggle.on('change', process);
   }
   if (type === 'number' || !node.props.relative) {
@@ -55,7 +55,7 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
       minInput,
       node.createLabel('Max', { style: { grow: .2 } }),
       maxInput
-    ], { spacing: 5 }));
+    ], { style: { spacing: 5 } }));
 
     minInput.on('change', process);
     maxInput.on('change', process);
@@ -65,7 +65,7 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
     node.ui.append(node.createHozLayout([
       node.createLabel('Constant'),
       constantInput
-    ], { spacing: 20 }));
+    ], { style: { spacing: 20 } }));
 
     constantInput.on('change', process);
   }

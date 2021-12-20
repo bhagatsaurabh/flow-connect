@@ -40,8 +40,8 @@ export const Source = (flow: Flow, options: NodeCreatorOptions = {}) => {
   let fileInput = node.createSource({ input: true, output: true, height: 25, style: { grow: .7 } });
   let loopToggle = node.createToggle({ propName: 'loop', input: true, output: true, height: 10, style: { grow: .2 } });
   node.ui.append([
-    node.createHozLayout([node.createLabel('File', { style: { grow: .3 } }), fileInput], { spacing: 5 }),
-    node.createHozLayout([node.createLabel('Loop ?'), loopToggle], { spacing: 5 })
+    node.createHozLayout([node.createLabel('File', { style: { grow: .3 } }), fileInput], { style: { spacing: 5 } }),
+    node.createHozLayout([node.createLabel('Loop ?'), loopToggle], { style: { spacing: 5 } })
   ]);
 
   let processFile = async (file: File) => {

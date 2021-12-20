@@ -19,28 +19,28 @@ export const LineChartMini = (flow: Flow, options: NodeCreatorOptions = {}, heig
 
   let display = node.createDisplay(height, [{
     type: CustomRendererType.Auto,
-    renderer: (context, width, height) => {
+    renderer: (context, wdth, hght) => {
       let data = node.getInputs();
       if (!data || !data[0]) return true;
       data[0].forEach((input: number[], index: number) => {
         if (!input) return;
-        let spacing = Number((width / (node.props.size - 1)).toFixed(2));
+        let spacing = Number((wdth / (node.props.size - 1)).toFixed(2));
         context.strokeStyle = colors[index] || Color.Random().rgbaCSSString;
         context.lineWidth = 2;
         context.beginPath();
-        context.moveTo(0, (1 - input[0]) * height);
-        for (let i = 1; i < input.length; i += 1) context.lineTo(i * spacing, (1 - input[i]) * height);
+        context.moveTo(0, (1 - input[0]) * hght);
+        for (let i = 1; i < input.length; i += 1) context.lineTo(i * spacing, (1 - input[i]) * hght);
         context.stroke();
       });
       return true;
     }
-  }], displayStyle ? displayStyle : {});
+  }], { style: displayStyle ? displayStyle : {} });
   node.ui.append(display);
   let sizeInput = node.createInput({ propName: 'size', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .5 } });
   node.ui.append(node.createHozLayout([
     node.createLabel('Size'),
     sizeInput
-  ], { spacing: 20 }));
+  ], { style: { spacing: 20 } }));
 
   return node;
 };

@@ -1,7 +1,7 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
-import { clamp, denormalize, normalize } from "../utils/utils";
+import { clamp, denormalize, get, normalize } from "../utils/utils";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
@@ -21,49 +21,38 @@ export class Dial extends UINode implements Serializable {
     return this._value;
   }
   set value(value: number) {
-    let prevVal = this.value;
-    let newValue = clamp(value, this.min, this.max);
+    let oldVal = this.value;
+    let newVal = clamp(value, this.min, this.max);
 
-    if (this.propName) this.setProp(newValue);
-    else {
-      this._value = newValue;
-    }
-    this.temp = normalize(newValue, this.min, this.max);
+    if (this.propName) this.setProp(newVal);
+    else this._value = newVal;
+    this.temp = normalize(newVal, this.min, this.max);
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, prevVal, newValue);
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
   }
 
   constructor(
     node: Node,
     public min: number, public max: number,
-    value: number,
     height: number,
-    propName?: string,
-    input?: boolean | SerializedTerminal,
-    output?: boolean | SerializedTerminal,
-    style: DialStyle = {},
-    id?: string,
-    hitColor?: Color
+    options: DialOptions = DefaultDialOptions(min)
   ) {
-
-    super(node, Vector2.Zero(), UIType.Dial, true, false, true, { ...DefaultDialStyle(height), ...style }, propName,
-      input ?
-        (typeof input === 'boolean' ?
-          new Terminal(node, TerminalType.IN, 'number', '', {}) :
-          Terminal.deSerialize(node, input)
-        ) :
-        null,
-      output ?
-        (typeof output === 'boolean' ?
-          new Terminal(node, TerminalType.OUT, 'number', '', {}) :
-          Terminal.deSerialize(node, output)
-        ) :
-        null,
-      id, hitColor
-    );
+    super(node, Vector2.Zero(), UIType.Dial, {
+      draggable: true,
+      style: options.style ? { ...DefaultDialStyle(height), ...options.style } : DefaultDialStyle(height),
+      propName: options.propName,
+      input: options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, 'number', '', {})
+        : Terminal.deSerialize(node, options.input)),
+      output: options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, 'number', '', {})
+        : Terminal.deSerialize(node, options.output)),
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     this.height = height;
-    this._value = value;
+    this._value = get(options.value, min);
     this.temp = normalize(this._value, this.min, this.max);
 
     if (this.input) {
@@ -77,7 +66,7 @@ export class Dial extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.value);
 
     this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this.value);
+      if (this.output) this.output.setData(this.value);
     });
   }
 
@@ -131,18 +120,20 @@ export class Dial extends UINode implements Serializable {
     let center = this.position.add(this.width / 2, this.height / 2);
     let angle = normalize(this.value, this.min, this.max) * Constant.TAU + (Math.PI / 2);
     let size = Math.min(this.width, this.height);
-    this.thumbStart.x = center.x + Math.cos(angle) * (size / 5);
-    this.thumbStart.y = center.y + Math.sin(angle) * (size / 5);
-    this.thumbEnd.x = center.x + Math.cos(angle) * (size / 2 - 10);
-    this.thumbEnd.y = center.y + Math.sin(angle) * (size / 2 - 10);
+    this.thumbStart.assign(center.x + Math.cos(angle) * (size / 5), center.y + Math.sin(angle) * (size / 5));
+    this.thumbEnd.assign(center.x + Math.cos(angle) * (size / 2 - 10), center.y + Math.sin(angle) * (size / 2 - 10));
 
     if (this.input) {
-      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-      this.input.position.y = this.position.y + this.height / 2;
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
     }
     if (this.output) {
-      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
-      this.output.position.y = this.position.y + this.height / 2;
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
     }
   }
 
@@ -154,12 +145,12 @@ export class Dial extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange(_: any, newValue: any) {
-    this._value = newValue;
-    this.temp = normalize(newValue, this.min, this.max);
+  onPropChange(_oldVal: any, newVal: any) {
+    this._value = newVal;
+    this.temp = normalize(newVal, this.min, this.max);
     this.reflow();
 
-    this.output && this.output.setData(this.value);
+    this.output && this.output.setData(this._value);
   }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
@@ -174,10 +165,9 @@ export class Dial extends UINode implements Serializable {
     this.lastAngle = undefined;
     this.deltaValue = this.pointToValue(realPosition);
     this.temp = normalize(this.value, this.min, this.max);
+    this.onDrag(screenPosition, realPosition);
 
     this.call('down', this, screenPosition, realPosition);
-
-    this.onDrag(screenPosition, realPosition);
   }
   /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
@@ -231,6 +221,8 @@ export class Dial extends UINode implements Serializable {
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
@@ -240,22 +232,30 @@ export class Dial extends UINode implements Serializable {
 
   serialize(): SerializedDial {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
-      style: this.style,
-      propName: this.propName,
-      input: this.input ? this.input.serialize() : null,
-      output: this.output ? this.output.serialize() : null,
       min: this.min,
       max: this.max,
       value: this.value,
+      propName: this.propName,
+      input: this.input ? this.input.serialize() : null,
+      output: this.output ? this.output.serialize() : null,
       size: this.height,
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      style: this.style,
+      type: this.type,
       childs: []
     }
   }
   static deSerialize(node: Node, data: SerializedDial) {
-    return new Dial(node, data.min, data.max, data.value, data.size, data.propName, data.input, data.output, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new Dial(node, data.min, data.max, data.size, {
+      value: data.value,
+      propName: data.propName,
+      input: data.input,
+      output: data.output,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
 
@@ -271,14 +271,6 @@ export interface DialStyle extends UINodeStyle {
   thumbShadowColor?: string,
   thumbShadowBlur?: number
 }
-
-export interface SerializedDial extends SerializedUINode {
-  min: number,
-  max: number,
-  value: number,
-  size: number
-}
-
 /** @hidden */
 let DefaultDialStyle = (size: number) => {
   return {
@@ -294,3 +286,26 @@ let DefaultDialStyle = (size: number) => {
     visible: true
   }
 }
+
+export interface SerializedDial extends SerializedUINode {
+  min: number,
+  max: number,
+  value: number,
+  size: number
+}
+
+interface DialOptions {
+  value?: number,
+  propName?: string,
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
+  style?: DialStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultDialOptions = (min: number) => {
+  return {
+    value: min
+  };
+};

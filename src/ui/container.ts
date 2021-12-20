@@ -21,14 +21,16 @@ export class Container extends UINode implements Serializable {
 
   constructor(
     node: Node,
-    width?: number,
-    style: ContainerStyle = {},
-    id?: string,
-    hitColor?: Color
+    width: number,
+    options: ContainerOptions = DefaultContainerOptions()
   ) {
+    super(node, node.position, UIType.Container, {
+      style: options.style ? { ...DefaultContainerStyle(), ...options.style } : DefaultContainerStyle(),
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
-    super(node, node.position, UIType.Container, false, false, true, { ...DefaultContainerStyle(), ...style }, null, null, null, id, hitColor);
-    this.width = typeof width !== 'undefined' ? width : 0;
+    this.width = width;
     this.height = this.node.style.padding * 2;
     this.contentWidth = this.width - 2 * this.node.style.padding;
   }
@@ -43,7 +45,10 @@ export class Container extends UINode implements Serializable {
     context.fillStyle = this.style.backgroundColor;
     context.strokeStyle = this.style.borderColor;
     context.lineWidth = this.style.borderWidth;
-    context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
+    context.roundRect(
+      this.position.x, this.position.y + this.node.style.titleHeight,
+      this.width, this.height - this.node.style.titleHeight, 5
+    );
     context.stroke();
     context.fill();
   }
@@ -53,7 +58,10 @@ export class Container extends UINode implements Serializable {
     context.fillStyle = this.style.backgroundColor;
     context.strokeStyle = this.style.borderColor;
     context.lineWidth = this.style.borderWidth;
-    context.roundRect(this.position.x, this.position.y + this.node.style.titleHeight, this.width, this.height - this.node.style.titleHeight, 5);
+    context.roundRect(
+      this.position.x, this.position.y + this.node.style.titleHeight,
+      this.width, this.height - this.node.style.titleHeight, 5
+    );
     context.stroke();
     context.fill();
   }
@@ -78,51 +86,65 @@ export class Container extends UINode implements Serializable {
   }
 
   /** @hidden */
-  onPropChange() { }
+  onPropChange() { /**/ }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('over', this, screenPosition, realPosition);
   }
   /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('down', this, screenPosition, realPosition);
   }
   /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('up', this, screenPosition, realPosition);
   }
   /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('click', this, screenPosition, realPosition);
   }
   /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('drag', this, screenPosition, realPosition);
   }
   /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('enter', this, screenPosition, realPosition);
   }
   /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
-  onContextMenu(): void { }
+  onContextMenu(): void { /**/ }
 
   serialize(): SerializedContainer {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
+      width: this.width,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
-      width: this.width,
+      id: this.id,
       style: {
         backgroundColor: this.style.backgroundColor,
         shadowColor: this.style.shadowColor,
@@ -131,11 +153,18 @@ export class Container extends UINode implements Serializable {
         borderWidth: this.style.borderWidth,
         borderColor: this.style.borderColor
       },
+      hitColor: this.hitColor.serialize(),
+      type: this.type,
       childs: this.children.map(child => (child as any).serialize())
     }
   }
   static deSerialize(node: Node, data: SerializedContainer): Container {
-    let uiContainer = new Container(node, data.width, data.style, data.id, Color.deSerialize(data.hitColor));
+    let uiContainer = new Container(node, data.width, {
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
+
     uiContainer.children.push(...data.childs.map(serializedChild => {
       switch (serializedChild.type) {
         case UIType.Button: return Button.deSerialize(node, serializedChild);
@@ -165,11 +194,6 @@ export interface ContainerStyle extends UINodeStyle {
   borderColor?: string,
   borderWidth?: number
 }
-
-export interface SerializedContainer extends SerializedUINode {
-  width: number
-}
-
 /** @hidden */
 let DefaultContainerStyle = () => {
   return {
@@ -181,4 +205,18 @@ let DefaultContainerStyle = () => {
     borderColor: '#444',
     visible: true
   };
+};
+
+export interface SerializedContainer extends SerializedUINode {
+  width: number
+}
+
+interface ContainerOptions {
+  style?: ContainerStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultContainerOptions = () => {
+  return {};
 };

@@ -29,7 +29,7 @@ export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, he
   let polarToggle = node.createToggle({ propName: 'polar', height: 10, style: { grow: .1 } });
   node.ui.append([
     display,
-    node.createHozLayout([node.createLabel('Polar ?', { style: { grow: .2 } }), polarToggle], { spacing: 5 })
+    node.createHozLayout([node.createLabel('Polar ?', { style: { grow: .2 } }), polarToggle], { style: { spacing: 5 } })
   ]);
   polarToggle.on('change', () => process(node.getInputs()));
 

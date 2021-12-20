@@ -42,19 +42,18 @@ export class Label extends UINode implements Serializable {
     text: string | number,
     options: LabelOptions = DefaultLabelOptions(node)
   ) {
-
-    super(
-      node, Vector2.Zero(), UIType.Label, false, false, true,
-      options.style ? { ...DefaultLabelStyle(), ...options.style } : DefaultLabelStyle(),
-      options.propName,
-      options.input && (typeof options.input === 'boolean'
+    super(node, Vector2.Zero(), UIType.Label, {
+      style: options.style ? { ...DefaultLabelStyle(), ...options.style } : DefaultLabelStyle(),
+      propName: options.propName,
+      input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, 'string', '', {})
         : Terminal.deSerialize(node, options.input)),
-      options.output && (typeof options.output === 'boolean'
+      output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, 'string', '', {})
         : Terminal.deSerialize(node, options.output)),
-      options.id, options.hitColor
-    );
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     this._text = this.propName ? this.getProp() : text;
     this.reflow();
@@ -73,7 +72,7 @@ export class Label extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.text);
 
     this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this.text);
+      if (this.output) this.output.setData(this.text);
     });
   }
 
@@ -95,7 +94,7 @@ export class Label extends UINode implements Serializable {
       x += this.width - this.textWidth - this.style.padding;
     } else {
       x += this.style.padding
-    };
+    }
 
     context.fillText(this.displayText, x, y);
   }

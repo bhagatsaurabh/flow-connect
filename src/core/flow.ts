@@ -86,7 +86,7 @@ export class Flow extends Hooks implements Serializable {
   addInput(name: string, dataType: string, position: Vector2): TunnelNode {
     let flowInput = new TunnelNode(this, 'Input', position, 100, [], [{ name: name, dataType: dataType }], {}, {}, {});
     flowInput.on('process', () => {
-      (flowInput.outputs[0] as any).setData((flowInput.proxyTerminal as any).getData());
+      flowInput.outputs[0].setData(flowInput.proxyTerminal.getData());
     });
 
     this.inputs.push(flowInput);

@@ -39,19 +39,19 @@ export class Input extends UINode implements Serializable {
     node: Node,
     options: InputOptions = DefaultInputOptions(node)
   ) {
-
     super(
-      node, Vector2.Zero(), UIType.Input, false, false, true,
-      options.style ? { ...DefaultInputStyle(), ...options.style } : DefaultInputStyle(),
-      options.propName,
-      options.input && (typeof options.input === 'boolean'
+      node, Vector2.Zero(), UIType.Input, {
+      style: options.style ? { ...DefaultInputStyle(), ...options.style } : DefaultInputStyle(),
+      propName: options.propName,
+      input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, options.style.type, '', {})
         : Terminal.deSerialize(node, options.input)),
-      options.output && (typeof options.output === 'boolean'
+      output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, options.style.type, '', {})
         : Terminal.deSerialize(node, options.output)),
-      options.id, options.hitColor
-    );
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     this.height = get(options.height, this.node.style.rowHeight);
 
@@ -72,7 +72,7 @@ export class Input extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.value);
 
     this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this.value);
+      if (this.output) this.output.setData(this.value);
     });
   }
 

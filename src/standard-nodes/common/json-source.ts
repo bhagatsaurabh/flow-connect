@@ -31,7 +31,7 @@ export const JsonSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
   node.ui.append(node.createHozLayout([
     node.createLabel('Value', { style: { grow: .3 } }),
     input
-  ], { spacing: 20 }));
+  ], { style: { spacing: 20 } }));
 
   input.on('change', process);
   node.on('process', process);

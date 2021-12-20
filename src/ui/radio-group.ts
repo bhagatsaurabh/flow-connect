@@ -35,25 +35,23 @@ export class RadioGroup extends UINode implements Serializable {
     selected: string = 'default',
     options: RadioGroupOptions = DefaultRadioGroupOptions(node)
   ) {
-
-    super(
-      node, Vector2.Zero(), UIType.RadioGroup, false, false, true,
-      options.style ? { ...DefaultRadioGroupStyle(), ...options.style } : DefaultRadioGroupStyle(),
-      options.propName,
-      options.input && (typeof options.input === 'boolean'
+    super(node, Vector2.Zero(), UIType.RadioGroup, {
+      style: options.style ? { ...DefaultRadioGroupStyle(), ...options.style } : DefaultRadioGroupStyle(),
+      propName: options.propName,
+      input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, 'boolean', '', {})
         : Terminal.deSerialize(node, options.input)),
-      options.output && (typeof options.output === 'boolean'
+      output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, 'boolean', '', {})
         : Terminal.deSerialize(node, options.output)),
-      options.id, options.hitColor
-    );
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     if (values.length === 0) values = ['default'];
     this._values = values;
     let selectedValue = this.propName ? this.getProp() : selected;
-    if (this._values.includes(selectedValue)) this._selected = selectedValue;
-    else this._selected = this._values[0];
+    this._selected = this._values.includes(selectedValue) ? selectedValue : this._values[0];
     this.height = get(options.height, this.node.style.rowHeight);
 
     if (this.input) {
@@ -69,7 +67,7 @@ export class RadioGroup extends UINode implements Serializable {
     this.setupLabels();
 
     this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this._selected);
+      if (this.output) this.output.setData(this._selected);
     });
   }
 

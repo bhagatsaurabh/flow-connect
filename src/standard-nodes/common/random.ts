@@ -32,15 +32,15 @@ export const Random = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.createHozLayout([
       node.createLabel('Min:'),
       minInput
-    ], { spacing: 20 }),
+    ], { style: { spacing: 20 } }),
     node.createHozLayout([
       node.createLabel('Max:'),
       maxInput
-    ], { spacing: 20 }),
+    ], { style: { spacing: 20 } }),
     node.createHozLayout([
       node.createLabel('Fractional ?'),
       fractional
-    ], { spacing: 10 })
+    ], { style: { spacing: 10 } })
   ]);
 
   minInput.on('change', process);

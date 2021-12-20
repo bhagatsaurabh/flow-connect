@@ -19,9 +19,9 @@ export const Log = (flow: Flow, options: NodeCreatorOptions = {}) => {
   node.inputs[0].on('event', (terminal, data) => Logger.log(terminal.name, data));
   node.inputs[1].on('data', (terminal, data) => Logger.log(terminal.name, data));
 
-  let addEventButton = node.createButton('Add Event', false, false, null, ({ grow: '.5' }) as any);
-  let addDataButton = node.createButton('Add Data', false, false, null, ({ grow: '.5' }) as any);
-  node.ui.append(node.createHozLayout([addEventButton, addDataButton], { spacing: 20 }));
+  let addEventButton = node.createButton('Add Event', { style: { grow: .5 } });
+  let addDataButton = node.createButton('Add Data', { style: { grow: .5 } });
+  node.ui.append(node.createHozLayout([addEventButton, addDataButton], { style: { spacing: 20 } }));
 
   let addTerminal = (type: string) => {
     let newTerminal = new Terminal(node, TerminalType.IN, type === 'event' ? type : 'any', 'Log ' + (node.inputs.length + 1));

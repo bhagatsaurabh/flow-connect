@@ -29,7 +29,7 @@ export const Automate = (flow: Flow, options: NodeCreatorOptions = {}, envelope:
   setMinMax();
   node.outputs[0].ref = node.props.proxyParamNode;
 
-  let envelopeInput = node.createEnvelope(145, envelope, true, true);
+  let envelopeInput = node.createEnvelope(145, envelope, { input: true, output: true });
   let minInput = node.createInput({
     propName: 'min', height: 20, style: { type: InputType.Number, grow: .5, step: 'any' }
   });
@@ -44,11 +44,11 @@ export const Automate = (flow: Flow, options: NodeCreatorOptions = {}, envelope:
     node.createHozLayout([
       node.createLabel('Min'), minInput,
       node.createLabel('Max'), maxInput
-    ], { spacing: 5 }),
+    ], { style: { spacing: 5 } }),
     node.createHozLayout([
       node.createLabel('Duration (seconds)', { style: { grow: .5 } }),
       durationInput
-    ], { spacing: 5 })
+    ], { style: { spacing: 5 } })
   ]);
 
   minInput.on('blur', setMinMax);

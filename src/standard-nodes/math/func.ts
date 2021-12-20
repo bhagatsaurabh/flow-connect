@@ -90,16 +90,16 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expression?: 
     propName: 'expression', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .9 }
   });
   exprInput.on('input', lowerCase);
-  let addVarButton = node.createButton('Add', false, false, 20, { grow: .4 } as any);
+  let addVarButton = node.createButton('Add', { height: 20, style: { grow: .4 } });
   node.ui.append([
     node.createHozLayout([
       node.createLabel('𝒇', { style: { grow: .1 } }),
       exprInput
-    ], { spacing: 10 }),
+    ], { style: { spacing: 10 } }),
     node.createHozLayout([
       node.createInput({ propName: 'newVar', height: 20, style: { type: InputType.Text, maxLength: 1, grow: .6 } }),
       addVarButton
-    ], { spacing: 10 })
+    ], { style: { spacing: 10 } })
   ]);
 
   node.watch('expression', () => process);

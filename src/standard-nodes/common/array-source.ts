@@ -37,7 +37,7 @@ export const ArraySource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
   let numberToggle = node.createToggle({ propName: 'number', input: true, output: true, height: 10, style: { grow: .2 } });
   let rangeToggle = node.createToggle({ propName: 'range', input: true, output: true, height: 10, style: { grow: .2 } });
-  let rangeLayout = node.createHozLayout([node.createLabel('Range ?'), rangeToggle], { spacing: 10 });
+  let rangeLayout = node.createHozLayout([node.createLabel('Range ?'), rangeToggle], { style: { spacing: 10 } });
   let minInput = node.createInput({
     propName: 'min', height: 20, style: { type: InputType.Number, grow: .4, step: 'any' }
   });
@@ -46,7 +46,7 @@ export const ArraySource = (flow: Flow, options: NodeCreatorOptions = {}) => {
   });
   let rangeInputLayout = node.createHozLayout([
     minInput, node.createLabel('to', { style: { grow: .2, align: Align.Center } }), maxInput
-  ], { spacing: 5 });
+  ], { style: { spacing: 5 } });
   let stepInput = node.createInput({ propName: 'step', height: 20, style: { type: InputType.Number, step: 'any', grow: .6 } });
   let rangeStack = node.createStack({
     childs: [
@@ -54,12 +54,12 @@ export const ArraySource = (flow: Flow, options: NodeCreatorOptions = {}) => {
       node.createHozLayout([
         node.createLabel('Step', { style: { grow: .4 } }),
         stepInput
-      ], { spacing: 5 })
+      ], { style: { spacing: 5 } })
     ], style: { spacing: 10 }
   });
   let arrayInput = node.createInput({ value: '', height: 20, style: { pattern: '^[^,]+(\s*,\s*[^,]+)*$' } });
   node.ui.append([
-    node.createHozLayout([node.createLabel('Numbers ?'), numberToggle], { spacing: 10 }),
+    node.createHozLayout([node.createLabel('Numbers ?'), numberToggle], { style: { spacing: 10 } }),
     rangeLayout,
     rangeStack,
     arrayInput

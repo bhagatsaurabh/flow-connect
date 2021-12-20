@@ -22,8 +22,8 @@ export const NumberSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
     value: 0, propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .6, step: node.props.fractional ? 'any' : '' }
   })
   node.ui.append([
-    node.createHozLayout([node.createLabel('Fractional ?', { style: { grow: .5 } }), fractional], { spacing: 20 }),
-    node.createHozLayout([node.createLabel('Value', { style: { grow: .4 } }), input], { spacing: 20 }),
+    node.createHozLayout([node.createLabel('Fractional ?', { style: { grow: .5 } }), fractional], { style: { spacing: 20 } }),
+    node.createHozLayout([node.createLabel('Value', { style: { grow: .4 } }), input], { style: { spacing: 20 } }),
   ]);
 
   fractional.on('change', (_inst, _oldVal, newVal) => {

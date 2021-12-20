@@ -20,12 +20,12 @@ export class Stack extends UINode implements Serializable {
     node: Node,
     options: StackOptions = DefaultStackOptions()
   ) {
+    super(node, Vector2.Zero(), UIType.Stack, {
+      style: options.style ? { ...DefaultStackStyle(), ...options.style } : DefaultStackStyle(),
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
-    super(
-      node, Vector2.Zero(), UIType.Stack, false, false, true,
-      options.style ? { ...DefaultStackStyle(), ...options.style } : DefaultStackStyle(),
-      null, null, null, options.id, options.hitColor
-    );
     if (options.childs) this.children.push(...options.childs);
   }
 

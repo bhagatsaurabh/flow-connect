@@ -20,7 +20,7 @@ export const StringSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
   let input = node.createInput({ value: '', propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .7 } })
   node.ui.append(node.createHozLayout([
     node.createLabel('Value', { style: { grow: .3 } }), input
-  ], { spacing: 10 }));
+  ], { style: { spacing: 10 } }));
 
   input.on('change', process);
   node.on('process', process);

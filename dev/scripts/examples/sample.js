@@ -26,12 +26,12 @@ let node = flow.createNode(
 );
 node.ui.append([
   node.createLabel('', { propName: 'labelText', input: true, output: true, style: { align: Align.Center, fontSize: '17px' } }),
-  node.createImage(null, null, { align: Align.Center }),
+  node.createImage(null, { style: { align: Align.Center } }),
   node.createHozLayout([
     node.createLabel('', { propName: 'sliderValue', style: { grow: .2, precision: 2 } }),
     node.createSlider(0, 150, { propName: 'sliderValue', input: true, output: true, height: 15, style: { grow: .8, railHeight: 5 } })
   ]),
-  node.createButton('Click Me !', true, true),
+  node.createButton('Click Me !', { input: true, output: true }),
   node.createHozLayout([
     node.createLabel('Toggle: ', { style: { grow: .8 } }),
     node.createToggle({ propName: 'toggle', input: true, output: true, style: { grow: .2 } })

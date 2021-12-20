@@ -573,13 +573,15 @@ export class FlowConnect extends Hooks {
   showGenericInput(position: Vector2 | DOMPoint, value: string, styles: { [key: string]: any }, attributes: { [key: string]: any }, callback: (value: string) => void) {
     if (document.activeElement === this.genericInput) return;
 
-    Object.keys(styles).forEach(key => (this.genericInput.style as any)[key] = styles[key]);
-    Object.keys(attributes).forEach(key => (this.genericInput as any)[key] = attributes[key]);
+    Object.assign(this.genericInput.style, styles);
+    Object.assign(this.genericInput, attributes);
 
-    this.genericInput.style.left = (position.x + this.canvasDimensions.left) + 'px';
-    this.genericInput.style.top = (position.y + this.canvasDimensions.top - 3) + 'px';
-    this.genericInput.style.visibility = 'visible';
-    this.genericInput.style.pointerEvents = 'all';
+    Object.assign(this.genericInput.style, {
+      left: (position.x + this.canvasDimensions.left) + 'px',
+      top: (position.y + this.canvasDimensions.top - 3) + 'px',
+      visibility: 'visible',
+      pointerEvents: 'all'
+    });
     this.genericInput.value = value;
     this.genericInput.onchange = () => callback(this.genericInput.value);
     this.genericInput.focus();

@@ -25,19 +25,22 @@ export const Dial = (flow: Flow, options: NodeCreatorOptions = new Object(), dia
     shadowColor: 'transparent'
   });
 
-  let dial = node.createDial(node.props.min, node.props.max, node.props.value, node.width, 'value', true, true, dialStyle);
+  let dial = node.createDial(node.props.min, node.props.max, node.width, {
+    value: node.props.value, propName: 'value', input: true, output: true, style: dialStyle
+  });
   node.ui.append([
     dial,
     node.createStack({
       childs: [
         node.createHozLayout([
-          node.createLabel('', { propName: 'min', style: { precision: 1, fontSize: '11px', align: Align.Left } }),
-          node.createLabel('', { propName: 'max', style: { precision: 1, fontSize: '11px', align: Align.Right } })
+          node.createLabel('', { propName: 'min', style: { precision: 1, fontSize: '11px', align: Align.Left, grow: .5 } }),
+          node.createLabel('', { propName: 'max', style: { precision: 1, fontSize: '11px', align: Align.Right, grow: .5 } })
         ]),
         node.createHozLayout([
-          node.createLabel('', { propName: 'value', style: { precision: 1, fontSize: '20px', align: Align.Center } })
+          node.createLabel('', { propName: 'value', style: { precision: 1, fontSize: '20px', align: Align.Center, grow: 1 } })
         ])
-      ], style: { spacing: 5 }
+      ],
+      style: { spacing: 5 }
     })
   ]);
 

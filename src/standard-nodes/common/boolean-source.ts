@@ -20,7 +20,7 @@ export const BooleanSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
   node.ui.append(node.createHozLayout([
     node.createLabel('Value'),
     toggle
-  ], { spacing: 20 }));
+  ], { style: { spacing: 20 } }));
 
   toggle.on('change', process);
   node.on('process', process);

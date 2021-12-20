@@ -4,63 +4,64 @@ import { Node, NodeState } from "../core/node";
 import { SerializedTerminal, Terminal } from "../core/terminal";
 import { Vector2 } from "../core/vector";
 import { LOD, ViewPort } from '../common/enums';
-import { getNewGUID, intersects } from "../utils/utils";
+import { get, getNewGUID, intersects } from "../utils/utils";
 import { Events } from "../common/interfaces";
 
 export abstract class UINode extends Hooks implements Events {
+  private _disabled: boolean;
+  private _visible: boolean;
   /** @hidden */
   renderState: ViewPort;
-  private _disabled: boolean;
   /** @hidden */
   hitColor: Color;
 
+  style: any;
+  propName: string;
+  input: Terminal;
+  output: Terminal;
+  id: string;
   draggable: boolean;
   zoomable: boolean;
-  private _visible: boolean;
-  get visible(): boolean { return this._visible };
-  set visible(value: boolean) { this._visible = value; this.node.ui.update(); };
   width: number = 0;
   height: number = 0;
   children: UINode[];
-  get context(): CanvasRenderingContext2D { return this.node.context };
-  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.node.offUIContext };
+  get context(): CanvasRenderingContext2D { return this.node.context }
+  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.node.offUIContext }
   position: Vector2;
-  get disabled(): boolean { return this._disabled };
+
+  get disabled(): boolean { return this._disabled }
   set disabled(disabled: boolean) {
     this._disabled = disabled;
     this.children.forEach(child => child.disabled = disabled);
   }
+  get visible(): boolean { return this._visible }
+  set visible(value: boolean) { this._visible = value; this.node.ui.update(); }
 
-  constructor(
-    public node: Node, position: Vector2, public type: UIType,
-    draggable: boolean, zoomable: boolean, visible: boolean,
-    public style: any,
-    public propName?: string,
-    public input: Terminal = null, public output: Terminal = null,
-    public id: string = getNewGUID(),
-    hitColor?: Color
-  ) {
-
+  constructor(public node: Node, position: Vector2, public type: UIType, options: UINodeOptions = DefaultUINodeOptions()) {
     super();
-    this.hitColor = hitColor;
-    this.id = getNewGUID();
-    this.setHitColor(hitColor);
-    this.position = position;
+
+    this.setHitColor(options.hitColor);
+    this.id = get(options.id, getNewGUID());
+    this.draggable = get(options.draggable, false);
+    this.zoomable = get(options.zoomable, false);
+    this._visible = get(options.visible, true);
+    this.style = get(options.style, {});
     this.children = [];
-    this.draggable = draggable;
-    this.zoomable = zoomable;
-    this._visible = visible;
+    this.position = position;
     this.disabled = false;
+    this.propName = options.propName;
     if (this.propName) {
       this.node.watch(this.propName, (oldVal, newVal) => this.onPropChange(oldVal, newVal));
     }
+    this.input = options.input;
+    this.output = options.output;
 
-    if (input) {
+    if (this.input) {
       this.node.inputsUI.push(this.input);
       this.input.on('connect', () => this.disabled = true);
       this.input.on('disconnect', () => this.disabled = false);
     }
-    if (output) this.node.outputsUI.push(this.output);
+    if (this.output) this.node.outputsUI.push(this.output);
   }
 
   append(childs: UINode | UINode[]) {
@@ -88,8 +89,7 @@ export abstract class UINode extends Hooks implements Events {
       0, 0,
       this.node.flow.flowConnect.canvasDimensions.width, this.node.flow.flowConnect.canvasDimensions.height,
       realPos.x, realPos.y,
-      realPos.x + this.width * this.node.flow.flowConnect.scale,
-      realPos.y + this.height * this.node.flow.flowConnect.scale
+      realPos.x + this.width * this.node.flow.flowConnect.scale, realPos.y + this.height * this.node.flow.flowConnect.scale
     );
 
     this.children.forEach(child => child.updateRenderState());
@@ -176,7 +176,6 @@ export abstract class UINode extends Hooks implements Events {
 }
 
 export interface UINodeStyle {
-  visible?: boolean;
   grow?: number
 }
 
@@ -208,3 +207,29 @@ export enum UIType {
   Envelope,
   RadioGroup
 }
+
+interface UINodeOptions {
+  draggable?: boolean,
+  zoomable?: boolean,
+  visible?: boolean,
+  style?: any,
+  propName?: string,
+  input?: Terminal,
+  output?: Terminal,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultUINodeOptions = (): UINodeOptions => {
+  return {
+    draggable: false,
+    zoomable: false,
+    visible: true,
+    style: {},
+    propName: null,
+    input: null,
+    output: null,
+    id: getNewGUID(),
+    hitColor: null
+  };
+};

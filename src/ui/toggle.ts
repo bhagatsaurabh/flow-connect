@@ -31,20 +31,20 @@ export class Toggle extends UINode implements Serializable {
     options: ToggleOptions = DefaultToggleOptions(node)
   ) {
 
-    super(
-      node, Vector2.Zero(), UIType.Toggle, false, false, true,
-      options.style
+    super(node, Vector2.Zero(), UIType.Toggle, {
+      style: options.style
         ? { ...DefaultToggleStyle(), ...options.style }
         : DefaultToggleStyle(),
-      options.propName,
-      options.input && (typeof options.input === 'boolean'
+      propName: options.propName,
+      input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, 'boolean', '', {})
         : Terminal.deSerialize(node, options.input)),
-      options.output && (typeof options.output === 'boolean'
+      output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, 'boolean', '', {})
         : Terminal.deSerialize(node, options.output)),
-      options.id, options.hitColor
-    );
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     this._checked = this.propName ? this.getProp() : options.value
     this.height = get(options.height, this.node.style.rowHeight);
@@ -60,7 +60,7 @@ export class Toggle extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.checked);
 
     this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this.checked);
+      if (this.output) this.output.setData(this.checked);
     });
   }
 

@@ -28,7 +28,7 @@ export const GlobalEvent = (flow: Flow, options: NodeCreatorOptions = {}, type: 
   node.ui.append(node.createHozLayout([
     node.createLabel('Event', { style: { grow: .4 } }),
     eventInput
-  ], { spacing: 10 }));
+  ], { style: { spacing: 10 } }));
 
   if (type === GlobalEventType.Emitter) {
     node.inputs[0].on('event', (_, data) => flow.globalEvents.call(node.props.name, data));

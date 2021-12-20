@@ -42,19 +42,18 @@ export class Select extends UINode implements Serializable {
     public values: string[] = [],
     options: SelectOptions = DefaultSelectOptions(node)
   ) {
-
-    super(
-      node, Vector2.Zero(), UIType.Select, false, false, true,
-      options.style ? { ...DefaultSelectStyle(), ...options.style } : DefaultSelectStyle(),
-      options.propName,
-      options.input && (typeof options.input === 'boolean'
+    super(node, Vector2.Zero(), UIType.Select, {
+      style: options.style ? { ...DefaultSelectStyle(), ...options.style } : DefaultSelectStyle(),
+      propName: options.propName,
+      input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, 'string', '', {})
         : Terminal.deSerialize(node, options.input)),
-      options.output && (typeof options.output === 'boolean'
+      output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, 'string', '', {})
         : Terminal.deSerialize(node, options.output)),
-      options.id, options.hitColor
-    );
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     this.height = get(options.height, this.node.style.rowHeight);
     this._selected = this.values.length === 0 ? 'None' : this.values[0];
@@ -73,7 +72,7 @@ export class Select extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.selected);
 
     this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this.selected);
+      if (this.output) this.output.setData(this.selected);
     });
   }
 

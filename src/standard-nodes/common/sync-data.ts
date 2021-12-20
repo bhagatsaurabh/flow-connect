@@ -24,7 +24,7 @@ export const SyncData = (flow: Flow, options: NodeCreatorOptions = {}, inputs?: 
   }
 
   let syncTypeInput = node.createRadioGroup(['partial', 'full'], node.props.syncType, { propName: 'syncType', height: 20 });
-  let addButton = node.createButton('Add', true, true, 20);
+  let addButton = node.createButton('Add', { input: true, output: true, height: 20 });
   node.ui.append([syncTypeInput, addButton]);
   addButton.on('click', () => {
     let newTerminal = new Terminal(node, TerminalType.IN, 'any', 'Data ' + (node.inputs.length + 1));

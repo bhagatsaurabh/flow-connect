@@ -44,13 +44,13 @@ export const NumberRange = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.createHozLayout([
       node.createLabel('Min', { style: { grow: .2 } }), minInput,
       node.createLabel('Max', { style: { grow: .2 } }), maxInput
-    ], { spacing: 5 }),
+    ], { style: { spacing: 5 } }),
     node.createHozLayout([
       node.createLabel('Step', { style: { grow: .2 } }), stepInput
-    ], { spacing: 5 }),
+    ], { style: { spacing: 5 } }),
     node.createHozLayout([
       node.createLabel('Loop ?', { style: { grow: .2 } }), loopToggle
-    ], { spacing: 10 })
+    ], { style: { spacing: 10 } })
   ]);
 
   minInput.on('change', process);

@@ -526,23 +526,23 @@ export class Node extends Hooks implements Events, Serializable {
   createLabel(text: string | number, options?: LabelCreatorOptions): Label {
     return new Label(this, text, options);
   }
-  createImage(source: string, propName?: string, style?: ImageStyle): Image {
-    return new Image(this, source, propName, style);
+  createImage(source: string, options?: ImageCreatorOptions): Image {
+    return new Image(this, source, options);
   }
   createSlider(min: number, max: number, options?: SliderCreatorOptions) {
     return new Slider(this, min, max, options);
   }
-  createDial(min: number, max: number, value: number, size: number, propName?: string, input?: boolean, output?: boolean, style?: DialStyle) {
-    return new Dial(this, min, max, value, size, propName, input, output, style);
+  createDial(min: number, max: number, size: number, options?: DialCreatorOptions) {
+    return new Dial(this, min, max, size, options);
   }
-  createHozLayout(childs?: UINode[], style?: HorizontalLayoutStyle) {
-    return new HorizontalLayout(this, childs, style);
+  createHozLayout(childs: UINode[] = [], options?: HorizontalLayoutCreatorOptions) {
+    return new HorizontalLayout(this, childs, options);
   }
   createStack(options?: StackCreatorOptions) {
     return new Stack(this, options);
   }
-  createButton(text: string, input?: boolean, output?: boolean, height?: number, style?: ButtonStyle) {
-    return new Button(this, text, input, output, height, style);
+  createButton(text: string, options?: ButtonCreatorOption) {
+    return new Button(this, text, options);
   }
   createToggle(options?: ToggleCreatorOptions) {
     return new Toggle(this, options);
@@ -556,14 +556,14 @@ export class Node extends Hooks implements Events, Serializable {
   createSource(options?: SourceCreatorOptions) {
     return new Source(this, options);
   }
-  createDisplay(height: number, renderers: CustomRendererConfig[], style?: DisplayStyle) {
-    return new Display(this, height, renderers, style);
+  createDisplay(height: number, renderers: CustomRendererConfig[], options?: DisplayCreatorOptions) {
+    return new Display(this, height, renderers, options);
   }
   createInput(options?: InputCreatorOptions) {
     return new Input(this, options);
   }
-  createEnvelope(height: number, value?: Vector2[], input?: boolean, output?: boolean, style?: EnvelopeStyle): Envelope {
-    return new Envelope(this, height, value, input, output, style);
+  createEnvelope(height: number, values?: Vector2[], options?: EnvelopeCreatorOptions): Envelope {
+    return new Envelope(this, height, values, options);
   }
   //#endregion
 
@@ -748,4 +748,32 @@ interface InputCreatorOptions {
   output?: boolean,
   height?: number,
   style?: InputStyle
+}
+interface ImageCreatorOptions {
+  propName?: string,
+  style?: ImageStyle
+}
+interface HorizontalLayoutCreatorOptions {
+  style?: HorizontalLayoutStyle
+}
+interface ButtonCreatorOption {
+  input?: boolean,
+  output?: boolean,
+  height?: number,
+  style?: ButtonStyle
+}
+interface DialCreatorOptions {
+  value?: number
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  style?: DialStyle,
+}
+interface DisplayCreatorOptions {
+  style?: DisplayStyle
+}
+interface EnvelopeCreatorOptions {
+  input?: boolean,
+  output?: boolean,
+  style?: EnvelopeStyle
 }

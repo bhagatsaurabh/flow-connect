@@ -108,7 +108,7 @@ img {
   display: flex;
   align-items: center;
   z-index: 20;
-  padding: 8 25 8 25;
+  padding: 8px 25px 8px 25px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   border: 1px solid black;

@@ -20,7 +20,7 @@ export class Envelope extends UINode implements Serializable {
     return this._value.toArray();
   }
   set value(value: Vector2[]) {
-    let prevVal = this.value;
+    let oldVal = this.value;
     value.forEach(vector => vector.clampInPlace(0, 1, 0, 1));
     value.sort((a, b) => a.x - b.x);
     this._value = new List((a, b) => a.x - b.x, value);
@@ -28,34 +28,32 @@ export class Envelope extends UINode implements Serializable {
     this._value.forEach(node => this.pointHitColorPoint.set(Color.Random().hexValue, node));
     this.renderOffPoints();
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, prevVal, this._value.toArray());
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, this._value.toArray());
   }
 
   constructor(
     node: Node,
     height: number,
-    value: Vector2[] = [],
-    input?: boolean | SerializedTerminal,
-    output?: boolean | SerializedTerminal,
-    style: EnvelopeStyle = {},
-    id?: string,
-    hitColor?: Color
+    values: Vector2[] = [],
+    options: EnvelopeOptions = DefaultEnvelopeOptions()
   ) {
-
-    super(node, Vector2.Zero(), UIType.Envelope, true, false, true, { ...DefaultEnvelopeStyle(), ...style }, null,
-      input
-        ? (typeof input === 'boolean' ? new Terminal(node, TerminalType.IN, 'array', '', {}) : Terminal.deSerialize(node, input))
-        : null,
-      output
-        ? (typeof output === 'boolean' ? new Terminal(node, TerminalType.OUT, 'array', '', {}) : Terminal.deSerialize(node, output))
-        : null,
-      id, hitColor
-    );
+    super(node, Vector2.Zero(), UIType.Envelope, {
+      draggable: true,
+      style: options.style ? { ...DefaultEnvelopeStyle(), ...options.style } : DefaultEnvelopeStyle(),
+      input: options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, 'array', '', {})
+        : Terminal.deSerialize(node, options.input)),
+      output: options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, 'array', '', {})
+        : Terminal.deSerialize(node, options.output)),
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     this.height = height;
-    value.forEach(vector => vector.clampInPlace(0, 1, 0, 1));
-    value.sort((a, b) => a.x - b.x);
-    this._value = new List((a, b) => a.x - b.x, value);
+    values.forEach(vector => vector.clampInPlace(0, 1, 0, 1));
+    values.sort((a, b) => a.x - b.x);
+    this._value = new List((a, b) => a.x - b.x, values);
     this.pointHitColorPoint.clear();
     this._value.forEach(pointNode => this.pointHitColorPoint.set(Color.Random().hexValue, pointNode));
 
@@ -142,20 +140,27 @@ export class Envelope extends UINode implements Serializable {
   reflow(): void {
     let [newWidth, newHeight] = [this.width, this.height];
 
-    if (Math.floor(this.offPointsCanvas.width) !== Math.floor(newWidth) || Math.floor(this.offPointsCanvas.height) !== Math.floor(newHeight)) {
+    if (
+      Math.floor(this.offPointsCanvas.width) !== Math.floor(newWidth)
+      || Math.floor(this.offPointsCanvas.height) !== Math.floor(newHeight)
+    ) {
+
       this.offPointsCanvas.width = newWidth;
       this.offPointsCanvas.height = newHeight;
-
       this.renderOffPoints();
     }
 
     if (this.input) {
-      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-      this.input.position.y = this.position.y + this.height / 2;
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
     }
     if (this.output) {
-      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
-      this.output.position.y = this.position.y + this.height / 2;
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
     }
   }
 
@@ -182,11 +187,35 @@ export class Envelope extends UINode implements Serializable {
       );
 
     this.renderOffPoints();
-    // Maybe setter ? onchange ? props ?
+  }
+  newPoint(realPosition: Vector2, width: number, height: number) {
+    let oldVal = this._value.toArray();
+
+    let newPoint = realPosition
+      .subtract(this.position.add(this.pointDiameter / 2))
+      .normalize(0, width, 0, height);
+
+    let newPointNode;
+    let anchor = this._value.searchTail(node => node.data.x <= newPoint.x);
+
+    if (anchor === null) newPointNode = this._value.prepend(newPoint);
+    else newPointNode = this._value.addAfter(newPoint, anchor);
+
+    this.pointHitColorPoint.set(Color.Random().hexValue, newPointNode);
+    this.renderOffPoints();
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, this._value.toArray());
+  }
+  deletePoint() {
+    let oldVal = this._value.toArray();
+    this._value.delete(this.currHitPoint);
+    this.pointHitColorPoint.delete(this.currHitPoint);
+    this.renderOffPoints();
+
+    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, this._value.toArray());
   }
 
   /** @hidden */
-  onPropChange() { }
+  onPropChange() { /**/ }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
@@ -211,36 +240,14 @@ export class Envelope extends UINode implements Serializable {
 
     let [width, height] = [this.width - this.pointDiameter, this.height - this.pointDiameter];
     if (!this.currHitPoint && this.lastDownPosition) {
-      // New Point
       if (Vector2.Distance(this.lastDownPosition, realPosition) <= 2) {
-        let prevVal = this._value.toArray();
-
-        let newPoint = realPosition
-          .subtract(this.position.add(this.pointDiameter / 2))
-          .normalize(0, width, 0, height);
-
-        let newPointNode;
-        let anchor = this._value.searchTail(node => node.data.x <= newPoint.x);
-
-        if (anchor === null) newPointNode = this._value.prepend(newPoint);
-        else newPointNode = this._value.addAfter(newPoint, anchor);
-
-        this.pointHitColorPoint.set(Color.Random().hexValue, newPointNode);
-        this.renderOffPoints();
-
-        if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, prevVal, this._value.toArray());
+        this.newPoint(realPosition, width, height);
       }
     } else if (
       this.currHitPoint && this.currHitPoint === this.getHitPoint(realPosition)
       && this.lastDownPosition && this.lastDownPosition.isEqual(realPosition, 0.5)
     ) {
-      // Delete Point
-      let prevVal = this._value.toArray();
-      this._value.delete(this.currHitPoint);
-      this.pointHitColorPoint.delete(this.currHitPoint);
-      this.renderOffPoints();
-
-      if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, prevVal, this._value.toArray());
+      this.deletePoint();
     } else if (this.currHitPoint) {
       // Point has finished moving
       if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, null, this._value.toArray());
@@ -278,7 +285,7 @@ export class Envelope extends UINode implements Serializable {
     if (this.currHitPoint) {
       this.movePoint(realPosition);
       if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, null, this._value.toArray());
-    };
+    }
     this.currHitPoint = null;
     this.lastDownPosition = null;
 
@@ -286,6 +293,8 @@ export class Envelope extends UINode implements Serializable {
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
@@ -295,20 +304,26 @@ export class Envelope extends UINode implements Serializable {
 
   serialize(): SerializedEnvelope {
     return {
-      id: this.id,
-      hitColor: this.hitColor.serialize(),
-      type: this.type,
-      style: this.style,
+      values: this.value.map(vector => vector.serialize()),
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
-      value: this.value.map(vector => vector.serialize()),
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      style: this.style,
       height: this.height,
+      type: this.type,
       childs: []
     }
   }
   static deSerialize(node: Node, data: SerializedEnvelope): Envelope {
-    return new Envelope(node, data.height, data.value.map(serialVec => Vector2.deSerialize(serialVec)), data.input, data.output, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new Envelope(node, data.height, data.values.map(serialVec => Vector2.deSerialize(serialVec)), {
+      input: data.input,
+      output: data.output,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
 
@@ -319,12 +334,6 @@ export interface EnvelopeStyle extends UINodeStyle {
   borderColor?: string,
   borderWidth?: number
 }
-
-export interface SerializedEnvelope extends SerializedUINode {
-  value: SerializedVector2[],
-  height: number
-}
-
 /** @hidden */
 let DefaultEnvelopeStyle = () => {
   return {
@@ -335,4 +344,21 @@ let DefaultEnvelopeStyle = () => {
     borderWidth: 1,
     visible: true
   };
+};
+
+export interface SerializedEnvelope extends SerializedUINode {
+  values: SerializedVector2[],
+  height: number
+}
+
+interface EnvelopeOptions {
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
+  style?: EnvelopeStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultEnvelopeOptions = () => {
+  return {};
 };

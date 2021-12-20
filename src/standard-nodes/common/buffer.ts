@@ -31,7 +31,7 @@ export const Buffer = (flow: Flow, options: NodeCreatorOptions = {}) => {
   node.ui.append(node.createHozLayout([
     node.createLabel('Size', { style: { grow: .3 } }),
     sizeInput
-  ], { spacing: 20 }));
+  ], { style: { spacing: 20 } }));
 
   sizeInput.on('change', () => process(node.getInputs()));
   node.on('process', (_, inputs) => process(inputs));

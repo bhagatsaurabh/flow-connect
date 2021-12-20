@@ -20,8 +20,8 @@ export const getRandom = (min: number, max: number) => {
   return Math.random() * (max - min) + min;
 };
 export const intersects = (start1X: number, start1Y: number, end1X: number, end1Y: number, start2X: number, start2Y: number, end2X: number, end2Y: number): ViewPort => {
-  let intersects = !(start2X > end1X || end2X < start1X || start2Y > end1Y || end2Y < start1Y);
-  if (intersects) {
+  let res = !(start2X > end1X || end2X < start1X || start2Y > end1Y || end2Y < start1Y);
+  if (res) {
     if (!(start2X < start1X || start2Y < start1Y || end2X > end1X || end2Y > end1Y)) return ViewPort.INSIDE;
     else return ViewPort.INTERSECT;
   } else return ViewPort.OUTSIDE;
@@ -43,7 +43,7 @@ export const isEmpty = (obj: any): boolean => {
   return true;
 };
 export const get = <T>(value: T, defaultVal: T): T => {
-  if (typeof value === 'undefined') return defaultVal;
+  if (typeof value === 'undefined' || value === null) return defaultVal;
   return value;
 };
 /** @hidden */

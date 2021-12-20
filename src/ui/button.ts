@@ -6,6 +6,7 @@ import { SerializedUINode, UINode, UIType, UINodeStyle } from './ui-node';
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { Align } from "../common/enums";
+import { get } from "../utils";
 
 export class Button extends UINode implements Serializable {
   label: Label;
@@ -13,32 +14,22 @@ export class Button extends UINode implements Serializable {
   constructor(
     node: Node,
     public text: string,
-    input?: boolean | SerializedTerminal,
-    output?: boolean | SerializedTerminal,
-    height?: number,
-    style: ButtonStyle = {},
-    id?: string,
-    hitColor?: Color
+    options: ButtonOptions = DefaultButtonOptions(node)
   ) {
-
-    super(node, Vector2.Zero(), UIType.Button, false, false, true, { ...DefaultButtonStyle(), ...style }, null,
-      input ?
-        (typeof input === 'boolean' ?
-          new Terminal(node, TerminalType.IN, 'event', '', {}) :
-          new Terminal(node, input.type, input.dataType, input.name, input.style, input.id, Color.deSerialize(input.hitColor))
-        ) :
-        null,
-      output ?
-        (typeof output === 'boolean' ?
-          new Terminal(node, TerminalType.OUT, 'event', '', {}) :
-          Terminal.deSerialize(node, output)
-        ) :
-        null,
-      id, hitColor
-    );
+    super(node, Vector2.Zero(), UIType.Button, {
+      style: options.style ? { ...DefaultButtonStyle(), ...options.style } : DefaultButtonStyle(),
+      input: options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, 'event', '', {})
+        : new Terminal(node, options.input.type, options.input.dataType, options.input.name, options.input.style, options.input.id, Color.deSerialize(options.input.hitColor))),
+      output: options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, 'event', '', {})
+        : Terminal.deSerialize(node, options.output)),
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     if (this.input) this.input.on('event', () => this.call('click', this));
-    this.height = height ? height : (this.node.style.rowHeight + 2 * this.style.padding);
+    this.height = get(options.height, this.node.style.rowHeight + 2 * this.style.padding);
 
     this.label = new Label(this.node, text, {
       style: {
@@ -50,7 +41,6 @@ export class Button extends UINode implements Serializable {
       height: this.height
     });
     this.label.on('click', (_node: Node, position: Vector2) => this.call('click', this, position));
-
     this.children.push(this.label);
   }
 
@@ -77,17 +67,21 @@ export class Button extends UINode implements Serializable {
     this.label.width = this.width;
 
     if (this.input) {
-      this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-      this.input.position.y = this.position.y + this.height / 2;
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
     }
     if (this.output) {
-      this.output.position.x = this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius;
-      this.output.position.y = this.position.y + this.height / 2;
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
     }
   }
 
   /** @hidden */
-  onPropChange() { }
+  onPropChange() { /**/ }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
@@ -132,6 +126,8 @@ export class Button extends UINode implements Serializable {
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
@@ -143,20 +139,27 @@ export class Button extends UINode implements Serializable {
 
   serialize(): SerializedButton {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
-      height: this.height,
       text: this.text,
-      style: this.style,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
+      height: this.height,
+      id: this.id,
+      style: this.style,
+      hitColor: this.hitColor.serialize(),
+      type: this.type,
       childs: []
     }
   }
   static deSerialize(node: Node, data: SerializedButton): Button {
-    return new Button(node, data.text, data.input, data.output, data.height, data.style, data.id, Color.deSerialize(data.hitColor));
+    return new Button(node, data.text, {
+      input: data.input,
+      output: data.output,
+      height: data.height,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
 
@@ -167,12 +170,6 @@ export interface ButtonStyle extends UINodeStyle {
   font?: string,
   padding?: number
 }
-
-export interface SerializedButton extends SerializedUINode {
-  text: string,
-  height: number
-}
-
 /** @hidden */
 let DefaultButtonStyle = () => {
   return {
@@ -182,5 +179,24 @@ let DefaultButtonStyle = () => {
     font: 'arial',
     fontSize: '11px',
     visible: true
+  };
+};
+
+export interface SerializedButton extends SerializedUINode {
+  text: string,
+  height: number
+}
+
+interface ButtonOptions {
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
+  height?: number,
+  style?: ButtonStyle,
+  id?: string,
+  hitColor?: Color
+}
+let DefaultButtonOptions = (node: Node): ButtonOptions => {
+  return {
+    height: node.style.rowHeight * 1.5
   };
 };

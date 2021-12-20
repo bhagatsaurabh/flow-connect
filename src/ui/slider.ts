@@ -34,19 +34,19 @@ export class Slider extends UINode implements Serializable {
     node: Node, public min: number, public max: number,
     options: SliderOptions = DefaultSliderOptions(node)
   ) {
-
-    super(
-      node, Vector2.Zero(), UIType.Slider, true, false, true,
-      options.style ? { ...DefaultSliderStyle(node, options.height), ...options.style } : DefaultSliderStyle(node, options.height),
-      options.propName,
-      options.input && (typeof options.input === 'boolean'
+    super(node, Vector2.Zero(), UIType.Slider, {
+      draggable: true,
+      style: options.style ? { ...DefaultSliderStyle(node, options.height), ...options.style } : DefaultSliderStyle(node, options.height),
+      propName: options.propName,
+      input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, 'number', '', {})
         : Terminal.deSerialize(node, options.input)),
-      options.output && (typeof options.output === 'boolean'
+      output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, 'number', '', {})
         : Terminal.deSerialize(node, options.output)),
-      options.id, options.hitColor
-    );
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     this.height = get(options.height, this.node.style.rowHeight);
     this._value = this.propName ? this.getProp() : get(options.value, min);
@@ -63,7 +63,7 @@ export class Slider extends UINode implements Serializable {
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.value);
 
     this.node.on('process', () => {
-      if (this.output) (this.output as any).setData(this.value);
+      if (this.output) this.output.setData(this.value);
     });
   }
 

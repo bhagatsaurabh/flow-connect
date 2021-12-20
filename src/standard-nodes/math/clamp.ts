@@ -23,11 +23,11 @@ export const Clamp = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.createHozLayout([
       node.createLabel('Min', { style: { grow: .3 } }),
       minInput
-    ], { spacing: 10 }),
+    ], { style: { spacing: 10 } }),
     node.createHozLayout([
       node.createLabel('Max', { style: { grow: .3 } }),
       maxInput
-    ], { spacing: 10 })
+    ], { style: { spacing: 10 } })
   ]);
 
   let process = (input: number | []) => {

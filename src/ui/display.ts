@@ -14,19 +14,18 @@ export class Display extends UINode implements Serializable {
     node: Node,
     height: number,
     customRenderers: CustomRendererConfig[],
-    style: DisplayStyle = {},
-    id?: string,
-    hitColor?: Color,
-    clear?: SerializedTerminal
+    options: DisplayOptions = DefaultDisplayOptions()
   ) {
+    super(node, Vector2.Zero(), UIType.Display, {
+      draggable: true,
+      zoomable: true,
+      style: options.style ? { ...DefaultDisplayStyle(), ...options.style } : DefaultDisplayStyle(),
+      input: options.clear && typeof options.clear !== 'boolean'
+        ? Terminal.deSerialize(node, options.clear)
+        : new Terminal(node, TerminalType.IN, 'event', '', {}),
+      id: options.id, hitColor: options.hitColor
+    });
 
-    super(
-      node, Vector2.Zero(), UIType.Display, true, true, true, { ...DefaultDisplayStyle(), ...style }, null,
-      typeof clear !== 'undefined' ?
-        Terminal.deSerialize(node, clear) :
-        new Terminal(node, TerminalType.IN, 'event', '', {}),
-      null, id, hitColor
-    );
     this.height = height;
     if (typeof OffscreenCanvas !== 'undefined') {
       customRenderers.forEach(rendererConfig => {
@@ -79,9 +78,7 @@ export class Display extends UINode implements Serializable {
           resolve(
             offCanvas.rendererConfig.renderer(offCanvas.context, offCanvas.canvas.width, offCanvas.canvas.height)
           );
-        } else {
-          resolve(false);
-        }
+        } else resolve(false);
       });
     }));
   }
@@ -137,64 +134,89 @@ export class Display extends UINode implements Serializable {
       }
     });
 
-    this.input.position.x = this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius;
-    this.input.position.y = this.position.y + this.height / 2;
+    this.input.position.assign(
+      this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+      this.position.y + this.height / 2
+    );
   }
 
   /** @hidden */
-  onPropChange() { }
+  onPropChange() { /**/ }
   /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('over', this, screenPosition, realPosition);
   }
   /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('down', this, screenPosition, realPosition);
   }
   /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('up', this, screenPosition, realPosition);
   }
   /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('click', this, screenPosition, realPosition);
   }
   /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+    if (this.disabled) return;
+
     this.call('drag', this, screenPosition, realPosition);
   }
   /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('enter', this, screenPosition, realPosition);
   }
   /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('exit', this, screenPosition, realPosition);
   }
   /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+    if (this.disabled) return;
+
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
   /** @hidden */
   onContextMenu(): void {
+    if (this.disabled) return;
+
     this.call('rightclick', this);
   }
 
   serialize(): SerializedDisplay {
     return {
-      id: this.id,
-      type: this.type,
-      hitColor: this.hitColor.serialize(),
-      style: this.style,
+      height: this.height,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
-      height: this.height,
+      id: this.id,
+      hitColor: this.hitColor.serialize(),
+      style: this.style,
+      type: this.type,
       childs: []
     };
   }
   static deSerialize(node: Node, data: SerializedDisplay): Display {
-    return new Display(node, data.height, null, data.style, data.id, Color.deSerialize(data.hitColor), data.input);
+    return new Display(node, data.height, null, {
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor),
+      clear: data.input
+    });
   }
 }
 
@@ -213,21 +235,31 @@ export interface CustomOffCanvasConfig {
 export interface CustomRendererConfig {
   type: CustomRendererType
   renderer?: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => boolean
-};
+}
 
 export interface DisplayStyle extends UINodeStyle {
   borderColor?: string,
   backgroundColor?: string
 }
-
-export interface SerializedDisplay extends SerializedUINode {
-  height: number
-}
-
 /** @hidden */
 let DefaultDisplayStyle = () => {
   return {
     borderColor: '#000',
     visible: true
   };
+};
+
+export interface SerializedDisplay extends SerializedUINode {
+  height: number
+}
+
+interface DisplayOptions {
+  style?: DisplayStyle,
+  id?: string,
+  hitColor?: Color,
+  clear?: boolean | SerializedTerminal
+}
+/** @hidden */
+let DefaultDisplayOptions = () => {
+  return {}
 };

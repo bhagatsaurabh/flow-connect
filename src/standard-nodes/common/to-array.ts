@@ -19,7 +19,7 @@ export const ToArray = (flow: Flow, options: NodeCreatorOptions = {}, inputs: nu
     options.props ? { ...options.props } : {}
   );
 
-  let addButton = node.createButton('Add', false, false, null, ({ grow: '.5' }) as any);
+  let addButton = node.createButton('Add', { style: { grow: .5 } });
   node.ui.append(addButton);
 
   addButton.on('click', () => node.addTerminal(new Terminal(node, TerminalType.IN, 'any', 'In ' + node.inputs.length + 1)));
