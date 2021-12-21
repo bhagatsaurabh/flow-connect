@@ -547,18 +547,29 @@ export class FlowConnect extends Hooks {
 
           min = -340282346638528859811704183484516925439;
           max =  340282346638528859811704183484516925439;
+          offset = 0;
           constructor(...args) {
             super(...args);
             this.port.onmessage = (e) => {
-              this.min = e.data.min;
-              this.max = e.data.max;
+              switch(e.data.type) {
+                case 'set-range': {
+                  this.min = e.data.value.min;
+                  this.max = e.data.value.max;
+                  break;
+                }
+                case 'set-offset': {
+                  this.offset = -e.data.value
+                  break;
+                }
+                default: break;
+              }
             }
           }
           clamp(value) { return Math.min(Math.max(value, this.min), this.max); }
           process(inputs, outputs, parameters) {
             outputs[0].forEach(channel => {
               for (let i = 0; i < channel.length; i++) {
-                channel[i] = this.clamp((parameters['param'].length > 1 ? parameters['param'][i] : parameters['param'][0]));
+                channel[i] = this.clamp((parameters['param'].length > 1 ? parameters['param'][i] : parameters['param'][0]) + this.offset);
               }
             });
             return true;
@@ -662,7 +673,6 @@ export class FlowConnect extends Hooks {
     if (!this.floatingConnector.canConnect(destination)) {
       this.fallbackConnection();
       hitNode.currHitTerminal = null;
-      return;
     } else {
       if (destination.type === TerminalType.OUT) {
         this.floatingConnector.completeConnection(destination);
@@ -676,9 +686,10 @@ export class FlowConnect extends Hooks {
           }
           let index = destination.connectors[0].start.connectors.indexOf(destination.connectors[0]);
           let [oldConnector] = destination.connectors[0].start.connectors.splice(index, 1);
+          let [startTerm, endTerm] = [oldConnector.start, oldConnector.end];
           delete this.currFlow.connectors[oldConnector.id];
-          oldConnector.start.onDisconnect(oldConnector);
-          oldConnector.end.onDisconnect(oldConnector);
+          oldConnector.start.onDisconnect(oldConnector, startTerm, endTerm);
+          oldConnector.end.onDisconnect(oldConnector, startTerm, endTerm);
 
           this.floatingConnector.completeConnection(destination);
           hitNode.currHitTerminal = null;

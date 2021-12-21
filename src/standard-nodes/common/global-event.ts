@@ -5,7 +5,7 @@ import { GlobalEventType } from "../../common/enums";
 import { InputType } from "../../ui/input";
 import { Log } from "../../utils/logger";
 
-export const GlobalEvent = (flow: Flow, options: NodeCreatorOptions = {}, type: GlobalEventType, name: string) => {
+export const GlobalEvent = (flow: Flow, type: GlobalEventType, name: string, options: NodeCreatorOptions = {}) => {
   if (!name) {
     Log.error('Global event name not specified');
     return;

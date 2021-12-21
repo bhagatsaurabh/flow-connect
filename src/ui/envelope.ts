@@ -17,7 +17,7 @@ export class Envelope extends UINode implements Serializable {
   private pointDiameter: number = 10;
 
   get value(): Vector2[] {
-    return this._value.toArray();
+    return this._value.toArray().map(vec => vec.clone());
   }
   set value(value: Vector2[]) {
     let oldVal = this.value;

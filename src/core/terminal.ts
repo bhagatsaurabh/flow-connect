@@ -132,7 +132,7 @@ export class Terminal extends Hooks implements Events, Serializable {
       return true;
     } else {
       if (typeof connector === 'string') {
-        let cntr = this.connectors.find((cntr => cntr.id === connector));
+        let cntr = this.connectors.find((currCntr => currCntr.id === connector));
         if (!cntr) {
           Log.error('Connector not found while disconnecting', connector);
           return false;
@@ -151,11 +151,12 @@ export class Terminal extends Hooks implements Events, Serializable {
     }
   }
   private _disconnect(connector: Connector): void {
+    let [startTerm, endTerm] = [connector.start, connector.end];
     delete this.node.flow.connectors[connector.id];
     connector.start.connectors.splice(connector.start.connectors.findIndex(cntr => cntr.id === connector.id), 1);
     connector.end.connectors.pop();
-    connector.start.onDisconnect(connector);
-    connector.end.onDisconnect(connector);
+    connector.start.onDisconnect(connector, startTerm, endTerm);
+    connector.end.onDisconnect(connector, startTerm, endTerm);
   }
   private offUIRender() {
     let context = this.node.offUIContext;
@@ -189,12 +190,13 @@ export class Terminal extends Hooks implements Events, Serializable {
 
     if (this.connectors.length > 0) {
       if (this.type === TerminalType.IN) {
+        let [startTerm, endTerm] = [this.connectors[0].start, this.connectors[0].end];
         this.connectors[0].endNode.currHitTerminal = null;
         this.connectors[0].end = null;
         this.connectors[0].floatingTip = realPosition;
         this.node.flow.flowConnect.floatingConnector = this.connectors[0];
-        this.connectors[0].start.onDisconnect(this.connectors[0]);
-        this.onDisconnect(this.connectors[0]);
+        this.connectors[0].start.onDisconnect(this.connectors[0], startTerm, endTerm);
+        this.onDisconnect(this.connectors[0], startTerm, endTerm);
         this.connectors.pop();
       } else {
         if (this.node.flow.flowConnect.floatingConnector) return;
@@ -235,8 +237,8 @@ export class Terminal extends Hooks implements Events, Serializable {
     this.call('connect', this, connector);
   }
   /** @hidden */
-  onDisconnect(connector: Connector) {
-    this.call('disconnect', this, connector);
+  onDisconnect(connector: Connector, startTerminal?: Terminal, endTerminal?: Terminal) {
+    this.call('disconnect', this, connector, startTerminal, endTerminal);
   }
   /** @hidden */
   onEvent(data: any): void {

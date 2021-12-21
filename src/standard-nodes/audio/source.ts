@@ -14,7 +14,7 @@ export const Source = (flow: Flow, options: NodeCreatorOptions = {}) => {
       { name: 'array-buffer', dataType: 'event' }, { name: 'gain', dataType: 'audioparam' },
       { name: 'detune', dataType: 'audioparam' }, { name: 'playback-rate', dataType: 'audioparam' }
     ],
-    [{ name: 'out', dataType: 'audio' }],
+    [{ name: 'out', dataType: 'audio' }, { name: 'ended', dataType: 'event' }],
     options.style || { rowHeight: 10, spacing: 15 },
     options.terminalStyle || {},
     options.props
@@ -73,6 +73,7 @@ export const Source = (flow: Flow, options: NodeCreatorOptions = {}) => {
     node.props.proxyParamSourceNode.connect(audioSourceNode.detune, 0);
     node.props.proxyParamSourceNode.connect(audioSourceNode.playbackRate, 1);
     audioSourceNode.connect(node.outputs[0].ref);
+
     audioSourceNode.start();
   };
   let stopSource = () => {

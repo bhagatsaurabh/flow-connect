@@ -30,7 +30,6 @@ export class Toggle extends UINode implements Serializable {
     node: Node,
     options: ToggleOptions = DefaultToggleOptions(node)
   ) {
-
     super(node, Vector2.Zero(), UIType.Toggle, {
       style: options.style
         ? { ...DefaultToggleStyle(), ...options.style }
@@ -48,6 +47,7 @@ export class Toggle extends UINode implements Serializable {
 
     this._checked = this.propName ? this.getProp() : options.value
     this.height = get(options.height, this.node.style.rowHeight);
+    if (!this.style.grow) this.width = this.height * 2.5;
 
     if (this.input) {
       this.input.on('connect', (_, connector) => {

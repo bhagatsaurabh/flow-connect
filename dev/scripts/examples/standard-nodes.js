@@ -34,7 +34,7 @@ let log = StandardNodes.Common.Log(flow);
 // let clamp = StandardNodes.Math.Clamp(flow);
 // let func = StandardNodes.Math.Function(flow, {}, ['cos(t)', 'sin(t) + 0.2cos(2.8t)']);
 // let parametricPlotter = StandardNodes.Visual.ParametricPlotter(flow, {}, 250);
-// let gEventEmitter = StandardNodes.Common.GlobalEvent(flow, {}, GlobalEventType.Emitter, 'reset');
-// let gEventReceiver = StandardNodes.Common.GlobalEvent(flow, {}, GlobalEventType.Receiver, 'reset');
+// let gEventEmitter = StandardNodes.Common.GlobalEvent(flow, GlobalEventType.Emitter, 'reset', {});
+// let gEventReceiver = StandardNodes.Common.GlobalEvent(flow, GlobalEventType.Receiver, 'reset', {});
 
 // let syncData = StandardNodes.Common.SyncData(flow, { props: { syncType: 'partial' } }, 3);
