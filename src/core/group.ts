@@ -1,5 +1,5 @@
 import { SerializedVector2, Vector2 } from "./vector";
-import { getNewGUID, intersects } from "../utils/utils";
+import { getNewUUID, intersects } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Flow } from './flow';
 import { Hooks } from './hooks';
@@ -38,14 +38,14 @@ export class Group extends Hooks implements Serializable {
     public width: number = 0, public height: number = 0,
     name?: string,
     public style: GroupStyle = {},
-    public id: string = getNewGUID(),
+    public id: string = getNewUUID(),
     hitColor?: Color
   ) {
 
     super();
     this.hitColor = hitColor;
     this.style = { ...DefaultGroupStyle(), ...style };
-    this.id = getNewGUID();
+    this.id = getNewUUID();
     this._position = position;
     if (!this.style.color || !this.style.borderColor) {
       let colors = DefaultGroupColors.Random();

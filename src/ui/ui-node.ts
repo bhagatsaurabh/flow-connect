@@ -4,7 +4,7 @@ import { Node, NodeState } from "../core/node";
 import { SerializedTerminal, Terminal } from "../core/terminal";
 import { Vector2 } from "../core/vector";
 import { LOD, ViewPort } from '../common/enums';
-import { get, getNewGUID, intersects } from "../utils/utils";
+import { get, getNewUUID, intersects } from "../utils/utils";
 import { Events } from "../common/interfaces";
 
 export abstract class UINode extends Hooks implements Events {
@@ -41,7 +41,7 @@ export abstract class UINode extends Hooks implements Events {
     super();
 
     this.setHitColor(options.hitColor);
-    this.id = get(options.id, getNewGUID());
+    this.id = get(options.id, getNewUUID());
     this.draggable = get(options.draggable, false);
     this.zoomable = get(options.zoomable, false);
     this._visible = get(options.visible, true);
@@ -229,7 +229,7 @@ let DefaultUINodeOptions = (): UINodeOptions => {
     propName: null,
     input: null,
     output: null,
-    id: getNewGUID(),
+    id: getNewUUID(),
     hitColor: null
   };
 };

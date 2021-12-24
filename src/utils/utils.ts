@@ -5,7 +5,7 @@ import { ViewPort } from "../common/enums";
 import { Vector2 } from "../core/vector";
 import { Constant } from "../flow-connect";
 
-export const getNewGUID = () => {
+export const getNewUUID = () => {
   var S4 = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
   return (S4() + "-" + S4() + "-" + S4() + "-" + S4());
 };

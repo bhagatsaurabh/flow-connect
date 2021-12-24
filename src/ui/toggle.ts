@@ -6,6 +6,7 @@ import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { get } from "../utils/utils";
+import { Constant } from "../resource/constants";
 
 export class Toggle extends UINode implements Serializable {
   private _checked: boolean = false;
@@ -79,7 +80,7 @@ export class Toggle extends UINode implements Serializable {
     context.beginPath();
     context.arc(
       this.checked ? this.position.x + this.width - this.height / 2 : this.position.x + this.height / 2,
-      this.position.y + this.height / 2, this.height / 2, 0, 2 * Math.PI
+      this.position.y + this.height / 2, this.height / 2, 0, Constant.TAU
     );
     context.fill();
   }

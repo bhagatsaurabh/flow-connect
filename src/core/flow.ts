@@ -8,7 +8,7 @@ import { AVLTree } from "../utils/avl-tree";
 import { Serializable } from '../common/interfaces';
 import { SubFlowNode } from "./subflow-node";
 import { TunnelNode, SerializedTunnelNode } from "./tunnel-node";
-import { getNewGUID } from "../utils/utils";
+import { getNewUUID } from "../utils/utils";
 import { Graph, SerializedGraph } from "./graph";
 import { Rules } from "../common/interfaces";
 import { TerminalTypeColors, TerminalStyle } from "./terminal";
@@ -42,7 +42,7 @@ export class Flow extends Hooks implements Serializable {
     public name: string,
     public rules: Rules,
     public terminalTypeColors: TerminalTypeColors,
-    public id: string = getNewGUID()
+    public id: string = getNewUUID()
   ) {
 
     super();

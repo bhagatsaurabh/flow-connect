@@ -5,7 +5,7 @@ export class List<T> extends Hooks {
   tail: ListNode<T> = null;
   length: number = 0;
 
-  constructor(public comparator: (a: T, b: T) => number, source?: Array<T>) {
+  constructor(public comparator?: (a: T, b: T) => number, source?: Array<T>) {
     super();
     if (source) source.forEach(value => this.append(value));
   }

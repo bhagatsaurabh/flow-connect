@@ -35,6 +35,12 @@ import * as lineChartMini from './visual/line-chart-mini';
 import * as source from './audio/source';
 import * as destination from './audio/destination';
 import * as automate from './audio/automate';
+import * as channelSplitter from './audio/channel-splitter';
+import * as debug from './audio/debug';
+import * as channelMerger from './audio/channel-merger';
+import * as adsr from './audio/adsr';
+import * as gain from './audio/gain';
+import * as metronome from './audio/metronome';
 
 import * as dial from './ui/dial';
 
@@ -80,6 +86,12 @@ export namespace StandardNodes.Audio {
   export import Source = source.Source;
   export import Destination = destination.Destination;
   export import Automate = automate.Automate;
+  export import ChannelSplitter = channelSplitter.ChannelSplitter;
+  export import Debug = debug.Debug;
+  export import ChannelMerger = channelMerger.ChannelMerger;
+  export import ADSR = adsr.ADSR;
+  export import Gain = gain.Gain;
+  export import Metronome = metronome.Metronome;
 }
 export namespace StandardNodes.UI {
   export import Dial = dial.Dial;

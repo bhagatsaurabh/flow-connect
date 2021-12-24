@@ -83,7 +83,7 @@ export class Envelope extends UINode implements Serializable {
     this.offPointsContext.clearRect(0, 0, width, height);
 
     this._value.forEach(node => {
-      let coord = node.data.multiply(width, height).add(this.pointDiameter / 2);
+      let coord = new Vector2(node.data.x, 1 - node.data.y).multiply(width, height).add(this.pointDiameter / 2);
       this.offPointsContext.fillStyle = this.pointHitColorPoint.get(node) as string;
       this.offPointsContext.beginPath();
       this.offPointsContext.arc(coord.x, coord.y, 5, 0, Constant.TAU);
@@ -103,10 +103,10 @@ export class Envelope extends UINode implements Serializable {
 
     let [width, height] = [this.width - this.pointDiameter, this.height - this.pointDiameter];
     let points: Vector2[] = this._value.map(node =>
-      node.data
-        .multiply(width, height)
-        .add(this.position)
-        .add(this.pointDiameter / 2)
+      new Vector2(node.data.x, 1 - node.data.y)
+        .multiplyInPlace(width, height)
+        .addInPlace(this.position)
+        .addInPlace(this.pointDiameter / 2)
     );
 
     if (points.length > 0) {
@@ -185,6 +185,7 @@ export class Envelope extends UINode implements Serializable {
         this.currHitPoint.prev?.data.x || 0, this.currHitPoint.next?.data.x || 1,
         -Infinity, Infinity
       );
+    this.currHitPoint.data = new Vector2(this.currHitPoint.data.x, 1 - this.currHitPoint.data.y);
 
     this.renderOffPoints();
   }
@@ -193,7 +194,8 @@ export class Envelope extends UINode implements Serializable {
 
     let newPoint = realPosition
       .subtract(this.position.add(this.pointDiameter / 2))
-      .normalize(0, width, 0, height);
+      .normalizeInPlace(0, width, 0, height);
+    newPoint = new Vector2(newPoint.x, 1 - newPoint.y);
 
     let newPointNode;
     let anchor = this._value.searchTail(node => node.data.x <= newPoint.x);

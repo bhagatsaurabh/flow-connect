@@ -1,5 +1,5 @@
 import { Vector2 } from "./vector";
-import { getNewGUID } from "../utils/utils";
+import { getNewUUID } from "../utils/utils";
 import { Flow, FlowState } from "./flow";
 import { Terminal } from './terminal';
 import { Serializable } from "../common/interfaces";
@@ -29,7 +29,7 @@ export class Connector implements Serializable {
     end: Terminal,
     public floatingTip: Vector2,
     public style: ConnectorStyle = {},
-    public id: string = getNewGUID(),
+    public id: string = getNewUUID(),
     isDeserialization: boolean = false
   ) {
 
@@ -39,10 +39,6 @@ export class Connector implements Serializable {
     if (this.start) this.startNode = this.start.node;
     if (this.end) this.endNode = this.end.node;
     if (start && end) {
-      /* if (start.dataType === 'audio' && !checkAudioBeforeConnection(start, end)) {
-        throw new Error('Cannot connect, either in or out terminal does not have an audio node for audio connection, ' +
-          'please assign a WebAudio node to both in and out terminals before making an audio connection');
-      } */
       this.floatingTip = null;
 
       this.start.connectors.push(this);

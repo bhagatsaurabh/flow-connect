@@ -1,11 +1,12 @@
 import { Vector2 } from "./vector";
-import { getNewGUID, canConnect } from "../utils/utils";
+import { getNewUUID, canConnect } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Connector, ConnectorStyle } from './connector';
 import { Hooks } from './hooks';
 import { Node } from './node';
 import { Events, Serializable } from "../common/interfaces";
 import { Log } from "../utils/logger";
+import { Constant } from "../resource/constants";
 
 export class Terminal extends Hooks implements Events, Serializable {
   connectors: Connector[];
@@ -36,7 +37,7 @@ export class Terminal extends Hooks implements Events, Serializable {
     super();
     this.hitColor = hitColor;
     this.style = { ...DefaultTerminalStyle(), ...style };
-    this.id = id ? id : getNewGUID();
+    this.id = id ? id : getNewUUID();
     this.setHitColor(hitColor);
     this.connectors = [];
     this.position = Vector2.Zero();
@@ -67,7 +68,7 @@ export class Terminal extends Hooks implements Events, Serializable {
 
     if (this.focus) {
       context.beginPath();
-      context.arc(this.position.x, this.position.y, this.style.radius * 3, 0, 2 * Math.PI);
+      context.arc(this.position.x, this.position.y, this.style.radius * 3, 0, Constant.TAU);
       context.fillStyle = this.style.focusColor;
       context.fill();
     }
@@ -82,7 +83,7 @@ export class Terminal extends Hooks implements Events, Serializable {
       context.closePath();
     } else {
       context.beginPath();
-      context.arc(this.position.x, this.position.y, this.style.radius, 0, 2 * Math.PI);
+      context.arc(this.position.x, this.position.y, this.style.radius, 0, Constant.TAU);
     }
     context.fillStyle = this.focus ? '#00ff00' : (this.node.flow.terminalTypeColors[this.dataType] || '#888');
     context.strokeStyle = this.style.borderColor;
@@ -155,6 +156,7 @@ export class Terminal extends Hooks implements Events, Serializable {
     delete this.node.flow.connectors[connector.id];
     connector.start.connectors.splice(connector.start.connectors.findIndex(cntr => cntr.id === connector.id), 1);
     connector.end.connectors.pop();
+    this.node.flow.executionGraph.disconnect(startTerm.node, endTerm.node);
     connector.start.onDisconnect(connector, startTerm, endTerm);
     connector.end.onDisconnect(connector, startTerm, endTerm);
   }
@@ -163,7 +165,7 @@ export class Terminal extends Hooks implements Events, Serializable {
     context.save();
 
     context.beginPath();
-    context.arc(this.position.x, this.position.y, this.style.radius + this.node.style.terminalStripMargin, 0, 2 * Math.PI);
+    context.arc(this.position.x, this.position.y, this.style.radius + this.node.style.terminalStripMargin, 0, Constant.TAU);
     context.fillStyle = this.hitColor.rgbaCSSString;
     context.fill();
 
@@ -193,11 +195,13 @@ export class Terminal extends Hooks implements Events, Serializable {
         let [startTerm, endTerm] = [this.connectors[0].start, this.connectors[0].end];
         this.connectors[0].endNode.currHitTerminal = null;
         this.connectors[0].end = null;
+        this.connectors[0].endNode = null;
         this.connectors[0].floatingTip = realPosition;
         this.node.flow.flowConnect.floatingConnector = this.connectors[0];
-        this.connectors[0].start.onDisconnect(this.connectors[0], startTerm, endTerm);
-        this.onDisconnect(this.connectors[0], startTerm, endTerm);
-        this.connectors.pop();
+        let removedConnector = this.connectors.pop();
+        this.node.flow.executionGraph.disconnect(startTerm.node, endTerm.node);
+        removedConnector.start.onDisconnect(removedConnector, startTerm, endTerm);
+        this.onDisconnect(removedConnector, startTerm, endTerm);
       } else {
         if (this.node.flow.flowConnect.floatingConnector) return;
         let connector = new Connector(this.node.flow, this, null, realPosition, {});

@@ -1,11 +1,11 @@
 import { ViewPort } from '../../../../src/math/constants';
 import { Vector2 } from '../../../../src/math/vector';
-import { clamp, denormalize, getNewGUID, getRandom, intersects, normalize } from '../../../../src/utils/utils';
+import { clamp, denormalize, getNewUUID, getRandom, intersects, normalize } from '../../../../src/utils/utils';
 
 describe('Utils', () => {
   it('should produce unique GUID\'s (theoretically)', () => {
     let guids = new Set();
-    for (let iters = 0; iters < 100; iters++) guids.add(getNewGUID());
+    for (let iters = 0; iters < 100; iters++) guids.add(getNewUUID());
 
     expect(guids.size).to.be.equal(100);
   });

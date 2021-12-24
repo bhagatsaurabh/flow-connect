@@ -577,8 +577,41 @@ export class FlowConnect extends Hooks {
         })`
     ], { type: 'application/javascript' }));
 
+    // This one is used to only peak at the audio data flowing through this node, mainly for debugging purposes
+    let URLDebug = URL.createObjectURL(new Blob([
+      `registerProcessor('debug', class Debug extends AudioWorkletProcessor {
+          throttle = 1000;
+          lastPeak = -Infinity;
+          constructor(...args) {
+            super(...args);
+            this.port.onmessage = (e) => {
+              this.throttle = e.data;
+            }
+          }
+          process(inputs, outputs, parameters) {
+            if (Date.now() - this.lastPeak > this.throttle) {
+              let data = {
+                inputs: inputs.map(input => input.length),
+                outputs: outputs.map(output => output.length)
+              };
+              this.port.postMessage(data);
+              this.lastPeak = Date.now();
+            }
+            let input = inputs[0];
+            let output = outputs[0]
+            for (let i = 0 ; i < input.length ; i+=1) {
+              for(let c = 0 ; c < input[i].length ; c+=1) {
+                output[i][c] = input[i][c];
+              }
+            }
+            return true;
+          }
+        })`
+    ], { type: 'application/javascript' }));
+
     await this.audioContext.audioWorklet.addModule(URLProxyParamForSource);
     await this.audioContext.audioWorklet.addModule(URLProxyParam);
+    await this.audioContext.audioWorklet.addModule(URLDebug);
   }
   /** @hidden */
   showGenericInput(position: Vector2 | DOMPoint, value: string, styles: { [key: string]: any }, attributes: { [key: string]: any }, callback: (value: string) => void) {
@@ -688,6 +721,7 @@ export class FlowConnect extends Hooks {
           let [oldConnector] = destination.connectors[0].start.connectors.splice(index, 1);
           let [startTerm, endTerm] = [oldConnector.start, oldConnector.end];
           delete this.currFlow.connectors[oldConnector.id];
+          this.currFlow.executionGraph.disconnect(startTerm.node, endTerm.node);
           oldConnector.start.onDisconnect(oldConnector, startTerm, endTerm);
           oldConnector.end.onDisconnect(oldConnector, startTerm, endTerm);
 

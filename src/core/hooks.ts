@@ -43,4 +43,7 @@ export class Hooks {
   off(eventKey: string, id: number) {
     if (this.registeredEvents[eventKey]) delete this.registeredEvents[eventKey][id];
   }
+  offAll() {
+    this.registeredEvents = {};
+  }
 }

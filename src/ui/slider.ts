@@ -6,6 +6,7 @@ import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
+import { Constant } from "../resource/constants";
 
 export class Slider extends UINode implements Serializable {
   private thumbFill: number;
@@ -93,7 +94,7 @@ export class Slider extends UINode implements Serializable {
     context.beginPath();
     context.arc(
       this.position.x + this.style.thumbRadius + this.thumbFill,
-      this.position.y + this.height / 2, this.style.thumbRadius, 0, 2 * Math.PI
+      this.position.y + this.height / 2, this.style.thumbRadius, 0, Constant.TAU
     );
     context.fill();
   }

@@ -1,7 +1,7 @@
 import { SerializedVector2, Vector2 } from "./vector";
 import { ViewPort, LOD, Align } from '../common/enums';
 import { Container, Label, Slider, UINode, Button, Image, HorizontalLayout, Toggle, Select, Source, Display, Input, Stack, CustomRendererConfig, ToggleStyle, SourceStyle, SliderStyle, SelectStyle, LabelStyle, InputStyle, ButtonStyle, DisplayStyle, HorizontalLayoutStyle, StackStyle, ImageStyle } from "../ui/index";
-import { getNewGUID, intersects } from "../utils/utils";
+import { getNewUUID, intersects } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Flow, FlowState, SerializedFlow } from './flow';
 import { Group } from './group';
@@ -88,7 +88,7 @@ export class Node extends Hooks implements Events, Serializable {
     public style: NodeStyle = {},
     public terminalStyle: TerminalStyle = {},
     props: Object = {},
-    public id: string = getNewGUID(),
+    public id: string = getNewUUID(),
     hitColor?: Color,
     ui?: Container | SerializedContainer
   ) {
@@ -332,6 +332,21 @@ export class Node extends Hooks implements Events, Serializable {
     }
     if (terminal.type === TerminalType.IN) this.inputs.push(terminal);
     else this.outputs.push(terminal);
+    this.ui.update();
+    this.reflow();
+  }
+  removeTerminal(terminal: Terminal) {
+    let type = terminal.type;
+    let index = type === TerminalType.IN ? this.inputs.indexOf(terminal) : this.outputs.indexOf(terminal);
+    if (index < 0) {
+      Log.error('Cannot remove terminal, terminal not found');
+      return;
+    }
+    terminal.disconnect();
+    if (type === TerminalType.IN) this.inputs.splice(index, 1);
+    else this.outputs.splice(index, 1);
+    terminal.offAll();
+
     this.ui.update();
     this.reflow();
   }

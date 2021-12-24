@@ -1,10 +1,12 @@
 import { Log } from "../utils/logger";
-import { getNewGUID } from "../utils/utils";
+import { getNewUUID } from "../utils/utils";
 import { Flow, FlowState } from "./flow";
 import { Serializable } from "../common/interfaces";
 import { Node } from "./node";
+import { List } from "../utils/linked-list";
 
 /** @hidden */
+// A Directed acyclic graph
 export class Graph implements Serializable {
   state: FlowState = FlowState.Stopped;
   nodes: GraphNode[][];
@@ -32,21 +34,44 @@ export class Graph implements Serializable {
 
       if (endGraphNode.order <= startGraphNode.order) {
         this.updateOrder(endGraphNode, startGraphNode.order + 1);
-        let queue: GraphNode[] = [];
-        queue.push(endGraphNode);
-        while (queue.length !== 0) {
-          let currNode = queue.shift();
-          currNode.childs.forEach(child => {
-            if (child.order <= currNode.order) {
-              this.updateOrder(child, currNode.order + 1);
-              if (!queue.includes(child)) queue.push(child);
-            }
-          });
-        }
       }
     }
   }
-  updateOrder(graphNode: GraphNode, order: number) {
+  disconnect(sourceNode: Node, destinationNode: Node) {
+    let sourceGraphNode = this.nodeToGraphNode[sourceNode.id];
+    let destinationGraphNode = this.nodeToGraphNode[destinationNode.id];
+
+    let connectedEndNodes = new Set<Node>();
+    sourceNode.outputs
+      .forEach(terminal => terminal.connectors
+        .forEach(connector => connector.endNode && connectedEndNodes.add(connector.endNode))
+      );
+
+    if (connectedEndNodes.has(destinationNode)) return;
+    sourceGraphNode.childs.splice(sourceGraphNode.childs.indexOf(destinationGraphNode), 1);
+
+    let maxOrderOfConnectedStartNodes = destinationNode.inputs
+      .filter(terminal => terminal.connectors.length > 0)
+      .map(terminal => this.nodeToGraphNode[terminal.connectors[0].startNode.id].order)
+      .reduce((acc, curr) => Math.max(acc, curr), 0);
+
+    this.updateOrder(destinationGraphNode, maxOrderOfConnectedStartNodes);
+  }
+  updateOrder(root: GraphNode, order: number) {
+    this._updateOrder(root, order);
+    let queue: GraphNode[] = [];
+    queue.push(root);
+    while (queue.length !== 0) {
+      let currNode = queue.shift();
+      currNode.childs.forEach(child => {
+        if (child.order <= currNode.order) {
+          this._updateOrder(child, currNode.order + 1);
+          if (!queue.includes(child)) queue.push(child);
+        }
+      });
+    }
+  }
+  _updateOrder(graphNode: GraphNode, order: number) {
     this.nodes[graphNode.order].splice(this.nodes[graphNode.order].indexOf(graphNode), 1);
     if (!this.nodes[order]) this.nodes[order] = [];
     graphNode.order = order;
@@ -119,6 +144,26 @@ export class Graph implements Serializable {
     let lowestOrder = Math.min(...graphNodes.map(graphNode => graphNode.order));
     return graphNodes.filter(graphNode => graphNode.order === lowestOrder);
   }
+  // Generic graph traversing function that can be used to do some stuff with nodes starting with provided root
+  propagate(root: Node | GraphNode, callback: (node: Node) => void) {
+    let start = root instanceof Node ? this.nodeToGraphNode[root.id] : root;
+    let queue = new List<GraphNode>();
+    queue.append(start);
+    while (queue.length !== 0) {
+      let currGNode = queue.removeFirst();
+      callback(currGNode.flowNode);
+      currGNode.childs.forEach(child => queue.append(child));
+    }
+  }
+  debugNode(node: GraphNode, indent: string) {
+    console.log(`${indent}[${node.flowNode.name}, ${node.order}]`);
+    node.childs.forEach(child => this.debugNode(child, indent + '  '));
+  }
+  debugGraph() {
+    this.nodes[0].forEach(graphNode => {
+      this.debugNode(graphNode, '');
+    });
+  }
 
   serialize(): SerializedGraph {
     let nodeToGraphNode: { [key: string]: string } = {};
@@ -168,7 +213,7 @@ export class GraphNode implements Serializable {
 
   constructor(public flowNode: Node, order?: number, id?: string) {
     this.order = order ? order : 0;
-    this.id = id ? id : getNewGUID();
+    this.id = id ? id : getNewUUID();
   }
 
   serialize(): SerializedGraphNode {

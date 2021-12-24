@@ -71,9 +71,8 @@ export const Automate = (flow: Flow, options: NodeCreatorOptions = {}, envelope:
     let values = envelopeInput.value;
     for (let currVal of values) {
       currVal.x = currVal.x * node.props.duration;
-      currVal.y = denormalize(1 - currVal.y, node.props.min, node.props.max);
+      currVal.y = denormalize(currVal.y, node.props.min, node.props.max);
     }
-    console.log(values);
 
     let automateDuration = values[values.length - 1].x;
     if (node.props.loop) {
@@ -113,7 +112,7 @@ export const Automate = (flow: Flow, options: NodeCreatorOptions = {}, envelope:
   flow.flowConnect.on('start', () => node.props.auto && startAutomation());
   flow.flowConnect.on('stop', () => stopAutomation());
 
-  // Handle actual webaudio node connection
+  // Handle actual webaudio node stuff
   node.outputs[0].on('connect', (_inst, connector) => {
     if (connector.end.ref instanceof AudioParam) {
       // Need to do this else the value provided by the worklet node as param value is getting offset instead of overwrite

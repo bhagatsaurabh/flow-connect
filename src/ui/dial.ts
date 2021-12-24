@@ -83,7 +83,7 @@ export class Dial extends UINode implements Serializable {
     context.shadowOffsetX = 3;
     context.shadowOffsetY = 3;
     context.beginPath();
-    context.arc(this.position.x + this.width / 2, this.position.y + this.height / 2, size / 2, 0, 2 * Math.PI);
+    context.arc(this.position.x + this.width / 2, this.position.y + this.height / 2, size / 2, 0, Constant.TAU);
     context.stroke();
     context.fill();
 
@@ -112,7 +112,7 @@ export class Dial extends UINode implements Serializable {
 
     context.fillStyle = this.hitColor.hexValue;
     context.beginPath();
-    context.arc(this.position.x + this.width / 2, this.position.y + this.height / 2, size / 2, 0, 2 * Math.PI);
+    context.arc(this.position.x + this.width / 2, this.position.y + this.height / 2, size / 2, 0, Constant.TAU);
     context.fill();
   }
   /** @hidden */

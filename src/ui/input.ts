@@ -29,7 +29,7 @@ export class Input extends UINode implements Serializable {
     if (this.propName) this.setProp(newVal);
     else {
       this._value = newVal;
-      this.label.text = this._value.toString();
+      this.label.text = typeof this._value === 'number' ? this._value.toFixed(this.style.precision) : this._value;
       this.inputEl.value = this._value.toString();
     }
     if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, newVal, oldVal);
@@ -83,7 +83,8 @@ export class Input extends UINode implements Serializable {
         font: this.style.font,
         align: this.style.align,
         color: this.style.color,
-        padding: 5
+        padding: 5,
+        precision: this.style.precision || null
       }, height: this.height
     });
     this.label.on('click', () => {
@@ -123,7 +124,10 @@ export class Input extends UINode implements Serializable {
       this.inputEl.style.visibility = 'hidden';
       this.inputEl.style.pointerEvents = 'none';
       this.value = this.inputEl.value;
-      this.label.text = this.value.toString();
+
+      this.label.text = typeof this.style.type === InputType.Number
+        ? parseFloat(this.value).toFixed(this.style.precision)
+        : this.value.toString();
 
       this.call('blur', this);
     });
@@ -180,7 +184,7 @@ export class Input extends UINode implements Serializable {
     if (this.style.type === InputType.Number && typeof newVal === 'string') newVal = parseFloat(newVal);
 
     this._value = newVal;
-    this.label.text = this._value.toString();
+    this.label.text = typeof this._value === 'number' ? this._value.toFixed(this.style.precision) : this._value;
     this.inputEl.value = this._value.toString();
 
     this.output && this.output.setData(this._value);
@@ -279,6 +283,7 @@ export interface InputStyle extends UINodeStyle {
   border?: string,
   type?: InputType,
   align?: Align,
+  precision?: number,
   pattern?: string,
   step?: string,
   maxLength?: number,
