@@ -7,7 +7,7 @@ import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { Constant } from "../resource/constants";
 import { List, ListNode } from "../utils/linked-list";
-import { BiMap } from "../utils";
+import { BiMap } from "../utils/bidirectional-map";
 
 export class Envelope extends UINode implements Serializable {
   private _value: List<Vector2>;
@@ -86,7 +86,7 @@ export class Envelope extends UINode implements Serializable {
       let coord = new Vector2(node.data.x, 1 - node.data.y).multiply(width, height).add(this.pointDiameter / 2);
       this.offPointsContext.fillStyle = this.pointHitColorPoint.get(node) as string;
       this.offPointsContext.beginPath();
-      this.offPointsContext.arc(coord.x, coord.y, 5, 0, Constant.TAU);
+      this.offPointsContext.arc(coord.x, coord.y, this.pointDiameter / 2, 0, Constant.TAU);
       this.offPointsContext.fill();
     });
   }
@@ -122,7 +122,7 @@ export class Envelope extends UINode implements Serializable {
     context.fillStyle = this.style.pointColor;
     points.forEach(point => {
       context.beginPath();
-      context.arc(point.x, point.y, 5, 0, Constant.TAU);
+      context.arc(point.x, point.y, this.pointDiameter / 2, 0, Constant.TAU);
       context.fill();
     });
   }

@@ -5,12 +5,11 @@ import { Hooks } from './hooks';
 import { Group, SerializedGroup } from './group';
 import { Connector, SerializedConnector } from './connector';
 import { AVLTree } from "../utils/avl-tree";
-import { Serializable } from '../common/interfaces';
+import { Serializable, Rules } from '../common/interfaces';
 import { SubFlowNode } from "./subflow-node";
 import { TunnelNode, SerializedTunnelNode } from "./tunnel-node";
 import { getNewUUID } from "../utils/utils";
 import { Graph, SerializedGraph } from "./graph";
-import { Rules } from "../common/interfaces";
 import { TerminalTypeColors, TerminalStyle } from "./terminal";
 import { Log } from '../utils/logger';
 
@@ -84,7 +83,7 @@ export class Flow extends Hooks implements Serializable {
   }
 
   addInput(name: string, dataType: string, position: Vector2): TunnelNode {
-    let flowInput = new TunnelNode(this, 'Input', position, 100, [], [{ name: name, dataType: dataType }], {}, {}, {});
+    let flowInput = new TunnelNode(this, 'Input', position, 100, [], [{ name: name, dataType: dataType }]);
     flowInput.on('process', () => {
       flowInput.outputs[0].setData(flowInput.proxyTerminal.getData());
     });
@@ -98,7 +97,7 @@ export class Flow extends Hooks implements Serializable {
     return flowInput;
   }
   addOutput(name: string, dataType: string, position: Vector2): TunnelNode {
-    let flowOutput = new TunnelNode(this, 'Output', position, 100, [{ name: name, dataType: dataType }], [], {}, {}, {});
+    let flowOutput = new TunnelNode(this, 'Output', position, 100, [{ name: name, dataType: dataType }], []);
 
     this.outputs.push(flowOutput);
     this.nodes[flowOutput.id] = flowOutput;
@@ -113,15 +112,10 @@ export class Flow extends Hooks implements Serializable {
       Log.error('Flow is already a sub-flow, a sub-flow cannot have multiple parent flows');
       return null;
     }
-    let subFlowNode = new SubFlowNode(
-      this,
-      flow.name,
-      position,
-      150,
-      {}, {}, {},
+    let subFlowNode = new SubFlowNode(this, flow, position, 150,
       flow.inputs.map(inputNode => { return { name: inputNode.outputs[0].name, dataType: inputNode.outputs[0].dataType } }),
       flow.outputs.map(outputNode => { return { name: outputNode.inputs[0].name, dataType: outputNode.inputs[0].dataType } }),
-      flow
+      { name: flow.name }
     );
     this.nodes[subFlowNode.id] = subFlowNode;
     this.sortedNodes.add(subFlowNode);
@@ -130,46 +124,21 @@ export class Flow extends Hooks implements Serializable {
 
     return subFlowNode;
   }
-  createNode(name: string, position: Vector2, width: number, inputs?: any[], outputs?: any[], style: NodeStyle = {}, terminalStyle: TerminalStyle = {}, props?: { [key: string]: any }): Node {
+  createNode(name: string, position: Vector2, width: number, options?: NodeOptions): Node {
+    options = options ? { ...DefaultNodeOptions(), ...options } : DefaultNodeOptions();
+
     let inTerminals: any[] = [], outTerminals: any[] = [];
-    if (typeof inputs !== 'undefined') inTerminals = inputs;
-    if (typeof outputs !== 'undefined') outTerminals = outputs;
-    let node = new Node(
-      this,
-      name,
-      position,
-      width,
-      inTerminals,
-      outTerminals,
-      style,
-      terminalStyle,
-      props
-    );
+    if (typeof options.inputs !== 'undefined') inTerminals = options.inputs;
+    if (typeof options.outputs !== 'undefined') outTerminals = options.outputs;
 
-    this.nodes[node.id] = node;
-    this.sortedNodes.add(node);
-    this.executionGraph.add(node);
-
-    return node;
+    return new Node(this, name, position, width, inTerminals, outTerminals, {
+      style: options.style,
+      terminalStyle: options.terminalStyle,
+      props: options.props
+    });
   }
   removeNode(nodeOrID: Node | string) {
-    /*
-    if (nodeOrID instanceof Node) nodeOrID = nodeOrID.id;
- 
-    let queue = [];
-    let currentNode;
-    queue.push(this.renderTree);
- 
-    while ((currentNode = queue.shift())) {
-      if (currentNode.id == nodeOrID) {
-        currentNode.transform.parent.childs.splice(currentNode.transform.parent.childs.indexOf(currentNode.transform), 1);
-      } else {
-        currentNode.transform.childs.forEach((child) => {
-          queue.push(child.node);
-        });
-      }
-    }
-    */
+    /** TODO */
   }
   removeConnector(id: string) {
     if (this.connectors[id] === this.flowConnect.floatingConnector) this.flowConnect.floatingConnector = null;
@@ -287,4 +256,19 @@ export interface SerializedFlow {
   inputs: SerializedTunnelNode[],
   outputs: SerializedTunnelNode[],
   executionGraph: SerializedGraph
+}
+
+export interface NodeOptions {
+  inputs?: any[],
+  outputs?: any[],
+  style: NodeStyle,
+  terminalStyle: TerminalStyle,
+  props?: { [key: string]: any }
+}
+/** @hidden */
+let DefaultNodeOptions = (): NodeOptions => {
+  return {
+    style: {},
+    terminalStyle: {}
+  }
 }

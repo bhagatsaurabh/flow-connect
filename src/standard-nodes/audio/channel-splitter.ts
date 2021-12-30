@@ -1,24 +1,21 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { Terminal, TerminalType } from "../../core";
+import { Terminal, TerminalType } from "../../core/terminal";
 
 export const ChannelSplitter = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Channel Splitter',
-    options.position || new Vector2(50, 50),
-    options.width || 160,
-    [{ name: 'in', dataType: 'audio' }],
-    [{ name: 'Channel 1', dataType: 'audio' }],
-    options.style || { rowHeight: 10, spacing: 15 },
-    options.terminalStyle || {},
-    options.props
-      ? { ...options.props }
-      : {}
-  );
+  let node = flow.createNode(options.name || 'Channel Splitter', options.position || new Vector2(50, 50), options.width || 160, {
+    inputs: [{ name: 'in', dataType: 'audio' }],
+    outputs: [{ name: 'Channel 1', dataType: 'audio' }],
+    props: options.props || {},
+    style: options.style || { rowHeight: 10, spacing: 15 },
+    terminalStyle: options.terminalStyle || {}
+  });
+
   node.inputs[0].ref = flow.flowConnect.audioContext.createGain();
   node.outputs[0].ref = flow.flowConnect.audioContext.createGain();
+  node.outputs[0].ref.channelCountMode = 'explicit';
 
   let oldNoOfChannels = 1;
   let checkChannels = (newNoOfChannels: number) => {
@@ -38,6 +35,7 @@ export const ChannelSplitter = (flow: Flow, options: NodeCreatorOptions = {}) =>
         } else {
           let newTerminal = new Terminal(node, TerminalType.OUT, 'audio', 'Channel ' + (i + 1));
           newTerminal.ref = flow.flowConnect.audioContext.createGain();
+          newTerminal.ref.channelCountMode = 'explicit';
           node.addTerminal(newTerminal);
           node.outputs[i].on('connect', (_inst, cntr) => node.outputs[i].ref.connect(cntr.end.ref));
           node.outputs[i].on('disconnect', (_inst, _cntr, _start, end) => node.outputs[i].ref.disconnect(end.ref));

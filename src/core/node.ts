@@ -1,7 +1,7 @@
 import { SerializedVector2, Vector2 } from "./vector";
 import { ViewPort, LOD, Align } from '../common/enums';
 import { Container, Label, Slider, UINode, Button, Image, HorizontalLayout, Toggle, Select, Source, Display, Input, Stack, CustomRendererConfig, ToggleStyle, SourceStyle, SliderStyle, SelectStyle, LabelStyle, InputStyle, ButtonStyle, DisplayStyle, HorizontalLayoutStyle, StackStyle, ImageStyle } from "../ui/index";
-import { getNewUUID, intersects } from "../utils/utils";
+import { get, getNewUUID, intersects } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Flow, FlowState, SerializedFlow } from './flow';
 import { Group } from './group';
@@ -14,6 +14,8 @@ import { SerializedContainer } from "../ui/container";
 import { Dial, DialStyle } from "../ui/dial";
 import { Envelope, EnvelopeStyle } from "../ui/envelope";
 import { RadioGroup, RadioGroupStyle } from "../ui/radio-group";
+import { Slider2D, Slider2DStyle } from "../ui/2d-slider";
+import { VSlider, VSliderStyle } from "../ui/v-slider";
 
 export class Node extends Hooks implements Events, Serializable {
   //#region Properties
@@ -52,17 +54,17 @@ export class Node extends Hooks implements Events, Serializable {
   //#endregion
 
   //#region Accessors
-  get context(): CanvasRenderingContext2D { return this.flow.flowConnect.context };
-  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offContext };
-  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offUIContext };
-  get position(): Vector2 { return this._position };
+  get context(): CanvasRenderingContext2D { return this.flow.flowConnect.context }
+  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offContext }
+  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offUIContext }
+  get position(): Vector2 { return this._position }
   set position(position: Vector2) {
     this._position = position;
     this.reflow();
     this.ui.update();
     this.updateRenderState();
   }
-  get zIndex(): number { return this._zIndex };
+  get zIndex(): number { return this._zIndex }
   set zIndex(zIndex: number) {
     if (this.flow.sortedNodes.remove(this)) {
       this._zIndex = zIndex;
@@ -71,7 +73,7 @@ export class Node extends Hooks implements Events, Serializable {
       this._zIndex = zIndex;
     }
   }
-  get width(): number { return this._width };
+  get width(): number { return this._width }
   set width(width: number) {
     this._width = width;
     this.ui.width = width;
@@ -79,47 +81,75 @@ export class Node extends Hooks implements Events, Serializable {
   }
   //#endregion
 
+  style: NodeStyle;
+  terminalStyle: TerminalStyle;
+  id: string;
+
   constructor(
     public flow: Flow,
     public name: string,
     position: Vector2,
     width: number,
     inputs: SerializedTerminal[], outputs: SerializedTerminal[],
-    public style: NodeStyle = {},
-    public terminalStyle: TerminalStyle = {},
-    props: Object = {},
-    public id: string = getNewUUID(),
-    hitColor?: Color,
-    ui?: Container | SerializedContainer
+    options: NodeConstructorOptions = DefaultNodeConstructorOptions()
   ) {
 
     super();
-    this.hitColor = hitColor;
+
+    this.style = get(options.style, {});
+    this.terminalStyle = get(options.terminalStyle, {});
+    this.id = get(options.id, getNewUUID());
+    this.props = get(options.props, {});
+
+    this.hitColor = options.hitColor;
     this._width = width;
-    this.style = { ...DefaultNodeStyle(), ...style }
+    this.style = { ...DefaultNodeStyle(), ...options.style }
     this._position = position;
-    this.setupProps(props);
+    this.setupProps(options.props);
     this.hitColorToUI = {};
     this.hitColorToTerminal = {};
     this.hitColorToNodeButton = {};
     this._zIndex = 0;
-    this.setHitColor(hitColor);
-    this.inputs.push(...inputs.map(input => new Terminal(this, TerminalType.IN, input.dataType, input.name, input.style ? input.style : { ...terminalStyle }, input.id ? input.id : null, input.hitColor ? Color.deSerialize(input.hitColor) : null)));
-    this.outputs.push(...outputs.map(output => new Terminal(this, TerminalType.OUT, output.dataType, output.name, output.style ? output.style : { ...terminalStyle }, output.id ? output.id : null, output.hitColor ? Color.deSerialize(output.hitColor) : null)));
-    this.ui = ui ? (ui instanceof Container ? ui : Container.deSerialize(this, ui)) : new Container(this, width);
+    this.setHitColor(options.hitColor);
 
-    this.addNodeButton(() => this.toggleNodeState(), (_: NodeButton, position: Vector2) => {
+    this.setupTerminals(options, inputs, outputs);
+
+    if (options.ui) {
+      this.ui = options.ui instanceof Container ? options.ui : Container.deSerialize(this, options.ui)
+    } else {
+      this.ui = new Container(this, width);
+    }
+
+    this.addNodeButton(() => this.toggleNodeState(), (_: NodeButton, pos: Vector2) => {
       this.context.fillStyle = this.style.maximizeButtonColor;
-      this.context.fillRect(position.x, position.y, this.style.nodeButtonSize, this.style.nodeButtonSize);
+      this.context.fillRect(pos.x, pos.y, this.style.nodeButtonSize, this.style.nodeButtonSize);
     }, Align.Left);
 
     this.reflow();
     this.ui.update();
 
     this.flow.on('transform', () => this.updateRenderState());
+
+    this.flow.nodes[this.id] = this;
+    this.flow.sortedNodes.add(this);
+    this.flow.executionGraph.add(this);
   }
 
   //#region Methods
+  setupTerminals(options: NodeConstructorOptions, inputs: SerializedTerminal[], outputs: SerializedTerminal[]) {
+    this.inputs.push(...inputs.map(input =>
+      new Terminal(this, TerminalType.IN, input.dataType, input.name,
+        input.style ? input.style : { ...options.terminalStyle },
+        input.id ? input.id : null,
+        input.hitColor ? Color.deSerialize(input.hitColor) : null)
+    ));
+    this.outputs.push(...outputs.map(output =>
+      new Terminal(this, TerminalType.OUT, output.dataType, output.name,
+        output.style ? output.style : { ...options.terminalStyle },
+        output.id ? output.id : null,
+        output.hitColor ? Color.deSerialize(output.hitColor) : null)
+    ));
+  }
   private setupProps(props: any) {
     this.props = new Proxy<any>({}, {
       set: (target, prop, value) => {
@@ -293,10 +323,23 @@ export class Node extends Hooks implements Events, Serializable {
     if (this.focused) {
       context.strokeStyle = '#000';
       context.lineWidth = 2;
-      let inputTerminalsWidth = this.inputs.length === 0 ? (this.inputsUI.length === 0 ? 0 : this.inputsUI[0].style.radius * 2) : this.inputs[0].style.radius * 2;
+
+      let inputTerminalsWidth;
+      if (this.inputs.length === 0) {
+        inputTerminalsWidth = this.inputsUI.length === 0 ? 0 : this.inputsUI[0].style.radius * 2;
+      } else {
+        inputTerminalsWidth = this.inputs[0].style.radius * 2;
+      }
       inputTerminalsWidth += this.style.terminalStripMargin * 2;
-      let outputTerminalsWidth = this.outputs.length === 0 ? (this.outputsUI.length === 0 ? 0 : this.outputsUI[0].style.radius * 2) : this.outputs[0].style.radius * 2;
+
+      let outputTerminalsWidth;
+      if (this.outputs.length === 0) {
+        outputTerminalsWidth = this.outputsUI.length === 0 ? 0 : this.outputsUI[0].style.radius * 2;
+      } else {
+        outputTerminalsWidth = this.outputs[0].style.radius * 2;
+      }
       outputTerminalsWidth += this.style.terminalStripMargin * 2;
+
       context.strokeRoundRect(
         this.position.x - inputTerminalsWidth,
         this.position.y,
@@ -371,24 +414,28 @@ export class Node extends Hooks implements Events, Serializable {
     } else {
       let outputData = new Map<Terminal, any>();
       Object.entries(outputs).forEach(entry => {
-        let terminal = this.outputs.find(terminal => terminal.name === entry[0]);
+        let terminal = this.outputs.find(term => term.name === entry[0]);
         if (terminal) outputData.set(terminal, entry[1]);
         else throw Log.error("Terminal '" + entry[0] + "' not found");
       });
       let groupedConnectors = new Map<Node, Connector[]>();
       let outputDataIterator = outputData.keys();
-      let curr: Terminal;
-      while ((curr = outputDataIterator.next().value) && curr) {
+
+      let curr: Terminal = outputDataIterator.next().value;
+      while (curr) {
         curr.connectors.forEach(connector => {
           if (groupedConnectors.has(connector.endNode)) groupedConnectors.get(connector.endNode).push(connector);
           else groupedConnectors.set(connector.endNode, [connector]);
         });
+        curr = outputDataIterator.next().value;
       }
       let gCntrsIterator = groupedConnectors.values();
-      let connectors: Connector[];
-      while ((connectors = gCntrsIterator.next().value) && connectors) {
-        for (let i = 1; i < connectors.length; i += 1) connectors[i].setData(outputData.get(connectors[i].start));
+
+      let connectors: Connector[] = gCntrsIterator.next().value;
+      while (connectors) {
+        for (let i = 1; i < connectors.length; i++) connectors[i].setData(outputData.get(connectors[i].start));
         connectors[0].data = outputData.get(connectors[0].start);
+        connectors = gCntrsIterator.next().value;
       }
     }
 
@@ -547,6 +594,12 @@ export class Node extends Hooks implements Events, Serializable {
   createSlider(min: number, max: number, options?: SliderCreatorOptions) {
     return new Slider(this, min, max, options);
   }
+  createSlider2D(options?: Slider2DCreatorOptions) {
+    return new Slider2D(this, options);
+  }
+  createVSlider(min: number, max: number, options?: VSliderCreatorOptions) {
+    return new VSlider(this, min, max, options);
+  }
   createDial(min: number, max: number, size: number, options?: DialCreatorOptions) {
     return new Dial(this, min, max, size, options);
   }
@@ -601,7 +654,14 @@ export class Node extends Hooks implements Events, Serializable {
     };
   }
   static deSerialize(flow: Flow, data: SerializedNode): Node {
-    return new Node(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, data.style, data.terminalStyle, data.props, data.id, Color.deSerialize(data.hitColor), data.ui);
+    return new Node(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+      style: data.style,
+      terminalStyle: data.terminalStyle,
+      props: data.props,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor),
+      ui: data.ui
+    });
   }
 }
 
@@ -708,6 +768,23 @@ export class NodeButton {
   }
 }
 
+export interface NodeConstructorOptions {
+  style?: NodeStyle,
+  terminalStyle?: TerminalStyle,
+  props?: Object,
+  id?: string,
+  hitColor?: Color,
+  ui?: Container | SerializedContainer
+}
+let DefaultNodeConstructorOptions = (): NodeConstructorOptions => {
+  return {
+    style: {},
+    terminalStyle: {},
+    props: {},
+    id: getNewUUID(),
+  }
+}
+
 interface ToggleCreatorOptions {
   propName?: string,
   input?: boolean,
@@ -734,6 +811,23 @@ interface SliderCreatorOptions {
   output?: boolean,
   height?: number,
   style?: SliderStyle
+}
+interface VSliderCreatorOptions {
+  value?: number,
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  height?: number,
+  width?: number,
+  style?: VSliderStyle
+}
+interface Slider2DCreatorOptions {
+  value?: Vector2,
+  propName?: string,
+  input?: boolean,
+  output?: boolean,
+  height?: number,
+  style?: Slider2DStyle
 }
 interface SelectCreatorOptions {
   height?: number,
@@ -769,7 +863,9 @@ interface ImageCreatorOptions {
   style?: ImageStyle
 }
 interface HorizontalLayoutCreatorOptions {
-  style?: HorizontalLayoutStyle
+  style?: HorizontalLayoutStyle,
+  input?: boolean,
+  output?: boolean
 }
 interface ButtonCreatorOption {
   input?: boolean,

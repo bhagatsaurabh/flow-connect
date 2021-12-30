@@ -5,19 +5,16 @@ import { Terminal, TerminalType } from "../../core/terminal";
 
 export const ToArray = (flow: Flow, options: NodeCreatorOptions = {}, inputs: number) => {
 
-  let node = flow.createNode(
-    options.name || 'To Array',
-    options.position || new Vector2(50, 50),
-    options.width || 100,
-    (inputs && inputs > 0
+  let node = flow.createNode(options.name || 'To Array', options.position || new Vector2(50, 50), options.width || 100, {
+    inputs: (inputs && inputs > 0
       ? (new Array(inputs).fill(null).map((_, index) => ({ name: 'In ' + (index + 1), dataType: 'any' })))
       : [{ name: 'In 1', dataType: 'any' }]
     ),
-    [{ name: 'out', dataType: 'array' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { ...options.props } : {}
-  );
+    outputs: [{ name: 'out', dataType: 'array' }],
+    props: options.props ? { ...options.props } : {},
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let addButton = node.createButton('Add', { style: { grow: .5 } });
   node.ui.append(addButton);

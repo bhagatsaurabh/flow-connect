@@ -14,6 +14,7 @@ import { Slider } from "./slider";
 import { Source } from "./source";
 import { Toggle } from "./toggle";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
+import { Align } from "../common/enums";
 
 /** @hidden */
 export class Container extends UINode implements Serializable {
@@ -78,8 +79,21 @@ export class Container extends UINode implements Serializable {
     let y = this.position.y + terminalsDisplayHeight;
     this.children.filter(child => child.visible).forEach(child => {
       y += this.node.style.spacing;
-      child.width = this.width - this.node.style.padding * 2;
-      child.position = new Vector2(x, y);
+      let availableWidth = this.width - this.node.style.padding * 2;
+      child.width = (child.width > availableWidth ? availableWidth : child.width) || availableWidth;
+      if (child.width < availableWidth) {
+        let childX;
+        if (child.style.align === Align.Center) {
+          childX = this.position.x + this.width / 2 - child.width / 2;
+        } else if (child.style.align === Align.Right) {
+          childX = this.position.x + this.width - this.node.style.padding - child.width;
+        } else {
+          childX = x;
+        }
+        child.position = new Vector2(childX, y);
+      } else {
+        child.position = new Vector2(x, y);
+      }
       y += child.height;
     });
     this.height = y + this.node.style.padding - this.position.y;

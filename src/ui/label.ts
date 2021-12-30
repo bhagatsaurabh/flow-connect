@@ -4,7 +4,7 @@ import { Vector2 } from "../core/vector";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
-import { binarySearch, get } from "../utils/utils";
+import { binarySearch, exists, get } from "../utils/utils";
 import { FlowState } from "../core/flow";
 import { Align } from "../common/enums";
 
@@ -122,15 +122,6 @@ export class Label extends UINode implements Serializable {
     this.textWidth = metrics.width;
 
     this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + 5;
-    // For better browser support
-    /* if (typeof this.textHeight === 'undefined') {
-      let d = document.createElement("span");
-      d.style.font = this.style.fontSize + ' ' + this.style.font;
-      d.textContent = "M";
-      document.body.appendChild(d);
-      this.textHeight = d.offsetHeight;
-      document.body.removeChild(d);
-    } */
 
     if (this.input) {
       this.input.position.assign(
@@ -165,7 +156,7 @@ export class Label extends UINode implements Serializable {
   }
   /** @hidden */
   format(value: number): string {
-    return (typeof this.style.precision !== 'undefined') ? value.toFixed(this.style.precision) : value.toString();
+    return exists(this.style.precision) ? value.toFixed(this.style.precision) : value.toString();
   }
 
   /** @hidden */

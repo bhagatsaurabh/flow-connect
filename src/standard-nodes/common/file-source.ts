@@ -4,15 +4,12 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 
 export const FileSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'File Source',
-    options.position || new Vector2(50, 50),
-    options.width || 130, [],
-    [{ name: 'file', dataType: 'file' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { file: null, ...options.props } : { file: null }
-  );
+  let node = flow.createNode(options.name || 'File Source', options.position || new Vector2(50, 50), options.width || 130, {
+    outputs: [{ name: 'file', dataType: 'file' }],
+    props: options.props ? { file: null, ...options.props } : { file: null },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = () => node.setOutputs(0, node.props.file);
 

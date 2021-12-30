@@ -6,9 +6,7 @@ import { Vector2 } from "../core/vector";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 
 export class Display extends UINode implements Serializable {
-  offCanvases: CustomOffCanvasConfig[] = [];
-  manualOffCanvases: CustomOffCanvasConfig[] = [];
-  autoOffCanvases: CustomOffCanvasConfig[] = [];
+  offCanvasConfigs: CustomOffCanvasConfig[] = [];
 
   constructor(
     node: Node,
@@ -27,17 +25,20 @@ export class Display extends UINode implements Serializable {
     });
 
     this.height = height;
+
     if (typeof OffscreenCanvas !== 'undefined') {
       customRenderers.forEach(rendererConfig => {
-        let offCanvas = new OffscreenCanvas(this.node.width - 2 * this.node.style.padding, this.height);
-        let offContext = offCanvas.getContext('2d');
-        let newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true }
-        if (rendererConfig.type === CustomRendererType.Manual) {
-          this.manualOffCanvases.push(newOffCanvasConfig);
+        let offCanvas, offContext, newOffCanvasConfig;
+        if (rendererConfig.canvasType === CanvasType.HTMLCanvasElement) {
+          offCanvas = document.createElement('canvas');
+          offCanvas.width = this.node.width - 2 * this.node.style.padding;
+          offCanvas.height = this.height;
         } else {
-          this.autoOffCanvases.push(newOffCanvasConfig);
+          offCanvas = new OffscreenCanvas(this.node.width - 2 * this.node.style.padding, this.height);
         }
-        this.offCanvases.push(newOffCanvasConfig);
+        offContext = offCanvas.getContext('2d');
+        newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true }
+        this.offCanvasConfigs.push(newOffCanvasConfig);
       });
     } else {
       customRenderers.forEach(rendererConfig => {
@@ -46,37 +47,31 @@ export class Display extends UINode implements Serializable {
         offCanvas.height = this.height;
         let offContext = offCanvas.getContext('2d');
         let newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true }
-        if (rendererConfig.type === CustomRendererType.Manual) {
-          this.manualOffCanvases.push(newOffCanvasConfig);
-        } else {
-          this.autoOffCanvases.push(newOffCanvasConfig);
-        }
-        this.offCanvases.push(newOffCanvasConfig);
+        this.offCanvasConfigs.push(newOffCanvasConfig);
       });
     }
 
     this.input.on('event', () => {
-      this.manualOffCanvases.forEach(offCanvas => {
-        offCanvas.context.clearRect(0, 0, offCanvas.canvas.width, offCanvas.canvas.height);
+      this.offCanvasConfigs.filter(config => !config.rendererConfig.auto).forEach(config => {
+        config.context.clearRect(0, 0, config.canvas.width, config.canvas.height);
       });
     });
 
-    this.node.flow.flowConnect.on('scale', () => {
-      this.reflow();
-    });
+    this.node.flow.flowConnect.on('scale', () => this.reflow());
   }
 
-  private customAutoRender() {
-    return Promise.all(this.autoOffCanvases.map(offCanvas => {
+  private customRender(canvasConfigs: CustomOffCanvasConfig[]) {
+    return Promise.all(canvasConfigs.map(config => {
       return new Promise<boolean>(resolve => {
-        if (offCanvas.shouldRender) {
-          offCanvas.context.clearRect(0, 0, offCanvas.canvas.width, offCanvas.canvas.height);
+        if (config.shouldRender) {
+          if (config.rendererConfig.clear)
+            config.context.clearRect(0, 0, config.canvas.width, config.canvas.height);
           if (this.style.backgroundColor) {
-            offCanvas.context.fillStyle = this.style.backgroundColor;
-            offCanvas.context.fillRect(0, 0, offCanvas.canvas.width, offCanvas.canvas.height);
+            config.context.fillStyle = this.style.backgroundColor;
+            config.context.fillRect(0, 0, config.canvas.width, config.canvas.height);
           }
           resolve(
-            offCanvas.rendererConfig.renderer(offCanvas.context, offCanvas.canvas.width, offCanvas.canvas.height)
+            config.rendererConfig.renderer(config.context, config.canvas.width, config.canvas.height)
           );
         } else resolve(false);
       });
@@ -90,11 +85,12 @@ export class Display extends UINode implements Serializable {
     context.lineWidth = 1;
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
-    this.customAutoRender().then((results: boolean[]) => {
-      results.forEach((result, index) => this.autoOffCanvases[index].shouldRender = result);
+    let autoOffCanvasConfigs = this.offCanvasConfigs.filter(config => config.rendererConfig.auto);
+    this.customRender(autoOffCanvasConfigs).then((results: boolean[]) => {
+      results.forEach((result, index) => autoOffCanvasConfigs[index].shouldRender = result);
     });
 
-    this.offCanvases.forEach(offCanvas => {
+    this.offCanvasConfigs.forEach(offCanvas => {
       context.drawImage(
         offCanvas.canvas, 0, 0,
         offCanvas.canvas.width, offCanvas.canvas.height,
@@ -121,7 +117,7 @@ export class Display extends UINode implements Serializable {
     let newWidth = (this.node.width - 2 * this.node.style.padding) * this.node.flow.flowConnect.scale;
     let newHeight = this.height * this.node.flow.flowConnect.scale;
 
-    this.offCanvases.forEach(offCanvas => {
+    this.offCanvasConfigs.forEach(offCanvas => {
       // Optimization: Do not trigger re-render if width/height is same
       if (Math.floor(offCanvas.canvas.width) !== Math.floor(newWidth) || Math.floor(offCanvas.canvas.height) !== Math.floor(newHeight)) {
         offCanvas.canvas.width = newWidth;
@@ -220,9 +216,9 @@ export class Display extends UINode implements Serializable {
   }
 }
 
-export enum CustomRendererType {
-  Manual,
-  Auto
+export enum CanvasType {
+  OffscreenCanvas,
+  HTMLCanvasElement
 }
 
 export interface CustomOffCanvasConfig {
@@ -233,8 +229,10 @@ export interface CustomOffCanvasConfig {
 }
 
 export interface CustomRendererConfig {
-  type: CustomRendererType
-  renderer?: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => boolean
+  auto?: boolean,
+  clear?: boolean,
+  canvasType?: CanvasType,
+  renderer?: (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => boolean,
 }
 
 export interface DisplayStyle extends UINodeStyle {

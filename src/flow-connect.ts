@@ -6,6 +6,7 @@ import { Log } from './utils/logger';
 import { TerminalType } from './core/terminal';
 import { FlowState, FlowOptions, SerializedFlow } from './core/flow';
 import { ViewPort } from './common/enums';
+import { generateAudioWorklets, WorkletUtils } from "./resource/audio-worklets";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -30,11 +31,11 @@ export class FlowConnect extends Hooks {
   /** Reference to the canvas element on which the flows will be rendered by FlowConnect instance */
   canvas: HTMLCanvasElement;
   private _context: CanvasRenderingContext2D;
-  get context(): CanvasRenderingContext2D { return this._context };
+  get context(): CanvasRenderingContext2D { return this._context }
 
   /** Reference to the AudioContext (one FlowConnect instance will only have one audio context) */
   private _audioContext: AudioContext;
-  get audioContext(): AudioContext { return this._audioContext };
+  get audioContext(): AudioContext { return this._audioContext }
 
   /** @hidden Only used for audio stuff */
   audioBufferCache: Map<ArrayBuffer, AudioBuffer> = new Map();
@@ -44,17 +45,17 @@ export class FlowConnect extends Hooks {
   /** For rendering color hit-maps for Nodes */
   offCanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offContext };
+  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offContext }
 
   /** For rendering color hit-maps for UI elements and Terminals of Nodes */
   offUICanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offUIContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offUIContext };
+  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offUIContext }
 
   /** For rendering color hit-maps for Groups */
   offGroupCanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offGroupContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  get offGroupContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offGroupContext };
+  get offGroupContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offGroupContext }
 
   /** Canvas's absolute position and dimension from viewport origin (top-left) (for e.g. if the canvas element is inside a scrollable parent) */
   canvasDimensions: Dimension = { top: 0, left: 0, width: 0, height: 0 };
@@ -102,11 +103,11 @@ export class FlowConnect extends Hooks {
   maxScale: number = 5;
   wheelScaleDelta: number = 1.05;
   pinchScaleDelta: number = 1.02;
-  get scale(): number { return this._transform.a };
+  get scale(): number { return this._transform.a }
   private _transform: DOMMatrix = new DOMMatrix();
 
   /** Current transformation matrix */
-  get transform(): DOMMatrix { return this._transform };
+  get transform(): DOMMatrix { return this._transform }
   private inverseTransform: DOMMatrix = new DOMMatrix();
   private identity: DOMMatrix = new DOMMatrix();
 
@@ -114,7 +115,7 @@ export class FlowConnect extends Hooks {
   startTime: number = -1;
   private timerId: number;
   /** No. of milliseconds passed since the start of one or more flows */
-  get time(): number { return (this.startTime < 0) ? this.startTime : (performance.now() - this.startTime) };
+  get time(): number { return (this.startTime < 0) ? this.startTime : (performance.now() - this.startTime) }
 
   /**
    * @param mount HTML element (div or canvas) on which FlowConnect will render Flows, if no mount is provided, a new canvas element will be created and attached to document.body
@@ -287,7 +288,7 @@ export class FlowConnect extends Hooks {
           }
           else if (this.keymap['Control'] || this.touchControls['CreateGroup']) {
             this.groupStartPoint = this.pointers[0].realPosition.clone();
-            this.currGroup = new Group(this.currFlow, this.groupStartPoint.clone(), 0, 0, 'New Group');
+            this.currGroup = new Group(this.currFlow, this.groupStartPoint.clone(), { name: 'New Group' });
           }
         }
       } else {
@@ -497,121 +498,9 @@ export class FlowConnect extends Hooks {
     // This one-time setup is not at all related to FlowConnect, couldn't find any place to do this
     // Might be a better idea to do this somewhere in StandardNodes.Audio scope
 
-    // Creates a AudioWorkletProcessor to setup custom AudioParams for AudioBufferSourceNode's automation (because of their fire-forget-destroy behaviour)
-    let URLProxyParamForSource = URL.createObjectURL(new Blob([
-      `registerProcessor('proxy-param-for-source', class ProxyParamForSource extends AudioWorkletProcessor {
-          static get parameterDescriptors() {
-            return [{
-              name: 'detune',
-              defaultValue: 0,
-              minValue: -2400,
-              maxValue: 2400,
-              automationRate: 'k-rate'
-            }, {
-              name: 'playbackRate',
-              defaultValue: 1,
-              minValue: 0.25,
-              maxValue: 3,
-              automationRate: 'k-rate'
-            }]
-          }
-          process(inputs, outputs, parameters) {
-            outputs[0].forEach(channel => {
-              for (let i = 0; i < channel.length; i++) {
-                // wierd bug, the detune is off by 1200 cents, have to offset this anomaly
-                channel[i] = (parameters['detune'].length > 1 ? parameters['detune'][i] : parameters['detune'][0]) - 1200;
-              }
-            });
-            outputs[1].forEach(channel => {
-              for (let i = 0; i < channel.length; i++) {
-                channel[i] = (parameters['playbackRate'].length > 1 ? parameters['playbackRate'][i] : parameters['playbackRate'][0]);
-              }
-            });
-            return true;
-          }
-        })`
-    ], { type: 'application/javascript' }));
-
-    // Same as above, but not specifically optimized for AudioBufferSourceNodes, this is more general purpose
-    let URLProxyParam = URL.createObjectURL(new Blob([
-      `registerProcessor('proxy-param', class ProxyParam extends AudioWorkletProcessor {
-          static get parameterDescriptors() {
-            return [{
-              name: 'param',
-              defaultValue: 0,
-              minValue: -340282346638528859811704183484516925439,
-              maxValue: 340282346638528859811704183484516925439,
-              automationRate: 'k-rate'
-            }]
-          }
-
-          min = -340282346638528859811704183484516925439;
-          max =  340282346638528859811704183484516925439;
-          offset = 0;
-          constructor(...args) {
-            super(...args);
-            this.port.onmessage = (e) => {
-              switch(e.data.type) {
-                case 'set-range': {
-                  this.min = e.data.value.min;
-                  this.max = e.data.value.max;
-                  break;
-                }
-                case 'set-offset': {
-                  this.offset = -e.data.value
-                  break;
-                }
-                default: break;
-              }
-            }
-          }
-          clamp(value) { return Math.min(Math.max(value, this.min), this.max); }
-          process(inputs, outputs, parameters) {
-            outputs[0].forEach(channel => {
-              for (let i = 0; i < channel.length; i++) {
-                channel[i] = this.clamp((parameters['param'].length > 1 ? parameters['param'][i] : parameters['param'][0]) + this.offset);
-              }
-            });
-            return true;
-          }
-        })`
-    ], { type: 'application/javascript' }));
-
-    // This one is used to only peak at the audio data flowing through this node, mainly for debugging purposes
-    let URLDebug = URL.createObjectURL(new Blob([
-      `registerProcessor('debug', class Debug extends AudioWorkletProcessor {
-          throttle = 1000;
-          lastPeak = -Infinity;
-          constructor(...args) {
-            super(...args);
-            this.port.onmessage = (e) => {
-              this.throttle = e.data;
-            }
-          }
-          process(inputs, outputs, parameters) {
-            if (Date.now() - this.lastPeak > this.throttle) {
-              let data = {
-                inputs: inputs.map(input => input.length),
-                outputs: outputs.map(output => output.length)
-              };
-              this.port.postMessage(data);
-              this.lastPeak = Date.now();
-            }
-            let input = inputs[0];
-            let output = outputs[0]
-            for (let i = 0 ; i < input.length ; i+=1) {
-              for(let c = 0 ; c < input[i].length ; c+=1) {
-                output[i][c] = input[i][c];
-              }
-            }
-            return true;
-          }
-        })`
-    ], { type: 'application/javascript' }));
-
-    await this.audioContext.audioWorklet.addModule(URLProxyParamForSource);
-    await this.audioContext.audioWorklet.addModule(URLProxyParam);
-    await this.audioContext.audioWorklet.addModule(URLDebug);
+    let audioWorklets = generateAudioWorklets(WorkletUtils.CircularBuffer);
+    await this.audioContext.audioWorklet.addModule(WorkletUtils.CircularBuffer);
+    return Promise.all(Object.keys(audioWorklets).map(key => this.audioContext.audioWorklet.addModule(audioWorklets[key])));
   }
   /** @hidden */
   showGenericInput(position: Vector2 | DOMPoint, value: string, styles: { [key: string]: any }, attributes: { [key: string]: any }, callback: (value: string) => void) {
@@ -634,7 +523,7 @@ export class FlowConnect extends Hooks {
     this.registerObservers(newParent);
   }
   private updatePointer(id: number, screenPosition: Vector2, realPosition: Vector2) {
-    let pointer = this.pointers.find(pointer => pointer.id === id);
+    let pointer = this.pointers.find(pntr => pntr.id === id);
     if (pointer) {
       pointer.screenPosition = screenPosition;
       pointer.realPosition = realPosition;
@@ -923,6 +812,7 @@ let DefaultRules: () => Rules = () => ({
   'array-buffer': ['array-buffer', 'any'],
   'audio': ['audio', 'audioparam'],
   'audioparam': ['audioparam'],
+  'audio-buffer': ['audio-buffer', 'any'],
   'any': ['any']
 });
 

@@ -19,14 +19,18 @@ export class TunnelNode extends Node {
     name: string,
     position: Vector2,
     width: number,
-    inputs: any[], outputs: any[],
-    style: NodeStyle, terminalStyle: TerminalStyle,
-    props: Object,
-    id?: string,
-    hitColor?: Color,
+    inputs: any[],
+    outputs: any[],
+    options: TunnelNodeOptions = DefaultTunnelNodeOptions()
   ) {
 
-    super(flow, name, position, width, inputs, outputs, style, terminalStyle, props, id, hitColor);
+    super(flow, name, position, width, inputs, outputs, {
+      style: options.style,
+      terminalStyle: options.terminalStyle,
+      props: options.props,
+      id: options.id,
+      hitColor: options.hitColor
+    });
 
     if (this.inputs.length > 0) {
       this.inputs[0].on('data', (_, data) => this.proxyTerminal.setData(data));
@@ -59,10 +63,32 @@ export class TunnelNode extends Node {
     }
   }
   static deSerialize(flow: Flow, data: SerializedTunnelNode): TunnelNode {
-    return new TunnelNode(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, data.style, data.terminalStyle, data.props, data.id, Color.deSerialize(data.hitColor));
+    return new TunnelNode(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+      style: data.style,
+      terminalStyle: data.terminalStyle,
+      props: data.props,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
   }
 }
 
 export interface SerializedTunnelNode extends SerializedNode {
   proxyTerminalId: string
+}
+
+export interface TunnelNodeOptions {
+  style?: NodeStyle,
+  terminalStyle?: TerminalStyle,
+  props?: Object,
+  id?: string,
+  hitColor?: Color,
+}
+/** @hidden */
+let DefaultTunnelNodeOptions = (): TunnelNodeOptions => {
+  return {
+    style: {},
+    terminalStyle: {},
+    props: {}
+  }
 }

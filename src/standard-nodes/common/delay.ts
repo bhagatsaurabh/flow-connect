@@ -13,15 +13,13 @@ interface BufferedEvent {
 
 export const Delay = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Delay',
-    options.position || new Vector2(50, 50),
-    options.width || 130, [{ name: 'event', dataType: 'event' }],
-    [{ name: 'trigger', dataType: 'event' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { delay: 0, eventQueue: null, ...options.props } : { delay: 0, eventQueue: null }
-  );
+  let node = flow.createNode(options.name || 'Delay', options.position || new Vector2(50, 50), options.width || 130, {
+    inputs: [{ name: 'event', dataType: 'event' }],
+    outputs: [{ name: 'trigger', dataType: 'event' }],
+    props: options.props ? { delay: 0, eventQueue: null, ...options.props } : { delay: 0, eventQueue: null },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   node.ui.append(node.createHozLayout([
     node.createLabel('Delay', { style: { grow: .3 } }),

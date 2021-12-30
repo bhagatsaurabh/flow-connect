@@ -41,6 +41,27 @@ import * as channelMerger from './audio/channel-merger';
 import * as adsr from './audio/adsr';
 import * as gain from './audio/gain';
 import * as metronome from './audio/metronome';
+import * as moogEffect from './audio/moog';
+import * as bitcrusherEffect from './audio/bitcrusher';
+import * as biquadFilter from './audio/biquad-filter';
+import * as delayEffect from './audio/delay';
+import * as dynamicsCompressor from './audio/dynamics-compressor';
+import * as chorusEffect from './audio/chorus';
+import * as overdriveEffect from './audio/overdrive';
+import * as audioBuffer from './audio/audio-buffer-source';
+import * as convolver from './audio/convolver';
+import * as tremoloEffect from './audio/tremolo';
+import * as pingPong from './audio/ping-pong-delay';
+import * as stereoPanner from './audio/stereo-panner';
+import * as spatialPanner from './audio/3d-panner';
+import * as noise from './audio/noise';
+import * as oscillator from './audio/oscillator';
+import * as microphone from './audio/microphone';
+import * as distorter from './audio/distorter';
+import * as equalizer from './audio/equalizer';
+import * as frequencyAnalyser from './audio/frequency-analyser';
+import * as waveformAnalyser from './audio/waveform-analyser';
+import * as spectrogramAnalyser from './audio/spectrogram-analyser';
 
 import * as dial from './ui/dial';
 
@@ -92,6 +113,27 @@ export namespace StandardNodes.Audio {
   export import ADSR = adsr.ADSR;
   export import Gain = gain.Gain;
   export import Metronome = metronome.Metronome;
+  export import MoogEffect = moogEffect.MoogEffect;
+  export import BitcrusherEffect = bitcrusherEffect.BitcrusherEffect;
+  export import BiquadFilter = biquadFilter.BiquadFilter;
+  export import DelayEffect = delayEffect.DelayEffect;
+  export import DynamicsCompressor = dynamicsCompressor.DynamicsCompressor;
+  export import ChorusEffect = chorusEffect.ChorusEffect;
+  export import OverdriveEffect = overdriveEffect.OverdriveEffect;
+  export import AudioBufferSource = audioBuffer.AudioBufferSource;
+  export import Convolver = convolver.Convolver;
+  export import TremoloEffect = tremoloEffect.TremoloEffect;
+  export import PingPongDelay = pingPong.PingPongEffect;
+  export import StereoPanner = stereoPanner.StereoPanner;
+  export import SpatialPanner = spatialPanner.SpatialPanner;
+  export import Noise = noise.Noise;
+  export import Oscillator = oscillator.Oscillator;
+  export import Microphone = microphone.Microphone;
+  export import Distorter = distorter.Distorter;
+  export import Equalizer = equalizer.Equalizer;
+  export import FrequencyAnalyser = frequencyAnalyser.FrequencyAnalyser;
+  export import WaveformAnalyser = waveformAnalyser.WaveformAnalyser;
+  export import SpectrogramAnalyser = spectrogramAnalyser.SpectrogramAnalyser;
 }
 export namespace StandardNodes.UI {
   export import Dial = dial.Dial;

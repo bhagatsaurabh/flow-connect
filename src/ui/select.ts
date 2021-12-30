@@ -8,7 +8,7 @@ import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { Align } from "../common/enums";
-import { get } from "../utils";
+import { get } from "../utils/utils";
 
 export class Select extends UINode implements Serializable {
   label: Label;

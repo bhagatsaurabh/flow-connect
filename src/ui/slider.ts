@@ -1,7 +1,7 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
-import { clamp, denormalize, get, normalize } from "../utils/utils";
+import { clamp, denormalize, exists, get, normalize } from "../utils/utils";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
@@ -21,6 +21,7 @@ export class Slider extends UINode implements Serializable {
 
     let oldVal = this.value;
     let newVal = value;
+    newVal = exists(this.style.precision) ? parseFloat(newVal.toFixed(this.style.precision)) : newVal;
 
     if (this.propName) this.setProp(newVal);
     else {
@@ -164,8 +165,6 @@ export class Slider extends UINode implements Serializable {
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
-    this.call('drag', this, screenPosition, realPosition);
-
     let y = this.position.y + this.height / 2 - this.style.railHeight / 2;
     this.thumbFill = realPosition
       .clamp(this.position.x + this.style.thumbRadius, this.position.x + this.width - this.style.thumbRadius, y, y)
@@ -173,6 +172,8 @@ export class Slider extends UINode implements Serializable {
       .x;
 
     this.value = denormalize(normalize(this.thumbFill, 0, this.width - 2 * this.style.thumbRadius), this.min, this.max);
+
+    this.call('drag', this, screenPosition, realPosition);
   }
   /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
@@ -231,7 +232,8 @@ export interface SliderStyle extends UINodeStyle {
   railHeight?: number,
   thumbRadius?: number,
   color?: string,
-  thumbColor?: string
+  thumbColor?: string,
+  precision?: number
 }
 /** @hidden */
 let DefaultSliderStyle = (node: Node, height: number) => {
@@ -239,8 +241,7 @@ let DefaultSliderStyle = (node: Node, height: number) => {
     color: '#444',
     thumbColor: '#000',
     railHeight: 3,
-    thumbRadius: typeof height !== 'undefined' ? height / 2 : (node.style.rowHeight * 1.5) / 2,
-    visible: true
+    thumbRadius: typeof height !== 'undefined' ? height / 2 : (node.style.rowHeight * 1.5) / 2
   }
 }
 

@@ -3,22 +3,19 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Color } from "../../core/color";
 import { InputType } from "../../ui/input";
-import { CustomRendererType, DisplayStyle } from "../../ui/display";
+import { DisplayStyle } from "../../ui/display";
 
 export const LineChartMini = (flow: Flow, options: NodeCreatorOptions = {}, height: number, colors: string[], displayStyle: DisplayStyle) => {
 
-  let node = flow.createNode(
-    options.name || 'Line Chart Mini',
-    options.position || new Vector2(50, 50),
-    options.width || 150,
-    [{ name: 'data', dataType: 'array' }], [],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { size: 10, ...options.props } : { size: 10 }
-  );
+  let node = flow.createNode(options.name || 'Line Chart Mini', options.position || new Vector2(50, 50), options.width || 150, {
+    inputs: [{ name: 'data', dataType: 'array' }],
+    props: options.props ? { size: 10, ...options.props } : { size: 10 },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let display = node.createDisplay(height, [{
-    type: CustomRendererType.Auto,
+    auto: true,
     renderer: (context, wdth, hght) => {
       let data = node.getInputs();
       if (!data || !data[0]) return true;

@@ -1,5 +1,5 @@
 import { SerializedVector2, Vector2 } from "./vector";
-import { getNewUUID, intersects } from "../utils/utils";
+import { get, getNewUUID, intersects } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Flow } from './flow';
 import { Hooks } from './hooks';
@@ -32,19 +32,26 @@ export class Group extends Hooks implements Serializable {
   private renderState: ViewPort = ViewPort.INSIDE;
   private _position: Vector2;
 
+  public width: number;
+  public height: number
+  public style: GroupStyle;
+  public id: string;
+
   constructor(
     public flow: Flow,
     position: Vector2,
-    public width: number = 0, public height: number = 0,
-    name?: string,
-    public style: GroupStyle = {},
-    public id: string = getNewUUID(),
-    hitColor?: Color
+    options: GroupOptions = DefaultGroupOptions()
   ) {
 
     super();
-    this.hitColor = hitColor;
-    this.style = { ...DefaultGroupStyle(), ...style };
+
+    this.width = get(options.width, 0);
+    this.height = get(options.height, 0);
+    this.style = get(options.style, {});
+    this.id = get(options.id, getNewUUID());
+
+    this.hitColor = options.hitColor;
+    this.style = { ...DefaultGroupStyle(), ...options.style };
     this.id = getNewUUID();
     this._position = position;
     if (!this.style.color || !this.style.borderColor) {
@@ -52,8 +59,8 @@ export class Group extends Hooks implements Serializable {
       this.style.borderColor = colors[0];
       this.style.color = colors[1];
     }
-    this.name = name;
-    this.setHitColor(hitColor);
+    this.name = options.name;
+    this.setHitColor(options.hitColor);
     this.computeTextMetrics();
 
     this.flow.on('transform', () => this.updateRenderState());
@@ -187,7 +194,15 @@ export class Group extends Hooks implements Serializable {
     };
   }
   static deSerialize(flow: Flow, data: SerializedGroup): Group {
-    let group = new Group(flow, Vector2.deSerialize(data.position), data.width, data.height, data.name, data.style, data.id, Color.deSerialize(data.hitColor));
+    let group = new Group(flow, Vector2.deSerialize(data.position), {
+      width: data.width,
+      height: data.height,
+      name: data.name,
+      style: data.style,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
+
     data.nodes.forEach(nodeId => {
       group.nodes.push(flow.nodes[nodeId]);
     });
@@ -240,3 +255,21 @@ let DefaultGroupStyle = () => {
     font: 'arial'
   };
 };
+
+export interface GroupOptions {
+  width?: number,
+  height?: number,
+  name?: string,
+  style?: GroupStyle,
+  id?: string,
+  hitColor?: Color
+}
+/** @hidden */
+let DefaultGroupOptions = (): GroupOptions => {
+  return {
+    width: 0,
+    height: 0,
+    style: {},
+    id: getNewUUID()
+  }
+}

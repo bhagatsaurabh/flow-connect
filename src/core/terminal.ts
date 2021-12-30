@@ -106,15 +106,8 @@ export class Terminal extends Hooks implements Events, Serializable {
 
     // Check if these terminals can be connected
     if (canConnect(this, otherTerminal, this.node.flow.rules, this.node.flow.executionGraph)) {
-      let start: Terminal, end: Terminal;
-      if (this.type === TerminalType.OUT) { start = this; end = otherTerminal; }
-      else { start = otherTerminal; end = this; }
-
       let newConnector = new Connector(this.node.flow, this.type === TerminalType.OUT ? this : otherTerminal, this.type === TerminalType.IN ? this : otherTerminal, null, style);
       this.node.flow.connectors[newConnector.id] = newConnector;
-
-      /* start.onConnect(newConnector);
-      end.onConnect(newConnector); */
 
       return true;
     } else return false;
@@ -170,6 +163,9 @@ export class Terminal extends Hooks implements Events, Serializable {
     context.fill();
 
     context.restore();
+  }
+  isConnected(): boolean {
+    return this.connectors.length > 0;
   }
 
   /** @hidden */
@@ -291,12 +287,12 @@ export interface TerminalStyle {
 }
 
 export interface SerializedTerminal {
-  id: string;
-  hitColor: SerializedColor;
-  type: TerminalType;
-  dataType: string;
   name: string;
-  style: TerminalStyle
+  dataType: string;
+  id?: string;
+  hitColor?: SerializedColor;
+  type?: TerminalType;
+  style?: TerminalStyle
 }
 
 /** @hidden */

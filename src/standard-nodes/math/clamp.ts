@@ -6,16 +6,13 @@ import { InputType } from "../../ui/input";
 
 export const Clamp = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Clamp',
-    options.position || new Vector2(50, 50),
-    options.width || 150,
-    [{ name: 'x', dataType: 'any' }],
-    [{ name: '[x]', dataType: 'any' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { min: 0, max: 100, ...options.props } : { min: 0, max: 100 }
-  );
+  let node = flow.createNode(options.name || 'Clamp', options.position || new Vector2(50, 50), options.width || 150, {
+    inputs: [{ name: 'x', dataType: 'any' }],
+    outputs: [{ name: '[x]', dataType: 'any' }],
+    props: options.props ? { min: 0, max: 100, ...options.props } : { min: 0, max: 100 },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let minInput = node.createInput({ propName: 'min', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
   let maxInput = node.createInput({ propName: 'max', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });

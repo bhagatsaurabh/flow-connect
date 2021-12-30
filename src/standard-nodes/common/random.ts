@@ -6,16 +6,13 @@ import { InputType } from "../../ui/input";
 
 export const Random = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Random',
-    options.position || new Vector2(50, 50),
-    options.width || 150,
-    [{ name: 'trigger', dataType: 'event' }],
-    [{ name: 'value', dataType: 'number' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { min: 0, max: 100, fractional: false, ...options.props } : { fractional: false, min: 0, max: 100 }
-  );
+  let node = flow.createNode(options.name || 'Random', options.position || new Vector2(50, 50), options.width || 150, {
+    inputs: [{ name: 'trigger', dataType: 'event' }],
+    outputs: [{ name: 'value', dataType: 'number' }],
+    props: options.props ? { min: 0, max: 100, fractional: false, ...options.props } : { fractional: false, min: 0, max: 100 },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = () => {
     let random;

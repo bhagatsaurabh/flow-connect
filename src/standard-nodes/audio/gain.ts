@@ -4,18 +4,14 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 
 export const Gain = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Gain',
-    options.position || new Vector2(50, 50),
-    options.width || 120,
-    [{ name: 'in', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }],
-    [{ name: 'out', dataType: 'audio' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props
-      ? { gain: 1, ...options.props }
-      : { gain: 1 }
-  );
+  let node = flow.createNode(options.name || 'Gain', options.position || new Vector2(50, 50), options.width || 120, {
+    inputs: [{ name: 'in', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }],
+    outputs: [{ name: 'out', dataType: 'audio' }],
+    props: options.props ? { gain: 1, ...options.props } : { gain: 1 },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
+
   node.props.gainNode = flow.flowConnect.audioContext.createGain();
   node.inputs[0].ref = node.props.gainNode;
   node.outputs[0].ref = node.props.gainNode;

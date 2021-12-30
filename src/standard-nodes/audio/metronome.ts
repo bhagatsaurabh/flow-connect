@@ -3,26 +3,23 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { FlowConnectState } from "../../flow-connect";
 import { Constant } from "../../resource/constants";
-import { clamp } from "../../utils";
-import { InputType } from "../../ui";
+import { clamp } from "../../utils/utils";
+import { InputType } from "../../ui/input";
 
 export const Metronome = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Metronome',
-    options.position || new Vector2(50, 50),
-    options.width || 200,
-    [
+  let node = flow.createNode(options.name || 'Metronome', options.position || new Vector2(50, 50), options.width || 200, {
+    inputs: [
       { name: 'trigger', dataType: 'event' }, { name: 'gain', dataType: 'audioparam' },
       { name: 'detune', dataType: 'audioparam' }, { name: 'playback-rate', dataType: 'audioparam' }
     ],
-    [{ name: 'out', dataType: 'audio' }],
-    options.style || { rowHeight: 10, spacing: 15 },
-    options.terminalStyle || {},
-    options.props
+    outputs: [{ name: 'out', dataType: 'audio' }],
+    props: options.props
       ? { frequency: 330, buffer: null, bpm: 130, loop: true, auto: true, ...options.props }
-      : { frequency: 330, buffer: null, bpm: 130, loop: true, auto: true, }
-  );
+      : { frequency: 330, buffer: null, bpm: 130, loop: true, auto: true, },
+    style: options.style || { rowHeight: 10, spacing: 15 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let fillBuffer = () => {
     let ctx = flow.flowConnect.audioContext;

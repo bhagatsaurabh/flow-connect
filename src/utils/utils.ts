@@ -2,8 +2,6 @@ import { Graph } from "../core/graph";
 import { Rules } from "../common/interfaces";
 import { Terminal } from "../core/terminal";
 import { ViewPort } from "../common/enums";
-import { Vector2 } from "../core/vector";
-import { Constant } from "../flow-connect";
 
 export const getNewUUID = () => {
   var S4 = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -29,6 +27,9 @@ export const intersects = (start1X: number, start1Y: number, end1X: number, end1
 export const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
+export const lerp = (a: number, b: number, t: number): number => {
+  return (1 - t) * a + t * b;
+}
 export const canConnect = (source: Terminal, destination: Terminal, rules: Rules, executionGraph: Graph) => {
   if (!destination) return false;
   if (source === destination) return false;
@@ -39,9 +40,15 @@ export const canConnect = (source: Terminal, destination: Terminal, rules: Rules
   return true;
 };
 export const isEmpty = (obj: any): boolean => {
-  for (let key in obj) return false;
+  for (let _ in obj) return false;
   return true;
 };
+export const isInRange = (value: number, min: number, max: number): boolean => {
+  return Math.min(value, min) >= min && Math.max(value, max) <= max;
+}
+export const exists = (value: any): boolean => {
+  return typeof value !== 'undefined' && value !== null;
+}
 export const get = <T>(value: T, defaultVal: T): T => {
   if (typeof value === 'undefined' || value === null) return defaultVal;
   return value;

@@ -7,7 +7,7 @@ import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { Align } from "../common/enums";
-import { get } from "../utils";
+import { exists, get } from "../utils/utils";
 
 export class Input extends UINode implements Serializable {
   label: Label;
@@ -29,7 +29,7 @@ export class Input extends UINode implements Serializable {
     if (this.propName) this.setProp(newVal);
     else {
       this._value = newVal;
-      this.label.text = typeof this._value === 'number' ? this._value.toFixed(this.style.precision) : this._value;
+      this.setLabelText(this._value);
       this.inputEl.value = this._value.toString();
     }
     if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, newVal, oldVal);
@@ -125,9 +125,7 @@ export class Input extends UINode implements Serializable {
       this.inputEl.style.pointerEvents = 'none';
       this.value = this.inputEl.value;
 
-      this.label.text = typeof this.style.type === InputType.Number
-        ? parseFloat(this.value).toFixed(this.style.precision)
-        : this.value.toString();
+      this.setLabelText(this.style.type === InputType.Number ? parseFloat(this.value) : this.value.toString());
 
       this.call('blur', this);
     });
@@ -139,6 +137,9 @@ export class Input extends UINode implements Serializable {
       this.call('input', this);
     }
     document.body.appendChild(this.inputEl);
+  }
+  setLabelText(value: any) {
+    this.label.text = typeof value === 'number' && exists(this.style.precision) ? value.toFixed(this.style.precision) : value;
   }
 
   /** @hidden */
@@ -184,7 +185,7 @@ export class Input extends UINode implements Serializable {
     if (this.style.type === InputType.Number && typeof newVal === 'string') newVal = parseFloat(newVal);
 
     this._value = newVal;
-    this.label.text = typeof this._value === 'number' ? this._value.toFixed(this.style.precision) : this._value;
+    this.setLabelText(this._value);
     this.inputEl.value = this._value.toString();
 
     this.output && this.output.setData(this._value);
@@ -289,7 +290,7 @@ export interface InputStyle extends UINodeStyle {
   maxLength?: number,
 }
 /** @hidden */
-let DefaultInputStyle = () => {
+let DefaultInputStyle = (): InputStyle => {
   return {
     backgroundColor: '#eee',
     color: '#000',
@@ -297,8 +298,7 @@ let DefaultInputStyle = () => {
     font: 'arial',
     border: '1px solid black',
     align: Align.Left,
-    type: InputType.Text,
-    visible: true
+    type: InputType.Text
   };
 };
 

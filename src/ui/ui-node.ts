@@ -205,7 +205,9 @@ export enum UIType {
   Source,
   Toggle,
   Envelope,
-  RadioGroup
+  RadioGroup,
+  Slider2D,
+  VSlider
 }
 
 interface UINodeOptions {

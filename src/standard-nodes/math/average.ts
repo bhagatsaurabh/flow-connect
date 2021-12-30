@@ -4,16 +4,13 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 
 export const Average = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Average',
-    options.position || new Vector2(50, 50),
-    options.width || 120,
-    [{ name: 'n', dataType: 'any' }],
-    [{ name: 'μ', dataType: 'any' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { ...options.props } : {}
-  );
+  let node = flow.createNode(options.name || 'Average', options.position || new Vector2(50, 50), options.width || 120, {
+    inputs: [{ name: 'n', dataType: 'any' }],
+    outputs: [{ name: 'μ', dataType: 'any' }],
+    props: options.props ? { ...options.props } : {},
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   node.on('process', (_, inputs) => {
     if (Array.isArray(inputs[0])) {

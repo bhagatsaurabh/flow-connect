@@ -64,7 +64,7 @@ export class Evaluator {
     },
     sum: (...args: any[]) => {
       let input = Array.isArray(args[0]) ? args[0] : args;
-      return input.reduce((acc, curr) => acc += curr, 0);
+      return input.reduce((acc, curr) => acc + curr, 0);
     },
     mean: (...args: any[]) => {
       let input = Array.isArray(args[0]) ? args[0] : args;
@@ -82,7 +82,7 @@ export class Evaluator {
     var: (...args: any[]) => {
       let input = Array.isArray(args[0]) ? args[0] : args;
       let mean = Evaluator.functions.mean(input);
-      return input.reduce((acc, curr) => acc += Math.pow(curr - mean, 2), 0) / input.length;
+      return input.reduce((acc, curr) => acc + Math.pow(curr - mean, 2), 0) / input.length;
     },
     fact: (n: number) => {
       let res = 1;

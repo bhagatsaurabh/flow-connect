@@ -6,7 +6,7 @@ import { Node } from "./node";
 import { List } from "../utils/linked-list";
 
 /** @hidden */
-// A Directed acyclic graph
+// A directed acyclic graph
 export class Graph implements Serializable {
   state: FlowState = FlowState.Stopped;
   nodes: GraphNode[][];
@@ -87,11 +87,9 @@ export class Graph implements Serializable {
       this.state = FlowState.Running;
       if (this.nodes[0]) {
         try {
-          // console.log(this.nodes[0]);
           await this.runAll(this.nodes[0]);
 
           while (Object.values(this.dirtyNodes).length !== 0) {
-            // console.log(Object.assign({}, this.dirtyNodes));
             await this.runAll(this.lowestDirty(Object.values(this.dirtyNodes)));
           }
         } catch (error) {
@@ -104,7 +102,6 @@ export class Graph implements Serializable {
       this.state = FlowState.Running;
       try {
         while (Object.values(this.dirtyNodes).length !== 0) {
-          // console.log(Object.assign({}, this.dirtyNodes));
           await this.runAll(this.lowestDirty(Object.values(this.dirtyNodes)));
         }
       } catch (error) {

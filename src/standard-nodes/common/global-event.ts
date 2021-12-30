@@ -11,16 +11,13 @@ export const GlobalEvent = (flow: Flow, type: GlobalEventType, name: string, opt
     return;
   }
 
-  let node = flow.createNode(
-    options.name || 'Global Event',
-    options.position || new Vector2(50, 50),
-    options.width || 150,
-    type === GlobalEventType.Emitter ? [{ name: 'emit', dataType: 'event' }] : [],
-    type === GlobalEventType.Receiver ? [{ name: 'receive', dataType: 'event' }] : [],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { prevEvent: '', eventId: -1, ...options.props } : { prevEvent: '', eventId: -1 }
-  );
+  let node = flow.createNode(options.name || 'Global Event', options.position || new Vector2(50, 50), options.width || 150, {
+    inputs: type === GlobalEventType.Emitter ? [{ name: 'emit', dataType: 'event' }] : [],
+    outputs: type === GlobalEventType.Receiver ? [{ name: 'receive', dataType: 'event' }] : [],
+    props: options.props ? { prevEvent: '', eventId: -1, ...options.props } : { prevEvent: '', eventId: -1 },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
   node.props.prevEvent = name;
   node.props.name = name;
 

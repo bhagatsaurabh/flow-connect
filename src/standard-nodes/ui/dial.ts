@@ -6,16 +6,13 @@ import { Align } from "../../common/enums";
 
 export const Dial = (flow: Flow, options: NodeCreatorOptions = new Object(), dialStyle: DialStyle = new Object()) => {
 
-  let node = flow.createNode(
-    options.name || 'Dial',
-    options.position || new Vector2(50, 50),
-    options.width || 90, [], [],
-    options.style || { rowHeight: 10, padding: 5, spacing: 10 },
-    options.terminalStyle || {},
-    options.props
+  let node = flow.createNode(options.name || 'Dial', options.position || new Vector2(50, 50), options.width || 90, {
+    props: options.props
       ? { value: 0, min: 0, max: 1, ...options.props }
-      : { value: 0, min: 0, max: 1 }
-  );
+      : { value: 0, min: 0, max: 1 },
+    style: options.style || { rowHeight: 10, padding: 5, spacing: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   Object.assign(node.ui.style, {
     backgroundColor: 'transparent',
@@ -43,6 +40,10 @@ export const Dial = (flow: Flow, options: NodeCreatorOptions = new Object(), dia
       style: { spacing: 5 }
     })
   ]);
+
+  node.outputsUI[0].on('connect', (_inst, connector) => {
+    if (connector.end.ref instanceof AudioParam) node.props.value = connector.end.ref.value;
+  });
 
   return node;
 };

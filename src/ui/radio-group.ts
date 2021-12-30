@@ -7,7 +7,7 @@ import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { Label } from "./label";
 import { Align } from "../common/enums";
-import { get } from "../utils";
+import { get } from "../utils/utils";
 
 export class RadioGroup extends UINode implements Serializable {
   private _values: string[];

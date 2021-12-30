@@ -5,15 +5,12 @@ import { InputType } from "../../ui/input";
 
 export const StringSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'String Source',
-    options.position || new Vector2(50, 50),
-    options.width || 160, [],
-    [{ name: 'value', dataType: 'string' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { value: '', ...options.props } : { value: '' }
-  );
+  let node = flow.createNode(options.name || 'String Source', options.position || new Vector2(50, 50), options.width || 160, {
+    outputs: [{ name: 'value', dataType: 'string' }],
+    props: options.props ? { value: '', ...options.props } : { value: '' },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = () => node.setOutputs(0, node.props.value);
 

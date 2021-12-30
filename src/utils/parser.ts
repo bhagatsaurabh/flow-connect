@@ -5,7 +5,7 @@ export class Parser {
 
   constructor() { this.lexer = new Lexer(); }
 
-  private peek(arr: any[]) { return arr.slice(-1)[0]; };
+  private peek(arr: any[]) { return arr.slice(-1)[0]; }
 
   parse(expression: string) {
     let tokens = this.lexer.tokenize(expression);

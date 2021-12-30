@@ -1,21 +1,17 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { CustomRendererType } from "../../ui/display";
 
 export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, height: number, style: { axisColor?: string, gridColor?: string, plotColor?: string } = new Object()) => {
 
-  let node = flow.createNode(
-    options.name || 'Parametric Plotter',
-    options.position || new Vector2(50, 50),
-    options.width || 300,
-    [{ name: 'data', dataType: 'any' }], [],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props
+  let node = flow.createNode(options.name || 'Parametric Plotter', options.position || new Vector2(50, 50), options.width || 300, {
+    inputs: [{ name: 'data', dataType: 'any' }],
+    props: options.props
       ? { points: [], polar: false, config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 }, ...options.props }
-      : { points: [], polar: false, config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 } }
-  );
+      : { points: [], polar: false, config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 } },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let gridRenderer = (context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) => {
     drawGrid(context, width, height);
@@ -23,8 +19,8 @@ export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, he
   };
 
   let display = node.createDisplay(height, [
-    { type: CustomRendererType.Auto, renderer: gridRenderer },
-    { type: CustomRendererType.Manual }
+    { auto: true, renderer: gridRenderer },
+    { auto: false }
   ]);
   let polarToggle = node.createToggle({ propName: 'polar', height: 10, style: { grow: .1 } });
   node.ui.append([
@@ -38,14 +34,14 @@ export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, he
   display.on('exit', () => dragStart = null);
   display.on('down', (_, screenPos) => {
     dragStart = screenPos.subtract(display.position.transform(flow.flowConnect.transform));
-    dragStart.x = xPixToCoord(node.props.config, display.autoOffCanvases[0].canvas.width, dragStart.x);
-    dragStart.y = yPixToCoord(node.props.config, display.autoOffCanvases[0].canvas.height, dragStart.y);
+    dragStart.x = xPixToCoord(node.props.config, display.offCanvasConfigs[0].canvas.width, dragStart.x);
+    dragStart.y = yPixToCoord(node.props.config, display.offCanvasConfigs[0].canvas.height, dragStart.y);
   });
   display.on('drag', (_, screenPos) => {
     if (dragStart) {
       let curr = screenPos.subtract(display.position.transform(flow.flowConnect.transform));
-      curr.x = xPixToCoord(node.props.config, display.autoOffCanvases[0].canvas.width, curr.x);
-      curr.y = yPixToCoord(node.props.config, display.autoOffCanvases[0].canvas.height, curr.y);
+      curr.x = xPixToCoord(node.props.config, display.offCanvasConfigs[0].canvas.width, curr.x);
+      curr.y = yPixToCoord(node.props.config, display.offCanvasConfigs[0].canvas.height, curr.y);
 
       let delta = dragStart.subtract(curr);
       Object.assign(node.props.config, {
@@ -56,21 +52,21 @@ export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, he
       });
 
       gridRenderer(
-        display.autoOffCanvases[0].context,
-        display.autoOffCanvases[0].canvas.width,
-        display.autoOffCanvases[0].canvas.height
+        display.offCanvasConfigs[0].context,
+        display.offCanvasConfigs[0].canvas.width,
+        display.offCanvasConfigs[0].canvas.height
       );
       functionRenderer(
-        display.manualOffCanvases[0].context,
-        display.manualOffCanvases[0].canvas.width,
-        display.manualOffCanvases[0].canvas.height
+        display.offCanvasConfigs[1].context,
+        display.offCanvasConfigs[1].canvas.width,
+        display.offCanvasConfigs[1].canvas.height
       );
     }
   });
   display.on('wheel', (_, direction, screenPos) => {
     let cursor = screenPos.subtract(display.position.transform(flow.flowConnect.transform));
-    cursor.x = xPixToCoord(node.props.config, display.autoOffCanvases[0].canvas.width, cursor.x);
-    cursor.y = yPixToCoord(node.props.config, display.autoOffCanvases[0].canvas.height, cursor.y);
+    cursor.x = xPixToCoord(node.props.config, display.offCanvasConfigs[0].canvas.width, cursor.x);
+    cursor.y = yPixToCoord(node.props.config, display.offCanvasConfigs[0].canvas.height, cursor.y);
 
     Object.assign(node.props.config, {
       xMin: node.props.config.xMin - cursor.x,
@@ -101,20 +97,20 @@ export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, he
     });
 
     gridRenderer(
-      display.autoOffCanvases[0].context,
-      display.autoOffCanvases[0].canvas.width,
-      display.autoOffCanvases[0].canvas.height
+      display.offCanvasConfigs[0].context,
+      display.offCanvasConfigs[0].canvas.width,
+      display.offCanvasConfigs[0].canvas.height
     );
     functionRenderer(
-      display.manualOffCanvases[0].context,
-      display.manualOffCanvases[0].canvas.width,
-      display.manualOffCanvases[0].canvas.height
+      display.offCanvasConfigs[1].context,
+      display.offCanvasConfigs[1].canvas.width,
+      display.offCanvasConfigs[1].canvas.height
     );
   });
   flow.flowConnect.on('scale', () => functionRenderer(
-    display.manualOffCanvases[0].context,
-    display.manualOffCanvases[0].canvas.width,
-    display.manualOffCanvases[0].canvas.height
+    display.offCanvasConfigs[1].context,
+    display.offCanvasConfigs[1].canvas.width,
+    display.offCanvasConfigs[1].canvas.height
   ));
 
   let process = (inputs: any) => {
@@ -133,7 +129,7 @@ export const FunctionPlotter = (flow: Flow, options: NodeCreatorOptions = {}, he
         : inputs[0]
       );
     }
-    functionRenderer(display.manualOffCanvases[0].context, display.manualOffCanvases[0].canvas.width, display.manualOffCanvases[0].canvas.height);
+    functionRenderer(display.offCanvasConfigs[1].context, display.offCanvasConfigs[1].canvas.width, display.offCanvasConfigs[1].canvas.height);
   }
   node.inputsUI[0].on('event', () => node.props.points = []);
   node.on('process', (_, inputs) => process(inputs));

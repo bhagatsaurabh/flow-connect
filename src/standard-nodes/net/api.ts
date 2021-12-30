@@ -7,23 +7,20 @@ import { isEmpty } from "../../utils/utils";
 
 export const API = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'API',
-    options.position || new Vector2(50, 50),
-    options.width || 150,
-    [{ name: 'trigger', dataType: 'event' }],
-    [{ name: 'text', dataType: 'string' }, { name: 'json', dataType: 'any' }, { name: 'array-buffer', dataType: 'array-buffer' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { src: '', ...options.props } : { src: '' }
-  );
+  let node = flow.createNode(options.name || 'API', options.position || new Vector2(50, 50), options.width || 150, {
+    inputs: [{ name: 'trigger', dataType: 'event' }],
+    outputs: [{ name: 'text', dataType: 'string' }, { name: 'json', dataType: 'any' }, { name: 'array-buffer', dataType: 'array-buffer' }],
+    props: options.props ? { src: '', ...options.props } : { src: '' },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   node.ui.append(node.createLabel('', { propName: 'src', input: true, output: true, style: { align: Align.Center } }));
   node.inputs[0].on('event', async () => {
     if (!node.props.src || node.props.src === '') Log.error("Prop 'src' of API Node is invalid, cannot make an API call");
     else {
       let response, outputs: TerminalOutputs = {};
-      if (node.outputs.map(terminal => terminal.connectors.length).reduce((acc, curr) => acc += curr, 0) > 0) {
+      if (node.outputs.map(terminal => terminal.connectors.length).reduce((acc, curr) => acc + curr, 0) > 0) {
         response = await fetch(node.props.src);
 
         if (node.outputs[0].connectors.length > 0) outputs[node.outputs[0].name] = await response.text();

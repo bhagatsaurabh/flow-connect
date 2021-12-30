@@ -5,15 +5,13 @@ import { InputType } from "../../ui/input";
 
 export const Buffer = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Buffer',
-    options.position || new Vector2(50, 50),
-    options.width || 150,
-    [{ name: 'data', dataType: 'any' }], [{ name: 'buffer', dataType: 'array' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { buffer: [], size: 10, ...options.props } : { buffer: [], size: 10 }
-  );
+  let node = flow.createNode(options.name || 'Buffer', options.position || new Vector2(50, 50), options.width || 150, {
+    inputs: [{ name: 'data', dataType: 'any' }],
+    outputs: [{ name: 'buffer', dataType: 'array' }],
+    props: options.props ? { buffer: [], size: 10, ...options.props } : { buffer: [], size: 10 },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = (inputs: any[]) => {
     if (inputs[0] === null || typeof inputs[0] === 'undefined') return;

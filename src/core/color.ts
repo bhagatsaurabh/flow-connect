@@ -1,5 +1,6 @@
-import { getRandom, normalize } from "../utils/utils";
+import { clamp, getRandom, lerp, normalize } from "../utils/utils";
 import { Serializable } from "../common/interfaces";
+import { Log } from "../utils/logger";
 
 export class Color implements Serializable {
   hexValue: string;
@@ -40,6 +41,47 @@ export class Color implements Serializable {
   }
   static rgbaToCSSString(rgba: Uint8ClampedArray | number[]): string {
     return `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${normalize(rgba[3], 0, 255).toFixed(3)})`;
+  }
+
+  /** A linear interpolator for given array of colors */
+  static scale(colors: Color[] | Uint8ClampedArray | string[] | number[][]): (t: number) => string {
+    if (!Array.isArray(colors)) {
+      Log.error('An array is expected to create a color scale');
+      return;
+    }
+    if (colors.length <= 1) {
+      Log.error('At least two colors are required to create a color scale');
+      return;
+    }
+
+    let colorObjs: Color[] = [];
+    if (colors[0] instanceof Uint8ClampedArray || (Array.isArray(colors[0]) && typeof colors[0][0] === 'number')) {
+      colors.forEach(color => colorObjs.push(new Color(color as any)));
+    } else if (typeof colors[0] === 'string') {
+      colors.forEach(color => colorObjs.push(new Color(Color.hexToRGBA(color as any))));
+    } else {
+      colorObjs = colors as any;
+    }
+
+    return (t) => {
+      t = clamp(t, 0, 1);
+
+      let index = (colorObjs.length - 1) * t;
+      let start = Math.floor(index);
+      let end = Math.ceil(index);
+
+      t = index - start;
+
+      let startColor = colorObjs[start], endColor = colorObjs[end];
+
+      let result = startColor.rgbaValue.map((component, i) => {
+        component = lerp(component, endColor.rgbaValue[i], t);
+        if (i < 3) component = Math.round(component);
+        return component;
+      });
+
+      return 'rgba(' + result + ')';
+    }
   }
 
   serialize(): SerializedColor {

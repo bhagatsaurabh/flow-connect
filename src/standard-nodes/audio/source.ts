@@ -7,21 +7,18 @@ import { Node } from '../../core/node';
 
 export const Source = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Audio Source',
-    options.position || new Vector2(50, 50),
-    options.width || 200,
-    [
+  let node = flow.createNode(options.name || 'Audio Source', options.position || new Vector2(50, 50), options.width || 200, {
+    inputs: [
       { name: 'array-buffer', dataType: 'event' }, { name: 'gain', dataType: 'audioparam' },
       { name: 'detune', dataType: 'audioparam' }, { name: 'playback-rate', dataType: 'audioparam' }
     ],
-    [{ name: 'out', dataType: 'audio' }, { name: 'ended', dataType: 'event' }],
-    options.style || { rowHeight: 10, spacing: 15 },
-    options.terminalStyle || {},
-    options.props
+    outputs: [{ name: 'out', dataType: 'audio' }, { name: 'ended', dataType: 'event' }],
+    props: options.props
       ? { buffer: null, loop: true, prevChannelCount: -1, ...options.props }
-      : { buffer: null, loop: true, prevChannelCount: -1 }
-  );
+      : { buffer: null, loop: true, prevChannelCount: -1 },
+    style: options.style || { rowHeight: 10, spacing: 15 },
+    terminalStyle: options.terminalStyle || {}
+  });
   node.props.volumeGainNode = flow.flowConnect.audioContext.createGain();
   node.props.proxyParamSourceNode = new AudioWorkletNode(
     flow.flowConnect.audioContext,

@@ -5,18 +5,15 @@ import { InputType } from "../../ui/input";
 
 export const NumberRange = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Number Range',
-    options.position || new Vector2(50, 50),
-    options.width || 200,
-    [{ name: 'trigger', dataType: 'event' }, { name: 'reset', dataType: 'event' }],
-    [{ name: 'value', dataType: 'number' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props
+  let node = flow.createNode(options.name || 'Number Range', options.position || new Vector2(50, 50), options.width || 200, {
+    inputs: [{ name: 'trigger', dataType: 'event' }, { name: 'reset', dataType: 'event' }],
+    outputs: [{ name: 'value', dataType: 'number' }],
+    props: options.props
       ? { value: 0, min: 0, max: 100, step: 1, loop: false, ...options.props }
-      : { value: 0, min: 0, max: 100, step: 1, loop: false }
-  );
+      : { value: 0, min: 0, max: 100, step: 1, loop: false },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   node.props.startValue = node.props.value;
 

@@ -6,7 +6,8 @@ import { imageIcon } from "../resource/icons";
 import { Log } from "../utils/logger";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Align } from "../common/enums";
-import { FlowState, SerializedTerminal, Terminal, TerminalType } from "../core";
+import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal";
+import { FlowState } from '../core/flow';
 import { get } from "../utils/utils";
 
 export class Image extends UINode implements Serializable {

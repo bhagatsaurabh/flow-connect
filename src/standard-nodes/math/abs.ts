@@ -4,16 +4,13 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 
 export const Abs = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Abs',
-    options.position || new Vector2(50, 50),
-    options.width || 120,
-    [{ name: 'x', dataType: 'any' }],
-    [{ name: '|x|', dataType: 'any' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { ...options.props } : {}
-  );
+  let node = flow.createNode(options.name || 'Abs', options.position || new Vector2(50, 50), options.width || 120, {
+    inputs: [{ name: 'x', dataType: 'any' }],
+    outputs: [{ name: '|x|', dataType: 'any' }],
+    props: options.props ? { ...options.props } : {},
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   node.on('process', (_, inputs) => {
     if (typeof inputs[0] === 'number') {

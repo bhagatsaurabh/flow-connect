@@ -8,15 +8,13 @@ export const Normalize = (flow: Flow, options: NodeCreatorOptions = {}, type: 'n
   let min = Number.MAX_SAFE_INTEGER;
   let max = Number.MIN_SAFE_INTEGER;
 
-  let node = flow.createNode(
-    options.name || 'Normalize',
-    options.position || new Vector2(50, 50),
-    options.width || 150,
-    [{ name: 'data', dataType: type }], [{ name: 'normalized', dataType: type }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { min: 0, max: 100, relative: false, ...options.props } : { min: 0, max: 100, relative: false }
-  );
+  let node = flow.createNode(options.name || 'Normalize', options.position || new Vector2(50, 50), options.width || 150, {
+    inputs: [{ name: 'data', dataType: type }],
+    outputs: [{ name: 'normalized', dataType: type }],
+    props: options.props ? { min: 0, max: 100, relative: false, ...options.props } : { min: 0, max: 100, relative: false },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = () => {
     let data = node.getInput(0);

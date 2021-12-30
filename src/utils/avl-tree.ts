@@ -4,7 +4,7 @@ export class AVLTree<T> {
   dataRefToTreeNode: { [key: string]: AVLTreeNode<T> };
   size: number;
 
-  constructor(public comparator: (a: T, b: T) => Number, public dataToTreeNodeMapper: (data: T) => string) {
+  constructor(public comparator: (a: T, b: T) => number, public dataToTreeNodeMapper: (data: T) => string) {
     this.root = null;
     this.dataRefToTreeNode = {};
     this.size = 0;
@@ -110,7 +110,7 @@ export class AVLTree<T> {
           else temp = node.left;
 
           if (!temp) {
-            temp = node;
+            // temp = node;
             node = null;
           } else node = temp;
           res.deleted = true;

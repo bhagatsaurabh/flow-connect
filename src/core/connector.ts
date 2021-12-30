@@ -50,7 +50,7 @@ export class Connector implements Serializable {
       if (!isDeserialization) this.flow.executionGraph.connect(this.startNode, this.endNode);
       this.start.onConnect(this);
       this.end.onConnect(this);
-    };
+    }
   }
 
   /** @hidden */
@@ -162,7 +162,7 @@ export class Connector implements Serializable {
     context.lineWidth = this.style.width;
     context.stroke();
   }
-  private _offRender() { }
+  private _offRender() { /**/ }
 
   serialize(): SerializedConnector {
     return {

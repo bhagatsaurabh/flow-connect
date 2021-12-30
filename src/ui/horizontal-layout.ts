@@ -15,6 +15,7 @@ import { Stack } from "./stack";
 import { Toggle } from "./toggle";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { clamp } from "../utils/utils";
+import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal";
 
 export class HorizontalLayout extends UINode implements Serializable {
 
@@ -25,6 +26,12 @@ export class HorizontalLayout extends UINode implements Serializable {
   ) {
     super(node, Vector2.Zero(), UIType.HorizontalLayout, {
       style: options.style ? { ...DefaultHorizontalLayoutStyle(), ...options.style } : DefaultHorizontalLayoutStyle(),
+      input: options.input && (typeof options.input === 'boolean'
+        ? new Terminal(node, TerminalType.IN, 'any', '', {})
+        : Terminal.deSerialize(node, options.input)),
+      output: options.output && (typeof options.output === 'boolean'
+        ? new Terminal(node, TerminalType.OUT, 'any', '', {})
+        : Terminal.deSerialize(node, options.output)),
       id: options.id,
       hitColor: options.hitColor
     });
@@ -86,6 +93,19 @@ export class HorizontalLayout extends UINode implements Serializable {
       availableWidth -= childWidth;
       x += childWidth + this.style.spacing;
     });
+
+    if (this.input) {
+      this.input.position.assign(
+        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.position.y + this.height / 2
+      );
+    }
+    if (this.output) {
+      this.output.position.assign(
+        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.position.y + this.height / 2
+      );
+    }
 
     // To fix a bug, when creating HozLayout with childs argument, UI container's height won't update
     this.node.ui.reflow();
@@ -159,6 +179,8 @@ export class HorizontalLayout extends UINode implements Serializable {
   static deSerialize(node: Node, data: SerializedHorizontalLayout): HorizontalLayout {
     let hozLayout = new HorizontalLayout(node, [], {
       style: data.style,
+      input: data.input,
+      output: data.output,
       id: data.id,
       hitColor: Color.deSerialize(data.hitColor)
     });
@@ -199,6 +221,8 @@ export interface SerializedHorizontalLayout extends SerializedUINode { }
 
 interface HorizontalLayoutOptions {
   style?: HorizontalLayoutStyle,
+  input?: boolean | SerializedTerminal,
+  output?: boolean | SerializedTerminal,
   id?: string,
   hitColor?: Color
 }

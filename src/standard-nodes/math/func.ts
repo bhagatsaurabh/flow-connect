@@ -29,17 +29,14 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expression?: 
     });
   } catch (error) { Log.error(error); return; }
 
-  let node = flow.createNode(
-    options.name || 'Function',
-    options.position || new Vector2(50, 50),
-    options.width || 200, [],
-    [{ name: '𝒇', dataType: 'any' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props
+  let node = flow.createNode(options.name || 'Function', options.position || new Vector2(50, 50), options.width || 200, {
+    outputs: [{ name: '𝒇', dataType: 'any' }],
+    props: options.props
       ? { evaluator: new Evaluator({}), newVar: 'y', expression, ...options.props }
-      : { evaluator: new Evaluator({}), newVar: 'y', expression }
-  );
+      : { evaluator: new Evaluator({}), newVar: 'y', expression },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   vars.forEach(variable => node.addTerminal(new Terminal(node, TerminalType.IN, 'any', variable)));
   node.props.expression = expression;

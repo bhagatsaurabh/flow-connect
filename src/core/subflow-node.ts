@@ -7,21 +7,27 @@ import { TunnelNode } from './tunnel-node';
 import { Align } from '../common/enums';
 
 export class SubFlowNode extends Node {
+  subFlow: Flow;
 
   constructor(
     flow: Flow,
-    name: string,
+    subFlow: Flow,
     position: Vector2,
     width: number,
-    style: NodeStyle = {}, terminalStyle: TerminalStyle = {},
-    props: Object = {},
-    inputs: any[], outputs: any[],
-    public subFlow: Flow,
-    id?: string,
-    hitColor?: Color
+    inputs: any[],
+    outputs: any[],
+    options: SubFlowOptions = DefaultSubFlowOptions()
   ) {
 
-    super(flow, name, position, width, inputs ? inputs : [], outputs ? outputs : [], style, terminalStyle, props, id, hitColor);
+    super(flow, options.name || 'New SubFlow', position, width, inputs ? inputs : [], outputs ? outputs : [], {
+      style: options.style,
+      terminalStyle: options.terminalStyle,
+      props: options.props,
+      id: options.id,
+      hitColor: options.hitColor
+    });
+
+    this.subFlow = subFlow;
 
     this.subFlow.on('add-input', (_, tunnel: TunnelNode) => {
       let proxyTerminal = new Terminal(this, TerminalType.IN, tunnel.outputs[0].dataType, tunnel.outputs[0].name);
@@ -39,19 +45,19 @@ export class SubFlowNode extends Node {
 
     this.addNodeButton(() => {
       this.flow.flowConnect.render(this.subFlow);
-    }, (nodeButton: NodeButton, position: Vector2) => {
+    }, (_nodeButton: NodeButton, pos: Vector2) => {
       let context = this.context;
       context.strokeStyle = this.style.expandButtonColor;
 
       context.beginPath();
-      context.moveTo(position.x, position.y + this.style.nodeButtonSize / 2);
-      context.lineTo(position.x, position.y + this.style.nodeButtonSize);
-      context.lineTo(position.x + this.style.nodeButtonSize, position.y);
-      context.lineTo(position.x + this.style.nodeButtonSize, position.y + this.style.nodeButtonSize / 2);
-      context.moveTo(position.x + this.style.nodeButtonSize, position.y);
-      context.lineTo(position.x + this.style.nodeButtonSize / 2, position.y);
-      context.moveTo(position.x, position.y + this.style.nodeButtonSize);
-      context.lineTo(position.x + this.style.nodeButtonSize / 2, position.y + this.style.nodeButtonSize);
+      context.moveTo(pos.x, pos.y + this.style.nodeButtonSize / 2);
+      context.lineTo(pos.x, pos.y + this.style.nodeButtonSize);
+      context.lineTo(pos.x + this.style.nodeButtonSize, pos.y);
+      context.lineTo(pos.x + this.style.nodeButtonSize, pos.y + this.style.nodeButtonSize / 2);
+      context.moveTo(pos.x + this.style.nodeButtonSize, pos.y);
+      context.lineTo(pos.x + this.style.nodeButtonSize / 2, pos.y);
+      context.moveTo(pos.x, pos.y + this.style.nodeButtonSize);
+      context.lineTo(pos.x + this.style.nodeButtonSize / 2, pos.y + this.style.nodeButtonSize);
       context.closePath();
 
       context.stroke();
@@ -84,6 +90,29 @@ export class SubFlowNode extends Node {
   }
   static deSerialize(flow: Flow, data: SerializedNode): SubFlowNode {
     let subFlow = Flow.deSerialize(flow.flowConnect, data.subFlow);
-    return new SubFlowNode(flow, data.name, Vector2.deSerialize(data.position), data.width, data.style, data.terminalStyle, data.props, data.inputs, data.outputs, subFlow, data.id, Color.deSerialize(data.hitColor));
+    return new SubFlowNode(flow, subFlow, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+      name: data.name,
+      style: data.style,
+      terminalStyle: data.terminalStyle,
+      props: data.props,
+      id: data.id,
+      hitColor: Color.deSerialize(data.hitColor)
+    });
+  }
+}
+
+export interface SubFlowOptions {
+  name?: string,
+  style?: NodeStyle,
+  terminalStyle?: TerminalStyle,
+  props?: Object,
+  id?: string,
+  hitColor?: Color
+}
+let DefaultSubFlowOptions = (): SubFlowOptions => {
+  return {
+    style: {},
+    terminalStyle: {},
+    props: {}
   }
 }

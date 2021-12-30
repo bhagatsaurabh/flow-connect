@@ -55,7 +55,7 @@
 					<a href="../modules.html">flow-connect</a>
 				</li>
 				<li>
-					<a href="labelstyle.html">LabelStyle</a>
+					<a href="LabelStyle.html">LabelStyle</a>
 				</li>
 			</ul>
 			<h1>Interface LabelStyle</h1>
@@ -69,7 +69,12 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">LabelStyle</span>
+						<a href="UINodeStyle.html" class="tsd-signature-type" data-tsd-kind="Interface">UINodeStyle</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">LabelStyle</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -80,10 +85,14 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="labelstyle.html#align" class="tsd-kind-icon">align</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="labelstyle.html#color" class="tsd-kind-icon">color</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="labelstyle.html#font" class="tsd-kind-icon">font</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="labelstyle.html#fontsize" class="tsd-kind-icon">font<wbr>Size</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="LabelStyle.html#align" class="tsd-kind-icon">align</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="LabelStyle.html#backgroundColor" class="tsd-kind-icon">background<wbr>Color</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="LabelStyle.html#color" class="tsd-kind-icon">color</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="LabelStyle.html#font" class="tsd-kind-icon">font</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="LabelStyle.html#fontSize" class="tsd-kind-icon">font<wbr>Size</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="LabelStyle.html#grow" class="tsd-kind-icon">grow</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="LabelStyle.html#padding" class="tsd-kind-icon">padding</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="LabelStyle.html#precision" class="tsd-kind-icon">precision</a></li>
 							</ul>
 						</section>
 					</div>
@@ -94,10 +103,20 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="align" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> align</h3>
-					<div class="tsd-signature tsd-kind-icon">align<span class="tsd-signature-symbol">:</span> <a href="../enums/align.html" class="tsd-signature-type" data-tsd-kind="Enumeration">Align</a></div>
+					<div class="tsd-signature tsd-kind-icon">align<span class="tsd-signature-symbol">:</span> <a href="../enums/Align.html" class="tsd-signature-type" data-tsd-kind="Enumeration">Align</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/30cba3f/src/core/interfaces.ts#L117">core/interfaces.ts:117</a></li>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/f8b6704/src/ui/label.ts#L254">src/ui/label.ts:254</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="backgroundColor" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> background<wbr>Color</h3>
+					<div class="tsd-signature tsd-kind-icon">background<wbr>Color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/f8b6704/src/ui/label.ts#L251">src/ui/label.ts:251</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -107,7 +126,7 @@
 					<div class="tsd-signature tsd-kind-icon">color<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/30cba3f/src/core/interfaces.ts#L114">core/interfaces.ts:114</a></li>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/f8b6704/src/ui/label.ts#L250">src/ui/label.ts:250</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -117,17 +136,48 @@
 					<div class="tsd-signature tsd-kind-icon">font<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/30cba3f/src/core/interfaces.ts#L116">core/interfaces.ts:116</a></li>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/f8b6704/src/ui/label.ts#L253">src/ui/label.ts:253</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="fontsize" class="tsd-anchor"></a>
+					<a name="fontSize" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> font<wbr>Size</h3>
 					<div class="tsd-signature tsd-kind-icon">font<wbr>Size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/30cba3f/src/core/interfaces.ts#L115">core/interfaces.ts:115</a></li>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/f8b6704/src/ui/label.ts#L252">src/ui/label.ts:252</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="grow" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> grow</h3>
+					<div class="tsd-signature tsd-kind-icon">grow<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="UINodeStyle.html">UINodeStyle</a>.<a href="UINodeStyle.html#grow">grow</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/f8b6704/src/ui/ui-node.ts#L179">src/ui/ui-node.ts:179</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="padding" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> padding</h3>
+					<div class="tsd-signature tsd-kind-icon">padding<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/f8b6704/src/ui/label.ts#L256">src/ui/label.ts:256</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="precision" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> precision</h3>
+					<div class="tsd-signature tsd-kind-icon">precision<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/saurabh-prosoft/flow-connect/blob/f8b6704/src/ui/label.ts#L255">src/ui/label.ts:255</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -146,19 +196,31 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="labelstyle.html" class="tsd-kind-icon">Label<wbr>Style</a>
+						<a href="LabelStyle.html" class="tsd-kind-icon">Label<wbr>Style</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="labelstyle.html#align" class="tsd-kind-icon">align</a>
+								<a href="LabelStyle.html#align" class="tsd-kind-icon">align</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="labelstyle.html#color" class="tsd-kind-icon">color</a>
+								<a href="LabelStyle.html#backgroundColor" class="tsd-kind-icon">background<wbr>Color</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="labelstyle.html#font" class="tsd-kind-icon">font</a>
+								<a href="LabelStyle.html#color" class="tsd-kind-icon">color</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="labelstyle.html#fontsize" class="tsd-kind-icon">font<wbr>Size</a>
+								<a href="LabelStyle.html#font" class="tsd-kind-icon">font</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="LabelStyle.html#fontSize" class="tsd-kind-icon">font<wbr>Size</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="LabelStyle.html#grow" class="tsd-kind-icon">grow</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="LabelStyle.html#padding" class="tsd-kind-icon">padding</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="LabelStyle.html#precision" class="tsd-kind-icon">precision</a>
 							</li>
 						</ul>
 					</li>

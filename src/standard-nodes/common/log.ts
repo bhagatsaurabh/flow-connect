@@ -6,15 +6,12 @@ import { Log as Logger } from '../../utils/logger';
 
 export const Log = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Log',
-    options.position || new Vector2(50, 50),
-    options.width || 170,
-    [{ name: 'Log 1', dataType: 'event' }, { name: 'Log 2', dataType: 'any' }], [],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { ...options.props } : {}
-  );
+  let node = flow.createNode(options.name || 'Log', options.position || new Vector2(50, 50), options.width || 170, {
+    inputs: [{ name: 'Log 1', dataType: 'event' }, { name: 'Log 2', dataType: 'any' }],
+    props: options.props ? { ...options.props } : {},
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   node.inputs[0].on('event', (terminal, data) => Logger.log(terminal.name, data));
   node.inputs[1].on('data', (terminal, data) => Logger.log(terminal.name, data));

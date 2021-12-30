@@ -5,15 +5,12 @@ import { InputType } from "../../ui/input";
 
 export const NumberSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Number Source',
-    options.position || new Vector2(50, 50),
-    options.width || 160, [],
-    [{ name: 'value', dataType: 'number' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { fractional: false, value: 0, ...options.props } : { fractional: false, value: 0 }
-  );
+  let node = flow.createNode(options.name || 'Number Source', options.position || new Vector2(50, 50), options.width || 160, {
+    outputs: [{ name: 'value', dataType: 'number' }],
+    props: options.props ? { fractional: false, value: 0, ...options.props } : { fractional: false, value: 0 },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = () => node.setOutputs(0, node.props.fractional ? node.props.value : Math.floor(node.props.value));
 

@@ -6,17 +6,14 @@ import { Align } from "../../common/enums";
 
 export const ArraySource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Array Source',
-    options.position || new Vector2(50, 50),
-    options.width || 180, [],
-    [{ name: 'array', dataType: 'array' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props
+  let node = flow.createNode(options.name || 'Array Source', options.position || new Vector2(50, 50), options.width || 180, {
+    outputs: [{ name: 'array', dataType: 'array' }],
+    props: options.props
       ? { number: true, range: false, min: 0, max: 100, step: 0.1, value: [], ...options.props }
-      : { number: false, range: false, min: 0, max: 100, step: 0.1, value: [] }
-  );
+      : { number: false, range: false, min: 0, max: 100, step: 0.1, value: [] },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = () => {
     if (node.props.range) {

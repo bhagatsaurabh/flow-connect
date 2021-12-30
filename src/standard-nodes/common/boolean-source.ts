@@ -4,15 +4,12 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 
 export const BooleanSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Boolean Source',
-    options.position || new Vector2(50, 50),
-    options.width || 130, [],
-    [{ name: 'value', dataType: 'boolean' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { value: false, ...options.props } : { value: false }
-  );
+  let node = flow.createNode(options.name || 'Boolean Source', options.position || new Vector2(50, 50), options.width || 130, {
+    outputs: [{ name: 'value', dataType: 'boolean' }],
+    props: options.props ? { value: false, ...options.props } : { value: false },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = () => node.setOutputs(0, node.props.value);
 

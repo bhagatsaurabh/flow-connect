@@ -6,7 +6,7 @@ import { SerializedUINode, UINode, UIType, UINodeStyle } from './ui-node';
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { Align } from "../common/enums";
-import { get } from "../utils";
+import { get } from "../utils/utils";
 
 export class Button extends UINode implements Serializable {
   label: Label;

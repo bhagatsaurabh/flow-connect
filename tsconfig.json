@@ -16,6 +16,7 @@
     "declaration": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/lib/tuna.js"
   ]
 }

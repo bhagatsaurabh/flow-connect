@@ -6,7 +6,7 @@ export class Lexer {
   private numberBuffer: string[] = [];
   private letterBuffer: string[] = [];
 
-  constructor() { }
+  constructor() { /**/ }
 
   tokenize(expr: string) {
     this.result = [];

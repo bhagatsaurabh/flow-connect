@@ -4,16 +4,13 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 
 export const Compare = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'Compare',
-    options.position || new Vector2(50, 50),
-    options.width || 150,
-    [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
-    [{ name: 'result', dataType: 'boolean' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { value: '==', ...options.props } : { value: '==' }
-  );
+  let node = flow.createNode(options.name || 'Compare', options.position || new Vector2(50, 50), options.width || 150, {
+    inputs: [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
+    outputs: [{ name: 'result', dataType: 'boolean' }],
+    props: options.props ? { value: '==', ...options.props } : { value: '==' },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let process = (inputs: any[]) => {
     if (inputs[0] === null || typeof inputs[0] === 'undefined' || inputs[1] === null || typeof inputs[1] === 'undefined') return;

@@ -5,16 +5,13 @@ import { Terminal, TerminalType } from "../../core/terminal";
 
 export const SyncData = (flow: Flow, options: NodeCreatorOptions = {}, inputs?: number) => {
 
-  let node = flow.createNode(
-    options.name || 'Sync Data',
-    options.position || new Vector2(50, 50),
-    options.width || 160,
-    [{ name: 'Data 1', dataType: 'any' }, { name: 'Data 2', dataType: 'any' }],
-    [{ name: 'synced', dataType: 'any' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { syncType: 'partial', ...options.props, hold: {} } : { syncType: 'partial', hold: {} }
-  );
+  let node = flow.createNode(options.name || 'Sync Data', options.position || new Vector2(50, 50), options.width || 160, {
+    inputs: [{ name: 'Data 1', dataType: 'any' }, { name: 'Data 2', dataType: 'any' }],
+    outputs: [{ name: 'synced', dataType: 'any' }],
+    props: options.props ? { syncType: 'partial', ...options.props, hold: {} } : { syncType: 'partial', hold: {} },
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   let eventIds: number[] = [];
 

@@ -5,16 +5,13 @@ import { Log } from "../../utils/logger";
 
 export const ToVector2 = (flow: Flow, options: NodeCreatorOptions = {}) => {
 
-  let node = flow.createNode(
-    options.name || 'To Vector2',
-    options.position || new Vector2(50, 50),
-    options.width || 100,
-    [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
-    [{ name: 'vector2', dataType: 'any' }],
-    options.style || { rowHeight: 10 },
-    options.terminalStyle || {},
-    options.props ? { ...options.props } : {}
-  );
+  let node = flow.createNode(options.name || 'To Vector2', options.position || new Vector2(50, 50), options.width || 100, {
+    inputs: [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
+    outputs: [{ name: 'vector2', dataType: 'any' }],
+    props: options.props ? { ...options.props } : {},
+    style: options.style || { rowHeight: 10 },
+    terminalStyle: options.terminalStyle || {}
+  });
 
   node.on('process', (_, inputs) => {
     if (typeof inputs[0] === 'number' && typeof inputs[1] === 'number') {
