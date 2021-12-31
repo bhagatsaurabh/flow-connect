@@ -4,44 +4,55 @@ import { NodeCreatorOptions, TerminalOutputs } from "../../common/interfaces";
 import { Align } from "../../common/enums";
 import { Log } from "../../utils/logger";
 import { isEmpty } from "../../utils/utils";
+import { Node } from "../../core/node";
 
-export const API = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class API extends Node {
 
-  let node = flow.createNode(options.name || 'API', options.position || new Vector2(50, 50), options.width || 150, {
-    inputs: [{ name: 'trigger', dataType: 'event' }],
-    outputs: [{ name: 'text', dataType: 'string' }, { name: 'json', dataType: 'any' }, { name: 'array-buffer', dataType: 'array-buffer' }],
-    props: options.props ? { src: '', ...options.props } : { src: '' },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps = { src: '' };
 
-  node.ui.append(node.createLabel('', { propName: 'src', input: true, output: true, style: { align: Align.Center } }));
-  node.inputs[0].on('event', async () => {
-    if (!node.props.src || node.props.src === '') Log.error("Prop 'src' of API Node is invalid, cannot make an API call");
-    else {
-      let response, outputs: TerminalOutputs = {};
-      if (node.outputs.map(terminal => terminal.connectors.length).reduce((acc, curr) => acc + curr, 0) > 0) {
-        response = await fetch(node.props.src);
-
-        if (node.outputs[0].connectors.length > 0) outputs[node.outputs[0].name] = await response.text();
-        else if (node.outputs[1].connectors.length > 0) outputs[node.outputs[1].name] = await response.json();
-        else if (node.outputs[2].connectors.length > 0) {
-          // If this is an audio connection then check the arrayBufferCache first
-          if (node.outputs[2].connectors.map(connector => connector.end.dataType).includes('audio')) {
-            let cached = flow.flowConnect.arrayBufferCache.get(node.props.src);
-            if (!cached) {
-              cached = await response.arrayBuffer();
-              flow.flowConnect.arrayBufferCache.set(node.props.src, cached);
-            }
-            outputs[node.outputs[2].name] = cached;
-          } else {
-            outputs[node.outputs[2].name] = await response.arrayBuffer();
-          }
-        }
-
-        if (!isEmpty(outputs)) node.setOutputs(outputs);
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'API', options.position || new Vector2(50, 50), options.width || 150,
+      [{ name: 'trigger', dataType: 'event' }],
+      [{ name: 'text', dataType: 'string' }, { name: 'json', dataType: 'any' }, { name: 'array-buffer', dataType: 'array-buffer' }],
+      {
+        props: options.props ? { ...API.DefaultProps, ...options.props } : API.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
       }
-    }
-  });
-  return node;
-};
+    );
+
+    this.setupUI();
+
+    this.inputs[0].on('event', async () => {
+      if (!this.props.src || this.props.src === '') Log.error("Prop 'src' of API Node is invalid, cannot make an API call");
+      else {
+        let response, outputs: TerminalOutputs = {};
+        if (this.outputs.map(terminal => terminal.connectors.length).reduce((acc, curr) => acc + curr, 0) > 0) {
+          response = await fetch(this.props.src);
+
+          if (this.outputs[0].connectors.length > 0) outputs[this.outputs[0].name] = await response.text();
+          else if (this.outputs[1].connectors.length > 0) outputs[this.outputs[1].name] = await response.json();
+          else if (this.outputs[2].connectors.length > 0) {
+            // If this is an audio connection then check the arrayBufferCache first
+            if (this.outputs[2].connectors.map(connector => connector.end.dataType).includes('audio')) {
+              let cached = flow.flowConnect.arrayBufferCache.get(this.props.src);
+              if (!cached) {
+                cached = await response.arrayBuffer();
+                flow.flowConnect.arrayBufferCache.set(this.props.src, cached);
+              }
+              outputs[this.outputs[2].name] = cached;
+            } else {
+              outputs[this.outputs[2].name] = await response.arrayBuffer();
+            }
+          }
+
+          if (!isEmpty(outputs)) this.setOutputs(outputs);
+        }
+      }
+    });
+  }
+
+  setupUI() {
+    this.ui.append(this.createLabel('', { propName: 'src', input: true, output: true, style: { align: Align.Center } }));
+  }
+}

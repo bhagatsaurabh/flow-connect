@@ -1,21 +1,35 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
+import { Node } from "../../core/node";
+import { Select } from "../../ui/select";
 
-export const Compare = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class Compare extends Node {
+  select: Select
 
-  let node = flow.createNode(options.name || 'Compare', options.position || new Vector2(50, 50), options.width || 150, {
-    inputs: [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
-    outputs: [{ name: 'result', dataType: 'boolean' }],
-    props: options.props ? { value: '==', ...options.props } : { value: '==' },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps = { value: '==' };
 
-  let process = (inputs: any[]) => {
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Compare', options.position || new Vector2(50, 50), options.width || 150,
+      [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
+      [{ name: 'result', dataType: 'boolean' }],
+      {
+        props: options.props ? { ...Compare.DefaultProps, ...options.props } : Compare.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
+
+    this.setupUI();
+
+    this.select.on('change', () => this.process(this.getInputs()));
+    this.on('process', (_, inputs) => this.process(inputs));
+  }
+
+  process(inputs: any[]) {
     if (inputs[0] === null || typeof inputs[0] === 'undefined' || inputs[1] === null || typeof inputs[1] === 'undefined') return;
     let res;
-    switch (node.props.value) {
+    switch (this.props.value) {
       case '==': { res = inputs[0] == inputs[1]; break; }
       case '===': { res = inputs[0] === inputs[1]; break; }
       case '!=': { res = inputs[0] != inputs[1]; break; }
@@ -28,17 +42,13 @@ export const Compare = (flow: Flow, options: NodeCreatorOptions = {}) => {
       case '||': { res = inputs[0] || inputs[1]; break; }
       default: res = false;
     }
-    node.setOutputs(0, res);
+    this.setOutputs(0, res);
   }
-
-  let select = node.createSelect(
-    ['==', '===', '!=', '!==', '<', '<=', '>', '>=', '&&', '||'],
-    { propName: 'value', input: true, output: true, height: 15, style: { fontSize: '14px' } }
-  );
-  node.ui.append(select);
-
-  select.on('change', () => process(node.getInputs()));
-  node.on('process', (_, inputs) => process(inputs));
-
-  return node;
-};
+  setupUI() {
+    let select = this.createSelect(
+      ['==', '===', '!=', '!==', '<', '<=', '>', '>=', '&&', '||'],
+      { propName: 'value', input: true, output: true, height: 15, style: { fontSize: '14px' } }
+    );
+    this.ui.append(select);
+  }
+}

@@ -1,38 +1,49 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType } from "../../ui/input";
+import { InputType, Input } from "../../ui/input";
+import { Node } from "../../core/node";
+import { Toggle } from "../../ui/toggle";
 
-export const NumberSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class NumberSource extends Node {
+  fractionalToggle: Toggle;
+  input: Input;
 
-  let node = flow.createNode(options.name || 'Number Source', options.position || new Vector2(50, 50), options.width || 160, {
-    outputs: [{ name: 'value', dataType: 'number' }],
-    props: options.props ? { fractional: false, value: 0, ...options.props } : { fractional: false, value: 0 },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps = { fractional: false, value: 0 };
 
-  let process = () => node.setOutputs(0, node.props.fractional ? node.props.value : Math.floor(node.props.value));
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Number Source', options.position || new Vector2(50, 50), options.width || 160, [],
+      [{ name: 'value', dataType: 'number' }],
+      {
+        props: options.props ? { ...NumberSource.DefaultProps, ...options.props } : NumberSource.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  let fractional = node.createToggle({ propName: 'fractional', input: true, output: true, height: 10, style: { grow: .3 } });
-  let input = node.createInput({
-    value: 0, propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .6, step: node.props.fractional ? 'any' : '' }
-  })
-  node.ui.append([
-    node.createHozLayout([node.createLabel('Fractional ?', { style: { grow: .5 } }), fractional], { style: { spacing: 20 } }),
-    node.createHozLayout([node.createLabel('Value', { style: { grow: .4 } }), input], { style: { spacing: 20 } }),
-  ]);
+    this.setupUI();
 
-  fractional.on('change', (_inst, _oldVal, newVal) => {
-    input.style.step = newVal ? 'any' : '';
-    if (!newVal) node.props.value = Math.floor(node.props.value);
-    process();
-  });
-  input.on('change', () => {
-    if (!node.props.fractional) node.props.value = Math.floor(node.props.value);
-    process();
-  });
-  node.on('process', process);
+    this.fractionalToggle.on('change', (_inst, _oldVal, newVal) => {
+      this.input.style.step = newVal ? 'any' : '';
+      if (!newVal) this.props.value = Math.floor(this.props.value);
+      this.process();
+    });
+    this.input.on('change', () => {
+      if (!this.props.fractional) this.props.value = Math.floor(this.props.value);
+      this.process();
+    });
+    this.on('process', () => this.process());
+  }
 
-  return node;
-};
+  process() { this.setOutputs(0, this.props.fractional ? this.props.value : Math.floor(this.props.value)); }
+  setupUI() {
+    let fractional = this.createToggle({ propName: 'fractional', input: true, output: true, height: 10, style: { grow: .3 } });
+    let input = this.createInput({
+      value: 0, propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .6, step: this.props.fractional ? 'any' : '' }
+    })
+    this.ui.append([
+      this.createHozLayout([this.createLabel('Fractional ?', { style: { grow: .5 } }), fractional], { style: { spacing: 20 } }),
+      this.createHozLayout([this.createLabel('Value', { style: { grow: .4 } }), input], { style: { spacing: 20 } }),
+    ]);
+  }
+}

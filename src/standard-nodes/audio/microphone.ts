@@ -42,7 +42,7 @@ export class Microphone extends Node {
 
     this.handleAudioConnections();
 
-    this.getMicrophone().then(() => { }, error => {
+    this.getMicrophone().then(() => { /**/ }, error => {
       Log.error('Cannot access microphone: ', error);
     }).catch(error => Log.error(error));
   }

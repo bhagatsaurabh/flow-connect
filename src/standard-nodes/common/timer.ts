@@ -2,27 +2,36 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { InputType } from "../../ui/input";
 import { NodeCreatorOptions } from "../../common/interfaces";
+import { Node } from "../../core/node";
 
-export const Timer = (flow: Flow, options: NodeCreatorOptions = {}) => {
-  let lastTrigger: number = Number.MIN_VALUE;
+export class Timer extends Node {
+  lastTrigger: number = Number.MIN_VALUE;
 
-  let node = flow.createNode(options.name || 'Timer', options.position || new Vector2(50, 50), options.width || 150, {
-    outputs: [{ name: 'timer', dataType: 'event' }],
-    props: options.props ? { delay: 1000, ...options.props } : { delay: 1000 },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps = { delay: 1000 };
 
-  node.ui.append(node.createInput({ propName: 'delay', height: 20, style: { type: InputType.Number } }));
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Timer', options.position || new Vector2(50, 50), options.width || 150, [],
+      [{ name: 'timer', dataType: 'event' }],
+      {
+        props: options.props ? { ...Timer.DefaultProps, ...options.props } : Timer.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  flow.flowConnect.on('tickreset', () => lastTrigger = Number.MIN_VALUE);
-  flow.flowConnect.on('tick', () => {
-    let current = flow.flowConnect.time;
-    if (current - lastTrigger >= node.props.delay) {
-      node.outputs[0].emit(null);
-      lastTrigger = current;
-    }
-  });
+    this.setupUI();
 
-  return node;
-};
+    flow.flowConnect.on('tickreset', () => this.lastTrigger = Number.MIN_VALUE);
+    flow.flowConnect.on('tick', () => {
+      let current = flow.flowConnect.time;
+      if (current - this.lastTrigger >= this.props.delay) {
+        this.outputs[0].emit(null);
+        this.lastTrigger = current;
+      }
+    });
+  }
+
+  setupUI() {
+    this.ui.append(this.createInput({ propName: 'delay', height: 20, style: { type: InputType.Number } }));
+  }
+}

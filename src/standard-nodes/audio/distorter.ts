@@ -4,7 +4,6 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from '../../core/node';
 import { Toggle } from "../../ui/toggle";
 import { Select } from "../../ui/select";
-import { Slider } from "../../ui/slider";
 import { Input, InputType } from "../../ui/input";
 import { clamp } from "../../utils/utils";
 

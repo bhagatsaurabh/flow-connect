@@ -122,7 +122,6 @@ export class SpectrogramAnalyser extends Node {
 
     for (; i < frequencyBinCount; i++) {
       value = frequencyData[i];
-      // context.fillStyle = 'rgb(0, 0, 0, ' + (value / 256) + ')';
       context.fillStyle = this.currInterpolator(value / 256);
       context.fillRect(width - 1, denormalize(1 - normalize(i, 0, frequencyBinCount), 0, height), 1, barHeight);
     }

@@ -36,7 +36,7 @@ export class Noise extends Node {
 
     this.watch('type', (_oldVal, newVal) => {
       if (!this.noiseSelect.values.includes(newVal)) newVal = 'white';
-      this.noise.port.postMessage(this.props.type);
+      this.noise.port.postMessage(newVal);
     });
 
     this.handleAudioConnections();

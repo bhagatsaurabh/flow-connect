@@ -28,24 +28,21 @@ extract.on('process', (_, inputs) => {
 let btcBuffer = StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
 let ethBuffer = StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
 let ltcBuffer = StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
-let btcNormalize = StandardNodes.Math.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
-let ethNormalize = StandardNodes.Math.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
-let ltcNormalize = StandardNodes.Math.Normalize(flow, { props: { relative: true, constant: 5 } }, 'array');
-let btcEthToArray = StandardNodes.Common.ToArray(flow, {}, 2);
-let btcLtcToArray = StandardNodes.Common.ToArray(flow, {}, 2);
-let btcEthLtcToArray = StandardNodes.Common.ToArray(flow, {}, 3);
+let btcNormalize = StandardNodes.Math.Normalize(flow, 'array', { props: { relative: true, constant: 5 } });
+let ethNormalize = StandardNodes.Math.Normalize(flow, 'array', { props: { relative: true, constant: 5 } });
+let ltcNormalize = StandardNodes.Math.Normalize(flow, 'array', { props: { relative: true, constant: 5 } });
+let btcEthToArray = StandardNodes.Common.ToArray(flow, 2);
+let btcLtcToArray = StandardNodes.Common.ToArray(flow, 2);
+let btcEthLtcToArray = StandardNodes.Common.ToArray(flow, 3);
 
 let btcEthChart = StandardNodes.Visual.LineChartMini(
-  flow, { name: 'BTC : ETH', width: 250 },
-  100, ['#ff6666', '#66d4ff'], { backgroundColor: '#7a7a7a' }
+  flow, 100, ['#ff6666', '#66d4ff'], { backgroundColor: '#7a7a7a' }, { name: 'BTC : ETH', width: 250 }
 );
 let btcLtcChart = StandardNodes.Visual.LineChartMini(
-  flow, { name: 'BTC : LTC', width: 250 },
-  100, ['#ffb066', '#668fff'], { backgroundColor: '#7a7a7a' }
+  flow, 100, ['#ffb066', '#668fff'], { backgroundColor: '#7a7a7a' }, { name: 'BTC : LTC', width: 250 }
 );
 let btcEthLtcChart = StandardNodes.Visual.LineChartMini(
-  flow, { name: 'BTC : ETH : LTC', width: 250 },
-  100, ['#ff66ad', '#669eff', '#66ffe3'], { backgroundColor: '#7a7a7a' }
+  flow, 100, ['#ff66ad', '#669eff', '#66ffe3'], { backgroundColor: '#7a7a7a' }, { name: 'BTC : ETH : LTC', width: 250 }
 );
 
 timer.outputs[0].connect(api.inputs[0]);

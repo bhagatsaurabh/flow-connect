@@ -2,56 +2,68 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
+import { Node } from "../../core/node";
+import { RadioGroup } from "../../ui/radio-group";
+import { Button } from "../../ui/button";
 
-export const SyncData = (flow: Flow, options: NodeCreatorOptions = {}, inputs?: number) => {
+export class SyncData extends Node {
+  syncTypeInput: RadioGroup;
+  addButton: Button;
 
-  let node = flow.createNode(options.name || 'Sync Data', options.position || new Vector2(50, 50), options.width || 160, {
-    inputs: [{ name: 'Data 1', dataType: 'any' }, { name: 'Data 2', dataType: 'any' }],
-    outputs: [{ name: 'synced', dataType: 'any' }],
-    props: options.props ? { syncType: 'partial', ...options.props, hold: {} } : { syncType: 'partial', hold: {} },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  eventIds: number[] = [];
 
-  let eventIds: number[] = [];
+  static DefaultProps = { syncType: 'partial', hold: {} };
 
-  if (inputs) {
-    for (let i = 0; i < inputs - 2; i++)
-      node.addTerminal(new Terminal(node, TerminalType.IN, 'any', 'Data ' + (node.inputs.length + 1)));
+  constructor(flow: Flow, options: NodeCreatorOptions = {}, inputs?: number) {
+    super(flow, options.name || 'Sync Data', options.position || new Vector2(50, 50), options.width || 160,
+      [{ name: 'Data 1', dataType: 'any' }, { name: 'Data 2', dataType: 'any' }],
+      [{ name: 'synced', dataType: 'any' }],
+      {
+        props: options.props ? { ...SyncData.DefaultProps, ...options.props, hold: {} } : SyncData.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
+
+    if (inputs) {
+      for (let i = 0; i < inputs - 2; i++) {
+        this.addTerminal(new Terminal(this, TerminalType.IN, 'any', 'Data ' + (this.inputs.length + 1)));
+      }
+    }
+
+    this.setupUI();
+
+    for (let terminal of this.inputs) {
+      this.eventIds.push(terminal.on('data', (inst, data) => this.process(inst, data)));
+    }
+
+    this.on('process', () => process);
   }
-
-  let syncTypeInput = node.createRadioGroup(['partial', 'full'], node.props.syncType, { propName: 'syncType', height: 20 });
-  let addButton = node.createButton('Add', { input: true, output: true, height: 20 });
-  node.ui.append([syncTypeInput, addButton]);
-  addButton.on('click', () => {
-    let newTerminal = new Terminal(node, TerminalType.IN, 'any', 'Data ' + (node.inputs.length + 1));
-    node.addTerminal(newTerminal);
-    eventIds.push(newTerminal.on('data', process));
-  });
-
-  let process = (terminal: Terminal, data: any) => {
-    node.props.hold[terminal.id] = data;
+  setupUI() {
+    this.syncTypeInput = this.createRadioGroup(['partial', 'full'], this.props.syncType, { propName: 'syncType', height: 20 });
+    this.addButton = this.createButton('Add', { input: true, output: true, height: 20 });
+    this.ui.append([this.syncTypeInput, this.addButton]);
+    this.addButton.on('click', () => {
+      let newTerminal = new Terminal(this, TerminalType.IN, 'any', 'Data ' + (this.inputs.length + 1));
+      this.addTerminal(newTerminal);
+      this.eventIds.push(newTerminal.on('data', (inst, data) => this.process(inst, data)));
+    });
+  }
+  process(terminal: Terminal, data: any) {
+    this.props.hold[terminal.id] = data;
 
     let hold = [];
-    for (let term of node.inputs) {
-      if (node.props.hold.hasOwnProperty(term.id)) {
-        hold.push(node.props.hold[term.id]);
+    for (let term of this.inputs) {
+      if (this.props.hold.hasOwnProperty(term.id)) {
+        hold.push(this.props.hold[term.id]);
       }
       else return;
     }
 
-    if (node.props.syncType === 'full') node.props.hold = {};
-    node.outputs[0].emit(hold);
+    if (this.props.syncType === 'full') this.props.hold = {};
+    this.outputs[0].emit(hold);
 
-    for (let terminal of node.inputs) if (terminal.connectors.length > 0 && typeof terminal.getData() === 'undefined') return;
-    node.setOutputs(0, node.getInputs());
+    for (let term of this.inputs) if (term.connectors.length > 0 && typeof term.getData() === 'undefined') return;
+    this.setOutputs(0, this.getInputs());
   }
-
-  for (let terminal of node.inputs) {
-    eventIds.push(terminal.on('data', process));
-  }
-
-  node.on('process', () => process);
-
-  return node;
-};
+}

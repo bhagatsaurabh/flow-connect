@@ -2,64 +2,71 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
+import { Node } from "../../core/node";
 
-export const ChannelSplitter = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class ChannelSplitter extends Node {
+  splitter: ChannelSplitterNode;
 
-  let node = flow.createNode(options.name || 'Channel Splitter', options.position || new Vector2(50, 50), options.width || 160, {
-    inputs: [{ name: 'in', dataType: 'audio' }],
-    outputs: [{ name: 'Channel 1', dataType: 'audio' }],
-    props: options.props || {},
-    style: options.style || { rowHeight: 10, spacing: 15 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  oldNoOfChannels = 1;
 
-  node.inputs[0].ref = flow.flowConnect.audioContext.createGain();
-  node.outputs[0].ref = flow.flowConnect.audioContext.createGain();
-  node.outputs[0].ref.channelCountMode = 'explicit';
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Channel Splitter', options.position || new Vector2(50, 50), options.width || 160,
+      [{ name: 'in', dataType: 'audio' }],
+      [{ name: 'Channel 1', dataType: 'audio' }],
+      {
+        props: options.props || {},
+        style: options.style || { rowHeight: 10, spacing: 15 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  let oldNoOfChannels = 1;
-  let checkChannels = (newNoOfChannels: number) => {
-    if (oldNoOfChannels === newNoOfChannels) return;
+    this.inputs[0].ref = flow.flowConnect.audioContext.createGain();
+    this.outputs[0].ref = flow.flowConnect.audioContext.createGain();
+    this.outputs[0].ref.channelCountMode = 'explicit';
 
-    node.props.splitter && node.props.splitter.disconnect();
-    node.inputs[0].ref.disconnect();
+    this.on('channel-count-change', (newNoOfChannels) => this.checkChannels(newNoOfChannels));
 
-    let splitter = flow.flowConnect.audioContext.createChannelSplitter(newNoOfChannels);
-    node.inputs[0].ref.connect(splitter);
+    this.handleAudioConnections();
+  }
+
+  checkChannels(newNoOfChannels: number) {
+    if (this.oldNoOfChannels === newNoOfChannels) return;
+
+    this.splitter && this.splitter.disconnect();
+    this.inputs[0].ref.disconnect();
+
+    let splitter = this.flow.flowConnect.audioContext.createChannelSplitter(newNoOfChannels);
+    this.inputs[0].ref.connect(splitter);
 
     let terminalsToRemove = [];
-    for (let i = 0; i < Math.max(newNoOfChannels, oldNoOfChannels); i += 1) {
+    for (let i = 0; i < Math.max(newNoOfChannels, this.oldNoOfChannels); i += 1) {
       if (i < newNoOfChannels) {
-        if (i < oldNoOfChannels) {
-          splitter.connect(node.outputs[i].ref, i);
+        if (i < this.oldNoOfChannels) {
+          splitter.connect(this.outputs[i].ref, i);
         } else {
-          let newTerminal = new Terminal(node, TerminalType.OUT, 'audio', 'Channel ' + (i + 1));
-          newTerminal.ref = flow.flowConnect.audioContext.createGain();
+          let newTerminal = new Terminal(this, TerminalType.OUT, 'audio', 'Channel ' + (i + 1));
+          newTerminal.ref = this.flow.flowConnect.audioContext.createGain();
           newTerminal.ref.channelCountMode = 'explicit';
-          node.addTerminal(newTerminal);
-          node.outputs[i].on('connect', (_inst, cntr) => node.outputs[i].ref.connect(cntr.end.ref));
-          node.outputs[i].on('disconnect', (_inst, _cntr, _start, end) => node.outputs[i].ref.disconnect(end.ref));
-          splitter.connect(node.outputs[i].ref, i);
+          this.addTerminal(newTerminal);
+          this.outputs[i].on('connect', (_inst, cntr) => this.outputs[i].ref.connect(cntr.end.ref));
+          this.outputs[i].on('disconnect', (_inst, _cntr, _start, end) => this.outputs[i].ref.disconnect(end.ref));
+          splitter.connect(this.outputs[i].ref, i);
         }
       } else {
-        terminalsToRemove.push(node.outputs[i]);
+        terminalsToRemove.push(this.outputs[i]);
       }
     }
     terminalsToRemove.forEach(term => {
       term.ref.disconnect();
-      node.removeTerminal(term);
+      this.removeTerminal(term);
     });
 
-    oldNoOfChannels = newNoOfChannels;
-    node.props.splitter = splitter;
+    this.oldNoOfChannels = newNoOfChannels;
+    this.splitter = splitter;
   }
-
-  // Handle actual webaudio node stuff
-  // node.inputs[0].on('connect', (_inst, connector) => checkChannels(connector.start.ref.channelCount));
-  node.on('channel-count-change', (newNoOfChannels) => checkChannels(newNoOfChannels));
-
-  node.outputs[0].on('connect', (_inst, cntr) => node.outputs[0].ref.connect(cntr.end.ref));
-  node.outputs[0].on('disconnect', (_inst, _cntr, _start, end) => node.outputs[0].ref.disconnect(end.ref));
-
-  return node;
-};
+  handleAudioConnections() {
+    // Handle actual webaudio node stuff
+    this.outputs[0].on('connect', (_inst, cntr) => this.outputs[0].ref.connect(cntr.end.ref));
+    this.outputs[0].on('disconnect', (_inst, _cntr, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+  }
+}

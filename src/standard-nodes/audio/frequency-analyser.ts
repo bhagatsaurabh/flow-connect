@@ -64,7 +64,6 @@ export class FrequencyAnalyser extends Node {
   getFFTSize() {
     return this.fftSizes[clamp(Math.round(this.props.fftSize), 5, 15) - 5];
   }
-
   setupUI() {
     this.freqLabel = this.createLabel('Frequency:');
     this.fftSizeSlider = this.createSlider(5, 15, { height: 10, propName: 'fftSize', style: { grow: .6, precision: 0 } });
@@ -84,7 +83,6 @@ export class FrequencyAnalyser extends Node {
       ], { style: { spacing: 5 } })
     ]);
   }
-
   customRenderer(context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D, width: number, height: number): boolean {
     let value, percent, offset, hue,
       i = 0,
@@ -107,7 +105,6 @@ export class FrequencyAnalyser extends Node {
 
     return true;
   }
-
   handleAudioConnections() {
     this.outputs[0].on('connect', (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));

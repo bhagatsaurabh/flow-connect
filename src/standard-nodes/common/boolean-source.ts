@@ -1,26 +1,37 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
+import { Node } from "../../core/node";
+import { Toggle } from "../../ui/toggle";
 
-export const BooleanSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class BooleanSource extends Node {
+  toggle: Toggle;
 
-  let node = flow.createNode(options.name || 'Boolean Source', options.position || new Vector2(50, 50), options.width || 130, {
-    outputs: [{ name: 'value', dataType: 'boolean' }],
-    props: options.props ? { value: false, ...options.props } : { value: false },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps = { value: false };
 
-  let process = () => node.setOutputs(0, node.props.value);
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Boolean Source', options.position || new Vector2(50, 50), options.width || 130, [],
+      [{ name: 'value', dataType: 'boolean' }],
+      {
+        props: options.props ? { ...BooleanSource.DefaultProps, ...options.props } : BooleanSource.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  let toggle = node.createToggle({ propName: 'value', input: true, output: true, height: 10, style: { grow: .3 } });
-  node.ui.append(node.createHozLayout([
-    node.createLabel('Value'),
-    toggle
-  ], { style: { spacing: 20 } }));
+    this.setupUI();
 
-  toggle.on('change', process);
-  node.on('process', process);
+    this.toggle.on('change', () => this.process());
+    this.on('process', () => this.process());
+  }
 
-  return node;
-};
+
+  process() { this.setOutputs(0, this.props.value); }
+  setupUI() {
+    let toggle = this.createToggle({ propName: 'value', input: true, output: true, height: 10, style: { grow: .3 } });
+    this.ui.append(this.createHozLayout([
+      this.createLabel('Value'),
+      toggle
+    ], { style: { spacing: 20 } }));
+  }
+}

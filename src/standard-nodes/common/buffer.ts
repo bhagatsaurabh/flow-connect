@@ -1,38 +1,47 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType } from "../../ui/input";
+import { InputType, Input } from "../../ui/input";
+import { Node } from "../../core/node";
 
-export const Buffer = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class Buffer extends Node {
+  sizeInput: Input;
 
-  let node = flow.createNode(options.name || 'Buffer', options.position || new Vector2(50, 50), options.width || 150, {
-    inputs: [{ name: 'data', dataType: 'any' }],
-    outputs: [{ name: 'buffer', dataType: 'array' }],
-    props: options.props ? { buffer: [], size: 10, ...options.props } : { buffer: [], size: 10 },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps: any = { buffer: [], size: 10 };
 
-  let process = (inputs: any[]) => {
-    if (inputs[0] === null || typeof inputs[0] === 'undefined') return;
-    if (node.props.size <= 0) node.props.size = 1;
-    if (node.props.buffer.length === node.props.size) {
-      node.props.buffer.shift();
-    } else if (node.props.buffer.length > node.props.size) {
-      node.props.buffer.splice(0, node.props.buffer.length - node.props.size + 1);
-    }
-    node.props.buffer.push(inputs[0]);
-    node.setOutputs('buffer', node.props.buffer);
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Buffer', options.position || new Vector2(50, 50), options.width || 150,
+      [{ name: 'data', dataType: 'any' }],
+      [{ name: 'buffer', dataType: 'array' }],
+      {
+        props: options.props ? { ...Buffer.DefaultProps, ...options.props } : Buffer.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
+
+    this.setupUI();
+
+    this.sizeInput.on('change', () => this.process(this.getInputs()));
+    this.on('process', (_, inputs) => this.process(inputs));
   }
 
-  let sizeInput = node.createInput({ propName: 'size', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
-  node.ui.append(node.createHozLayout([
-    node.createLabel('Size', { style: { grow: .3 } }),
-    sizeInput
-  ], { style: { spacing: 20 } }));
-
-  sizeInput.on('change', () => process(node.getInputs()));
-  node.on('process', (_, inputs) => process(inputs));
-
-  return node;
-};
+  process(inputs: any[]) {
+    if (inputs[0] === null || typeof inputs[0] === 'undefined') return;
+    if (this.props.size <= 0) this.props.size = 1;
+    if (this.props.buffer.length === this.props.size) {
+      this.props.buffer.shift();
+    } else if (this.props.buffer.length > this.props.size) {
+      this.props.buffer.splice(0, this.props.buffer.length - this.props.size + 1);
+    }
+    this.props.buffer.push(inputs[0]);
+    this.setOutputs('buffer', this.props.buffer);
+  }
+  setupUI() {
+    this.sizeInput = this.createInput({ propName: 'size', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
+    this.ui.append(this.createHozLayout([
+      this.createLabel('Size', { style: { grow: .3 } }),
+      this.sizeInput
+    ], { style: { spacing: 20 } }));
+  }
+}

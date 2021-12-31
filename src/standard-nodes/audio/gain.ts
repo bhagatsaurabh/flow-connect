@@ -1,26 +1,36 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
+import { Node } from "../../core/node";
 
-export const Gain = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class Gain extends Node {
+  gain: GainNode;
 
-  let node = flow.createNode(options.name || 'Gain', options.position || new Vector2(50, 50), options.width || 120, {
-    inputs: [{ name: 'in', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }],
-    outputs: [{ name: 'out', dataType: 'audio' }],
-    props: options.props ? { gain: 1, ...options.props } : { gain: 1 },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps = { gain: 1 };
 
-  node.props.gainNode = flow.flowConnect.audioContext.createGain();
-  node.inputs[0].ref = node.props.gainNode;
-  node.outputs[0].ref = node.props.gainNode;
-  node.inputs[1].ref = node.inputs[0].ref.gain;
-  node.inputs[1].on('data', (_, data) => typeof data === 'number' && (node.inputs[1].ref.value = data));
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Gain', options.position || new Vector2(50, 50), options.width || 120,
+      [{ name: 'in', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }],
+      [{ name: 'out', dataType: 'audio' }],
+      {
+        props: options.props ? { ...Gain.DefaultProps, ...options.props } : Gain.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  // Handle actual webaudio node stuff
-  node.outputs[0].on('connect', (_, connector) => node.outputs[0].ref.connect(connector.end.ref));
-  node.outputs[0].on('disconnect', (_inst, _connector, _start, end) => node.outputs[0].ref.disconnect(end.ref));
+    this.gain = flow.flowConnect.audioContext.createGain();
+    this.inputs[0].ref = this.gain;
+    this.outputs[0].ref = this.gain;
+    this.inputs[1].ref = this.inputs[0].ref.gain;
+    this.inputs[1].on('data', (_, data) => typeof data === 'number' && (this.inputs[1].ref.value = data));
 
-  return node;
-};
+    this.handleAudioConnections();
+  }
+
+  handleAudioConnections() {
+    // Handle actual webaudio node stuff
+    this.outputs[0].on('connect', (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+  }
+}

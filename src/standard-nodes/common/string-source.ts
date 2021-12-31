@@ -1,26 +1,35 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType } from "../../ui/input";
+import { InputType, Input } from "../../ui/input";
+import { Node } from "../../core/node";
 
-export const StringSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class StringSource extends Node {
+  input: Input;
 
-  let node = flow.createNode(options.name || 'String Source', options.position || new Vector2(50, 50), options.width || 160, {
-    outputs: [{ name: 'value', dataType: 'string' }],
-    props: options.props ? { value: '', ...options.props } : { value: '' },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps = { value: '' };
 
-  let process = () => node.setOutputs(0, node.props.value);
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'String Source', options.position || new Vector2(50, 50), options.width || 160, [],
+      [{ name: 'value', dataType: 'string' }],
+      {
+        props: options.props ? { ...StringSource.DefaultProps, ...options.props } : StringSource.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  let input = node.createInput({ value: '', propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .7 } })
-  node.ui.append(node.createHozLayout([
-    node.createLabel('Value', { style: { grow: .3 } }), input
-  ], { style: { spacing: 10 } }));
+    this.setupUI();
 
-  input.on('change', process);
-  node.on('process', process);
+    this.input.on('change', () => this.process());
+    this.on('process', () => this.process());
+  }
 
-  return node;
-};
+  process = () => this.setOutputs(0, this.props.value);
+  setupUI() {
+    this.input = this.createInput({ value: '', propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .7 } })
+    this.ui.append(this.createHozLayout([
+      this.createLabel('Value', { style: { grow: .3 } }), this.input
+    ], { style: { spacing: 10 } }));
+  }
+}

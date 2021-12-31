@@ -98,7 +98,6 @@ export class Oscillator extends Node {
       this.oscillator = null;
     }
   }
-
   setupUI() {
     this.freqSlider = this.createSlider(0, 20000, { height: 10, propName: 'frequency', style: { grow: .5 } });
     this.freqInput = this.createInput({ propName: 'frequency', height: 20, style: { type: InputType.Number, grow: .3, precision: 0 } });

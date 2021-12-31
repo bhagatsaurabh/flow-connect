@@ -7,50 +7,72 @@ import { Evaluator } from "../../utils/evaluator";
 import { Log } from "../../utils/logger";
 import { Parser } from "../../utils/parser";
 import { Token, TokenType } from "../../utils/lexer";
+import { Node } from "../../core/node";
+import { Button } from "../../ui/button";
 
-export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expression?: string) => {
+export class Func extends Node {
+  addVarButton: Button
 
-  expression = expression || 'a*sin(a^2)+cos(a*tan(a))';
-  let vars = new Set<string>();
-  let parser = new Parser();
-  let tokens: Token[];
-  try {
-    tokens = parser.parse(expression);
-  } catch (error) {
-    Log.error('Error while parsing expression: ', expression, error);
-    return;
-  }
-  try {
-    tokens.forEach(token => {
-      if (token.type === TokenType.Variable) {
-        if ((token.value as string).length > 1) throw new Error('Only single character variables are allowed: ' + token.value);
-        else vars.add(token.value as string);
+  static DefaultProps = { evaluator: new Evaluator({}), newVar: 'y' };
+
+  constructor(flow: Flow, options: NodeCreatorOptions = {}, expression?: string) {
+    super(flow, options.name || 'Function', options.position || new Vector2(50, 50), options.width || 200, [],
+      [{ name: '𝒇', dataType: 'any' }],
+      {
+        props: options.props
+          ? { ...Func.DefaultProps, ...options.props, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))') }
+          : { ...Func.DefaultProps, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))') },
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
       }
+    );
+
+    let vars = new Set<string>();
+    let parser = new Parser();
+    let tokens: Token[];
+    try {
+      tokens = parser.parse(expression);
+    } catch (error) {
+      Log.error('Error while parsing expression: ', expression, error);
+      return;
+    }
+    try {
+      tokens.forEach(token => {
+        if (token.type === TokenType.Variable) {
+          if ((token.value as string).length > 1) throw new Error('Only single character variables are allowed: ' + token.value);
+          else vars.add(token.value as string);
+        }
+      });
+    } catch (error) { Log.error(error); return; }
+
+    vars.forEach(variable => this.addTerminal(new Terminal(this, TerminalType.IN, 'any', variable)));
+    this.props.expression = expression;
+
+    this.setupUI();
+
+    this.watch('expression', () => process);
+
+    this.addVarButton.on('click', () => {
+      if (!this.props.newVar || this.props.newVar.trim() === '') return;
+      if (this.inputs.map(input => input.name).includes(this.props.newVar.trim().toLowerCase())) {
+        Log.error('Variable', this.props.newVar.trim(), 'already exists');
+        return;
+      }
+      this.addTerminal(new Terminal(this, TerminalType.IN, 'any', this.props.newVar.trim()));
     });
-  } catch (error) { Log.error(error); return; }
+    this.on('process', () => this.process());
+  }
 
-  let node = flow.createNode(options.name || 'Function', options.position || new Vector2(50, 50), options.width || 200, {
-    outputs: [{ name: '𝒇', dataType: 'any' }],
-    props: options.props
-      ? { evaluator: new Evaluator({}), newVar: 'y', expression, ...options.props }
-      : { evaluator: new Evaluator({}), newVar: 'y', expression },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
-
-  vars.forEach(variable => node.addTerminal(new Terminal(node, TerminalType.IN, 'any', variable)));
-  node.props.expression = expression;
-
-  let process = () => {
+  process() {
     let bulkEvalIterations = -1;
-    node.props.evaluator.variables = {};
-    for (let inTerminal of node.inputs) {
+    this.props.evaluator.variables = {};
+    for (let inTerminal of this.inputs) {
       let data = inTerminal.getData();
 
       // Some checks to determine if the intention is to pass variables with array values to this function
       // Which should mean its a bulk evaluation (t=[2,5,6,8...], f(t)=cos(t)  ==>  f(t)=[cos(2),cos(5),cos(6),cos(8)...])
       if (Array.isArray(data)) {
-        let expr = node.props.expression;
+        let expr = this.props.expression;
         let regex = new RegExp('([a-z]+)\\(' + inTerminal.name + '\\)', 'g');
         expr = expr.replace(/\s+/g, '');
         let matches = [...expr.matchAll(regex)];
@@ -61,55 +83,42 @@ export const Func = (flow: Flow, options: NodeCreatorOptions = {}, expression?: 
         if (result) bulkEvalIterations = Math.max(bulkEvalIterations, data.length);
       }
 
-      node.props.evaluator.variables[inTerminal.name] = (typeof data !== 'undefined' && data !== null) ? data : 0;
+      this.props.evaluator.variables[inTerminal.name] = (typeof data !== 'undefined' && data !== null) ? data : 0;
     }
     try {
       let result: number[] | number;
       if (bulkEvalIterations !== -1) {
         let resultArr = [];
         for (let i = 0; i < bulkEvalIterations; i += 1) {
-          resultArr.push(node.props.evaluator.evaluate(node.props.expression, i));
+          resultArr.push(this.props.evaluator.evaluate(this.props.expression, i));
         }
         result = resultArr;
       } else {
-        result = node.props.evaluator.evaluate(node.props.expression);
+        result = this.props.evaluator.evaluate(this.props.expression);
       }
-      node.setOutputs(0, result);
+      this.setOutputs(0, result);
     } catch (error) {
-      Log.error('Error while evaluating the expression: ', node.props.expression, error);
+      Log.error('Error while evaluating the expression: ', this.props.expression, error);
     }
   }
-  let lowerCase = (input: Input) => {
+  lowerCase(input: Input) {
     if (/[A-Z]/g.test(input.inputEl.value)) input.inputEl.value = input.inputEl.value.toLowerCase();
   }
-
-  let exprInput = node.createInput({
-    propName: 'expression', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .9 }
-  });
-  exprInput.on('input', lowerCase);
-  let addVarButton = node.createButton('Add', { height: 20, style: { grow: .4 } });
-  node.ui.append([
-    node.createHozLayout([
-      node.createLabel('𝒇', { style: { grow: .1 } }),
-      exprInput
-    ], { style: { spacing: 10 } }),
-    node.createHozLayout([
-      node.createInput({ propName: 'newVar', height: 20, style: { type: InputType.Text, maxLength: 1, grow: .6 } }),
-      addVarButton
-    ], { style: { spacing: 10 } })
-  ]);
-
-  node.watch('expression', () => process);
-
-  addVarButton.on('click', () => {
-    if (!node.props.newVar || node.props.newVar.trim() === '') return;
-    if (node.inputs.map(input => input.name).includes(node.props.newVar.trim().toLowerCase())) {
-      Log.error('Variable', node.props.newVar.trim(), 'already exists');
-      return;
-    }
-    node.addTerminal(new Terminal(node, TerminalType.IN, 'any', node.props.newVar.trim()));
-  });
-  node.on('process', process);
-
-  return node;
-};
+  setupUI() {
+    let exprInput = this.createInput({
+      propName: 'expression', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .9 }
+    });
+    exprInput.on('input', this.lowerCase);
+    this.addVarButton = this.createButton('Add', { height: 20, style: { grow: .4 } });
+    this.ui.append([
+      this.createHozLayout([
+        this.createLabel('𝒇', { style: { grow: .1 } }),
+        exprInput
+      ], { style: { spacing: 10 } }),
+      this.createHozLayout([
+        this.createInput({ propName: 'newVar', height: 20, style: { type: InputType.Text, maxLength: 1, grow: .6 } }),
+        this.addVarButton
+      ], { style: { spacing: 10 } })
+    ]);
+  }
+}

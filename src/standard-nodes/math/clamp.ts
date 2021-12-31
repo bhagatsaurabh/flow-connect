@@ -2,41 +2,52 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp } from "../../utils/utils";
-import { InputType } from "../../ui/input";
+import { InputType, Input } from "../../ui/input";
+import { Node } from "../../core/node";
 
-export const Clamp = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class Clamp extends Node {
+  minInput: Input;
+  maxInput: Input;
 
-  let node = flow.createNode(options.name || 'Clamp', options.position || new Vector2(50, 50), options.width || 150, {
-    inputs: [{ name: 'x', dataType: 'any' }],
-    outputs: [{ name: '[x]', dataType: 'any' }],
-    props: options.props ? { min: 0, max: 100, ...options.props } : { min: 0, max: 100 },
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  static DefaultProps = { min: 0, max: 100 };
 
-  let minInput = node.createInput({ propName: 'min', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
-  let maxInput = node.createInput({ propName: 'max', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
-  node.ui.append([
-    node.createHozLayout([
-      node.createLabel('Min', { style: { grow: .3 } }),
-      minInput
-    ], { style: { spacing: 10 } }),
-    node.createHozLayout([
-      node.createLabel('Max', { style: { grow: .3 } }),
-      maxInput
-    ], { style: { spacing: 10 } })
-  ]);
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Clamp', options.position || new Vector2(50, 50), options.width || 150,
+      [{ name: 'x', dataType: 'any' }],
+      [{ name: '[x]', dataType: 'any' }],
+      {
+        props: options.props ? { ...Clamp.DefaultProps, ...options.props } : Clamp.DefaultProps,
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  let process = (input: number | []) => {
+    this.setupUI();
+
+    this.minInput.on('change', () => this.process(this.getInputs()[0]));
+    this.maxInput.on('change', () => this.process(this.getInputs()[0]));
+    this.on('process', (_, inputs) => this.process(inputs[0]));
+  }
+
+  setupUI() {
+    this.minInput = this.createInput({ propName: 'min', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
+    this.maxInput = this.createInput({ propName: 'max', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
+    this.ui.append([
+      this.createHozLayout([
+        this.createLabel('Min', { style: { grow: .3 } }),
+        this.minInput
+      ], { style: { spacing: 10 } }),
+      this.createHozLayout([
+        this.createLabel('Max', { style: { grow: .3 } }),
+        this.maxInput
+      ], { style: { spacing: 10 } })
+    ]);
+  }
+  process(input: number | []) {
     if (typeof input === 'number') {
-      node.setOutputs(0, clamp(input, node.props.min, node.props.max));
+      this.setOutputs(0, clamp(input, this.props.min, this.props.max));
     } else if (Array.isArray(input)) {
-      node.setOutputs(0, input.map(item => clamp(item, node.props.min, node.props.max)));
+      this.setOutputs(0, input.map(item => clamp(item, this.props.min, this.props.max)));
     }
   }
-  minInput.on('change', () => process(node.getInputs()[0]));
-  maxInput.on('change', () => process(node.getInputs()[0]));
-  node.on('process', (_, inputs) => process(inputs[0]));
-
-  return node;
-};
+}

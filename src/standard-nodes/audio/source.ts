@@ -4,121 +4,139 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 import { FlowConnectState } from "../../flow-connect";
 import { Log } from "../../utils/logger";
 import { Node } from '../../core/node';
+import * as sourceui from '../../ui/source';
+import { Toggle } from "../../ui/toggle";
 
-export const Source = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class Source extends Node {
+  fileInput: sourceui.Source;
+  loopToggle: Toggle;
+  source: AudioBufferSourceNode;
 
-  let node = flow.createNode(options.name || 'Audio Source', options.position || new Vector2(50, 50), options.width || 200, {
-    inputs: [
-      { name: 'array-buffer', dataType: 'event' }, { name: 'gain', dataType: 'audioparam' },
-      { name: 'detune', dataType: 'audioparam' }, { name: 'playback-rate', dataType: 'audioparam' }
-    ],
-    outputs: [{ name: 'out', dataType: 'audio' }, { name: 'ended', dataType: 'event' }],
-    props: options.props
-      ? { buffer: null, loop: true, prevChannelCount: -1, ...options.props }
-      : { buffer: null, loop: true, prevChannelCount: -1 },
-    style: options.style || { rowHeight: 10, spacing: 15 },
-    terminalStyle: options.terminalStyle || {}
-  });
-  node.props.volumeGainNode = flow.flowConnect.audioContext.createGain();
-  node.props.proxyParamSourceNode = new AudioWorkletNode(
-    flow.flowConnect.audioContext,
-    'proxy-param-for-source',
-    { numberOfOutputs: 2, parameterData: { detune: 0, playbackRate: 1 } }
-  );
-  node.inputs[1].ref = node.props.volumeGainNode.gain;
-  node.inputs[2].ref = node.props.proxyParamSourceNode.parameters.get('detune');
-  node.inputs[3].ref = node.props.proxyParamSourceNode.parameters.get('playbackRate');
-  node.inputs[1].on('data', (_, data) => typeof data === 'number' && (node.inputs[1].ref.value = data));
-  node.inputs[2].on('data', (_, data) => typeof data === 'number' && (node.inputs[2].ref.value = data));
-  node.inputs[3].on('data', (_, data) => typeof data === 'number' && (node.inputs[3].ref.value = data));
-  node.outputs[0].ref = node.props.volumeGainNode;
+  volumeGainNode: GainNode;
+  proxyParamSourceNode: AudioWorkletNode;
 
-  let fileInput = node.createSource({ input: true, output: true, height: 25, style: { grow: .7 } });
-  let loopToggle = node.createToggle({ propName: 'loop', input: true, output: true, height: 10, style: { grow: .2 } });
-  node.ui.append([
-    node.createHozLayout([node.createLabel('File', { style: { grow: .3 } }), fileInput], { style: { spacing: 5 } }),
-    node.createHozLayout([node.createLabel('Loop ?'), loopToggle], { style: { spacing: 5 } })
-  ]);
+  static DefaultProps: any = { buffer: null, loop: true, prevChannelCount: -1 };
 
-  let processFile = async (file: File) => {
-    let cached = flow.flowConnect.arrayBufferCache.get(file.name + file.type);
-    if (!cached) {
-      cached = await file.arrayBuffer();
-      flow.flowConnect.arrayBufferCache.set(file.name + file.type, cached);
-    }
-    processArrayBuffer(cached);
-  }
-  let processArrayBuffer = async (arrayBuffer: ArrayBuffer) => {
-    let cached = flow.flowConnect.audioBufferCache.get(arrayBuffer);
-    if (!cached) {
-      cached = await flow.flowConnect.audioContext.decodeAudioData(arrayBuffer);
-      flow.flowConnect.audioBufferCache.set(arrayBuffer, cached);
-
-      // If no. of channels has been changed, start an event propagation that will notify
-      // every node that has a direct/indirect connection in the graph from this node
-      if (node.props.prevChannelCount < 0 || node.props.prevChannelCount !== cached.numberOfChannels) {
-        propagateChannelChange(cached.numberOfChannels);
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Audio Source', options.position || new Vector2(50, 50), options.width || 200,
+      [
+        { name: 'array-buffer', dataType: 'event' }, { name: 'gain', dataType: 'audioparam' },
+        { name: 'detune', dataType: 'audioparam' }, { name: 'playback-rate', dataType: 'audioparam' }
+      ],
+      [{ name: 'out', dataType: 'audio' }, { name: 'ended', dataType: 'event' }],
+      {
+        props: options.props ? { ...Source.DefaultProps, ...options.props } : Source.DefaultProps,
+        style: options.style || { rowHeight: 10, spacing: 15 },
+        terminalStyle: options.terminalStyle || {}
       }
-      node.props.prevChannelCount = cached.numberOfChannels;
-    }
-    node.props.buffer = cached;
+    );
 
-    stopSource();
-    playSource();
+    this.volumeGainNode = flow.flowConnect.audioContext.createGain();
+    this.proxyParamSourceNode = new AudioWorkletNode(
+      flow.flowConnect.audioContext,
+      'proxy-param-for-source',
+      { numberOfOutputs: 2, parameterData: { detune: 0, playbackRate: 1 } }
+    );
+
+    this.inputs[1].ref = this.volumeGainNode.gain;
+    this.inputs[2].ref = (this.proxyParamSourceNode.parameters as Map<string, AudioParam>).get('detune');
+    this.inputs[3].ref = (this.proxyParamSourceNode.parameters as Map<string, AudioParam>).get('playbackRate');
+    this.inputs[1].on('data', (_, data) => typeof data === 'number' && (this.inputs[1].ref.value = data));
+    this.inputs[2].on('data', (_, data) => typeof data === 'number' && (this.inputs[2].ref.value = data));
+    this.inputs[3].on('data', (_, data) => typeof data === 'number' && (this.inputs[3].ref.value = data));
+    this.outputs[0].ref = this.volumeGainNode;
+
+    this.setupUI();
+
+    this.loopToggle.on('change', () => {
+      if (this.props.loop) {
+        this.stopSource();
+        this.playSource();
+      } else this.source && (this.source.loop = this.props.loop);
+    });
+    this.inputs[0].on('event', (_, data) => {
+      if (!(data instanceof ArrayBuffer)) {
+        Log.error('Data received on Audio Source Node is not of type ArrayBuffer');
+        return;
+      }
+      this.processArrayBuffer(data);
+    });
+    this.fileInput.on('change', (_inst, _oldVal: File, newVal: File) => this.processFile(newVal));
+    this.fileInput.on('upload', (_inst, _oldVal: File, newVal: File) => this.processFile(newVal));
+
+    flow.flowConnect.on('start', () => this.playSource());
+    flow.flowConnect.on('stop', () => this.stopSource());
+
+    this.handleAudioConnections();
   }
-  let playSource = () => {
-    if (flow.flowConnect.state === FlowConnectState.Stopped || !node.props.buffer) return;
 
-    let audioSourceNode = new AudioBufferSourceNode(flow.flowConnect.audioContext);
-    audioSourceNode.buffer = node.props.buffer;
-    audioSourceNode.loop = node.props.loop;
-    node.props.sourceNode = audioSourceNode;
-
-    node.props.proxyParamSourceNode.connect(audioSourceNode.detune, 0);
-    node.props.proxyParamSourceNode.connect(audioSourceNode.playbackRate, 1);
-    audioSourceNode.connect(node.outputs[0].ref);
-    audioSourceNode.start();
-  };
-  let stopSource = () => {
-    if (node.props.sourceNode) {
-      node.props.sourceNode.stop();
-      node.props.sourceNode = null;
-    }
-  };
-
-  let propagateChannelChange = (newNoOfChannels: number) => {
-    flow.executionGraph.propagate(node, (currNode: Node) => {
+  propagateChannelChange(newNoOfChannels: number) {
+    this.flow.executionGraph.propagate(this, (currNode: Node) => {
       currNode.call('channel-count-change', newNoOfChannels);
     });
   }
-
-  loopToggle.on('change', () => {
-    if (node.props.loop) {
-      stopSource();
-      playSource();
-    } else node.props.sourceNode && (node.props.sourceNode.loop = node.props.loop);
-  });
-  node.inputs[0].on('event', (_, data) => {
-    if (!(data instanceof ArrayBuffer)) {
-      Log.error('Data received on Audio Source Node is not of type ArrayBuffer');
-      return;
+  async processFile(file: File) {
+    let cached = this.flow.flowConnect.arrayBufferCache.get(file.name + file.type);
+    if (!cached) {
+      cached = await file.arrayBuffer();
+      this.flow.flowConnect.arrayBufferCache.set(file.name + file.type, cached);
     }
-    processArrayBuffer(data);
-  });
-  fileInput.on('change', (_inst, _oldVal: File, newVal: File) => processFile(newVal));
-  fileInput.on('upload', (_inst, _oldVal: File, newVal: File) => processFile(newVal));
+    this.processArrayBuffer(cached);
+  }
+  async processArrayBuffer(arrayBuffer: ArrayBuffer) {
+    let cached = this.flow.flowConnect.audioBufferCache.get(arrayBuffer);
+    if (!cached) {
+      cached = await this.flow.flowConnect.audioContext.decodeAudioData(arrayBuffer);
+      this.flow.flowConnect.audioBufferCache.set(arrayBuffer, cached);
 
-  flow.flowConnect.on('start', () => playSource());
-  flow.flowConnect.on('stop', () => stopSource());
+      // If no. of channels has been changed, start an event propagation that will notify
+      // every node that has a direct/indirect connection in the graph from this node
+      if (this.props.prevChannelCount < 0 || this.props.prevChannelCount !== cached.numberOfChannels) {
+        this.propagateChannelChange(cached.numberOfChannels);
+      }
+      this.props.prevChannelCount = cached.numberOfChannels;
+    }
+    this.props.buffer = cached;
 
-  // Handle actual webaudio node stuff
-  node.outputs[0].on('connect', (_, connector) => {
-    node.props.buffer && propagateChannelChange(node.props.buffer.numberOfChannels);
-    node.outputs[0].ref.connect(connector.end.ref);
-  });
-  node.outputs[0].on('disconnect', (_inst, _connector, _start, end) => {
-    node.outputs[0].ref.disconnect(end.ref);
-  });
+    this.stopSource();
+    this.playSource();
+  }
+  playSource() {
+    if (this.flow.flowConnect.state === FlowConnectState.Stopped || !this.props.buffer) return;
 
-  return node;
-};
+    let audioSource = new AudioBufferSourceNode(this.flow.flowConnect.audioContext);
+    audioSource.buffer = this.props.buffer;
+    audioSource.loop = this.props.loop;
+    this.source = audioSource;
+
+    this.proxyParamSourceNode.connect(audioSource.detune, 0);
+    this.proxyParamSourceNode.connect(audioSource.playbackRate, 1);
+    audioSource.connect(this.outputs[0].ref);
+    audioSource.start();
+  }
+  stopSource() {
+    if (this.source) {
+      this.source.stop();
+      this.source = null;
+    }
+  }
+  setupUI() {
+    this.fileInput = this.createSource({ input: true, output: true, height: 25, style: { grow: .7 } });
+    this.loopToggle = this.createToggle({ propName: 'loop', input: true, output: true, height: 10, style: { grow: .2 } });
+
+    this.ui.append([
+      this.createHozLayout([this.createLabel('File', { style: { grow: .3 } }), this.fileInput], { style: { spacing: 5 } }),
+      this.createHozLayout([this.createLabel('Loop ?'), this.loopToggle], { style: { spacing: 5 } })
+    ]);
+  }
+  handleAudioConnections() {
+    // Handle actual webaudio node stuff
+    this.outputs[0].on('connect', (_, connector) => {
+      this.props.buffer && this.propagateChannelChange(this.props.buffer.numberOfChannels);
+      this.outputs[0].ref.connect(connector.end.ref);
+    });
+    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => {
+      this.outputs[0].ref.disconnect(end.ref);
+    });
+  }
+}

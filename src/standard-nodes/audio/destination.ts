@@ -1,20 +1,26 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
+import { Node } from "../../core/node";
 
-export const Destination = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class Destination extends Node {
+  masterVolumeGainNode: GainNode;
 
-  let node = flow.createNode(options.name || 'Audio Destination', options.position || new Vector2(50, 50), options.width || 160, {
-    inputs: [{ name: 'out', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }],
-    props: options.props || {},
-    style: options.style || { rowHeight: 10, spacing: 15 },
-    terminalStyle: options.terminalStyle || {}
-  });
-  node.props.masterVolumeGainNode = flow.flowConnect.audioContext.createGain();
-  node.inputs[0].ref = node.props.masterVolumeGainNode;
-  node.inputs[0].ref.connect(flow.flowConnect.audioContext.destination);
-  node.inputs[1].ref = node.inputs[0].ref.gain;
-  node.inputs[1].on('data', (_, data) => typeof data === 'number' && (node.inputs[1].ref.value = data));
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'Audio Destination', options.position || new Vector2(50, 50), options.width || 160,
+      [{ name: 'out', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }], [],
+      {
+        props: options.props || {},
+        style: options.style || { rowHeight: 10, spacing: 15 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  return node;
-};
+    this.masterVolumeGainNode = flow.flowConnect.audioContext.createGain();
+    this.inputs[0].ref = this.masterVolumeGainNode;
+    this.inputs[0].ref.connect(flow.flowConnect.audioContext.destination);
+    this.inputs[1].ref = this.inputs[0].ref.gain;
+    this.inputs[1].on('data', (_, data) => typeof data === 'number' && (this.inputs[1].ref.value = data));
+  }
+
+}

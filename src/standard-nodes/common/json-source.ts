@@ -1,37 +1,44 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType } from "../../ui/input";
+import { InputType, Input } from "../../ui/input";
 import { Log } from "../../utils/logger";
+import { Node } from "../../core/node";
 
-export const JsonSource = (flow: Flow, options: NodeCreatorOptions = {}) => {
+export class JsonSource extends Node {
+  input: Input;
 
-  let node = flow.createNode(options.name || 'JSON Source', options.position || new Vector2(50, 50), options.width || 150, {
-    outputs: [{ name: 'value', dataType: 'any' }],
-    props: options.props ? { ...options.props } : {},
-    style: options.style || { rowHeight: 10 },
-    terminalStyle: options.terminalStyle || {}
-  });
+  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
+    super(flow, options.name || 'JSON Source', options.position || new Vector2(50, 50), options.width || 150, [],
+      [{ name: 'value', dataType: 'any' }],
+      {
+        props: options.props ? { ...options.props } : {},
+        style: options.style || { rowHeight: 10 },
+        terminalStyle: options.terminalStyle || {}
+      }
+    );
 
-  let process = () => {
-    if (!input.value || input.value === '') return;
+    this.setupUI();
+
+    this.input.on('change', () => this.process());
+    this.on('process', () => this.process());
+  }
+
+  process() {
+    if (!this.input.value || this.input.value === '') return;
     try {
-      let value = JSON.parse(input.value as string);
-      node.setOutputs(0, value);
+      let value = JSON.parse(this.input.value as string);
+      this.setOutputs(0, value);
     } catch (error) {
-      input.inputEl.style.backgroundColor = 'red';
+      this.input.inputEl.style.backgroundColor = 'red';
       Log.error("StandardNode 'JsonSource' json parse error", error);
     }
   }
-
-  let input = node.createInput({ value: '', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .7 } });
-  node.ui.append(node.createHozLayout([
-    node.createLabel('Value', { style: { grow: .3 } }),
-    input
-  ], { style: { spacing: 20 } }));
-
-  input.on('change', process);
-  node.on('process', process);
-
-  return node;
-};
+  setupUI() {
+    this.input = this.createInput({ value: '', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .7 } });
+    this.ui.append(this.createHozLayout([
+      this.createLabel('Value', { style: { grow: .3 } }),
+      this.input
+    ], { style: { spacing: 20 } }));
+  }
+}
