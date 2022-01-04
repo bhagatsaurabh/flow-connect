@@ -18,13 +18,13 @@ export class ArraySource extends Node {
   rangeLayout: HorizontalLayout;
   rangeStack: Stack
 
-  static DefaultProps: any = { number: true, range: false, min: 0, max: 100, step: 0.1, value: [] };
+  static DefaultState: any = { number: true, range: false, min: 0, max: 100, step: 0.1, value: [] };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Array Source', options.position || new Vector2(50, 50), options.width || 180, [],
       [{ name: 'array', dataType: 'array' }],
       {
-        props: options.props ? { ...ArraySource.DefaultProps, ...options.props } : ArraySource.DefaultProps,
+        state: options.state ? { ...ArraySource.DefaultState, ...options.state } : ArraySource.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -48,11 +48,11 @@ export class ArraySource extends Node {
   }
 
   numberToggled() {
-    this.rangeLayout.visible = this.props.number;
-    if (!this.props.number) this.props.range = false;
+    this.rangeLayout.visible = this.state.number;
+    if (!this.state.number) this.state.range = false;
   }
   rangeToggled() {
-    if (this.props.number && this.props.range) {
+    if (this.state.number && this.state.range) {
       this.arrayInput.visible = false;
       this.rangeStack.visible = true;
     } else {
@@ -61,19 +61,19 @@ export class ArraySource extends Node {
     }
   }
   process() {
-    if (this.props.range) {
+    if (this.state.range) {
       let values = [];
-      for (let i = this.props.min; i <= this.props.max; i += this.props.step) values.push(i);
-      this.props.value = values;
+      for (let i = this.state.min; i <= this.state.max; i += this.state.step) values.push(i);
+      this.state.value = values;
     } else {
       if (!this.arrayInput.inputEl.validity.patternMismatch) {
         if (!this.arrayInput.value || this.arrayInput.value === '') return;
         let value: any[] = (this.arrayInput.value as string).split(',');
-        if (this.props.number) value = value.map(item => Number(item.trim()));
-        this.props.value = value;
+        if (this.state.number) value = value.map(item => Number(item.trim()));
+        this.state.value = value;
       }
     }
-    this.setOutputs(0, this.props.value);
+    this.setOutputs(0, this.state.value);
   }
   setupUI() {
     this.numberToggle = this.createToggle({ propName: 'number', input: true, output: true, height: 10, style: { grow: .2 } });
@@ -88,22 +88,22 @@ export class ArraySource extends Node {
     let rangeInputLayout = this.createHozLayout([
       this.minInput, this.createLabel('to', { style: { grow: .2, align: Align.Center } }), this.maxInput
     ], { style: { spacing: 5 } });
-    let stepInput = this.createInput({ propName: 'step', height: 20, style: { type: InputType.Number, step: 'any', grow: .6 } });
-    let rangeStack = this.createStack({
+    this.stepInput = this.createInput({ propName: 'step', height: 20, style: { type: InputType.Number, step: 'any', grow: .6 } });
+    this.rangeStack = this.createStack({
       childs: [
         rangeInputLayout,
         this.createHozLayout([
           this.createLabel('Step', { style: { grow: .4 } }),
-          stepInput
+          this.stepInput
         ], { style: { spacing: 5 } })
       ], style: { spacing: 10 }
     });
-    let arrayInput = this.createInput({ value: '', height: 20, style: { pattern: '^[^,]+(\s*,\s*[^,]+)*$' } });
+    this.arrayInput = this.createInput({ value: '', height: 20, style: { pattern: '^[^,]+(\s*,\s*[^,]+)*$' } });
     this.ui.append([
       this.createHozLayout([this.createLabel('Numbers ?'), this.numberToggle], { style: { spacing: 10 } }),
       this.rangeLayout,
-      rangeStack,
-      arrayInput
+      this.rangeStack,
+      this.arrayInput
     ]);
   }
 }

@@ -9,14 +9,14 @@ export class Clamp extends Node {
   minInput: Input;
   maxInput: Input;
 
-  static DefaultProps = { min: 0, max: 100 };
+  static DefaultState = { min: 0, max: 100 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Clamp', options.position || new Vector2(50, 50), options.width || 150,
       [{ name: 'x', dataType: 'any' }],
       [{ name: '[x]', dataType: 'any' }],
       {
-        props: options.props ? { ...Clamp.DefaultProps, ...options.props } : Clamp.DefaultProps,
+        state: options.state ? { ...Clamp.DefaultState, ...options.state } : Clamp.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -45,9 +45,9 @@ export class Clamp extends Node {
   }
   process(input: number | []) {
     if (typeof input === 'number') {
-      this.setOutputs(0, clamp(input, this.props.min, this.props.max));
+      this.setOutputs(0, clamp(input, this.state.min, this.state.max));
     } else if (Array.isArray(input)) {
-      this.setOutputs(0, input.map(item => clamp(item, this.props.min, this.props.max)));
+      this.setOutputs(0, input.map(item => clamp(item, this.state.min, this.state.max)));
     }
   }
 }

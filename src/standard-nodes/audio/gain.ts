@@ -6,14 +6,14 @@ import { Node } from "../../core/node";
 export class Gain extends Node {
   gain: GainNode;
 
-  static DefaultProps = { gain: 1 };
+  static DefaultState = { gain: 1 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Gain', options.position || new Vector2(50, 50), options.width || 120,
       [{ name: 'in', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...Gain.DefaultProps, ...options.props } : Gain.DefaultProps,
+        state: options.state ? { ...Gain.DefaultState, ...options.state } : Gain.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

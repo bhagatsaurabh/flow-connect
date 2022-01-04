@@ -7,12 +7,12 @@ import { Node } from "../../core/node";
 
 export class Dial extends Node {
 
-  static DefaultProps = { value: 0, min: 0, max: 1 };
+  static DefaultState = { value: 0, min: 0, max: 1 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = new Object(), dialStyle: DialStyle = new Object()) {
     super(flow, options.name || 'Dial', options.position || new Vector2(50, 50), options.width || 90, [], [],
       {
-        props: options.props ? { ...Dial.DefaultProps, ...options.props } : Dial.DefaultProps,
+        state: options.state ? { ...Dial.DefaultState, ...options.state } : Dial.DefaultState,
         style: options.style || { rowHeight: 10, padding: 5, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -29,13 +29,13 @@ export class Dial extends Node {
     this.setupUI(dialStyle);
 
     this.outputsUI[0].on('connect', (_inst, connector) => {
-      if (connector.end.ref instanceof AudioParam) this.props.value = connector.end.ref.value;
+      if (connector.end.ref instanceof AudioParam) this.state.value = connector.end.ref.value;
     });
   }
 
   setupUI(dialStyle: DialStyle) {
-    let dial = this.createDial(this.props.min, this.props.max, this.width, {
-      value: this.props.value, propName: 'value', input: true, output: true, style: dialStyle
+    let dial = this.createDial(this.state.min, this.state.max, this.width, {
+      value: this.state.value, propName: 'value', input: true, output: true, style: dialStyle
     });
     this.ui.append([
       dial,

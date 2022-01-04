@@ -46,7 +46,7 @@ export class Label extends UINode implements Serializable {
       style: options.style ? { ...DefaultLabelStyle(), ...options.style } : DefaultLabelStyle(),
       propName: options.propName,
       input: options.input && (typeof options.input === 'boolean'
-        ? new Terminal(node, TerminalType.IN, 'string', '', {})
+        ? new Terminal(node, TerminalType.IN, 'any', '', {})
         : Terminal.deSerialize(node, options.input)),
       output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, 'string', '', {})
@@ -63,10 +63,10 @@ export class Label extends UINode implements Serializable {
 
     if (this.input) {
       this.input.on('connect', (_, connector) => {
-        if (connector.data) this.text = connector.data;
+        if (exists(connector.data)) this.text = connector.data;
       });
       this.input.on('data', (_, data) => {
-        if (data) this.text = data;
+        if (exists(data)) this.text = data;
       });
     }
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.text);

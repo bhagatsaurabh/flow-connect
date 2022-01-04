@@ -7,14 +7,14 @@ import { Select } from "../../ui/select";
 export class Compare extends Node {
   select: Select
 
-  static DefaultProps = { value: '==' };
+  static DefaultState = { value: '==' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Compare', options.position || new Vector2(50, 50), options.width || 150,
       [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
       [{ name: 'result', dataType: 'boolean' }],
       {
-        props: options.props ? { ...Compare.DefaultProps, ...options.props } : Compare.DefaultProps,
+        state: options.state ? { ...Compare.DefaultState, ...options.state } : Compare.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -29,7 +29,7 @@ export class Compare extends Node {
   process(inputs: any[]) {
     if (inputs[0] === null || typeof inputs[0] === 'undefined' || inputs[1] === null || typeof inputs[1] === 'undefined') return;
     let res;
-    switch (this.props.value) {
+    switch (this.state.value) {
       case '==': { res = inputs[0] == inputs[1]; break; }
       case '===': { res = inputs[0] === inputs[1]; break; }
       case '!=': { res = inputs[0] != inputs[1]; break; }

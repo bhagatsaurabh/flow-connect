@@ -138,10 +138,10 @@ export class Vector2 implements Serializable {
 
     return true;
   }
-  assign(vector: Vector2): void;
-  assign(scalar: number): void;
-  assign(x: number, y: number): void;
-  assign(arg1: number | Vector2, arg2?: number): void {
+  assign(vector: Vector2): Vector2;
+  assign(scalar: number): Vector2;
+  assign(x: number, y: number): Vector2;
+  assign(arg1: number | Vector2, arg2?: number): Vector2 {
     if (arg1 instanceof Vector2) {
       this.x = arg1.x;
       this.y = arg1.y;
@@ -152,6 +152,7 @@ export class Vector2 implements Serializable {
       this.x = arg1;
       this.y = arg2;
     }
+    return this;
   }
   transform(transform: DOMMatrix): Vector2 {
     return new Vector2(this.x, this.y).transformInPlace(transform);

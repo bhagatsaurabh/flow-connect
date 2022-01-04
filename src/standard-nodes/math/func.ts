@@ -13,15 +13,15 @@ import { Button } from "../../ui/button";
 export class Func extends Node {
   addVarButton: Button
 
-  static DefaultProps = { evaluator: new Evaluator({}), newVar: 'y' };
+  static DefaultState = { evaluator: new Evaluator({}), newVar: 'y' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}, expression?: string) {
     super(flow, options.name || 'Function', options.position || new Vector2(50, 50), options.width || 200, [],
       [{ name: '𝒇', dataType: 'any' }],
       {
-        props: options.props
-          ? { ...Func.DefaultProps, ...options.props, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))') }
-          : { ...Func.DefaultProps, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))') },
+        state: options.state
+          ? { ...Func.DefaultState, ...options.state, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))') }
+          : { ...Func.DefaultState, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))') },
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -46,33 +46,33 @@ export class Func extends Node {
     } catch (error) { Log.error(error); return; }
 
     vars.forEach(variable => this.addTerminal(new Terminal(this, TerminalType.IN, 'any', variable)));
-    this.props.expression = expression;
+    this.state.expression = expression;
 
     this.setupUI();
 
-    this.watch('expression', () => process);
+    this.watch('expression', () => this.process());
 
     this.addVarButton.on('click', () => {
-      if (!this.props.newVar || this.props.newVar.trim() === '') return;
-      if (this.inputs.map(input => input.name).includes(this.props.newVar.trim().toLowerCase())) {
-        Log.error('Variable', this.props.newVar.trim(), 'already exists');
+      if (!this.state.newVar || this.state.newVar.trim() === '') return;
+      if (this.inputs.map(input => input.name).includes(this.state.newVar.trim().toLowerCase())) {
+        Log.error('Variable', this.state.newVar.trim(), 'already exists');
         return;
       }
-      this.addTerminal(new Terminal(this, TerminalType.IN, 'any', this.props.newVar.trim()));
+      this.addTerminal(new Terminal(this, TerminalType.IN, 'any', this.state.newVar.trim()));
     });
     this.on('process', () => this.process());
   }
 
   process() {
     let bulkEvalIterations = -1;
-    this.props.evaluator.variables = {};
+    this.state.evaluator.variables = {};
     for (let inTerminal of this.inputs) {
       let data = inTerminal.getData();
 
       // Some checks to determine if the intention is to pass variables with array values to this function
       // Which should mean its a bulk evaluation (t=[2,5,6,8...], f(t)=cos(t)  ==>  f(t)=[cos(2),cos(5),cos(6),cos(8)...])
       if (Array.isArray(data)) {
-        let expr = this.props.expression;
+        let expr = this.state.expression;
         let regex = new RegExp('([a-z]+)\\(' + inTerminal.name + '\\)', 'g');
         expr = expr.replace(/\s+/g, '');
         let matches = [...expr.matchAll(regex)];
@@ -83,22 +83,22 @@ export class Func extends Node {
         if (result) bulkEvalIterations = Math.max(bulkEvalIterations, data.length);
       }
 
-      this.props.evaluator.variables[inTerminal.name] = (typeof data !== 'undefined' && data !== null) ? data : 0;
+      this.state.evaluator.variables[inTerminal.name] = (typeof data !== 'undefined' && data !== null) ? data : 0;
     }
     try {
       let result: number[] | number;
       if (bulkEvalIterations !== -1) {
         let resultArr = [];
         for (let i = 0; i < bulkEvalIterations; i += 1) {
-          resultArr.push(this.props.evaluator.evaluate(this.props.expression, i));
+          resultArr.push(this.state.evaluator.evaluate(this.state.expression, i));
         }
         result = resultArr;
       } else {
-        result = this.props.evaluator.evaluate(this.props.expression);
+        result = this.state.evaluator.evaluate(this.state.expression);
       }
       this.setOutputs(0, result);
     } catch (error) {
-      Log.error('Error while evaluating the expression: ', this.props.expression, error);
+      Log.error('Error while evaluating the expression: ', this.state.expression, error);
     }
   }
   lowerCase(input: Input) {

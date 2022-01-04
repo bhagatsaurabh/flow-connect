@@ -14,14 +14,14 @@ interface BufferedEvent {
 
 export class Delay extends Node {
 
-  static DefaultProps: any = { delay: 0, eventQueue: null };
+  static DefaultState: any = { delay: 0, eventQueue: null };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Delay', options.position || new Vector2(50, 50), options.width || 130,
       [{ name: 'event', dataType: 'event' }],
       [{ name: 'trigger', dataType: 'event' }],
       {
-        props: options.props ? { ...Delay.DefaultProps, ...options.props } : Delay.DefaultProps,
+        state: options.state ? { ...Delay.DefaultState, ...options.state } : Delay.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -29,10 +29,10 @@ export class Delay extends Node {
 
     this.setupUI();
 
-    this.props.eventQueue = new List<BufferedEvent>((a, b) => a.timeoutId - b.timeoutId);
-    this.props.eventQueue.on('removefirst', () => {
-      while (this.props.eventQueue.head && (performance.now() - this.props.eventQueue.head.data.start) >= this.props.delay) {
-        let bufferedEvent = this.props.eventQueue.removeFirst(false);
+    this.state.eventQueue = new List<BufferedEvent>((a, b) => a.timeoutId - b.timeoutId);
+    this.state.eventQueue.on('removefirst', () => {
+      while (this.state.eventQueue.head && (performance.now() - this.state.eventQueue.head.data.start) >= this.state.delay) {
+        let bufferedEvent = this.state.eventQueue.removeFirst(false);
         this.outputs[0].emit(bufferedEvent.data);
       }
     });
@@ -40,19 +40,19 @@ export class Delay extends Node {
       let eventNode = new ListNode<BufferedEvent>();
       eventNode.data = {
         data,
-        timeoutId: window.setTimeout(() => this.triggerEvent(eventNode), this.props.delay),
+        timeoutId: window.setTimeout(() => this.triggerEvent(eventNode), this.state.delay),
         start: performance.now()
       }
-      this.props.eventQueue.append(eventNode);
+      this.state.eventQueue.append(eventNode);
     });
     flow.on('start', () => {
-      this.props.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
-        eventNode.data.start = performance.now() + eventNode.data.remaining - this.props.delay;
+      this.state.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
+        eventNode.data.start = performance.now() + eventNode.data.remaining - this.state.delay;
         eventNode.data.timeoutId = window.setTimeout(() => this.triggerEvent(eventNode), eventNode.data.remaining);
       })
     });
     flow.on('stop', () => {
-      this.props.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
+      this.state.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
         clearTimeout(eventNode.data.timeoutId);
         eventNode.data.remaining = performance.now() - eventNode.data.start;
       });
@@ -60,8 +60,8 @@ export class Delay extends Node {
   }
 
   triggerEvent(eventNode: ListNode<BufferedEvent>) {
-    if (eventNode === this.props.eventQueue.head) {
-      let bufferedEvent = this.props.eventQueue.removeFirst();
+    if (eventNode === this.state.eventQueue.head) {
+      let bufferedEvent = this.state.eventQueue.removeFirst();
       this.outputs[0].emit(bufferedEvent.data);
     }
   }

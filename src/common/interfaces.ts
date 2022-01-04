@@ -59,7 +59,7 @@ export interface NodeCreatorOptions {
   name?: string,
   position?: Vector2,
   width?: number,
-  props?: {},
+  state?: {},
   style?: NodeStyle,
   terminalStyle?: TerminalStyle
 }

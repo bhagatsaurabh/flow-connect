@@ -27,7 +27,7 @@ export class TunnelNode extends Node {
     super(flow, name, position, width, inputs, outputs, {
       style: options.style,
       terminalStyle: options.terminalStyle,
-      props: options.props,
+      state: options.state,
       id: options.id,
       hitColor: options.hitColor
     });
@@ -49,7 +49,7 @@ export class TunnelNode extends Node {
       name: this.name,
       position: this.position.serialize(),
       width: this.width,
-      props: this.props,
+      state: this.state,
       inputs: this.inputs.map(terminal => terminal.serialize()),
       outputs: this.outputs.map(terminal => terminal.serialize()),
       style: this.style,
@@ -66,7 +66,7 @@ export class TunnelNode extends Node {
     return new TunnelNode(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, {
       style: data.style,
       terminalStyle: data.terminalStyle,
-      props: data.props,
+      state: data.state,
       id: data.id,
       hitColor: Color.deSerialize(data.hitColor)
     });
@@ -80,7 +80,7 @@ export interface SerializedTunnelNode extends SerializedNode {
 export interface TunnelNodeOptions {
   style?: NodeStyle,
   terminalStyle?: TerminalStyle,
-  props?: Object,
+  state?: Object,
   id?: string,
   hitColor?: Color,
 }
@@ -89,6 +89,6 @@ let DefaultTunnelNodeOptions = (): TunnelNodeOptions => {
   return {
     style: {},
     terminalStyle: {},
-    props: {}
+    state: {}
   }
 }

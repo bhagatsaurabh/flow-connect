@@ -9,3 +9,5 @@ cypress/screenshots/
 __image_snapshots__
 testserver/
 bundles/
+.temp
+.cache

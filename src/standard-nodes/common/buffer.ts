@@ -7,14 +7,14 @@ import { Node } from "../../core/node";
 export class Buffer extends Node {
   sizeInput: Input;
 
-  static DefaultProps: any = { buffer: [], size: 10 };
+  static DefaultState: any = { buffer: [], size: 10 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Buffer', options.position || new Vector2(50, 50), options.width || 150,
       [{ name: 'data', dataType: 'any' }],
       [{ name: 'buffer', dataType: 'array' }],
       {
-        props: options.props ? { ...Buffer.DefaultProps, ...options.props } : Buffer.DefaultProps,
+        state: options.state ? { ...Buffer.DefaultState, ...options.state } : Buffer.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -28,14 +28,14 @@ export class Buffer extends Node {
 
   process(inputs: any[]) {
     if (inputs[0] === null || typeof inputs[0] === 'undefined') return;
-    if (this.props.size <= 0) this.props.size = 1;
-    if (this.props.buffer.length === this.props.size) {
-      this.props.buffer.shift();
-    } else if (this.props.buffer.length > this.props.size) {
-      this.props.buffer.splice(0, this.props.buffer.length - this.props.size + 1);
+    if (this.state.size <= 0) this.state.size = 1;
+    if (this.state.buffer.length === this.state.size) {
+      this.state.buffer.shift();
+    } else if (this.state.buffer.length > this.state.size) {
+      this.state.buffer.splice(0, this.state.buffer.length - this.state.size + 1);
     }
-    this.props.buffer.push(inputs[0]);
-    this.setOutputs('buffer', this.props.buffer);
+    this.state.buffer.push(inputs[0]);
+    this.setOutputs('buffer', this.state.buffer);
   }
   setupUI() {
     this.sizeInput = this.createInput({ propName: 'size', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });

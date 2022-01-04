@@ -16,7 +16,7 @@ export class ToArray extends Node {
       ),
       [{ name: 'out', dataType: 'array' }],
       {
-        props: options.props ? { ...options.props } : {},
+        state: options.state ? { ...options.state } : {},
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

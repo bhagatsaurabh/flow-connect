@@ -21,14 +21,14 @@ export class DelayEffect extends Node {
   delay: DelayNode;
   feedbackNode: GainNode;
 
-  static DefaultProps = { feedback: 0.45, cutoff: 20000, wet: 0.5, dry: 1, delayTime: 100, bypass: false };
+  static DefaultState = { feedback: 0.45, cutoff: 20000, wet: 0.5, dry: 1, delayTime: 100, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Delay', options.position || new Vector2(50, 50), options.width || 230,
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...DelayEffect.DefaultProps, ...options.props } : DelayEffect.DefaultProps,
+        state: options.state ? { ...DelayEffect.DefaultState, ...options.state } : DelayEffect.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -41,13 +41,13 @@ export class DelayEffect extends Node {
     this.filter = flow.flowConnect.audioContext.createBiquadFilter();
     this.delay = flow.flowConnect.audioContext.createDelay(10);
     this.feedbackNode = flow.flowConnect.audioContext.createGain();
-    this.props.filterType = 'lowpass';
+    this.state.filterType = 'lowpass';
 
-    this.delay.delayTime.value = this.props.delayTime / 1000;
-    this.feedbackNode.gain.value = this.props.feedback;
-    this.filter.frequency.value = this.props.cutoff;
-    this.wetGain.gain.value = this.props.wet;
-    this.dryGain.gain.value = this.props.dry;
+    this.delay.delayTime.value = this.state.delayTime / 1000;
+    this.feedbackNode.gain.value = this.state.feedback;
+    this.filter.frequency.value = this.state.cutoff;
+    this.wetGain.gain.value = this.state.wet;
+    this.dryGain.gain.value = this.state.dry;
 
     this.inputs[0].ref = this.inGain;
     this.outputs[0].ref = this.outGain;
@@ -61,43 +61,43 @@ export class DelayEffect extends Node {
 
     this.setupUI();
 
-    let delayChanged = () => this.delay.delayTime.value = this.props.delayTime / 1000;
+    let delayChanged = () => this.delay.delayTime.value = this.state.delayTime / 1000;
     this.delaySlider.on('change', delayChanged);
     this.watch('delayTime', () => {
-      if (this.props.delayTime < 10 || this.props.delayTime > 10000) {
-        this.props.delayTime = clamp(this.props.delayTime, 10, 10000);
+      if (this.state.delayTime < 10 || this.state.delayTime > 10000) {
+        this.state.delayTime = clamp(this.state.delayTime, 10, 10000);
         delayChanged();
       }
     });
-    let feedbackChanged = () => this.feedbackNode.gain.setTargetAtTime(this.props.feedback, flow.flowConnect.audioContext.currentTime, 0.01);
+    let feedbackChanged = () => this.feedbackNode.gain.setTargetAtTime(this.state.feedback, flow.flowConnect.audioContext.currentTime, 0.01);
     this.feedbackSlider.on('change', feedbackChanged);
     this.watch('feedback', () => {
-      if (this.props.feedback < 0 || this.props.feedback > 0.9) {
-        this.props.feedback = clamp(this.props.feedback, 0, 0.9);
+      if (this.state.feedback < 0 || this.state.feedback > 0.9) {
+        this.state.feedback = clamp(this.state.feedback, 0, 0.9);
         feedbackChanged();
       }
     });
-    let cutoffChanged = () => this.filter.frequency.setTargetAtTime(this.props.cutoff, flow.flowConnect.audioContext.currentTime, 0.01);
+    let cutoffChanged = () => this.filter.frequency.setTargetAtTime(this.state.cutoff, flow.flowConnect.audioContext.currentTime, 0.01);
     this.cutoffSlider.on('change', cutoffChanged);
     this.watch('cutoff', () => {
-      if (this.props.cutoff < 20 || this.props.cutoff > 20000) {
-        this.props.cutoff = clamp(this.props.cutoff, 20, 20000);
+      if (this.state.cutoff < 20 || this.state.cutoff > 20000) {
+        this.state.cutoff = clamp(this.state.cutoff, 20, 20000);
         cutoffChanged();
       }
     });
-    let wetChanged = () => this.wetGain.gain.setTargetAtTime(this.props.wet, flow.flowConnect.audioContext.currentTime, 0.01);
+    let wetChanged = () => this.wetGain.gain.setTargetAtTime(this.state.wet, flow.flowConnect.audioContext.currentTime, 0.01);
     this.wetSlider.on('change', wetChanged);
     this.watch('wet', () => {
-      if (this.props.wet < 0 || this.props.wet > 1) {
-        this.props.wet = clamp(this.props.wet, 0, 1);
+      if (this.state.wet < 0 || this.state.wet > 1) {
+        this.state.wet = clamp(this.state.wet, 0, 1);
         wetChanged();
       }
     });
-    let dryChanged = () => this.dryGain.gain.setTargetAtTime(this.props.dry, flow.flowConnect.audioContext.currentTime, 0.01);
+    let dryChanged = () => this.dryGain.gain.setTargetAtTime(this.state.dry, flow.flowConnect.audioContext.currentTime, 0.01);
     this.drySlider.on('change', dryChanged);
     this.watch('dry', () => {
-      if (this.props.dry < 0 || this.props.dry > 1) {
-        this.props.dry = clamp(this.props.dry, 0, 1);
+      if (this.state.dry < 0 || this.state.dry > 1) {
+        this.state.dry = clamp(this.state.dry, 0, 1);
         dryChanged();
       }
     });
@@ -107,7 +107,7 @@ export class DelayEffect extends Node {
   }
 
   setBypass() {
-    if (!this.props.bypass) {
+    if (!this.state.bypass) {
       this.inGain.connect(this.delay);
       this.inGain.connect(this.dryGain);
       this.wetGain.connect(this.outGain);

@@ -7,13 +7,13 @@ import { Node } from "../../core/node";
 export class Timer extends Node {
   lastTrigger: number = Number.MIN_VALUE;
 
-  static DefaultProps = { delay: 1000 };
+  static DefaultState = { delay: 1000 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Timer', options.position || new Vector2(50, 50), options.width || 150, [],
       [{ name: 'timer', dataType: 'event' }],
       {
-        props: options.props ? { ...Timer.DefaultProps, ...options.props } : Timer.DefaultProps,
+        state: options.state ? { ...Timer.DefaultState, ...options.state } : Timer.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -24,7 +24,7 @@ export class Timer extends Node {
     flow.flowConnect.on('tickreset', () => this.lastTrigger = Number.MIN_VALUE);
     flow.flowConnect.on('tick', () => {
       let current = flow.flowConnect.time;
-      if (current - this.lastTrigger >= this.props.delay) {
+      if (current - this.lastTrigger >= this.state.delay) {
         this.outputs[0].emit(null);
         this.lastTrigger = current;
       }

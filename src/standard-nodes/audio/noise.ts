@@ -9,7 +9,7 @@ export class Noise extends Node {
   noise: AudioWorkletNode;
   outGain: GainNode;
 
-  static DefaultProps = { type: 'white' };
+  static DefaultState = { type: 'white' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -20,7 +20,7 @@ export class Noise extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...Noise.DefaultProps, ...options.props } : Noise.DefaultProps
+        state: options.state ? { ...Noise.DefaultState, ...options.state } : Noise.DefaultState
       }
     )
 
@@ -30,7 +30,7 @@ export class Noise extends Node {
     this.noise = new AudioWorkletNode(flow.flowConnect.audioContext, 'noise', {
       channelCount: 1, channelCountMode: 'explicit', outputChannelCount: [1], numberOfInputs: 1, numberOfOutputs: 1
     });
-    this.noise.port.postMessage(this.props.type);
+    this.noise.port.postMessage(this.state.type);
 
     this.setupUI();
 

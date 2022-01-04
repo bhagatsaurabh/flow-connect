@@ -13,7 +13,7 @@ export class SyncEvent extends Node {
       [{ name: 'Event 1', dataType: 'event' }, { name: 'Event 2', dataType: 'event' }],
       [{ name: 'synced', dataType: 'event' }],
       {
-        props: options.props ? { ...options.props, hold: {} } : { hold: {} },
+        state: options.state ? { ...options.state, hold: {} } : { hold: {} },
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -35,17 +35,17 @@ export class SyncEvent extends Node {
   }
 
   process(terminal: Terminal, data: any) {
-    this.props.hold[terminal.id] = data;
+    this.state.hold[terminal.id] = data;
 
     let hold = [];
     for (let term of this.inputs) {
-      if (this.props.hold.hasOwnProperty(term.id)) {
-        hold.push(this.props.hold[term.id]);
+      if (this.state.hold.hasOwnProperty(term.id)) {
+        hold.push(this.state.hold[term.id]);
       }
       else return;
     }
 
-    this.props.hold = {};
+    this.state.hold = {};
     this.outputs[0].emit(hold);
   }
   setupUI() {

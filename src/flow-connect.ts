@@ -104,6 +104,7 @@ export class FlowConnect extends Hooks {
   wheelScaleDelta: number = 1.05;
   pinchScaleDelta: number = 1.02;
   get scale(): number { return this._transform.a }
+  disableScale: boolean = false;
   private _transform: DOMMatrix = new DOMMatrix();
 
   /** Current transformation matrix */
@@ -179,6 +180,12 @@ export class FlowConnect extends Hooks {
     } else {
       Log.error('mount provided is not of type HTMLDivElement or HTMLCanvasElement')
     }
+
+    Object.assign(this.canvas.style, {
+      position: 'absolute',
+      width: '100%',
+      height: '100%'
+    })
     this._context = this.canvas.getContext('2d');
   }
   /** Creates additional canvas's for rendering color hit-maps */
@@ -206,14 +213,15 @@ export class FlowConnect extends Hooks {
   private calculateCanvasDimension(adjust: boolean) {
     if (adjust) {
       let parentBoundingRect = this.canvas.parentElement.getBoundingClientRect();
-      this.canvas.width = Math.round(parentBoundingRect.width);
-      this.canvas.height = Math.round(parentBoundingRect.height);
+      this.canvas.width = parentBoundingRect.width;
+      this.canvas.height = parentBoundingRect.height;
+      this.call('dimension-change', this, this.canvas.width, this.canvas.height);
     }
 
     let boundingRect = this.canvas.getBoundingClientRect();
     this.canvasDimensions = {
-      top: Math.round(boundingRect.top - window.scrollY),
-      left: Math.round(boundingRect.left - window.scrollX),
+      top: Math.round(boundingRect.top),
+      left: Math.round(boundingRect.left),
       width: Math.round(boundingRect.width),
       height: Math.round(boundingRect.height)
     }
@@ -474,7 +482,10 @@ export class FlowConnect extends Hooks {
         }
       }
 
-      this.handleZoom(ev.deltaY < 0, screenPosition, this.wheelScaleDelta);
+      if (!this.disableScale) {
+        ev.preventDefault();
+        this.handleZoom(ev.deltaY < 0, screenPosition, this.wheelScaleDelta);
+      }
     }
   }
   private setGenericInput() {
@@ -493,7 +504,12 @@ export class FlowConnect extends Hooks {
     document.body.appendChild(this.genericInput);
   }
   private async setupAudioContext() {
-    this._audioContext = new AudioContext();
+    if ((window as any).__FLOWCONNECT_AUDIO_CTX__) {
+      this._audioContext = (window as any).__FLOWCONNECT_AUDIO_CTX__;
+    } else {
+      this._audioContext = new AudioContext();
+      (window as any).__FLOWCONNECT_AUDIO_CTX__ = this._audioContext;
+    }
 
     // This one-time setup is not at all related to FlowConnect, couldn't find any place to do this
     // Might be a better idea to do this somewhere in StandardNodes.Audio scope
@@ -627,7 +643,7 @@ export class FlowConnect extends Hooks {
   private getRelativePosition(ev: PointerEvent | WheelEvent | MouseEvent) {
     return new Vector2(ev.clientX - this.canvasDimensions.left, ev.clientY - this.canvasDimensions.top);
   }
-  private updateTransform(scale: number, scaleOrigin: Vector2, translate: Vector2) {
+  private updateTransform(scale?: number, scaleOrigin?: Vector2, translate?: Vector2) {
     if (scale) {
       let realSpaceOrigin = scaleOrigin.transform(this.inverseTransform);
       this._transform
@@ -647,6 +663,12 @@ export class FlowConnect extends Hooks {
     this._offGroupContext.setTransform(this._transform);
 
     this.call('transform', this);
+  }
+  translateBy(delta: Vector2) {
+    this.updateTransform(null, null, delta);
+  }
+  scaleBy(scale: number, scaleOrigin: Vector2) {
+    this.updateTransform(scale, scaleOrigin);
   }
   private fallbackConnection() {
     this.floatingConnector.removeConnection();

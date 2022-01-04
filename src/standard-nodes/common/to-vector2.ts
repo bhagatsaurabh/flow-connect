@@ -10,7 +10,7 @@ export class ToVector2 extends Node {
       [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
       [{ name: 'vector2', dataType: 'any' }],
       {
-        props: options.props ? { ...options.props } : {},
+        state: options.state ? { ...options.state } : {},
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

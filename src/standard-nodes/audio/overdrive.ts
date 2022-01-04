@@ -20,7 +20,7 @@ export class OverdriveEffect extends Node {
   bypassToggle: Toggle;
   overdrive: any;
 
-  static DefaultProps = { drive: 0.197, outGain: -9.154, curveAmount: 0.979, algorithm: 1, bypass: false };
+  static DefaultState = { drive: 0.197, outGain: -9.154, curveAmount: 0.979, algorithm: 1, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -32,7 +32,7 @@ export class OverdriveEffect extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...OverdriveEffect.DefaultProps, ...options.props } : OverdriveEffect.DefaultProps
+        state: options.state ? { ...OverdriveEffect.DefaultState, ...options.state } : OverdriveEffect.DefaultState
       }
     )
 
@@ -42,23 +42,23 @@ export class OverdriveEffect extends Node {
     this.inputs[0].ref = this.outputs[0].ref = this.overdrive;
     this.setupUI();
     Object.assign(this.overdrive, {
-      drive: this.props.drive,
-      outputGain: this.props.outGain,
-      curveAmount: this.props.curveAmount,
-      algorithmIndex: parseInt(this.props.algorithm) - 1
+      drive: this.state.drive,
+      outputGain: this.state.outGain,
+      curveAmount: this.state.curveAmount,
+      algorithmIndex: parseInt(this.state.algorithm) - 1
     });
 
     this.watch('drive', (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.props.drive = clamp(newVal, 0, 1);
-      this.overdrive.drive = this.props.drive;
+      if (newVal < 0 || newVal > 1) this.state.drive = clamp(newVal, 0, 1);
+      this.overdrive.drive = this.state.drive;
     });
     this.watch('outGain', (_oldVal, newVal) => {
-      if (newVal < -46 || newVal > 0) this.props.outGain = clamp(newVal, -46, 0);
-      this.overdrive.outputGain = this.props.outGain;
+      if (newVal < -46 || newVal > 0) this.state.outGain = clamp(newVal, -46, 0);
+      this.overdrive.outputGain = this.state.outGain;
     });
     this.watch('curveAmount', (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.props.curveAmount = clamp(newVal, 0, 1);
-      this.overdrive.curveAmount = this.props.curveAmount;
+      if (newVal < 0 || newVal > 1) this.state.curveAmount = clamp(newVal, 0, 1);
+      this.overdrive.curveAmount = this.state.curveAmount;
     });
     this.watch('algorithm', (_oldVal, newVal) => {
       newVal = parseInt(newVal);

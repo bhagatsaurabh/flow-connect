@@ -21,7 +21,7 @@ export class DynamicsCompressor extends Node {
       ],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { bypass: false, ...options.props } : { bypass: false },
+        state: options.state ? { bypass: false, ...options.state } : { bypass: false },
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -60,7 +60,7 @@ export class DynamicsCompressor extends Node {
   }
 
   setBypass() {
-    if (this.props.bypass) {
+    if (this.state.bypass) {
       this.compressor.disconnect();
       this.inGain.disconnect();
       this.inGain.connect(this.outGain);

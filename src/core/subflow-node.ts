@@ -22,7 +22,7 @@ export class SubFlowNode extends Node {
     super(flow, options.name || 'New SubFlow', position, width, inputs ? inputs : [], outputs ? outputs : [], {
       style: options.style,
       terminalStyle: options.terminalStyle,
-      props: options.props,
+      state: options.state,
       id: options.id,
       hitColor: options.hitColor
     });
@@ -75,7 +75,7 @@ export class SubFlowNode extends Node {
       name: this.name,
       position: this.position.serialize(),
       width: this.width,
-      props: this.props,
+      state: this.state,
       inputs: this.inputs.map(terminal => terminal.serialize()),
       outputs: this.outputs.map(terminal => terminal.serialize()),
       style: this.style,
@@ -94,7 +94,7 @@ export class SubFlowNode extends Node {
       name: data.name,
       style: data.style,
       terminalStyle: data.terminalStyle,
-      props: data.props,
+      state: data.state,
       id: data.id,
       hitColor: Color.deSerialize(data.hitColor)
     });
@@ -105,7 +105,7 @@ export interface SubFlowOptions {
   name?: string,
   style?: NodeStyle,
   terminalStyle?: TerminalStyle,
-  props?: Object,
+  state?: Object,
   id?: string,
   hitColor?: Color
 }
@@ -113,6 +113,6 @@ let DefaultSubFlowOptions = (): SubFlowOptions => {
   return {
     style: {},
     terminalStyle: {},
-    props: {}
+    state: {}
   }
 }

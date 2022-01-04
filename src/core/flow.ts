@@ -134,7 +134,7 @@ export class Flow extends Hooks implements Serializable {
     return new Node(this, name, position, width, inTerminals, outTerminals, {
       style: options.style,
       terminalStyle: options.terminalStyle,
-      props: options.props
+      state: options.state
     });
   }
   removeNode(nodeOrID: Node | string) {
@@ -263,7 +263,7 @@ export interface NodeOptions {
   outputs?: any[],
   style: NodeStyle,
   terminalStyle: TerminalStyle,
-  props?: { [key: string]: any }
+  state?: { [key: string]: any }
 }
 /** @hidden */
 let DefaultNodeOptions = (): NodeOptions => {

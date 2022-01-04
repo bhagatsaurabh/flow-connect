@@ -15,7 +15,7 @@ export class StereoPanner extends Node {
   inGain: GainNode;
   outGain: GainNode;
 
-  static DefaultProps = { pan: 0, bypass: false };
+  static DefaultState = { pan: 0, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -27,14 +27,14 @@ export class StereoPanner extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...StereoPanner.DefaultProps, ...options.props } : StereoPanner.DefaultProps
+        state: options.state ? { ...StereoPanner.DefaultState, ...options.state } : StereoPanner.DefaultState
       }
     )
 
     this.inGain = flow.flowConnect.audioContext.createGain();
     this.outGain = flow.flowConnect.audioContext.createGain();
     this.panner = new StereoPannerNode(flow.flowConnect.audioContext);
-    this.panner.pan.value = this.props.pan;
+    this.panner.pan.value = this.state.pan;
     this.inputs[0].ref = this.inGain;
     this.outputs[0].ref = this.outGain;
 
@@ -43,8 +43,8 @@ export class StereoPanner extends Node {
     this.setupUI();
 
     this.watch('pan', (_oldVal, newVal) => {
-      if (newVal < -1 || newVal > 1) this.props.pan = clamp(newVal, -1, 1);
-      this.panner.pan.value = this.props.pan;
+      if (newVal < -1 || newVal > 1) this.state.pan = clamp(newVal, -1, 1);
+      this.panner.pan.value = this.state.pan;
     });
     this.watch('bypass', this.setBypass.bind(this));
 
@@ -52,7 +52,7 @@ export class StereoPanner extends Node {
   }
 
   setBypass() {
-    if (!this.props.bypass) {
+    if (!this.state.bypass) {
       this.inGain.disconnect();
       this.inGain.connect(this.panner);
       this.panner.connect(this.outGain);

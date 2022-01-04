@@ -49,7 +49,7 @@ export class Node extends Hooks implements Events, Serializable {
   inputsUI: Terminal[] = [];
   outputsUI: Terminal[] = [];
   ui: Container;
-  props: { [key: string]: any };
+  state: { [key: string]: any };
   group: Group = null;
   //#endregion
 
@@ -99,13 +99,13 @@ export class Node extends Hooks implements Events, Serializable {
     this.style = get(options.style, {});
     this.terminalStyle = get(options.terminalStyle, {});
     this.id = get(options.id, getNewUUID());
-    this.props = get(options.props, {});
+    options.state = get(options.state, {});
 
     this.hitColor = options.hitColor;
     this._width = width;
     this.style = { ...DefaultNodeStyle(), ...options.style }
     this._position = position;
-    this.setupProps(options.props);
+    this.setupState(options.state);
     this.hitColorToUI = {};
     this.hitColorToTerminal = {};
     this.hitColorToNodeButton = {};
@@ -150,8 +150,8 @@ export class Node extends Hooks implements Events, Serializable {
         output.hitColor ? Color.deSerialize(output.hitColor) : null)
     ));
   }
-  private setupProps(props: any) {
-    this.props = new Proxy<any>({}, {
+  private setupState(state: any) {
+    this.state = new Proxy<any>({}, {
       set: (target, prop, value) => {
         if (typeof target[prop] === 'undefined') {
           this.propObservers[prop] = [];
@@ -165,19 +165,19 @@ export class Node extends Hooks implements Events, Serializable {
       }
     });
 
-    Object.keys(props).forEach(key => {
-      this.props[key] = props[key];
+    Object.keys(state).forEach(key => {
+      this.state[key] = state[key];
     });
   }
   watch(propName: string, callback: (oldVal: any, newVal: any) => void) {
-    if (typeof this.props[propName] !== 'undefined') {
+    if (typeof this.state[propName] !== 'undefined') {
       this.propObservers[propName].push(callback);
     } else {
       Log.error(`Cannot watch prop '${propName}', prop not found`);
     }
   }
   unwatch(propName: string, callback: (oldVal: any, newVal: any) => void) {
-    if (typeof this.props[propName] !== 'undefined') {
+    if (typeof this.state[propName] !== 'undefined') {
       this.propObservers[propName].splice(this.propObservers[propName].indexOf(callback), 1);
     } else {
       Log.error(`Cannot unwatch prop '${propName}', prop not found`);
@@ -641,7 +641,7 @@ export class Node extends Hooks implements Events, Serializable {
       name: this.name,
       position: this.position.serialize(),
       width: this.width,
-      props: this.props,
+      state: this.state,
       inputs: this.inputs.map(terminal => terminal.serialize()),
       outputs: this.outputs.map(terminal => terminal.serialize()),
       style: this.style,
@@ -657,7 +657,7 @@ export class Node extends Hooks implements Events, Serializable {
     return new Node(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, {
       style: data.style,
       terminalStyle: data.terminalStyle,
-      props: data.props,
+      state: data.state,
       id: data.id,
       hitColor: Color.deSerialize(data.hitColor),
       ui: data.ui
@@ -716,7 +716,7 @@ export interface SerializedNode {
   focused: boolean,
   id: string,
   position: SerializedVector2,
-  props: { [key: string]: any },
+  state: { [key: string]: any },
   renderState: RenderState,
   inputs: SerializedTerminal[],
   outputs: SerializedTerminal[],
@@ -771,7 +771,7 @@ export class NodeButton {
 export interface NodeConstructorOptions {
   style?: NodeStyle,
   terminalStyle?: TerminalStyle,
-  props?: Object,
+  state?: Object,
   id?: string,
   hitColor?: Color,
   ui?: Container | SerializedContainer
@@ -780,7 +780,7 @@ let DefaultNodeConstructorOptions = (): NodeConstructorOptions => {
   return {
     style: {},
     terminalStyle: {},
-    props: {},
+    state: {},
     id: getNewUUID(),
   }
 }

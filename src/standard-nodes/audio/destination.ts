@@ -10,7 +10,7 @@ export class Destination extends Node {
     super(flow, options.name || 'Audio Destination', options.position || new Vector2(50, 50), options.width || 160,
       [{ name: 'out', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }], [],
       {
-        props: options.props || {},
+        state: options.state || {},
         style: options.style || { rowHeight: 10, spacing: 15 },
         terminalStyle: options.terminalStyle || {}
       }

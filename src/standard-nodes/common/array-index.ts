@@ -9,7 +9,7 @@ export class ArrayIndex extends Node {
       [{ name: 'data', dataType: 'array' }, { name: 'index', dataType: 'number' }],
       [{ name: 'value', dataType: 'any' }],
       {
-        props: options.props ? { ...options.props } : {},
+        state: options.state ? { ...options.state } : {},
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

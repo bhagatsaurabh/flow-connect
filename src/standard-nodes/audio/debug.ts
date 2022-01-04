@@ -13,7 +13,7 @@ export class Debug extends Node {
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }, { name: 'debug', dataType: 'any' }],
       {
-        props: options.props || {},
+        state: options.state || {},
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

@@ -15,7 +15,7 @@ export class WaveformAnalyser extends Node {
 
   analyser: AnalyserNode;
 
-  static DefaultProps = { fftSize: 11 };
+  static DefaultState = { fftSize: 11 };
 
   fftSizes = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
 
@@ -28,7 +28,7 @@ export class WaveformAnalyser extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...WaveformAnalyser.DefaultProps, ...options.props } : WaveformAnalyser.DefaultProps
+        state: options.state ? { ...WaveformAnalyser.DefaultState, ...options.state } : WaveformAnalyser.DefaultState
       }
     )
 
@@ -39,7 +39,7 @@ export class WaveformAnalyser extends Node {
     this.setupUI();
 
     this.watch('fftSize', (_oldVal, newVal) => {
-      if (newVal < 5 || newVal > 15) this.props.fftSize = clamp(Math.round(newVal), 5, 15);
+      if (newVal < 5 || newVal > 15) this.state.fftSize = clamp(Math.round(newVal), 5, 15);
       let actualFFTSize = this.getFFTSize();
       this.fftSizeLabel.text = actualFFTSize;
       this.analyser.fftSize = actualFFTSize;
@@ -49,7 +49,7 @@ export class WaveformAnalyser extends Node {
   }
 
   getFFTSize() {
-    return this.fftSizes[clamp(Math.round(this.props.fftSize), 5, 15) - 5];
+    return this.fftSizes[clamp(Math.round(this.state.fftSize), 5, 15) - 5];
   }
 
   setupUI() {

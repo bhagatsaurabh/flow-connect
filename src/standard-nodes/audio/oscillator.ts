@@ -24,7 +24,7 @@ export class Oscillator extends Node {
 
   types = ['sine', 'square', 'sawtooth', 'triangle'];
 
-  static DefaultProps = { frequency: 440, detune: 0, type: 'sine' };
+  static DefaultState = { frequency: 440, detune: 0, type: 'sine' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -35,7 +35,7 @@ export class Oscillator extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...Oscillator.DefaultProps, ...options.props } : Oscillator.DefaultProps
+        state: options.state ? { ...Oscillator.DefaultState, ...options.state } : Oscillator.DefaultState
       }
     )
 
@@ -51,8 +51,8 @@ export class Oscillator extends Node {
     this.inputsUI[1].dataType = 'audioparam';
     this.outputs[0].ref = this.outGain;
 
-    this.inputsUI[0].on('data', (_inst, data) => typeof data === 'number' && (this.props.frequency = data));
-    this.inputsUI[1].on('data', (_inst, data) => typeof data === 'number' && (this.props.detune = data));
+    this.inputsUI[0].on('data', (_inst, data) => typeof data === 'number' && (this.state.frequency = data));
+    this.inputsUI[1].on('data', (_inst, data) => typeof data === 'number' && (this.state.detune = data));
 
     this.watch('frequency', (_oldVal, newVal) => {
       if (newVal < 0 || newVal > 20000) newVal = clamp(newVal, 0, 20000);
@@ -74,18 +74,18 @@ export class Oscillator extends Node {
   startOscillator() {
     this.stopOscillator();
     this.oscillator = this.flow.flowConnect.audioContext.createOscillator();
-    if (!this.inputsUI[0].isConnected()) this.oscillator.frequency.value = this.props.frequency;
+    if (!this.inputsUI[0].isConnected()) this.oscillator.frequency.value = this.state.frequency;
     else {
       this.freqProxy.connect(this.oscillator.frequency);
       this.oscillator.frequency.value = 0;
     }
-    if (!this.inputsUI[1].isConnected()) this.oscillator.detune.value = this.props.detune;
+    if (!this.inputsUI[1].isConnected()) this.oscillator.detune.value = this.state.detune;
     else {
       this.detuneProxy.connect(this.oscillator.detune);
       this.oscillator.detune.value = 0;
     }
 
-    this.oscillator.type = this.props.type;
+    this.oscillator.type = this.state.type;
     this.oscillator.connect(this.outGain);
     this.oscillator.start();
   }
@@ -109,7 +109,7 @@ export class Oscillator extends Node {
     this.detuneHozLayout = this.createHozLayout([
       this.createLabel('Detune', { style: { grow: .2 } }), this.detuneSlider, this.detuneInput
     ], { input: true, style: { spacing: 5 } });
-    this.typeGroup = this.createRadioGroup(this.types, this.props.type, { propName: 'type', height: 20 });
+    this.typeGroup = this.createRadioGroup(this.types, this.state.type, { propName: 'type', height: 20 });
 
     this.ui.append([this.freqHozLayout, this.detuneHozLayout, this.typeGroup]);
   }
@@ -123,7 +123,7 @@ export class Oscillator extends Node {
     this.inputsUI[0].on('disconnect', () => {
       if (this.oscillator) {
         this.freqProxy.disconnect();
-        this.oscillator.frequency.value = this.props.frequency;
+        this.oscillator.frequency.value = this.state.frequency;
       }
     });
     this.inputsUI[1].on('connect', () => {
@@ -135,7 +135,7 @@ export class Oscillator extends Node {
     this.inputsUI[1].on('disconnect', () => {
       if (this.oscillator) {
         this.detuneProxy.disconnect();
-        this.oscillator.detune.value = this.props.detune;
+        this.oscillator.detune.value = this.state.detune;
       }
     });
     this.outputs[0].on('connect', (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));

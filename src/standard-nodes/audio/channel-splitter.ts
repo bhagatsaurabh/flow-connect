@@ -14,7 +14,7 @@ export class ChannelSplitter extends Node {
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'Channel 1', dataType: 'audio' }],
       {
-        props: options.props || {},
+        state: options.state || {},
         style: options.style || { rowHeight: 10, spacing: 15 },
         terminalStyle: options.terminalStyle || {}
       }

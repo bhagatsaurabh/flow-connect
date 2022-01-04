@@ -11,20 +11,20 @@ export class NumberRange extends Node {
   stepInput: Input;
   loopToggle: Toggle;
 
-  static DefaultProps = { value: 0, min: 0, max: 100, step: 1, loop: false };
+  static DefaultState = { value: 0, min: 0, max: 100, step: 1, loop: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Number Range', options.position || new Vector2(50, 50), options.width || 200,
       [{ name: 'trigger', dataType: 'event' }, { name: 'reset', dataType: 'event' }],
       [{ name: 'value', dataType: 'number' }],
       {
-        props: options.props ? { ...NumberRange.DefaultProps, ...options.props } : NumberRange.DefaultProps,
+        state: options.state ? { ...NumberRange.DefaultState, ...options.state } : NumberRange.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
     );
 
-    this.props.startValue = this.props.value;
+    this.state.startValue = this.state.value;
 
     this.setupUI();
 
@@ -34,19 +34,19 @@ export class NumberRange extends Node {
     this.loopToggle.on('change', () => this.process());
 
     this.inputs[0].on('event', () => this.process());
-    this.inputs[1].on('event', () => this.props.value = this.props.min);
+    this.inputs[1].on('event', () => this.state.value = this.state.min);
   }
 
   process() {
-    let value = this.props.value;
-    this.props.value = value + this.props.step;
-    if (this.props.value < this.props.min) {
-      this.props.value = this.props.min;
-      if (this.props.loop) this.props.value = this.props.startValue;
+    let value = this.state.value;
+    this.state.value = value + this.state.step;
+    if (this.state.value < this.state.min) {
+      this.state.value = this.state.min;
+      if (this.state.loop) this.state.value = this.state.startValue;
       else return;
-    } else if (this.props.value > this.props.max) {
-      this.props.value = this.props.max;
-      if (this.props.loop) this.props.value = this.props.startValue;
+    } else if (this.state.value > this.state.max) {
+      this.state.value = this.state.max;
+      if (this.state.loop) this.state.value = this.state.startValue;
       else return;
     } else {
       this.setOutputs(0, value);

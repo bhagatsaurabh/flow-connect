@@ -12,7 +12,7 @@ export class JsonSource extends Node {
     super(flow, options.name || 'JSON Source', options.position || new Vector2(50, 50), options.width || 150, [],
       [{ name: 'value', dataType: 'any' }],
       {
-        props: options.props ? { ...options.props } : {},
+        state: options.state ? { ...options.state } : {},
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

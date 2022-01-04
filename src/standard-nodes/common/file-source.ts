@@ -7,13 +7,13 @@ import { Source } from "../../ui/source";
 export class FileSource extends Node {
   fileInput: Source
 
-  static DefaultProps: any = { file: null };
+  static DefaultState: any = { file: null };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'File Source', options.position || new Vector2(50, 50), options.width || 130, [],
       [{ name: 'file', dataType: 'file' }],
       {
-        props: options.props ? { ...FileSource.DefaultProps, ...options.props } : FileSource.DefaultProps,
+        state: options.state ? { ...FileSource.DefaultState, ...options.state } : FileSource.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -25,7 +25,7 @@ export class FileSource extends Node {
     this.on('process', () => this.process());
   }
 
-  process() { this.setOutputs(0, this.props.file); }
+  process() { this.setOutputs(0, this.state.file); }
   setupUI() {
     this.fileInput = this.createSource({ propName: 'file', input: true, output: true, height: 20 });
     this.ui.append(this.fileInput);

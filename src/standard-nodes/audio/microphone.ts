@@ -9,7 +9,7 @@ export class Microphone extends Node {
   stream: MediaStream;
   outGain: GainNode;
 
-  static DefaultProps = {};
+  static DefaultState = {};
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -20,7 +20,7 @@ export class Microphone extends Node {
       {
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...Microphone.DefaultProps, ...options.props } : Microphone.DefaultProps
+        state: options.state ? { ...Microphone.DefaultState, ...options.state } : Microphone.DefaultState
       }
     )
 

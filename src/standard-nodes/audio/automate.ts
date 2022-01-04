@@ -18,7 +18,7 @@ export class Automate extends Node {
   proxyParamNode: AudioWorkletNode;
   proxyParam: AudioParam;
 
-  static DefaultProps = { min: 0, max: 1, value: 0.5, duration: 1, auto: true, loop: false };
+  static DefaultState = { min: 0, max: 1, value: 0.5, duration: 1, auto: true, loop: false };
 
   timerId: number;
   scheduleEndTime: number;
@@ -29,7 +29,7 @@ export class Automate extends Node {
       [{ name: 'trigger', dataType: 'event' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...Automate.DefaultProps, ...options.props } : Automate.DefaultProps,
+        state: options.state ? { ...Automate.DefaultState, ...options.state } : Automate.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 15 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -38,7 +38,7 @@ export class Automate extends Node {
     this.proxyParamNode = new AudioWorkletNode(
       flow.flowConnect.audioContext,
       'proxy-param',
-      { numberOfOutputs: 1, parameterData: { param: this.props.value } }
+      { numberOfOutputs: 1, parameterData: { param: this.state.value } }
     );
     this.proxyParam = (this.proxyParamNode.parameters as Map<string, AudioParam>).get('param');
     this.setMinMax();
@@ -60,7 +60,7 @@ export class Automate extends Node {
     this.loopToggle.on('change', () => this.startAutomation());
     this.inputs[0].on('event', () => this.startAutomation());
 
-    flow.flowConnect.on('start', () => this.props.auto && this.startAutomation());
+    flow.flowConnect.on('start', () => this.state.auto && this.startAutomation());
     flow.flowConnect.on('stop', () => this.stopAutomation());
 
     this.handleAudioConnections();
@@ -73,12 +73,12 @@ export class Automate extends Node {
     // Convert normalized to actual values (x=time, y=param value)
     let values = this.envelopeInput.value;
     for (let currVal of values) {
-      currVal.x = currVal.x * this.props.duration;
-      currVal.y = denormalize(currVal.y, this.props.min, this.props.max);
+      currVal.x = currVal.x * this.state.duration;
+      currVal.y = denormalize(currVal.y, this.state.min, this.state.max);
     }
 
     let automateDuration = values[values.length - 1].x;
-    if (this.props.loop) {
+    if (this.state.loop) {
       // Schedule far in the future hoping that even if main thread blocks it recovers by the time scheduled automations are finished
       this.schedule(values, this.flow.flowConnect.audioContext.currentTime, this.finiteLoop);
       this.timerId = window.setInterval(() => {
@@ -104,7 +104,7 @@ export class Automate extends Node {
     this.scheduleEndTime = time + values[values.length - 1].x;
   }
   setMinMax() {
-    this.proxyParamNode.port.postMessage({ type: 'set-range', value: { min: this.props.min, max: this.props.max } });
+    this.proxyParamNode.port.postMessage({ type: 'set-range', value: { min: this.state.min, max: this.state.max } });
   }
   setupUI(envelope: Vector2[]) {
     this.envelopeInput = this.createEnvelope(145, envelope, { input: true, output: true });

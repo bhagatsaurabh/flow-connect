@@ -18,7 +18,7 @@ export class Distorter extends Node {
 
   oversampleOptions = ['none', '2x', '4x'];
 
-  static DefaultProps = { oversample: 'none', amount: 50, bypass: false };
+  static DefaultState = { oversample: 'none', amount: 50, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -30,7 +30,7 @@ export class Distorter extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...Distorter.DefaultProps, ...options.props } : Distorter.DefaultProps
+        state: options.state ? { ...Distorter.DefaultState, ...options.state } : Distorter.DefaultState
       }
     )
 
@@ -48,12 +48,12 @@ export class Distorter extends Node {
     this.setupUI();
 
     this.watch('oversample', (_oldVal, newVal) => {
-      if (!this.oversampleOptions.includes(newVal)) this.props.oversample = 'none';
-      this.distorter.oversample = this.props.oversample;
+      if (!this.oversampleOptions.includes(newVal)) this.state.oversample = 'none';
+      this.distorter.oversample = this.state.oversample;
     });
     this.watch('amount', (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1000) this.props.amount = clamp(parseInt(newVal), 0, 1000);
-      this.distorter.curve = this.makeDistortionCurve(parseInt(this.props.amount));
+      if (newVal < 0 || newVal > 1000) this.state.amount = clamp(parseInt(newVal), 0, 1000);
+      this.distorter.curve = this.makeDistortionCurve(parseInt(this.state.amount));
     });
     this.watch('bypass', this.setBypass.bind(this));
 
@@ -74,7 +74,7 @@ export class Distorter extends Node {
     return curve;
   }
   setBypass() {
-    if (!this.props.bypass) {
+    if (!this.state.bypass) {
       this.inGain.disconnect();
       this.inGain.connect(this.distorter);
       this.distorter.connect(this.outGain);

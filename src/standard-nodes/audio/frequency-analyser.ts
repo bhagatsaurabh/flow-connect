@@ -16,7 +16,7 @@ export class FrequencyAnalyser extends Node {
 
   analyser: AnalyserNode;
 
-  static DefaultProps = { fftSize: 11, currFreq: 0 };
+  static DefaultState = { fftSize: 11, currFreq: 0 };
 
   fftSizes = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
 
@@ -29,7 +29,7 @@ export class FrequencyAnalyser extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...FrequencyAnalyser.DefaultProps, ...options.props } : FrequencyAnalyser.DefaultProps
+        state: options.state ? { ...FrequencyAnalyser.DefaultState, ...options.state } : FrequencyAnalyser.DefaultState
       }
     )
 
@@ -40,13 +40,13 @@ export class FrequencyAnalyser extends Node {
     this.setupUI();
 
     this.watch('fftSize', (_oldVal, newVal) => {
-      if (newVal < 5 || newVal > 15) this.props.fftSize = clamp(Math.round(newVal), 5, 15);
+      if (newVal < 5 || newVal > 15) this.state.fftSize = clamp(Math.round(newVal), 5, 15);
       let actualFFTSize = this.getFFTSize();
       this.fftSizeLabel.text = actualFFTSize;
       this.analyser.fftSize = actualFFTSize;
     });
     this.display.on('over', (_inst, screenPos) => {
-      this.props.currFreq = (
+      this.state.currFreq = (
         Math.floor(
           (
             screenPos.subtract(this.display.position.transform(this.flow.flowConnect.transform)).x
@@ -56,13 +56,13 @@ export class FrequencyAnalyser extends Node {
         ) * this.flow.flowConnect.audioContext.sampleRate
       ) / (this.analyser.frequencyBinCount * 2);
     });
-    this.display.on('exit', () => (this.props.currFreq = 0));
+    this.display.on('exit', () => (this.state.currFreq = 0));
 
     this.handleAudioConnections();
   }
 
   getFFTSize() {
-    return this.fftSizes[clamp(Math.round(this.props.fftSize), 5, 15) - 5];
+    return this.fftSizes[clamp(Math.round(this.state.fftSize), 5, 15) - 5];
   }
   setupUI() {
     this.freqLabel = this.createLabel('Frequency:');
@@ -75,7 +75,7 @@ export class FrequencyAnalyser extends Node {
 
     this.ui.append([
       this.createHozLayout([
-        this.freqLabel, this.createLabel(this.props.currFreq, { propName: 'currFreq', style: { precision: 0, grow: 1 } })
+        this.freqLabel, this.createLabel(this.state.currFreq, { propName: 'currFreq', style: { precision: 0, grow: 1 } })
       ], { style: { spacing: 5 } }),
       this.display,
       this.createHozLayout([

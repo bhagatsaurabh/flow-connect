@@ -17,7 +17,7 @@ export class Metronome extends Node {
   volumeGainNode: GainNode;
   proxyParamSourceNode: AudioWorkletNode;
 
-  static DefaultProps: any = { frequency: 330, buffer: null, bpm: 130, loop: true, auto: true };
+  static DefaultState: any = { frequency: 330, buffer: null, bpm: 130, loop: true, auto: true };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Metronome', options.position || new Vector2(50, 50), options.width || 200,
@@ -27,7 +27,7 @@ export class Metronome extends Node {
       ],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...Metronome.DefaultProps, ...options.props } : Metronome.DefaultProps,
+        state: options.state ? { ...Metronome.DefaultState, ...options.state } : Metronome.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 15 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -52,7 +52,7 @@ export class Metronome extends Node {
 
     this.bpmInput.on('change', () => {
       if (this.source) {
-        this.source.loopEnd = 1 / (clamp(this.props.bpm, 30, 300) / 60);
+        this.source.loopEnd = 1 / (clamp(this.state.bpm, 30, 300) / 60);
       }
     });
     this.freqInput.on('change', () => {
@@ -64,7 +64,7 @@ export class Metronome extends Node {
     });
     this.inputs[0].on('event', () => this.playSource());
 
-    flow.flowConnect.on('start', () => this.props.auto && this.playSource());
+    flow.flowConnect.on('start', () => this.state.auto && this.playSource());
     flow.flowConnect.on('stop', () => this.stopSource());
 
     this.handleAudioConnections();
@@ -79,7 +79,7 @@ export class Metronome extends Node {
     let amp = 1;
     let durationFrames = ctx.sampleRate / 50;
 
-    const f = this.props.frequency;
+    const f = this.state.frequency;
     for (let i = 0; i < durationFrames; i++) {
       channel[i] = Math.sin(phase) * amp;
       phase += Constant.TAU * f / ctx.sampleRate;
@@ -88,7 +88,7 @@ export class Metronome extends Node {
       }
       amp -= 1 / durationFrames;
     }
-    this.props.buffer = buffer;
+    this.state.buffer = buffer;
   }
   setupUI() {
     this.autoToggle = this.createToggle({ propName: 'auto', height: 10, style: { grow: 0.2 } });
@@ -102,14 +102,14 @@ export class Metronome extends Node {
     ]);
   }
   playSource() {
-    if (this.flow.flowConnect.state === FlowConnectState.Stopped || !this.props.buffer) return;
+    if (this.flow.flowConnect.state === FlowConnectState.Stopped || !this.state.buffer) return;
 
     let audioSource = new AudioBufferSourceNode(this.flow.flowConnect.audioContext);
-    audioSource.buffer = this.props.buffer;
+    audioSource.buffer = this.state.buffer;
     audioSource.loop = true;
     this.source = audioSource;
 
-    audioSource.loopEnd = 1 / (clamp(this.props.bpm, 30, 300) / 60);
+    audioSource.loopEnd = 1 / (clamp(this.state.bpm, 30, 300) / 60);
     this.proxyParamSourceNode.connect(audioSource.detune, 0);
     this.proxyParamSourceNode.connect(audioSource.playbackRate, 1);
     audioSource.connect(this.outputs[0].ref);

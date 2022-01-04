@@ -16,14 +16,14 @@ export class MoogEffect extends Node {
   outGain: GainNode;
   moog: AudioWorkletNode;
 
-  static DefaultProps = { cutoff: 0.065, resonance: 3.5, bypass: false };
+  static DefaultState = { cutoff: 0.065, resonance: 3.5, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Moog Effect', options.position || new Vector2(50, 50), options.width || 230,
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...MoogEffect.DefaultProps, ...options.props } : MoogEffect.DefaultProps,
+        state: options.state ? { ...MoogEffect.DefaultState, ...options.state } : MoogEffect.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -43,11 +43,11 @@ export class MoogEffect extends Node {
 
     this.watch('bypass', () => this.setBypass());
     this.watch('cutoff', () => {
-      if (this.props.cutoff < 0.0001 || this.props.cutoff > 1.0) this.props.cutoff = clamp(this.props.cutoff, 0.0001, 1.0);
+      if (this.state.cutoff < 0.0001 || this.state.cutoff > 1.0) this.state.cutoff = clamp(this.state.cutoff, 0.0001, 1.0);
       this.paramsChanged();
     });
     this.watch('resonance', () => {
-      if (this.props.resonance < 0 || this.props.resonance > 4.0) this.props.resonance = clamp(this.props.resonance, 0, 4.0);
+      if (this.state.resonance < 0 || this.state.resonance > 4.0) this.state.resonance = clamp(this.state.resonance, 0, 4.0);
       this.paramsChanged();
     });
 
@@ -57,10 +57,10 @@ export class MoogEffect extends Node {
   }
 
   paramsChanged() {
-    this.moog.port.postMessage({ cutoff: this.props.cutoff, resonance: this.props.resonance });
+    this.moog.port.postMessage({ cutoff: this.state.cutoff, resonance: this.state.resonance });
   }
   setBypass() {
-    if (this.props.bypass) {
+    if (this.state.bypass) {
       this.moog.disconnect();
       this.inGain.disconnect();
       this.inGain.connect(this.outGain);

@@ -25,7 +25,7 @@ export class SpatialPanner extends Node {
   orientationY: number = 0.0;
   orientationZ: number = -1.0;
 
-  static DefaultProps = { value: new Vector2(.5, .5), z: -1, bypass: false };
+  static DefaultState = { value: new Vector2(.5, .5), z: -1, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -35,7 +35,7 @@ export class SpatialPanner extends Node {
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...SpatialPanner.DefaultProps, ...options.props } : SpatialPanner.DefaultProps,
+        state: options.state ? { ...SpatialPanner.DefaultState, ...options.state } : SpatialPanner.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -72,8 +72,8 @@ export class SpatialPanner extends Node {
       this.panner.positionY.value = y;
     });
     this.watch('z', (_oldVal, newVal) => {
-      if (newVal < -10000 || newVal > 10000) this.props.z = clamp(parseInt(newVal), -10000, 10000);
-      this.panner.positionZ.value = this.props.z;
+      if (newVal < -10000 || newVal > 10000) this.state.z = clamp(parseInt(newVal), -10000, 10000);
+      this.panner.positionZ.value = this.state.z;
     });
     this.watch('bypass', this.setBypass.bind(this));
 
@@ -81,7 +81,7 @@ export class SpatialPanner extends Node {
   }
 
   setBypass() {
-    if (!this.props.bypass) {
+    if (!this.state.bypass) {
       this.inGain.disconnect();
       this.inGain.connect(this.panner);
       this.panner.connect(this.outGain);

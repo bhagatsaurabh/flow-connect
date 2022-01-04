@@ -18,7 +18,7 @@ export class SpectrogramAnalyser extends Node {
 
   analyser: AnalyserNode;
 
-  static DefaultProps = { fftSize: 11, colorScale: 'Heated Metal' };
+  static DefaultState = { fftSize: 11, colorScale: 'Heated Metal' };
 
   colorScales = ['Heated Metal', 'Monochrome', 'Inverted Monochrome', 'Spectrum'];
   fftSizes = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
@@ -41,7 +41,7 @@ export class SpectrogramAnalyser extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...SpectrogramAnalyser.DefaultProps, ...options.props } : SpectrogramAnalyser.DefaultProps
+        state: options.state ? { ...SpectrogramAnalyser.DefaultState, ...options.state } : SpectrogramAnalyser.DefaultState
       }
     )
 
@@ -52,14 +52,14 @@ export class SpectrogramAnalyser extends Node {
     this.setupUI();
 
     this.watch('fftSize', (_oldVal, newVal) => {
-      if (newVal < 5 || newVal > 15) this.props.fftSize = clamp(Math.round(newVal), 5, 15);
+      if (newVal < 5 || newVal > 15) this.state.fftSize = clamp(Math.round(newVal), 5, 15);
       let actualFFTSize = this.getFFTSize();
       this.fftSizeLabel.text = actualFFTSize;
       this.analyser.fftSize = actualFFTSize;
     });
     this.watch('colorScale', (_oldVal, newVal) => {
-      if (!this.colorScales.includes(newVal)) this.props.colorScale = this.colorScales[0];
-      this.currInterpolator = this.colorScaleToInterp[this.props.colorScale];
+      if (!this.colorScales.includes(newVal)) this.state.colorScale = this.colorScales[0];
+      this.currInterpolator = this.colorScaleToInterp[this.state.colorScale];
     });
 
     this.handleAudioConnections();
@@ -89,7 +89,7 @@ export class SpectrogramAnalyser extends Node {
   }
 
   getFFTSize() {
-    return this.fftSizes[clamp(Math.round(this.props.fftSize), 5, 15) - 5];
+    return this.fftSizes[clamp(Math.round(this.state.fftSize), 5, 15) - 5];
   }
 
   setupUI() {

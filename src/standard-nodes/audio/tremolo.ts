@@ -18,7 +18,7 @@ export class TremoloEffect extends Node {
   bypassToggle: Toggle;
   tremolo: any;
 
-  static DefaultProps = { intensity: 0.3, stereoPhase: 0, rate: 5, bypass: false };
+  static DefaultState = { intensity: 0.3, stereoPhase: 0, rate: 5, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -30,7 +30,7 @@ export class TremoloEffect extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...TremoloEffect.DefaultProps, ...options.props } : TremoloEffect.DefaultProps
+        state: options.state ? { ...TremoloEffect.DefaultState, ...options.state } : TremoloEffect.DefaultState
       }
     )
 
@@ -40,24 +40,24 @@ export class TremoloEffect extends Node {
     this.inputs[0].ref = this.outputs[0].ref = this.tremolo;
 
     Object.assign(this.tremolo, {
-      intensity: this.props.intensity,
-      stereoPhase: this.props.stereoPhase,
-      rate: this.props.rate,
+      intensity: this.state.intensity,
+      stereoPhase: this.state.stereoPhase,
+      rate: this.state.rate,
     });
 
     this.setupUI();
 
     this.watch('intensity', (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.props.intensity = clamp(newVal, 0, 1);
-      this.tremolo.intensity = this.props.intensity;
+      if (newVal < 0 || newVal > 1) this.state.intensity = clamp(newVal, 0, 1);
+      this.tremolo.intensity = this.state.intensity;
     });
     this.watch('stereoPhase', (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 180) this.props.stereoPhase = clamp(newVal, 0, 180);
-      this.tremolo.stereoPhase = this.props.stereoPhase;
+      if (newVal < 0 || newVal > 180) this.state.stereoPhase = clamp(newVal, 0, 180);
+      this.tremolo.stereoPhase = this.state.stereoPhase;
     });
     this.watch('rate', (_oldVal, newVal) => {
-      if (newVal < 0.1 || newVal > 11) this.props.rate = clamp(newVal, 0.1, 11);
-      this.tremolo.rate = this.props.rate;
+      if (newVal < 0.1 || newVal > 11) this.state.rate = clamp(newVal, 0.1, 11);
+      this.tremolo.rate = this.state.rate;
     });
     this.watch('bypass', (_oldVal, newVal) => this.tremolo.bypass = newVal);
 

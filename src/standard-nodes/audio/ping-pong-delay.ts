@@ -20,7 +20,7 @@ export class PingPongEffect extends Node {
   bypassToggle: Toggle;
   pingPong: any;
 
-  static DefaultProps = { delayLeft: 200, delayRight: 400, feedback: 0.3, wet: 0.5, bypass: false };
+  static DefaultState = { delayLeft: 200, delayRight: 400, feedback: 0.3, wet: 0.5, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -31,7 +31,7 @@ export class PingPongEffect extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...PingPongEffect.DefaultProps, ...options.props } : PingPongEffect.DefaultProps
+        state: options.state ? { ...PingPongEffect.DefaultState, ...options.state } : PingPongEffect.DefaultState
       }
     )
 
@@ -41,29 +41,29 @@ export class PingPongEffect extends Node {
     this.inputs[0].ref = this.outputs[0].ref = this.pingPong;
 
     Object.assign(this.pingPong, {
-      delayTimeLeft: this.props.delayLeft,
-      delayTimeRight: this.props.delayRight,
-      feedback: this.props.feedback,
-      wetLevel: this.props.wet
+      delayTimeLeft: this.state.delayLeft,
+      delayTimeRight: this.state.delayRight,
+      feedback: this.state.feedback,
+      wetLevel: this.state.wet
     });
 
     this.setupUI();
 
     this.watch('delayLeft', (_oldVal, newVal) => {
-      if (newVal < 1 || newVal > 10000) this.props.delayLeft = clamp(newVal, 1, 10000);
-      this.pingPong.delayTimeLeft = this.props.delayLeft;
+      if (newVal < 1 || newVal > 10000) this.state.delayLeft = clamp(newVal, 1, 10000);
+      this.pingPong.delayTimeLeft = this.state.delayLeft;
     });
     this.watch('delayRight', (_oldVal, newVal) => {
-      if (newVal < 1 || newVal > 10000) this.props.delayRight = clamp(newVal, 1, 10000);
-      this.pingPong.delayTimeRight = this.props.delayRight;
+      if (newVal < 1 || newVal > 10000) this.state.delayRight = clamp(newVal, 1, 10000);
+      this.pingPong.delayTimeRight = this.state.delayRight;
     });
     this.watch('feedback', (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.props.feedback = clamp(newVal, 0, 1);
-      this.pingPong.feedback = this.props.feedback;
+      if (newVal < 0 || newVal > 1) this.state.feedback = clamp(newVal, 0, 1);
+      this.pingPong.feedback = this.state.feedback;
     });
     this.watch('wet', (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.props.wet = clamp(newVal, 0, 1);
-      this.pingPong.wetLevel = this.props.wet;
+      if (newVal < 0 || newVal > 1) this.state.wet = clamp(newVal, 0, 1);
+      this.pingPong.wetLevel = this.state.wet;
     });
     this.watch('bypass', (_oldVal, newVal) => this.pingPong.bypass = newVal);
 

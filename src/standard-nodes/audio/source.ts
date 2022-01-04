@@ -15,7 +15,7 @@ export class Source extends Node {
   volumeGainNode: GainNode;
   proxyParamSourceNode: AudioWorkletNode;
 
-  static DefaultProps: any = { buffer: null, loop: true, prevChannelCount: -1 };
+  static DefaultState: any = { buffer: null, loop: true, prevChannelCount: -1 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Audio Source', options.position || new Vector2(50, 50), options.width || 200,
@@ -25,7 +25,7 @@ export class Source extends Node {
       ],
       [{ name: 'out', dataType: 'audio' }, { name: 'ended', dataType: 'event' }],
       {
-        props: options.props ? { ...Source.DefaultProps, ...options.props } : Source.DefaultProps,
+        state: options.state ? { ...Source.DefaultState, ...options.state } : Source.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 15 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -49,10 +49,10 @@ export class Source extends Node {
     this.setupUI();
 
     this.loopToggle.on('change', () => {
-      if (this.props.loop) {
+      if (this.state.loop) {
         this.stopSource();
         this.playSource();
-      } else this.source && (this.source.loop = this.props.loop);
+      } else this.source && (this.source.loop = this.state.loop);
     });
     this.inputs[0].on('event', (_, data) => {
       if (!(data instanceof ArrayBuffer)) {
@@ -91,22 +91,22 @@ export class Source extends Node {
 
       // If no. of channels has been changed, start an event propagation that will notify
       // every node that has a direct/indirect connection in the graph from this node
-      if (this.props.prevChannelCount < 0 || this.props.prevChannelCount !== cached.numberOfChannels) {
+      if (this.state.prevChannelCount < 0 || this.state.prevChannelCount !== cached.numberOfChannels) {
         this.propagateChannelChange(cached.numberOfChannels);
       }
-      this.props.prevChannelCount = cached.numberOfChannels;
+      this.state.prevChannelCount = cached.numberOfChannels;
     }
-    this.props.buffer = cached;
+    this.state.buffer = cached;
 
     this.stopSource();
     this.playSource();
   }
   playSource() {
-    if (this.flow.flowConnect.state === FlowConnectState.Stopped || !this.props.buffer) return;
+    if (this.flow.flowConnect.state === FlowConnectState.Stopped || !this.state.buffer) return;
 
     let audioSource = new AudioBufferSourceNode(this.flow.flowConnect.audioContext);
-    audioSource.buffer = this.props.buffer;
-    audioSource.loop = this.props.loop;
+    audioSource.buffer = this.state.buffer;
+    audioSource.loop = this.state.loop;
     this.source = audioSource;
 
     this.proxyParamSourceNode.connect(audioSource.detune, 0);
@@ -132,7 +132,7 @@ export class Source extends Node {
   handleAudioConnections() {
     // Handle actual webaudio node stuff
     this.outputs[0].on('connect', (_, connector) => {
-      this.props.buffer && this.propagateChannelChange(this.props.buffer.numberOfChannels);
+      this.state.buffer && this.propagateChannelChange(this.state.buffer.numberOfChannels);
       this.outputs[0].ref.connect(connector.end.ref);
     });
     this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => {

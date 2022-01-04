@@ -130,6 +130,8 @@ export class Graph implements Serializable {
   }
   setDirty(node: Node | GraphNode) {
     let graphNode = node instanceof Node ? this.nodeToGraphNode[node.id] : node;
+    if (!graphNode) return;
+
     this.dirtyNodes[graphNode.id] = graphNode;
   }
   clearDirty(node: Node | GraphNode) {

@@ -12,14 +12,14 @@ export class SyncData extends Node {
 
   eventIds: number[] = [];
 
-  static DefaultProps = { syncType: 'partial', hold: {} };
+  static DefaultState = { syncType: 'partial', hold: {} };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}, inputs?: number) {
     super(flow, options.name || 'Sync Data', options.position || new Vector2(50, 50), options.width || 160,
       [{ name: 'Data 1', dataType: 'any' }, { name: 'Data 2', dataType: 'any' }],
       [{ name: 'synced', dataType: 'any' }],
       {
-        props: options.props ? { ...SyncData.DefaultProps, ...options.props, hold: {} } : SyncData.DefaultProps,
+        state: options.state ? { ...SyncData.DefaultState, ...options.state, hold: {} } : SyncData.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -40,7 +40,7 @@ export class SyncData extends Node {
     this.on('process', () => process);
   }
   setupUI() {
-    this.syncTypeInput = this.createRadioGroup(['partial', 'full'], this.props.syncType, { propName: 'syncType', height: 20 });
+    this.syncTypeInput = this.createRadioGroup(['partial', 'full'], this.state.syncType, { propName: 'syncType', height: 20 });
     this.addButton = this.createButton('Add', { input: true, output: true, height: 20 });
     this.ui.append([this.syncTypeInput, this.addButton]);
     this.addButton.on('click', () => {
@@ -50,17 +50,17 @@ export class SyncData extends Node {
     });
   }
   process(terminal: Terminal, data: any) {
-    this.props.hold[terminal.id] = data;
+    this.state.hold[terminal.id] = data;
 
     let hold = [];
     for (let term of this.inputs) {
-      if (this.props.hold.hasOwnProperty(term.id)) {
-        hold.push(this.props.hold[term.id]);
+      if (this.state.hold.hasOwnProperty(term.id)) {
+        hold.push(this.state.hold[term.id]);
       }
       else return;
     }
 
-    if (this.props.syncType === 'full') this.props.hold = {};
+    if (this.state.syncType === 'full') this.state.hold = {};
     this.outputs[0].emit(hold);
 
     for (let term of this.inputs) if (term.connectors.length > 0 && typeof term.getData() === 'undefined') return;

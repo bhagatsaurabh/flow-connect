@@ -7,13 +7,13 @@ import { Toggle } from "../../ui/toggle";
 export class BooleanSource extends Node {
   toggle: Toggle;
 
-  static DefaultProps = { value: false };
+  static DefaultState = { value: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Boolean Source', options.position || new Vector2(50, 50), options.width || 130, [],
       [{ name: 'value', dataType: 'boolean' }],
       {
-        props: options.props ? { ...BooleanSource.DefaultProps, ...options.props } : BooleanSource.DefaultProps,
+        state: options.state ? { ...BooleanSource.DefaultState, ...options.state } : BooleanSource.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -26,7 +26,7 @@ export class BooleanSource extends Node {
   }
 
 
-  process() { this.setOutputs(0, this.props.value); }
+  process() { this.setOutputs(0, this.state.value); }
   setupUI() {
     let toggle = this.createToggle({ propName: 'value', input: true, output: true, height: 10, style: { grow: .3 } });
     this.ui.append(this.createHozLayout([

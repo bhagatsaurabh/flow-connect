@@ -18,14 +18,14 @@ export class BitcrusherEffect extends Node {
   outGain: GainNode;
   bitcrusher: AudioWorkletNode;
 
-  static DefaultProps = { bits: 4, normFreq: 0.1, bypass: false };
+  static DefaultState = { bits: 4, normFreq: 0.1, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Bitcrusher Effect', options.position || new Vector2(50, 50), options.width || 230,
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...BitcrusherEffect.DefaultProps, ...options.props } : BitcrusherEffect.DefaultProps,
+        state: options.state ? { ...BitcrusherEffect.DefaultState, ...options.state } : BitcrusherEffect.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -49,12 +49,12 @@ export class BitcrusherEffect extends Node {
     this.normFreqInput.on('change', () => this.paramsChanged());
     this.watch('bypass', () => this.setBypass());
     this.watch('bits', () => {
-      if (this.props.bits < 1 || this.props.bits > 16 || !Number.isInteger(this.props.bits)) {
-        this.props.bits = clamp(Math.floor(this.props.bits), 1, 16);
+      if (this.state.bits < 1 || this.state.bits > 16 || !Number.isInteger(this.state.bits)) {
+        this.state.bits = clamp(Math.floor(this.state.bits), 1, 16);
       }
     });
     this.watch('normFreq', () => {
-      if (this.props.normFreq < 0 || this.props.normFreq > 1) this.props.normFreq = clamp(this.props.normFreq, 0, 1);
+      if (this.state.normFreq < 0 || this.state.normFreq > 1) this.state.normFreq = clamp(this.state.normFreq, 0, 1);
     });
 
     flow.flowConnect.on('start', () => this.paramsChanged());
@@ -63,7 +63,7 @@ export class BitcrusherEffect extends Node {
   }
 
   setBypass() {
-    if (!this.props.bypass) {
+    if (!this.state.bypass) {
       this.inGain.disconnect();
       this.inGain.connect(this.bitcrusher);
       this.bitcrusher.connect(this.outGain);
@@ -74,7 +74,7 @@ export class BitcrusherEffect extends Node {
     }
   }
   paramsChanged() {
-    this.bitcrusher.port.postMessage({ bits: this.props.bits, normFreq: this.props.normFreq });
+    this.bitcrusher.port.postMessage({ bits: this.state.bits, normFreq: this.state.normFreq });
   }
   setupUI() {
     this.bitsSlider = this.createSlider(1, 16, { height: 10, propName: 'bits', style: { grow: .5 } });

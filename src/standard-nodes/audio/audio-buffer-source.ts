@@ -7,14 +7,14 @@ import { Source } from "../../ui/source";
 export class AudioBufferSource extends Node {
   fileInput: Source
 
-  static DefaultProps: any = { file: null, buffer: null };
+  static DefaultState: any = { file: null, buffer: null };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'AudioBuffer Source', options.position || new Vector2(50, 50), options.width || 170,
       [],
       [{ name: 'buffer', dataType: 'audio-buffer' }],
       {
-        props: options.props ? { ...AudioBufferSource.DefaultProps, ...options.props } : AudioBufferSource.DefaultProps,
+        state: options.state ? { ...AudioBufferSource.DefaultState, ...options.state } : AudioBufferSource.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -27,7 +27,7 @@ export class AudioBufferSource extends Node {
   }
 
   async processFile() {
-    let file = this.props.file;
+    let file = this.state.file;
     if (!file) return;
 
     let cached = this.flow.flowConnect.arrayBufferCache.get(file.name + file.type);
@@ -43,8 +43,8 @@ export class AudioBufferSource extends Node {
       cached = await this.flow.flowConnect.audioContext.decodeAudioData(arrayBuffer);
       this.flow.flowConnect.audioBufferCache.set(arrayBuffer, cached);
     }
-    this.props.buffer = cached;
-    this.setOutputs(0, this.props.buffer);
+    this.state.buffer = cached;
+    this.setOutputs(0, this.state.buffer);
   }
   setupUI() {
     this.fileInput = this.createSource({ height: 20, propName: 'file', style: { grow: 1 } });

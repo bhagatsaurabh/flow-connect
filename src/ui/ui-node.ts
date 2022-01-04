@@ -137,11 +137,11 @@ export abstract class UINode extends Hooks implements Events {
 
   /** @hidden */
   getProp() {
-    return this.node.props[this.propName];
+    return this.node.state[this.propName];
   }
   /** @hidden */
   setProp(propValue: any) {
-    this.node.props[this.propName] = propValue;
+    this.node.state[this.propName] = propValue;
   }
 
   /** @hidden */

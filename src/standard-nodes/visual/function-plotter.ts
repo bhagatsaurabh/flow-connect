@@ -10,13 +10,13 @@ export class FunctionPlotter extends Node {
   display: Display;
   polarToggle: Toggle;
 
-  static DefaultProps: any = { points: [], polar: false, config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 } }
+  static DefaultState: any = { points: [], polar: false, config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 } }
 
   constructor(flow: Flow, height: number, public plotStyle: PlotStyle = new Object(), options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Parametric Plotter', options.position || new Vector2(50, 50), options.width || 300,
       [{ name: 'data', dataType: 'any' }], [],
       {
-        props: options.props ? { ...FunctionPlotter.DefaultProps, ...options.props } : FunctionPlotter.DefaultProps,
+        state: options.state ? { ...FunctionPlotter.DefaultState, ...options.state } : FunctionPlotter.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -31,21 +31,21 @@ export class FunctionPlotter extends Node {
     this.display.on('exit', () => dragStart = null);
     this.display.on('down', (_, screenPos) => {
       dragStart = screenPos.subtract(this.display.position.transform(flow.flowConnect.transform));
-      dragStart.x = this.xPixToCoord(this.props.config, this.display.offCanvasConfigs[0].canvas.width, dragStart.x);
-      dragStart.y = this.yPixToCoord(this.props.config, this.display.offCanvasConfigs[0].canvas.height, dragStart.y);
+      dragStart.x = this.xPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.width, dragStart.x);
+      dragStart.y = this.yPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.height, dragStart.y);
     });
     this.display.on('drag', (_, screenPos) => {
       if (dragStart) {
         let curr = screenPos.subtract(this.display.position.transform(flow.flowConnect.transform));
-        curr.x = this.xPixToCoord(this.props.config, this.display.offCanvasConfigs[0].canvas.width, curr.x);
-        curr.y = this.yPixToCoord(this.props.config, this.display.offCanvasConfigs[0].canvas.height, curr.y);
+        curr.x = this.xPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.width, curr.x);
+        curr.y = this.yPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.height, curr.y);
 
         let delta = dragStart.subtract(curr);
-        Object.assign(this.props.config, {
-          xMin: this.props.config.xMin + delta.x,
-          xMax: this.props.config.xMax + delta.x,
-          yMin: this.props.config.yMin + delta.y,
-          yMax: this.props.config.yMax + delta.y,
+        Object.assign(this.state.config, {
+          xMin: this.state.config.xMin + delta.x,
+          xMax: this.state.config.xMax + delta.x,
+          yMin: this.state.config.yMin + delta.y,
+          yMax: this.state.config.yMax + delta.y,
         });
 
         this.gridRenderer(
@@ -62,35 +62,35 @@ export class FunctionPlotter extends Node {
     });
     this.display.on('wheel', (_, direction, screenPos) => {
       let cursor = screenPos.subtract(this.display.position.transform(flow.flowConnect.transform));
-      cursor.x = this.xPixToCoord(this.props.config, this.display.offCanvasConfigs[0].canvas.width, cursor.x);
-      cursor.y = this.yPixToCoord(this.props.config, this.display.offCanvasConfigs[0].canvas.height, cursor.y);
+      cursor.x = this.xPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.width, cursor.x);
+      cursor.y = this.yPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.height, cursor.y);
 
-      Object.assign(this.props.config, {
-        xMin: this.props.config.xMin - cursor.x,
-        xMax: this.props.config.xMax - cursor.x,
-        yMin: this.props.config.yMin - cursor.y,
-        yMax: this.props.config.yMax - cursor.y
+      Object.assign(this.state.config, {
+        xMin: this.state.config.xMin - cursor.x,
+        xMax: this.state.config.xMax - cursor.x,
+        yMin: this.state.config.yMin - cursor.y,
+        yMax: this.state.config.yMax - cursor.y
       });
       if (!direction) {
-        Object.assign(this.props.config, {
-          xMin: this.props.config.xMin + this.props.config.xMin * 0.1,
-          xMax: this.props.config.xMax + this.props.config.xMax * 0.1,
-          yMin: this.props.config.yMin + this.props.config.yMin * 0.1,
-          yMax: this.props.config.yMax + this.props.config.yMax * 0.1
+        Object.assign(this.state.config, {
+          xMin: this.state.config.xMin + this.state.config.xMin * 0.1,
+          xMax: this.state.config.xMax + this.state.config.xMax * 0.1,
+          yMin: this.state.config.yMin + this.state.config.yMin * 0.1,
+          yMax: this.state.config.yMax + this.state.config.yMax * 0.1
         });
       } else {
-        Object.assign(this.props.config, {
-          xMin: this.props.config.xMin - this.props.config.xMin * 0.1,
-          xMax: this.props.config.xMax - this.props.config.xMax * 0.1,
-          yMin: this.props.config.yMin - this.props.config.yMin * 0.1,
-          yMax: this.props.config.yMax - this.props.config.yMax * 0.1
+        Object.assign(this.state.config, {
+          xMin: this.state.config.xMin - this.state.config.xMin * 0.1,
+          xMax: this.state.config.xMax - this.state.config.xMax * 0.1,
+          yMin: this.state.config.yMin - this.state.config.yMin * 0.1,
+          yMax: this.state.config.yMax - this.state.config.yMax * 0.1
         });
       }
-      Object.assign(this.props.config, {
-        xMin: this.props.config.xMin + cursor.x,
-        xMax: this.props.config.xMax + cursor.x,
-        yMin: this.props.config.yMin + cursor.y,
-        yMax: this.props.config.yMax + cursor.y
+      Object.assign(this.state.config, {
+        xMin: this.state.config.xMin + cursor.x,
+        xMax: this.state.config.xMax + cursor.x,
+        yMin: this.state.config.yMin + cursor.y,
+        yMax: this.state.config.yMax + cursor.y
       });
 
       this.gridRenderer(
@@ -111,7 +111,7 @@ export class FunctionPlotter extends Node {
     ));
 
 
-    this.inputsUI[0].on('event', () => this.props.points = []);
+    this.inputsUI[0].on('event', () => this.state.points = []);
     this.on('process', (_, inputs) => this.process(inputs));
   }
 
@@ -122,16 +122,16 @@ export class FunctionPlotter extends Node {
   }
   process(inputs: any) {
     if (Array.isArray(this.inputs[0])) {
-      if (this.props.polar) {
-        this.props.points = [];
+      if (this.state.polar) {
+        this.state.points = [];
         for (let i = 0; i < this.inputs[0].length; i += 1) {
-          this.props.points.push({ x: this.inputs[0][i].x * Math.cos(inputs[0][i].y), y: inputs[0][i].x * Math.sin(inputs[0][i].y) });
+          this.state.points.push({ x: this.inputs[0][i].x * Math.cos(inputs[0][i].y), y: inputs[0][i].x * Math.sin(inputs[0][i].y) });
         }
       } else {
-        this.props.points = inputs[0];
+        this.state.points = inputs[0];
       }
     } else {
-      this.props.points.push(this.props.polar
+      this.state.points.push(this.state.polar
         ? { x: inputs[0].x * Math.cos(inputs[0].y), y: inputs[0].x * Math.sin(inputs[0].y) }
         : inputs[0]
       );
@@ -187,20 +187,20 @@ export class FunctionPlotter extends Node {
   }
   drawGrid(context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) {
     context.clearRect(0, 0, width, height);
-    const xDiff = this.props.config.xMax - this.props.config.xMin;
+    const xDiff = this.state.config.xMax - this.state.config.xMin;
     const xPixPerUnit = width / xDiff;
-    const yDiff = this.props.config.yMax - this.props.config.yMin;
+    const yDiff = this.state.config.yMax - this.state.config.yMin;
     const yPixPerUnit = height / yDiff;
-    const xF = this.getGridPointDist(this.props.config.xMin, this.props.config.xMax, this.props.config.gX);
-    const yF = this.getGridPointDist(this.props.config.yMin, this.props.config.yMax, this.props.config.gY);
+    const xF = this.getGridPointDist(this.state.config.xMin, this.state.config.xMax, this.state.config.gX);
+    const yF = this.getGridPointDist(this.state.config.yMin, this.state.config.yMax, this.state.config.gY);
     this.plotStyle.axisColor = get(this.plotStyle.axisColor, '#000000');
     this.plotStyle.gridColor = get(this.plotStyle.gridColor, '#b0b0b0');
 
-    let startValue = Math.ceil(this.props.config.xMin / xF) * xF;
+    let startValue = Math.ceil(this.state.config.xMin / xF) * xF;
     let number = Math.round(Math.floor(xDiff / xF)) + 1;
     let axisPosition;
-    if (this.props.config.yMin < 0 && this.props.config.yMax > 0) {
-      axisPosition = height + this.props.config.yMin * yPixPerUnit + 12;
+    if (this.state.config.yMin < 0 && this.state.config.yMax > 0) {
+      axisPosition = height + this.state.config.yMin * yPixPerUnit + 12;
     } else {
       axisPosition = height - 12;
     }
@@ -209,7 +209,7 @@ export class FunctionPlotter extends Node {
       if (Math.abs(startValue) < xF * 0.5) {
         context.strokeStyle = this.plotStyle.axisColor;
       }
-      const position = Math.round((startValue - this.props.config.xMin) * xPixPerUnit);
+      const position = Math.round((startValue - this.state.config.xMin) * xPixPerUnit);
       this.drawLine(context, position, 0, position, height);
       context.fillStyle = this.plotStyle.axisColor;
       const text = Math.round(startValue * 100) / 100;
@@ -218,10 +218,10 @@ export class FunctionPlotter extends Node {
       startValue += xF;
     }
 
-    startValue = Math.ceil(this.props.config.yMin / yF) * yF;
+    startValue = Math.ceil(this.state.config.yMin / yF) * yF;
     number = Math.round(Math.floor(yDiff / yF)) + 1;
-    if (this.props.config.xMin < 0 && this.props.config.xMax > 0) {
-      axisPosition = -this.props.config.xMin * xPixPerUnit + 5;
+    if (this.state.config.xMin < 0 && this.state.config.xMax > 0) {
+      axisPosition = -this.state.config.xMin * xPixPerUnit + 5;
     } else {
       axisPosition = 5;
     }
@@ -230,7 +230,7 @@ export class FunctionPlotter extends Node {
       if (Math.abs(startValue) < yF * 0.5) {
         context.strokeStyle = this.plotStyle.axisColor;
       }
-      const position = height - Math.round((startValue - this.props.config.yMin) * yPixPerUnit);
+      const position = height - Math.round((startValue - this.state.config.yMin) * yPixPerUnit);
       this.drawLine(context, 0, position, width, position);
       let axisVal = Math.round(startValue * 100) / 100;
       if (axisVal !== 0) {
@@ -243,24 +243,24 @@ export class FunctionPlotter extends Node {
     }
   }
   functionRenderer(context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, width: number, height: number) {
-    if (this.props.points.length <= 0) return;
+    if (this.state.points.length <= 0) return;
     context.clearRect(0, 0, width, height);
     context.strokeStyle = get(this.plotStyle.plotColor, '#000');
     context.lineWidth = 2;
     context.beginPath();
-    let startX = this.xCoordToPix(this.props.config, width, this.props.points[0].x);
-    let startY = this.yCoordToPix(this.props.config, height, this.props.points[0].y);
+    let startX = this.xCoordToPix(this.state.config, width, this.state.points[0].x);
+    let startY = this.yCoordToPix(this.state.config, height, this.state.points[0].y);
     context.moveTo(startX, startY);
-    for (let i = 1; i < this.props.points.length; i += 1) {
-      const x = this.xCoordToPix(this.props.config, width, this.props.points[i].x);
-      const y = this.yCoordToPix(this.props.config, height, this.props.points[i].y);
+    for (let i = 1; i < this.state.points.length; i += 1) {
+      const x = this.xCoordToPix(this.state.config, width, this.state.points[i].x);
+      const y = this.yCoordToPix(this.state.config, height, this.state.points[i].y);
       context.lineTo(x, y);
     }
     context.stroke();
   }
   setupUI(height: number) {
     this.display = this.createDisplay(height, [
-      { auto: true, renderer: this.gridRenderer },
+      { auto: true, renderer: (context, width, height) => this.gridRenderer(context, width, height) },
       { auto: false }
     ]);
     this.polarToggle = this.createToggle({ propName: 'polar', height: 10, style: { grow: .1 } });

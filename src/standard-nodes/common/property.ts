@@ -9,7 +9,7 @@ export class Property extends Node {
       [{ name: 'object', dataType: 'any' }, { name: 'key', dataType: 'string' }],
       [{ name: 'value', dataType: 'any' }],
       {
-        props: options.props ? { ...options.props } : {},
+        state: options.state ? { ...options.state } : {},
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

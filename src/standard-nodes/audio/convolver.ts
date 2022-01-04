@@ -11,14 +11,14 @@ export class Convolver extends Node {
   outGain: GainNode;
   convolver: ConvolverNode;
 
-  static DefaultProps = { bypass: false };
+  static DefaultState = { bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Convolver', options.position || new Vector2(50, 50), options.width || 160,
       [{ name: 'in', dataType: 'audio' }, { name: 'impulse', dataType: 'audio-buffer' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...Convolver.DefaultProps, ...options.props } : Convolver.DefaultProps,
+        state: options.state ? { ...Convolver.DefaultState, ...options.state } : Convolver.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -43,7 +43,7 @@ export class Convolver extends Node {
     this.handleAudioConnections();
   }
   setBypass() {
-    if (!this.props.bypass) {
+    if (!this.state.bypass) {
       this.inGain.disconnect();
       this.inGain.connect(this.convolver);
       this.convolver.connect(this.outGain);

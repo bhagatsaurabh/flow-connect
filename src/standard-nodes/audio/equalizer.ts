@@ -18,7 +18,7 @@ export class Equalizer extends Node {
   frequencies = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
   freqDisplay = ['32', '64', '125', '250', '500', '1K', '2K', '4K', '8K', '16K']
 
-  static DefaultProps = { eq1: 0, eq2: 0, eq3: 0, eq4: 0, eq5: 0, eq6: 0, eq7: 0, eq8: 0, eq9: 0, eq10: 0, bypass: false };
+  static DefaultState = { eq1: 0, eq2: 0, eq3: 0, eq4: 0, eq5: 0, eq6: 0, eq7: 0, eq8: 0, eq9: 0, eq10: 0, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
@@ -29,7 +29,7 @@ export class Equalizer extends Node {
       {
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {},
-        props: options.props ? { ...Equalizer.DefaultProps, ...options.props } : Equalizer.DefaultProps
+        state: options.state ? { ...Equalizer.DefaultState, ...options.state } : Equalizer.DefaultState
       }
     )
 
@@ -61,9 +61,9 @@ export class Equalizer extends Node {
     for (let i = 1; i <= 10; ++i) {
       this.watch(`eq${i}`, (_oldVal, newVal) => {
         if (!isInRange(newVal, -40, 40)) {
-          this.props[`eq${i}`] = clamp(newVal, -40, 40);
+          this.state[`eq${i}`] = clamp(newVal, -40, 40);
         }
-        this.filters[i - 1].gain.value = this.props[`eq${i}`]
+        this.filters[i - 1].gain.value = this.state[`eq${i}`]
       });
     }
 
@@ -71,7 +71,7 @@ export class Equalizer extends Node {
   }
 
   setBypass() {
-    if (!this.props.bypass) {
+    if (!this.state.bypass) {
       this.inGain.disconnect();
       this.inGain.connect(this.filters[0]);
       this.filters[9].connect(this.outGain);
@@ -90,7 +90,7 @@ export class Equalizer extends Node {
         childs: [
           this.createLabel(this.freqDisplay[index], { style: { align: Align.Center } }),
           vSlider,
-          this.createLabel(this.props[`eq${index + 1}`], { propName: `eq${index + 1}`, style: { align: Align.Center, precision: 0 } }),
+          this.createLabel(this.state[`eq${index + 1}`], { propName: `eq${index + 1}`, style: { align: Align.Center, precision: 0 } }),
         ],
         style: { grow: .1, spacing: 5 }
       });

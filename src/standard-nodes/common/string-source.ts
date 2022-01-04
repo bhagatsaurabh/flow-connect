@@ -7,13 +7,13 @@ import { Node } from "../../core/node";
 export class StringSource extends Node {
   input: Input;
 
-  static DefaultProps = { value: '' };
+  static DefaultState = { value: '' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'String Source', options.position || new Vector2(50, 50), options.width || 160, [],
       [{ name: 'value', dataType: 'string' }],
       {
-        props: options.props ? { ...StringSource.DefaultProps, ...options.props } : StringSource.DefaultProps,
+        state: options.state ? { ...StringSource.DefaultState, ...options.state } : StringSource.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -25,7 +25,7 @@ export class StringSource extends Node {
     this.on('process', () => this.process());
   }
 
-  process = () => this.setOutputs(0, this.props.value);
+  process = () => this.setOutputs(0, this.state.value);
   setupUI() {
     this.input = this.createInput({ value: '', propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .7 } })
     this.ui.append(this.createHozLayout([

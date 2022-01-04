@@ -8,13 +8,13 @@ import { Node } from "../../core/node";
 
 export class LineChartMini extends Node {
 
-  static DefaultProps = { size: 10 };
+  static DefaultState = { size: 10 };
 
   constructor(flow: Flow, height: number, colors: string[], displayStyle: DisplayStyle, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Line Chart Mini', options.position || new Vector2(50, 50), options.width || 150,
       [{ name: 'data', dataType: 'array' }], [],
       {
-        props: options.props ? { ...LineChartMini.DefaultProps, ...options.props } : LineChartMini.DefaultProps,
+        state: options.state ? { ...LineChartMini.DefaultState, ...options.state } : LineChartMini.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -31,7 +31,7 @@ export class LineChartMini extends Node {
         if (!data || !data[0]) return true;
         data[0].forEach((input: number[], index: number) => {
           if (!input) return;
-          let spacing = Number((wdth / (this.props.size - 1)).toFixed(2));
+          let spacing = Number((wdth / (this.state.size - 1)).toFixed(2));
           context.strokeStyle = colors[index] || Color.Random().rgbaCSSString;
           context.lineWidth = 2;
           context.beginPath();

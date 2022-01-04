@@ -11,14 +11,14 @@ export class Random extends Node {
   maxInput: Input;
   fractionalToggle: Toggle;
 
-  static DefaultProps = { min: 0, max: 100, fractional: false };
+  static DefaultState = { min: 0, max: 100, fractional: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Random', options.position || new Vector2(50, 50), options.width || 150,
       [{ name: 'trigger', dataType: 'event' }],
       [{ name: 'value', dataType: 'number' }],
       {
-        props: options.props ? { ...Random.DefaultProps, ...options.props } : Random.DefaultProps,
+        state: options.state ? { ...Random.DefaultState, ...options.state } : Random.DefaultState,
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -35,8 +35,8 @@ export class Random extends Node {
 
   process() {
     let random;
-    if (this.props.fractional) random = getRandom(this.props.min, this.props.max)
-    else random = Math.floor(getRandom(Math.floor(this.props.min), Math.floor(this.props.max)));
+    if (this.state.fractional) random = getRandom(this.state.min, this.state.max)
+    else random = Math.floor(getRandom(Math.floor(this.state.min), Math.floor(this.state.max)));
 
     this.setOutputs(0, random);
   }

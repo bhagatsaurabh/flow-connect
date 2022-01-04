@@ -14,7 +14,7 @@ export class Log extends Node {
     super(flow, options.name || 'Log', options.position || new Vector2(50, 50), options.width || 170,
       [{ name: 'Log 1', dataType: 'event' }, { name: 'Log 2', dataType: 'any' }], [],
       {
-        props: options.props ? { ...options.props } : {},
+        state: options.state ? { ...options.state } : {},
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

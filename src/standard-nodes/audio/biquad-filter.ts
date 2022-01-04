@@ -13,7 +13,7 @@ export class BiquadFilter extends Node {
   outGain: GainNode;
   biquadFilter: BiquadFilterNode;
 
-  static DefaultProps = { filterType: 'lowpass', bypass: false };
+  static DefaultState = { filterType: 'lowpass', bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Biquad Filter', options.position || new Vector2(50, 50), options.width || 230,
@@ -24,7 +24,7 @@ export class BiquadFilter extends Node {
       ],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...BiquadFilter.DefaultProps, ...options.props } : BiquadFilter.DefaultProps,
+        state: options.state ? { ...BiquadFilter.DefaultState, ...options.state } : BiquadFilter.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -40,7 +40,7 @@ export class BiquadFilter extends Node {
     this.biquadFilter.Q.value = 1;
     this.biquadFilter.frequency.value = 800;
     this.biquadFilter.detune.value = 0;
-    this.biquadFilter.type = this.props.filterType;
+    this.biquadFilter.type = this.state.filterType;
 
     this.inputs[1].ref = this.biquadFilter.gain;
     this.inputs[2].ref = this.biquadFilter.Q;
@@ -55,7 +55,7 @@ export class BiquadFilter extends Node {
     this.setupUI();
 
     this.typeSelect.on('change', () => {
-      this.biquadFilter.type = this.props.filterType
+      this.biquadFilter.type = this.state.filterType
     });
     this.watch('bypass', () => this.setBypass());
 
@@ -63,7 +63,7 @@ export class BiquadFilter extends Node {
   }
 
   setBypass() {
-    if (!this.props.bypass) {
+    if (!this.state.bypass) {
       this.inGain.disconnect();
       this.inGain.connect(this.biquadFilter);
       this.biquadFilter.connect(this.outGain);

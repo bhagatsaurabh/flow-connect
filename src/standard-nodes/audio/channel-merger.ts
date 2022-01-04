@@ -15,7 +15,7 @@ export class ChannelMerger extends Node {
       [{ name: 'Channel 1', dataType: 'audio' }, { name: 'Channel 2', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props || {},
+        state: options.state || {},
         style: options.style || { rowHeight: 10, spacing: 15 },
         terminalStyle: options.terminalStyle || {}
       }

@@ -18,14 +18,14 @@ export class ADSR extends Node {
   proxyParamNode: AudioWorkletNode;
   proxyParam: AudioParam;
 
-  static DefaultProps = { min: 0, max: 1, a: 0.4, d: 0.2, s: 0.6, r: 0.4, trigger: false };
+  static DefaultState = { min: 0, max: 1, a: 0.4, d: 0.2, s: 0.6, r: 0.4, trigger: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'ADSR', options.position || new Vector2(50, 50), options.width || 280,
       [{ name: 'trigger', dataType: 'event' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        props: options.props ? { ...ADSR.DefaultProps, ...options.props } : ADSR.DefaultProps,
+        state: options.state ? { ...ADSR.DefaultState, ...options.state } : ADSR.DefaultState,
         style: options.style || { rowHeight: 10, spacing: 15 },
         terminalStyle: options.terminalStyle || {}
       }
@@ -39,7 +39,7 @@ export class ADSR extends Node {
     this.proxyParam = (this.proxyParamNode.parameters as Map<string, AudioParam>).get('param');
     this.outputs[0].ref = this.proxyParamNode;
     this.setMinMax();
-    this.props.s = clamp(this.props.s, 0, 1);
+    this.state.s = clamp(this.state.s, 0, 1);
 
     this.setupUI();
 
@@ -51,48 +51,48 @@ export class ADSR extends Node {
     this.rInput.on('blur', () => this.adsrChanged());
 
     this.inputs[0].on('event', () => {
-      this.props.trigger = !this.props.trigger;
+      this.state.trigger = !this.state.trigger;
       let currTime = flow.flowConnect.audioContext.currentTime;
-      let { a, d, s, r } = this.props;
-      if (this.props.trigger) {
+      let { a, d, s, r } = this.state;
+      if (this.state.trigger) {
         // Attack
         this.proxyParam.cancelScheduledValues(0);
-        this.proxyParam.setValueAtTime(this.props.min, currTime);
-        this.proxyParam.linearRampToValueAtTime(1 * this.props.max, currTime + a);
-        this.proxyParam.linearRampToValueAtTime(denormalize(s, this.props.min, this.props.max), currTime + a + d);
+        this.proxyParam.setValueAtTime(this.state.min, currTime);
+        this.proxyParam.linearRampToValueAtTime(1 * this.state.max, currTime + a);
+        this.proxyParam.linearRampToValueAtTime(denormalize(s, this.state.min, this.state.max), currTime + a + d);
       } else {
         // Release
         this.proxyParam.cancelScheduledValues(0);
         this.proxyParam.setValueAtTime(this.proxyParam.value, currTime);
-        this.proxyParam.linearRampToValueAtTime(this.props.min, currTime + r);
+        this.proxyParam.linearRampToValueAtTime(this.state.min, currTime + r);
       }
     });
 
     this.handleAudioConnections();
   }
   adsrChanged() {
-    this.props.s = clamp(this.props.s, 0, 1);
-    let { a, d, r } = this.props;
+    this.state.s = clamp(this.state.s, 0, 1);
+    let { a, d, r } = this.state;
     let totalDur = a + d + r;
     this.envelopeInput.value = [
-      Vector2.Zero(), new Vector2(a / totalDur, 1), new Vector2((a + d) / totalDur, this.props.s), new Vector2(1, 0)
+      Vector2.Zero(), new Vector2(a / totalDur, 1), new Vector2((a + d) / totalDur, this.state.s), new Vector2(1, 0)
     ];
   }
   stopAutomation() {
     this.proxyParam.cancelScheduledValues(this.flow.flowConnect.audioContext.currentTime);
   }
   setMinMax() {
-    this.props.proxyParamNode.port.postMessage({
+    this.state.proxyParamNode.port.postMessage({
       type: 'set-range',
-      value: { min: this.props.min, max: this.props.max }
+      value: { min: this.state.min, max: this.state.max }
     });
   }
   setupUI() {
-    let { a: atck, d: dcay, r: rlse } = this.props;
+    let { a: atck, d: dcay, r: rlse } = this.state;
     let duration = atck + dcay + rlse;
 
     this.envelopeInput = this.createEnvelope(145, [
-      Vector2.Zero(), new Vector2(atck / duration, 1), new Vector2((atck + dcay) / duration, this.props.s), new Vector2(1, 0)
+      Vector2.Zero(), new Vector2(atck / duration, 1), new Vector2((atck + dcay) / duration, this.state.s), new Vector2(1, 0)
     ], { style: { pointColor: '#fcba03' } });
     this.envelopeInput.disabled = true;
 
