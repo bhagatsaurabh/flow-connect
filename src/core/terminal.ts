@@ -1,5 +1,5 @@
 import { Vector2, SerializedVector2 } from "./vector";
-import { getNewUUID, canConnect, get } from "../utils/utils";
+import { getNewUUID, canConnect, get, exists } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Connector, ConnectorStyle } from './connector';
 import { Hooks } from './hooks';
@@ -25,7 +25,7 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable<
   style: TerminalStyle;
   id: string;
   private _propName: string;
-  private _propWatcher: (oldVal: any, newVal: any) => void;
+  private watcherId: number;
 
   get propName(): string { return this._propName; }
   set propName(propName: string) {
@@ -36,14 +36,11 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable<
 
     let oldPropName = this._propName;
     let newPropName = propName;
-    if (this._propWatcher) { this.node.unwatch(oldPropName, this._propWatcher); }
+    if (exists(this.watcherId)) { this.node.unwatch(oldPropName, this.watcherId); }
     this._propName = newPropName;
-    this._propWatcher = (_oldVal: any, newVal: any) => {
-      if (this.type === TerminalType.OUT) {
-        this.setData(newVal);
-      }
-    }
-    this.node.watch(newPropName, (oldVal, newVal) => this._propWatcher(oldVal, newVal));
+    this.watcherId = this.node.watch(newPropName, (_oldVal: any, newVal: any) => {
+      if (this.type === TerminalType.OUT) this.setData(newVal);
+    });
   }
 
   constructor(

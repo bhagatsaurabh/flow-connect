@@ -40,7 +40,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable<Node
   nodeButtons: Map<string, NodeButton>;
   private _zIndex: number;
   private _position: Vector2;
-  private propObservers: any = {};
+  private stateObserver = new Hooks();
 
   renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeState.MAXIMIZED, lod: LOD.LOD2 };
 
@@ -158,32 +158,25 @@ export class Node extends Hooks implements Events, Serializable, Renderable<Node
   private setupState(state: any) {
     this.state = new Proxy<any>({}, {
       set: (target, prop, value) => {
-        if (typeof target[prop] === 'undefined') {
-          this.propObservers[prop] = [];
-        }
-
         let oldValue = target[prop];
         target[prop] = value;
-        this.propObservers[prop].forEach((callback: any) => callback(oldValue, value));
-
+        this.stateObserver.call(prop as string, oldValue, value);
         return true;
       }
     });
 
-    Object.keys(state).forEach(key => {
-      this.state[key] = state[key];
-    });
+    Object.keys(state).forEach(key => this.state[key] = state[key]);
   }
-  watch(propName: string, callback: (oldVal: any, newVal: any) => void) {
+  watch(propName: string, callback: (oldVal: any, newVal: any) => void): number {
     if (typeof this.state[propName] !== 'undefined') {
-      this.propObservers[propName].push(callback);
+      return this.stateObserver.on(propName, callback);
     } else {
       Log.error(`Cannot watch prop '${propName}', prop not found`);
     }
   }
-  unwatch(propName: string, callback: (oldVal: any, newVal: any) => void) {
+  unwatch(propName: string, id: number) {
     if (typeof this.state[propName] !== 'undefined') {
-      this.propObservers[propName].splice(this.propObservers[propName].indexOf(callback), 1);
+      this.stateObserver.off(propName, id);
     } else {
       Log.error(`Cannot unwatch prop '${propName}', prop not found`);
     }
