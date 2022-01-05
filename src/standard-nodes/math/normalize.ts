@@ -1,9 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType } from "../../ui/input";
 import { normalize } from "../../utils/utils";
 import { Node } from "../../core/node";
+import { InputType } from "../../ui/index";
 
 export class Normalize extends Node {
   min = Number.MAX_SAFE_INTEGER;

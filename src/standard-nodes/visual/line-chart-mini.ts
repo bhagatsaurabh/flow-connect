@@ -2,9 +2,8 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Color } from "../../core/color";
-import { InputType } from "../../ui/input";
-import { DisplayStyle } from "../../ui/display";
 import { Node } from "../../core/node";
+import { InputType, DisplayStyle } from "../../ui/index";
 
 export class LineChartMini extends Node {
 

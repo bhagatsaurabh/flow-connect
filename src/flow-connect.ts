@@ -1,7 +1,7 @@
 import { Connector, Flow, Group, Node, Color, Hooks } from "./core/index";
 import { Vector2 } from "./core/vector";
 import { Dimension, Pointer, Rules } from "./common/interfaces";
-import { intersects } from "./utils/utils";
+import { intersects, noop } from "./utils/utils";
 import { Log } from './utils/logger';
 import { TerminalType } from './core/terminal';
 import { FlowState, FlowOptions, SerializedFlow } from './core/flow';
@@ -90,8 +90,8 @@ export class FlowConnect extends Hooks {
 
   /** For controlling user-interaction */
   pointers: Pointer[] = [];
-  private keymap: { [key: string]: boolean } = {};
-  private touchControls: { [control: string]: boolean } = { 'CreateGroup': false };
+  private keymap: Record<string, boolean> = {};
+  private touchControls: Record<string, boolean> = { 'CreateGroup': false };
 
   /** @hidden HTML input overlayed on canvas when focused */
   private genericInput: HTMLInputElement = document.createElement('input');
@@ -128,7 +128,7 @@ export class FlowConnect extends Hooks {
     this.calculateCanvasDimension(true);
     this.registerChangeListeners();
     this.attachStyles();
-    this.polyfill();
+    this.canvasUtils();
     this.registerEvents();
     this.setGenericInput();
   }
@@ -233,7 +233,8 @@ export class FlowConnect extends Hooks {
     this.offGroupCanvas.width = this.canvasDimensions.width;
     this.offGroupCanvas.height = this.canvasDimensions.height;
   }
-  private polyfill() {
+  private canvasUtils() {
+    FlowConnect.prototype.canvasUtils = noop;
     CanvasRenderingContext2D.prototype.roundRect = function (x: number, y: number, width: number, height: number, radius: number) {
       this.beginPath();
       this.moveTo(x + radius, y);
@@ -518,8 +519,8 @@ export class FlowConnect extends Hooks {
     await this.audioContext.audioWorklet.addModule(WorkletUtils.CircularBuffer);
     return Promise.all(Object.keys(audioWorklets).map(key => this.audioContext.audioWorklet.addModule(audioWorklets[key])));
   }
-  /** @hidden */
-  showGenericInput(position: Vector2 | DOMPoint, value: string, styles: { [key: string]: any }, attributes: { [key: string]: any }, callback: (value: string) => void) {
+
+  showGenericInput(position: Vector2 | DOMPoint, value: string, styles: Record<string, any>, attributes: Record<string, any>, callback: (value: string) => void) {
     if (document.activeElement === this.genericInput) return;
 
     Object.assign(this.genericInput.style, styles);
@@ -625,7 +626,7 @@ export class FlowConnect extends Hooks {
           let index = destination.connectors[0].start.connectors.indexOf(destination.connectors[0]);
           let [oldConnector] = destination.connectors[0].start.connectors.splice(index, 1);
           let [startTerm, endTerm] = [oldConnector.start, oldConnector.end];
-          delete this.currFlow.connectors[oldConnector.id];
+          this.currFlow.connectors.delete(oldConnector.id);
           this.currFlow.executionGraph.disconnect(startTerm.node, endTerm.node);
           oldConnector.start.onDisconnect(oldConnector, startTerm, endTerm);
           oldConnector.end.onDisconnect(oldConnector, startTerm, endTerm);
@@ -686,11 +687,11 @@ export class FlowConnect extends Hooks {
   }
   private getHitNode(position: Vector2): Node {
     let rgbaString = Color.rgbaToString(this._offContext.getImageData(position.x, position.y, 1, 1).data);
-    return this.currFlow.hitColorToNode[rgbaString];
+    return this.currFlow.nodeHitColors.get(rgbaString);
   }
   private getHitGroup(position: Vector2): Group {
     let rgbaString = Color.rgbaToString(this._offGroupContext.getImageData(position.x, position.y, 1, 1).data);
-    return this.currFlow.hitColorToGroup[rgbaString];
+    return this.currFlow.groupHitColors.get(rgbaString);
   }
   private clear() {
     this._context.save();
@@ -713,7 +714,7 @@ export class FlowConnect extends Hooks {
     this._offGroupContext.clearRect(0, 0, this.canvasDimensions.width, this.canvasDimensions.height);
     this._offGroupContext.restore();
   }
-  /** @hidden */
+
   startGlobalTime() {
     if (this.startTime < 0) {
       this.startTime = performance.now();
@@ -726,7 +727,7 @@ export class FlowConnect extends Hooks {
     this.call('tick', this);
     this.timerId = window.requestAnimationFrame(this._startGlobalTime.bind(this));
   }
-  /** @hidden */
+
   stopGlobalTime() {
     if (this.isRootFlowStopped()) {
       cancelAnimationFrame(this.timerId);
@@ -748,7 +749,7 @@ export class FlowConnect extends Hooks {
 
     this.currGroup && this.currGroup.render();
     this.currFlow.render();
-    this.call('update', this);
+    this.call('render', this);
 
     this.frameId = window.requestAnimationFrame(this._render.bind(this));
   }

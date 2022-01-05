@@ -3,8 +3,7 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Node } from "../../core/node";
-import { RadioGroup } from "../../ui/radio-group";
-import { Button } from "../../ui/button";
+import { RadioGroup, Button } from "../../ui/index";
 
 export class SyncData extends Node {
   syncTypeInput: RadioGroup;
@@ -12,14 +11,14 @@ export class SyncData extends Node {
 
   eventIds: number[] = [];
 
-  static DefaultState = { syncType: 'partial', hold: {} };
+  static DefaultState = { syncType: 'partial' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}, inputs?: number) {
     super(flow, options.name || 'Sync Data', options.position || new Vector2(50, 50), options.width || 160,
       [{ name: 'Data 1', dataType: 'any' }, { name: 'Data 2', dataType: 'any' }],
       [{ name: 'synced', dataType: 'any' }],
       {
-        state: options.state ? { ...SyncData.DefaultState, ...options.state, hold: {} } : SyncData.DefaultState,
+        state: options.state ? { ...SyncData.DefaultState, ...options.state, hold: {} } : { ...SyncData.DefaultState, hold: {} },
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

@@ -2,9 +2,8 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { getRandom } from "../../utils/utils";
-import { InputType, Input } from "../../ui/input";
 import { Node } from "../../core/node";
-import { Toggle } from "../../ui/toggle";
+import { InputType, Input, Toggle } from "../../ui/index";
 
 export class Random extends Node {
   minInput: Input;

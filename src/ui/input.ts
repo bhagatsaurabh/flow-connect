@@ -142,12 +142,10 @@ export class Input extends UINode implements Serializable {
     this.label.text = typeof value === 'number' && exists(this.style.precision) ? value.toFixed(this.style.precision) : value;
   }
 
-  /** @hidden */
   paint(): void {
     this.context.strokeStyle = this.style.border;
     this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = this.style.border;
@@ -155,12 +153,11 @@ export class Input extends UINode implements Serializable {
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
+
   reflow(): void {
     this.label.position = this.position;
     this.label.height = this.height;
@@ -180,7 +177,6 @@ export class Input extends UINode implements Serializable {
     }
   }
 
-  /** @hidden */
   onPropChange(_oldVal: any, newVal: any) {
     if (this.style.type === InputType.Number && typeof newVal === 'string') newVal = parseFloat(newVal);
 
@@ -190,55 +186,46 @@ export class Input extends UINode implements Serializable {
 
     this.output && this.output.setData(this._value);
   }
-  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
-  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -289,7 +276,6 @@ export interface InputStyle extends UINodeStyle {
   step?: string,
   maxLength?: number,
 }
-/** @hidden */
 let DefaultInputStyle = (): InputStyle => {
   return {
     backgroundColor: '#eee',
@@ -317,7 +303,6 @@ interface InputOptions {
   id?: string,
   hitColor?: Color
 }
-/** @hidden */
 let DefaultInputOptions = (node: Node): InputOptions => {
   return {
     height: node.style.rowHeight * 1.5

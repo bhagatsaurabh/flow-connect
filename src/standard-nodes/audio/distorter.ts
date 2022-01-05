@@ -1,11 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from '../../core/node';
-import { Toggle } from "../../ui/toggle";
-import { Select } from "../../ui/select";
-import { Input, InputType } from "../../ui/input";
 import { clamp } from "../../utils/utils";
+import { Node } from '../../core/node';
+import { Toggle, Select, Input, InputType } from "../../ui/index";
 
 export class Distorter extends Node {
   amountInput: Input;

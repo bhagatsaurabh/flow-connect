@@ -1,20 +1,18 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType, Input } from "../../ui/input";
 import { Node } from "../../core/node";
+import { InputType, Input } from "../../ui/index";
 
 export class Buffer extends Node {
   sizeInput: Input;
-
-  static DefaultState: any = { buffer: [], size: 10 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'Buffer', options.position || new Vector2(50, 50), options.width || 150,
       [{ name: 'data', dataType: 'any' }],
       [{ name: 'buffer', dataType: 'array' }],
       {
-        state: options.state ? { ...Buffer.DefaultState, ...options.state } : Buffer.DefaultState,
+        state: options.state ? { buffer: [], size: 10, ...options.state } : { buffer: [], size: 10 },
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

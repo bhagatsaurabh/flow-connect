@@ -5,29 +5,29 @@ import { Serializable } from "../common/interfaces";
 import { Node } from "./node";
 import { List } from "../utils/linked-list";
 
-/** @hidden */
+
 // A directed acyclic graph
 export class Graph implements Serializable {
   state: FlowState = FlowState.Stopped;
   nodes: GraphNode[][];
-  nodeToGraphNode: { [key: string]: GraphNode };
-  dirtyNodes: { [key: string]: GraphNode };
+  graphNodes: Map<string, GraphNode>;
+  dirtyNodes: Map<string, GraphNode>;
 
   constructor() {
     this.nodes = [];
-    this.nodeToGraphNode = {};
-    this.dirtyNodes = {};
+    this.graphNodes = new Map();
+    this.dirtyNodes = new Map();
   }
 
   add(data: Node) {
     if (!this.nodes[0]) this.nodes.push([]);
     let graphNode = new GraphNode(data);
     this.nodes[0].push(graphNode);
-    this.nodeToGraphNode[data.id] = graphNode;
+    this.graphNodes.set(data.id, graphNode);
   }
   connect(sourceNode: Node, destinationNode: Node) {
-    let startGraphNode = this.nodeToGraphNode[sourceNode.id];
-    let endGraphNode = this.nodeToGraphNode[destinationNode.id];
+    let startGraphNode = this.graphNodes.get(sourceNode.id);
+    let endGraphNode = this.graphNodes.get(destinationNode.id);
 
     if (!startGraphNode.childs.includes(endGraphNode)) {
       startGraphNode.childs.push(endGraphNode);
@@ -38,8 +38,8 @@ export class Graph implements Serializable {
     }
   }
   disconnect(sourceNode: Node, destinationNode: Node) {
-    let sourceGraphNode = this.nodeToGraphNode[sourceNode.id];
-    let destinationGraphNode = this.nodeToGraphNode[destinationNode.id];
+    let sourceGraphNode = this.graphNodes.get(sourceNode.id);
+    let destinationGraphNode = this.graphNodes.get(destinationNode.id);
 
     let connectedEndNodes = new Set<Node>();
     sourceNode.outputs
@@ -52,7 +52,7 @@ export class Graph implements Serializable {
 
     let maxOrderOfConnectedStartNodes = destinationNode.inputs
       .filter(terminal => terminal.connectors.length > 0)
-      .map(terminal => this.nodeToGraphNode[terminal.connectors[0].startNode.id].order)
+      .map(terminal => this.graphNodes.get(terminal.connectors[0].startNode.id).order)
       .reduce((acc, curr) => Math.max(acc, curr), 0);
 
     this.updateOrder(destinationGraphNode, maxOrderOfConnectedStartNodes);
@@ -71,14 +71,14 @@ export class Graph implements Serializable {
       });
     }
   }
-  _updateOrder(graphNode: GraphNode, order: number) {
+  private _updateOrder(graphNode: GraphNode, order: number) {
     this.nodes[graphNode.order].splice(this.nodes[graphNode.order].indexOf(graphNode), 1);
     if (!this.nodes[order]) this.nodes[order] = [];
     graphNode.order = order;
     this.nodes[order].push(graphNode);
   }
   canConnect(sourceNode: Node, destinationNode: Node) {
-    if (this.nodeToGraphNode[destinationNode.id].childs.includes(this.nodeToGraphNode[sourceNode.id])) return false;
+    if (this.graphNodes.get(destinationNode.id).childs.includes(this.graphNodes.get(sourceNode.id))) return false;
     return true;
   }
 
@@ -89,8 +89,8 @@ export class Graph implements Serializable {
         try {
           await this.runAll(this.nodes[0]);
 
-          while (Object.values(this.dirtyNodes).length !== 0) {
-            await this.runAll(this.lowestDirty(Object.values(this.dirtyNodes)));
+          while (this.dirtyNodes.size !== 0) {
+            await this.runAll(this.lowestDirty([...this.dirtyNodes.values()]));
           }
         } catch (error) {
           Log.error('Error while executing graph', error);
@@ -101,8 +101,8 @@ export class Graph implements Serializable {
     } else if (this.state === FlowState.Idle) {   // Partial Run
       this.state = FlowState.Running;
       try {
-        while (Object.values(this.dirtyNodes).length !== 0) {
-          await this.runAll(this.lowestDirty(Object.values(this.dirtyNodes)));
+        while (this.dirtyNodes.size !== 0) {
+          await this.runAll(this.lowestDirty([...this.dirtyNodes.values()]));
         }
       } catch (error) {
         Log.error('Error while executing graph', error);
@@ -129,14 +129,14 @@ export class Graph implements Serializable {
     );
   }
   setDirty(node: Node | GraphNode) {
-    let graphNode = node instanceof Node ? this.nodeToGraphNode[node.id] : node;
+    let graphNode = node instanceof Node ? this.graphNodes.get(node.id) : node;
     if (!graphNode) return;
 
-    this.dirtyNodes[graphNode.id] = graphNode;
+    this.dirtyNodes.set(graphNode.id, graphNode);
   }
   clearDirty(node: Node | GraphNode) {
-    let graphNode = node instanceof Node ? this.nodeToGraphNode[node.id] : node;
-    delete this.dirtyNodes[graphNode.id];
+    let graphNode = node instanceof Node ? this.graphNodes.get(node.id) : node;
+    this.dirtyNodes.delete(graphNode.id);
   }
   // Returns all dirty nodes with lowest order
   lowestDirty(graphNodes: GraphNode[]) {
@@ -145,7 +145,7 @@ export class Graph implements Serializable {
   }
   // Generic graph traversing function that can be used to do some stuff with nodes starting with provided root
   propagate(root: Node | GraphNode, callback: (node: Node) => void) {
-    let start = root instanceof Node ? this.nodeToGraphNode[root.id] : root;
+    let start = root instanceof Node ? this.graphNodes.get(root.id) : root;
     let queue = new List<GraphNode>();
     queue.append(start);
     while (queue.length !== 0) {
@@ -165,23 +165,23 @@ export class Graph implements Serializable {
   }
 
   serialize(): SerializedGraph {
-    let nodeToGraphNode: { [key: string]: string } = {};
-    Object.keys(this.nodeToGraphNode).forEach(nodeId => nodeToGraphNode[nodeId] = this.nodeToGraphNode[nodeId].id);
+    let nodeToGraphNodeIds: Record<string, string> = {};
+    this.graphNodes.forEach((_graphNode, id) => nodeToGraphNodeIds[id] = this.graphNodes.get(id).id);
 
     return {
       nodes: this.nodes.map(groupedNodes => groupedNodes.map(graphNode => graphNode.serialize())),
-      nodeToGraphNode: nodeToGraphNode
+      nodeToGraphNode: nodeToGraphNodeIds
     };
   }
   static deSerialize(flow: Flow, data: SerializedGraph): Graph {
     let graph = new Graph();
 
-    let serializedGraphNodes: { [key: string]: SerializedGraphNode } = {};
-    let deSerializedGraphNodes: { [key: string]: GraphNode } = {};
+    let serializedGraphNodes: Record<string, SerializedGraphNode> = {};
+    let deSerializedGraphNodes: Record<string, GraphNode> = {};
 
     data.nodes.forEach((serializedGroupedNodes, index) => {
       graph.nodes[index] = serializedGroupedNodes.map(serializedGraphNode => {
-        let graphNode = GraphNode.deSerialize(flow.nodes[serializedGraphNode.nodeId], serializedGraphNode);
+        let graphNode = GraphNode.deSerialize(flow.nodes.get(serializedGraphNode.nodeId), serializedGraphNode);
         deSerializedGraphNodes[graphNode.id] = graphNode;
         serializedGraphNodes[graphNode.id] = serializedGraphNode;
         return graphNode;
@@ -192,7 +192,7 @@ export class Graph implements Serializable {
       deSerializedGraphNodes[key].childs = serializedGraphNodes[key].childs.map(childId => deSerializedGraphNodes[childId]);
     });
     Object.keys(data.nodeToGraphNode).forEach(nodeId => {
-      graph.nodeToGraphNode[nodeId] = deSerializedGraphNodes[data.nodeToGraphNode[nodeId]];
+      graph.graphNodes.set(nodeId, deSerializedGraphNodes[data.nodeToGraphNode[nodeId]]);
     })
 
     return graph;
@@ -201,10 +201,9 @@ export class Graph implements Serializable {
 
 export interface SerializedGraph {
   nodes: SerializedGraphNode[][],
-  nodeToGraphNode: { [key: string]: string }
+  nodeToGraphNode: Record<string, string>
 }
 
-/** @hidden */
 export class GraphNode implements Serializable {
   id: string;
   childs: GraphNode[] = [];

@@ -1,10 +1,10 @@
 /** 
  * Hooks is a general purpose class used by FlowConnect, Flow, Node, UINode, Terminal, Group... classes
  * for making their normal processes available as events to listen to when they happen.
- * For e.g you can listen to any Terminal's 'connect' event to do some custom stuff when this Terminal gets connected to another
+ * For e.g you can listen to any Terminal's 'connect'/'disconnect' event to do some custom stuff
  */
 export class Hooks {
-  protected registeredEvents: { [key: string]: { [id: number]: (...args: any) => void } };
+  protected registeredEvents: Record<string, Record<number, (...args: any) => void>>;
   protected lastId: number;
 
   constructor() {
@@ -27,7 +27,6 @@ export class Hooks {
     this.lastId += 1;
     return id;
   }
-  /** @hidden */
   call(eventKey: string, ...args: any) {
     if (this.registeredEvents[eventKey]) {
       if (!args) args = [];

@@ -1,12 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType, Input } from "../../ui/input";
-import { Align } from "../../common/enums";
 import { Node } from "../../core/node";
-import { Toggle } from "../../ui/toggle";
-import { HorizontalLayout } from "../../ui/horizontal-layout";
-import { Stack } from "../../ui/stack";
+import { Align } from "../../common/enums";
+import { InputType, Input, Toggle, HorizontalLayout, Stack } from "../../ui/index";
 
 export class ArraySource extends Node {
   arrayInput: Input;

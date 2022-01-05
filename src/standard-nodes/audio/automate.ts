@@ -1,11 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType, Input } from "../../ui/input";
 import { denormalize } from "../../utils/utils";
 import { Node } from "../../core/node";
-import { Envelope } from "../../ui/envelope";
-import { Toggle } from "../../ui/toggle";
+import { InputType, Input, Envelope, Toggle } from "../../ui/index";
 
 export class Automate extends Node {
   envelopeInput: Envelope;

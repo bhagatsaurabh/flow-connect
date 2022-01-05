@@ -49,6 +49,12 @@ export interface RenderState {
 export interface Serializable {
   serialize(): any;
 }
+export type RenderFunction<T, P> = (context: CanvasRenderingContext2D, params: P, target: T) => void;
+export type RenderResolver<T, P> = () => RenderFunction<T, P>;
+
+export interface Renderable<T, P> {
+  renderFunction: RenderFunction<T, P>;
+}
 
 /** A set of connection rules among different data types */
 export interface Rules {
@@ -62,8 +68,4 @@ export interface NodeCreatorOptions {
   state?: {},
   style?: NodeStyle,
   terminalStyle?: TerminalStyle
-}
-
-export interface TerminalOutputs {
-  [name: string]: any
 }

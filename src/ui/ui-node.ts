@@ -2,19 +2,19 @@ import { Color, SerializedColor } from "../core/color";
 import { Hooks } from "../core/hooks";
 import { Node, NodeState } from "../core/node";
 import { SerializedTerminal, Terminal } from "../core/terminal";
-import { Vector2 } from "../core/vector";
+import { SerializedVector2, Vector2 } from "../core/vector";
 import { LOD, ViewPort } from '../common/enums';
 import { get, getNewUUID, intersects } from "../utils/utils";
-import { Events } from "../common/interfaces";
+import { Events, Renderable, RenderFunction } from "../common/interfaces";
 
-export abstract class UINode extends Hooks implements Events {
+export abstract class UINode extends Hooks implements Events, Renderable<UINode, UINodeRenderParams> {
+  renderFunction: RenderFunction<UINode, UINodeRenderParams>;
+
   private _disabled: boolean;
   private _visible: boolean;
-  /** @hidden */
-  renderState: ViewPort;
-  /** @hidden */
-  hitColor: Color;
 
+  renderState: ViewPort;
+  hitColor: Color;
   style: any;
   propName: string;
   input: Terminal;
@@ -75,12 +75,11 @@ export abstract class UINode extends Hooks implements Events {
     // To fix a bug, when appending childs to UINodes in-between the tree, UI container's height won't update
     this.node.ui.update();
   }
-  /** @hidden */
   update(): void {
     this.reflow();
+    this.call('update', this);
     this.children.forEach(child => child.update());
   }
-  /** @hidden */
   updateRenderState() {
     if (this.node.renderState.nodeState === NodeState.MINIMIZED) return;
 
@@ -97,10 +96,10 @@ export abstract class UINode extends Hooks implements Events {
   private setHitColor(hitColor: Color) {
     if (!hitColor) {
       hitColor = Color.Random();
-      while (this.node.hitColorToUI[hitColor.rgbaString] || this.node.hitColorToTerminal[hitColor.rgbaString]) hitColor = Color.Random();
+      while (this.node.uiNodes.get(hitColor.rgbaString) || this.node.terminals.get(hitColor.rgbaString)) hitColor = Color.Random();
     }
     this.hitColor = hitColor;
-    this.node.hitColorToUI[this.hitColor.rgbaString] = this;
+    this.node.uiNodes.set(this.hitColor.rgbaString, this);
   }
   render() {
     if (!this.visible) return;
@@ -132,46 +131,31 @@ export abstract class UINode extends Hooks implements Events {
       if (this.output) this.output.render();
     }
 
+    this.call('render', this);
     this.children.forEach(child => child.render());
   }
 
-  /** @hidden */
   getProp() {
     return this.node.state[this.propName];
   }
-  /** @hidden */
   setProp(propValue: any) {
     this.node.state[this.propName] = propValue;
   }
 
-  /** @hidden */
   abstract reflow(): void;
-  /** @hidden */
   abstract paint(): void;
-  /** @hidden */
   abstract paintLOD1(): void;
-  /** @hidden */
   abstract offPaint(): void;
 
-  /** @hidden */
   abstract onOver(screenPosition: Vector2, realPosition: Vector2): void;
-  /** @hidden */
   abstract onDown(screenPosition: Vector2, realPosition: Vector2): void;
-  /** @hidden */
   abstract onUp(screenPosition: Vector2, realPosition: Vector2): void;
-  /** @hidden */
   abstract onClick(screenPosition: Vector2, realPosition: Vector2): void;
-  /** @hidden */
   abstract onDrag(screenPosition: Vector2, realPosition: Vector2): void;
-  /** @hidden */
   abstract onEnter(screenPosition: Vector2, realPosition: Vector2): void;
-  /** @hidden */
   abstract onExit(screenPosition: Vector2, realPosition: Vector2): void;
-  /** @hidden */
   abstract onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2): void;
-  /** @hidden */
   abstract onContextMenu(): void;
-  /** @hidden */
   abstract onPropChange(oldValue: any, newValue: any): void;
 }
 
@@ -221,7 +205,6 @@ interface UINodeOptions {
   id?: string,
   hitColor?: Color
 }
-/** @hidden */
 let DefaultUINodeOptions = (): UINodeOptions => {
   return {
     draggable: false,
@@ -235,3 +218,9 @@ let DefaultUINodeOptions = (): UINodeOptions => {
     hitColor: null
   };
 };
+
+export interface UINodeRenderParams {
+  position: SerializedVector2,
+  width: number,
+  height: number
+}

@@ -81,7 +81,6 @@ export class Image extends UINode implements Serializable {
     this.source.src = this._src;
   }
 
-  /** @hidden */
   paint(): void {
     if (this.imageCanvas && this.imageCanvas.width > 0 && this.imageCanvas.height > 0) {
       let x = this.position.x;
@@ -95,7 +94,6 @@ export class Image extends UINode implements Serializable {
       );
     }
   }
-  /** @hidden */
   paintLOD1() {
     if (this.imageCanvas) {
       let x = this.position.x;
@@ -110,7 +108,6 @@ export class Image extends UINode implements Serializable {
       context.strokeRect(x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height)
     }
   }
-  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
 
@@ -121,7 +118,7 @@ export class Image extends UINode implements Serializable {
     }
     this.offUIContext.fillRect(x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height);
   }
-  /** @hidden */
+
   reflow(): void {
     if (!this.source.width || !this.source.height) return;
 
@@ -146,62 +143,52 @@ export class Image extends UINode implements Serializable {
     }
   }
 
-  /** @hidden */
   onPropChange(_oldVal: any, newVal: any) {
     this._src = newVal;
     this.setupImage();
 
     this.output && this.output.setData(newVal);
   }
-  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
-  /** @hidden */
   onContextMenu(): void { /**/ }
 
   serialize(): SerializedImage {
@@ -232,7 +219,6 @@ export class Image extends UINode implements Serializable {
 export interface ImageStyle extends UINodeStyle {
   align?: Align
 }
-/** @hidden */
 let DefaultImageStyle = () => {
   return {
     align: Align.Left,
@@ -252,7 +238,6 @@ interface ImageOptions {
   id?: string,
   hitColor?: Color
 }
-/** @hidden */
 let DefaultImageOptions = (): ImageOptions => {
   return {};
 };

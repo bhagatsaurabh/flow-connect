@@ -1,12 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType, Input } from "../../ui/input";
-import { Node } from '../../core/node';
-import { RadioGroup } from "../../ui/radio-group";
-import { Slider } from "../../ui/slider";
-import { HorizontalLayout } from "../../ui/horizontal-layout";
 import { clamp } from "../../utils/utils";
+import { Node } from '../../core/node';
+import { InputType, Input, RadioGroup, Slider, HorizontalLayout } from "../../ui/index";
 
 export class Oscillator extends Node {
   freqSlider: Slider;

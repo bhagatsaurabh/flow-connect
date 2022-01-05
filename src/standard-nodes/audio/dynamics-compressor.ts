@@ -3,7 +3,7 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp } from "../../utils/utils";
 import { Node } from "../../core/node";
-import { Toggle } from "../../ui/toggle";
+import { Toggle } from "../../ui/index";
 
 export class DynamicsCompressor extends Node {
   bypassToggle: Toggle;

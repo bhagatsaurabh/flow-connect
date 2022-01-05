@@ -2,17 +2,7 @@ import { Color } from "../core/color";
 import { Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
-import { Button } from "./button";
-import { Container } from "./container";
-import { Display } from "./display";
-import { Image } from './image';
-import { Input } from "./input";
-import { Label } from "./label";
-import { Select } from "./select";
-import { Slider } from "./slider";
-import { Source } from "./source";
-import { Stack } from "./stack";
-import { Toggle } from "./toggle";
+import { Button, Container, Display, Image, Input, Label, Select, Slider, Source, Stack, Toggle, } from "./index";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { clamp } from "../utils/utils";
 import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal";
@@ -39,16 +29,13 @@ export class HorizontalLayout extends UINode implements Serializable {
     if (childs && childs.length > 0) this.children.push(...childs);
   }
 
-  /** @hidden */
   paint(): void { /**/ }
-  /** @hidden */
   paintLOD1() { /**/ }
-  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
+
   reflow(): void {
     let children = this.children.filter(child => child.visible);
 
@@ -111,57 +98,47 @@ export class HorizontalLayout extends UINode implements Serializable {
     this.node.ui.reflow();
   }
 
-  /** @hidden */
   onPropChange() { /**/ }
-  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
-  /** @hidden */
   onContextMenu(): void { /**/ }
 
   serialize(): SerializedHorizontalLayout {
@@ -209,7 +186,6 @@ export class HorizontalLayout extends UINode implements Serializable {
 export interface HorizontalLayoutStyle extends UINodeStyle {
   spacing?: number
 }
-/** @hidden */
 let DefaultHorizontalLayoutStyle = () => {
   return {
     spacing: 0,
@@ -226,7 +202,6 @@ interface HorizontalLayoutOptions {
   id?: string,
   hitColor?: Color
 }
-/** @hidden */
 let DefaultHorizontalLayoutOptions = (): HorizontalLayoutOptions => {
   return {};
 };

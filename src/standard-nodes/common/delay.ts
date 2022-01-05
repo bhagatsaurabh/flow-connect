@@ -2,8 +2,8 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { List, ListNode } from "../../utils/linked-list";
-import { InputType } from "../../ui/input";
 import { Node } from "../../core/node";
+import { InputType } from "../../ui/index";
 
 interface BufferedEvent {
   data: any;

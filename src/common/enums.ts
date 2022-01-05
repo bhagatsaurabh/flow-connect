@@ -1,4 +1,3 @@
-/** @hidden */
 /** To distinguish whether two rectangles are inside/intersecting/disconnected */
 export enum ViewPort {
   INSIDE = 'INSIDE',
@@ -6,7 +5,6 @@ export enum ViewPort {
   INTERSECT = 'INTERSECT'
 }
 
-/** @hidden */
 /** Levels of Detail, affects rendering while zooming in/out */
 export enum LOD {
   LOD0,

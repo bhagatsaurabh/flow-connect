@@ -1,12 +1,10 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from '../../core/node';
-import { Toggle } from "../../ui/toggle";
-import { VSlider } from "../../ui/v-slider";
 import { clamp, isInRange } from "../../utils/utils";
+import { Node } from '../../core/node';
 import { Align } from "../../common/enums";
-import { Stack } from "../../ui/stack";
+import { Toggle, VSlider, Stack } from "../../ui/index";
 
 export class Equalizer extends Node {
   vSliders: VSlider[] = [];

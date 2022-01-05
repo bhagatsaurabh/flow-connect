@@ -1,7 +1,6 @@
-/** @hidden */
 export class AVLTree<T> {
   root: AVLTreeNode<T>;
-  dataRefToTreeNode: { [key: string]: AVLTreeNode<T> };
+  dataRefToTreeNode: Record<string, AVLTreeNode<T>>;
   size: number;
 
   constructor(public comparator: (a: T, b: T) => number, public dataToTreeNodeMapper: (data: T) => string) {
@@ -165,7 +164,7 @@ export class AVLTree<T> {
   }
 }
 
-/** @hidden */
+
 export class AVLTreeNode<T> {
   height: number;
   left: AVLTreeNode<T>;

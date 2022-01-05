@@ -93,7 +93,6 @@ export class Slider2D extends UINode implements Serializable {
     this.offThumbContext.fill();
   }
 
-  /** @hidden */
   paint(): void {
     let context = this.node.context;
 
@@ -114,7 +113,6 @@ export class Slider2D extends UINode implements Serializable {
     context.arc(point.x, point.y, this.pointDiameter / 2, 0, Constant.TAU);
     context.fill();
   }
-  /** @hidden */
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = '#000';
@@ -122,12 +120,11 @@ export class Slider2D extends UINode implements Serializable {
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
+
   reflow(): void {
     let [newWidth, newHeight] = [this.width, this.height];
 
@@ -154,7 +151,6 @@ export class Slider2D extends UINode implements Serializable {
       );
     }
   }
-
   getHitPoint(realPosition: Vector2): boolean {
     let coord = realPosition.subtract(this.position);
     let hitColor = Color.rgbaToHex(this.offThumbContext.getImageData(coord.x, coord.y, 1, 1).data);
@@ -175,14 +171,12 @@ export class Slider2D extends UINode implements Serializable {
     this.value = new Vector2(this._value.x, 1 - this._value.y);
   }
 
-  /** @hidden */
   onPropChange(_oldVal: any, newVal: any) {
     this._value = newVal;
     this.renderOffThumb();
 
     this.output && this.output.setData(this.value);
   }
-  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
@@ -190,13 +184,11 @@ export class Slider2D extends UINode implements Serializable {
   }
 
   private isHit: boolean;
-  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
@@ -205,13 +197,11 @@ export class Slider2D extends UINode implements Serializable {
 
     this.call('up', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
@@ -219,13 +209,11 @@ export class Slider2D extends UINode implements Serializable {
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
@@ -237,13 +225,11 @@ export class Slider2D extends UINode implements Serializable {
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
-  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -282,7 +268,6 @@ export interface Slider2DStyle extends UINodeStyle {
   borderColor?: string,
   borderWidth?: number
 }
-/** @hidden */
 let DefaultSlider2DStyle = () => {
   return {
     backgroundColor: '#666',
@@ -307,7 +292,6 @@ interface Slider2DOptions {
   id?: string,
   hitColor?: Color
 }
-/** @hidden */
 let DefaultSlider2DOptions = (node: Node): Slider2DOptions => {
   return {
     height: node.style.rowHeight * 4

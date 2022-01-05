@@ -2,9 +2,8 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
-import { Display } from "../../ui/display";
-import { Toggle } from "../../ui/toggle";
 import { get } from "../../utils/utils";
+import { Display, Toggle } from "../../ui/index";
 
 export class FunctionPlotter extends Node {
   display: Display;
@@ -121,11 +120,11 @@ export class FunctionPlotter extends Node {
     return false;
   }
   process(inputs: any) {
-    if (Array.isArray(this.inputs[0])) {
+    if (Array.isArray(inputs[0])) {
       if (this.state.polar) {
         this.state.points = [];
-        for (let i = 0; i < this.inputs[0].length; i += 1) {
-          this.state.points.push({ x: this.inputs[0][i].x * Math.cos(inputs[0][i].y), y: inputs[0][i].x * Math.sin(inputs[0][i].y) });
+        for (let i of inputs[0]) {
+          this.state.points.push({ x: i.x * Math.cos(i.y), y: i.x * Math.sin(i.y) });
         }
       } else {
         this.state.points = inputs[0];

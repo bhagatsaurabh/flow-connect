@@ -4,7 +4,7 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Log as Logger } from '../../utils/logger';
 import { Node } from "../../core/node";
-import { Button } from "../../ui/button";
+import { Button } from "../../ui/index";
 
 export class Log extends Node {
   addEventButton: Button;
@@ -22,7 +22,7 @@ export class Log extends Node {
 
     this.inputs[0].on('event', (terminal, data) => Logger.log(terminal.name, data));
     this.inputs[1].on('data', (terminal, data) => Logger.log(terminal.name, data));
-    
+
     this.setupUI();
 
     this.addEventButton.on('click', () => this.addNewTerminal('event'));

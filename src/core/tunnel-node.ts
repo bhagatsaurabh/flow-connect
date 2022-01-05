@@ -6,9 +6,8 @@ import { Terminal, TerminalStyle } from "./terminal";
 
 export class TunnelNode extends Node {
   private _proxyTerminal: Terminal;
-  /** @hidden */
+  
   get proxyTerminal(): Terminal { return this._proxyTerminal; }
-  /** @hidden */
   set proxyTerminal(terminal: Terminal) {
     this._proxyTerminal = terminal;
     this._proxyTerminal.on('data', (_, data) => this.outputs[0].setData(data));
@@ -84,7 +83,6 @@ export interface TunnelNodeOptions {
   id?: string,
   hitColor?: Color,
 }
-/** @hidden */
 let DefaultTunnelNodeOptions = (): TunnelNodeOptions => {
   return {
     style: {},

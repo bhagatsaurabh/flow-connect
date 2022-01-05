@@ -3,10 +3,8 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp } from "../../utils/utils";
 import { Node } from '../../core/node';
-import { Slider } from "../../ui/slider";
-import { Display } from "../../ui/display";
-import { Label } from "../../ui/label";
 import { Align } from "../../common/enums";
+import { Slider, Display, Label } from "../../ui/index";
 
 export class WaveformAnalyser extends Node {
   fftSizeSlider: Slider;

@@ -2,21 +2,10 @@ import { Color } from "../core/color";
 import { Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
-import { Button } from "./button";
-import { Display } from "./display";
-import { HorizontalLayout } from "./horizontal-layout";
-import { Stack } from "./stack";
-import { Image } from './image';
-import { Input } from "./input";
-import { Label } from "./label";
-import { Select } from "./select";
-import { Slider } from "./slider";
-import { Source } from "./source";
-import { Toggle } from "./toggle";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
+import { Button, Display, HorizontalLayout, Stack, Image, Input, Label, Select, Slider, Source, Toggle } from "./index";
+import { SerializedUINode, UINode, UINodeStyle, UIType, UINodeRenderParams } from "./ui-node";
 import { Align } from "../common/enums";
 
-/** @hidden */
 export class Container extends UINode implements Serializable {
   contentWidth: number;
 
@@ -36,24 +25,29 @@ export class Container extends UINode implements Serializable {
     this.contentWidth = this.width - 2 * this.node.style.padding;
   }
 
-  /** @hidden */
   paint(): void {
     let context = this.context;
-    context.shadowColor = this.style.shadowColor;
+    this.renderFunction =
+      (this.node.renderResolver.uiContainer && this.node.renderResolver.uiContainer())
+      || (Node.renderResolver.uiContainer && Node.renderResolver.uiContainer())
+      || this._paint;
+    this.renderFunction(context, this.getRenderParams(), this);
+  }
+  private _paint(context: CanvasRenderingContext2D, params: ContainerRenderParams, container: Container) {
+    context.shadowColor = container.style.shadowColor;
     context.shadowBlur = 3;
-    context.shadowOffsetX = this.style.shadowOffset.x;
-    context.shadowOffsetY = this.style.shadowOffset.y;
-    context.fillStyle = this.style.backgroundColor;
-    context.strokeStyle = this.style.borderColor;
-    context.lineWidth = this.style.borderWidth;
+    context.shadowOffsetX = container.style.shadowOffset.x;
+    context.shadowOffsetY = container.style.shadowOffset.y;
+    context.fillStyle = container.style.backgroundColor;
+    context.strokeStyle = container.style.borderColor;
+    context.lineWidth = container.style.borderWidth;
     context.roundRect(
-      this.position.x, this.position.y + this.node.style.titleHeight,
-      this.width, this.height - this.node.style.titleHeight, 5
+      params.position.x, params.position.y + container.node.style.titleHeight,
+      params.width, params.height - container.node.style.titleHeight, 5
     );
     context.stroke();
     context.fill();
   }
-  /** @hidden */
   paintLOD1() {
     let context = this.context;
     context.fillStyle = this.style.backgroundColor;
@@ -66,12 +60,18 @@ export class Container extends UINode implements Serializable {
     context.stroke();
     context.fill();
   }
-  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
+  getRenderParams(): ContainerRenderParams {
+    return {
+      position: this.position.serialize(),
+      width: this.width,
+      height: this.height
+    }
+  }
+
   reflow(): void {
     this.position = this.node.position;
     let terminalsDisplayHeight = Math.max(this.node.inputs.length, this.node.outputs.length) * this.node.style.terminalRowHeight + this.node.style.titleHeight;
@@ -99,57 +99,47 @@ export class Container extends UINode implements Serializable {
     this.height = y + this.node.style.padding - this.position.y;
   }
 
-  /** @hidden */
   onPropChange() { /**/ }
-  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
-  /** @hidden */
   onContextMenu(): void { /**/ }
 
   serialize(): SerializedContainer {
@@ -208,7 +198,6 @@ export interface ContainerStyle extends UINodeStyle {
   borderColor?: string,
   borderWidth?: number
 }
-/** @hidden */
 let DefaultContainerStyle = () => {
   return {
     backgroundColor: '#dddddd',
@@ -230,7 +219,8 @@ interface ContainerOptions {
   id?: string,
   hitColor?: Color
 }
-/** @hidden */
 let DefaultContainerOptions = () => {
   return {};
 };
+
+export interface ContainerRenderParams extends UINodeRenderParams { }

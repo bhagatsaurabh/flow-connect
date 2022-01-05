@@ -76,7 +76,6 @@ export class Label extends UINode implements Serializable {
     });
   }
 
-  /** @hidden */
   paint(): void {
     let context = this.context;
 
@@ -98,7 +97,6 @@ export class Label extends UINode implements Serializable {
 
     context.fillText(this.displayText, x, y);
   }
-  /** @hidden */
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = '#000';
@@ -106,12 +104,11 @@ export class Label extends UINode implements Serializable {
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
+
   reflow(): void {
     let context = this.context;
     context.font = this.style.fontSize + ' ' + this.style.font;
@@ -136,7 +133,6 @@ export class Label extends UINode implements Serializable {
       );
     }
   }
-  /** @hidden */
   getBestFitString(): string {
     let text = this.text;
     if (typeof (text as any) !== 'string') text = text.toString();
@@ -154,67 +150,56 @@ export class Label extends UINode implements Serializable {
 
     return text.substring(0, index) + ellipsis;
   }
-  /** @hidden */
   format(value: number): string {
     return exists(this.style.precision) ? value.toFixed(this.style.precision) : value.toString();
   }
 
-  /** @hidden */
   onPropChange(_oldVal: any, newVal: any) {
     this._text = newVal;
     this.reflow();
 
     this.output && this.output.setData(this._text);
   }
-  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
-  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
   }
@@ -255,7 +240,6 @@ export interface LabelStyle extends UINodeStyle {
   precision?: number,
   padding?: number
 }
-/** @hidden */
 let DefaultLabelStyle = () => {
   return {
     color: '#000',
@@ -282,7 +266,6 @@ interface LabelOptions {
   id?: string,
   hitColor?: Color
 }
-/** @hidden */
 let DefaultLabelOptions = (node: Node): LabelOptions => {
   return {
     height: node.style.rowHeight * 1.5

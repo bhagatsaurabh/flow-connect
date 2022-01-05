@@ -1,10 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType } from "../../ui/input";
 import { clamp } from "../../utils/utils";
 import { Node } from "../../core/node";
-import { Slider } from "../../ui/slider";
+import { InputType, Slider } from "../../ui/index";
 
 export class DelayEffect extends Node {
   delaySlider: Slider;

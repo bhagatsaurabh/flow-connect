@@ -5,7 +5,7 @@ let flow = flowConnect.createFlow({ name: 'Audio Test', rules: {}, terminalTypeC
 
 let audioSource = new StandardNodes.Audio.Source(flow);
 let destination = new StandardNodes.Audio.Destination(flow);
-// let automate = new StandardNodes.Audio.Automate(flow, { props: { min: 20, max: 800, value: 20 } });
+// let automate = new StandardNodes.Audio.Automate(flow, { state: { min: 20, max: 800, value: 20 } });
 // let splitter = new StandardNodes.Audio.ChannelSplitter(flow);
 // let merger = new StandardNodes.Audio.ChannelMerger(flow);
 // let debug = new StandardNodes.Audio.Debug(flow);
@@ -35,14 +35,14 @@ let destination = new StandardNodes.Audio.Destination(flow);
 // let waveformAnalyser = new StandardNodes.Audio.WaveformAnalyser(flow);
 // let spectrogramAnalyser = new StandardNodes.Audio.SpectrogramAnalyser(flow);
 
-// let gain = new StandardNodes.UI.Dial(flow, { props: { min: 0, max: 2, value: 0.5 } });
-// let detune = new StandardNodes.UI.Dial(flow, { props: { min: -2400, max: 2400, value: 0 } });
-// let playRate = new StandardNodes.UI.Dial(flow, { props: { min: 0.25, max: 3, value: 1 } });
-// let threshold = new StandardNodes.UI.Dial(flow, { props: { min: -100, max: 0, value: -20 } });
-// let ratio = new StandardNodes.UI.Dial(flow, { props: { min: 1, max: 20, value: 4 } });
-// let knee = new StandardNodes.UI.Dial(flow, { props: { min: 0, max: 40, value: 5 } });
-// let attack = new StandardNodes.UI.Dial(flow, { props: { min: 0, max: 1, value: 0.01 } });
-// let release = new StandardNodes.UI.Dial(flow, { props: { min: 0, max: 1, value: 0.12 } });
+// let gain = new StandardNodes.UI.Dial(flow, { state: { min: 0, max: 2, value: 0.5 } });
+// let detune = new StandardNodes.UI.Dial(flow, { state: { min: -2400, max: 2400, value: 0 } });
+// let playRate = new StandardNodes.UI.Dial(flow, { state: { min: 0.25, max: 3, value: 1 } });
+// let threshold = new StandardNodes.UI.Dial(flow, { state: { min: -100, max: 0, value: -20 } });
+// let ratio = new StandardNodes.UI.Dial(flow, { state: { min: 1, max: 20, value: 4 } });
+// let knee = new StandardNodes.UI.Dial(flow, { state: { min: 0, max: 40, value: 5 } });
+// let attack = new StandardNodes.UI.Dial(flow, { state: { min: 0, max: 1, value: 0.01 } });
+// let release = new StandardNodes.UI.Dial(flow, { state: { min: 0, max: 1, value: 0.12 } });
 
 // audioSource.outputs[0].connect(splitter.inputs[0]);
 // splitter.outputs[0].connect(destination.inputs[0]);

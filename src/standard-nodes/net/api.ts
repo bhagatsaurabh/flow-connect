@@ -1,6 +1,6 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
-import { NodeCreatorOptions, TerminalOutputs } from "../../common/interfaces";
+import { NodeCreatorOptions } from "../../common/interfaces";
 import { Align } from "../../common/enums";
 import { Log } from "../../utils/logger";
 import { isEmpty } from "../../utils/utils";
@@ -26,7 +26,7 @@ export class API extends Node {
     this.inputs[0].on('event', async () => {
       if (!this.state.src || this.state.src === '') Log.error("Prop 'src' of API Node is invalid, cannot make an API call");
       else {
-        let response, outputs: TerminalOutputs = {};
+        let response, outputs: Record<string, any> = {};
         if (this.outputs.map(terminal => terminal.connectors.length).reduce((acc, curr) => acc + curr, 0) > 0) {
           response = await fetch(this.state.src);
 

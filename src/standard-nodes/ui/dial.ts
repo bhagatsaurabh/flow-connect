@@ -1,9 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { DialStyle } from "../../ui/dial";
 import { Align } from "../../common/enums";
 import { Node } from "../../core/node";
+import { DialStyle } from "../../ui/index";
 
 export class Dial extends Node {
 

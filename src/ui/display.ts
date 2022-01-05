@@ -78,7 +78,6 @@ export class Display extends UINode implements Serializable {
     }));
   }
 
-  /** @hidden */
   paint(): void {
     let context = this.context;
     context.strokeStyle = this.style.borderColor;
@@ -99,7 +98,6 @@ export class Display extends UINode implements Serializable {
       );
     });
   }
-  /** @hidden */
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = this.style.borderColor;
@@ -107,12 +105,11 @@ export class Display extends UINode implements Serializable {
     context.fillStyle = 'lightgrey';
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
   offPaint(): void {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
-  /** @hidden */
+
   reflow(): void {
     let newWidth = (this.node.width - 2 * this.node.style.padding) * this.node.flow.flowConnect.scale;
     let newHeight = this.height * this.node.flow.flowConnect.scale;
@@ -136,57 +133,47 @@ export class Display extends UINode implements Serializable {
     );
   }
 
-  /** @hidden */
   onPropChange() { /**/ }
-  /** @hidden */
   onOver(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDown(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onUp(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onDrag(screenPosition: Vector2, realPosition: Vector2): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onEnter(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onExit(screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  /** @hidden */
   onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
   }
-  /** @hidden */
   onContextMenu(): void {
     if (this.disabled) return;
 
@@ -239,7 +226,6 @@ export interface DisplayStyle extends UINodeStyle {
   borderColor?: string,
   backgroundColor?: string
 }
-/** @hidden */
 let DefaultDisplayStyle = () => {
   return {
     borderColor: '#000',
@@ -257,7 +243,6 @@ interface DisplayOptions {
   hitColor?: Color,
   clear?: boolean | SerializedTerminal
 }
-/** @hidden */
 let DefaultDisplayOptions = () => {
   return {}
 };

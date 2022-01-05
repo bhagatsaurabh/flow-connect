@@ -10,8 +10,8 @@ let flow = flowConnect.createFlow({
   }
 });
 
-let timer = new StandardNodes.Common.Timer(flow, { props: { delay: 1000 } });
-let api = new StandardNodes.Net.API(flow, { props: { src: 'https://public.polygon.io/v2/market/now' } });
+let timer = new StandardNodes.Common.Timer(flow, { state: { delay: 1000 } });
+let api = new StandardNodes.Net.API(flow, { state: { src: 'https://public.polygon.io/v2/market/now' } });
 let log = new StandardNodes.Common.Log(flow);
 let extract = flow.createNode('Data Extract', new Vector2(50, 50), 100, {
   inputs: [{ name: 'data', dataType: 'any' }],
@@ -25,12 +25,12 @@ extract.on('process', (_, inputs) => {
     'LTC': inputs[0].crypto['X:LTCUSD'].lastTrade.p
   });
 });
-let btcBuffer = new StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
-let ethBuffer = new StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
-let ltcBuffer = new StandardNodes.Common.Buffer(flow, { props: { size: 30 } });
-let btcNormalize = new StandardNodes.Math.Normalize(flow, 'array', { props: { relative: true, constant: 5 } });
-let ethNormalize = new StandardNodes.Math.Normalize(flow, 'array', { props: { relative: true, constant: 5 } });
-let ltcNormalize = new StandardNodes.Math.Normalize(flow, 'array', { props: { relative: true, constant: 5 } });
+let btcBuffer = new StandardNodes.Common.Buffer(flow, { state: { size: 30 } });
+let ethBuffer = new StandardNodes.Common.Buffer(flow, { state: { size: 30 } });
+let ltcBuffer = new StandardNodes.Common.Buffer(flow, { state: { size: 30 } });
+let btcNormalize = new StandardNodes.Math.Normalize(flow, 'array', { state: { relative: true, constant: 5 } });
+let ethNormalize = new StandardNodes.Math.Normalize(flow, 'array', { state: { relative: true, constant: 5 } });
+let ltcNormalize = new StandardNodes.Math.Normalize(flow, 'array', { state: { relative: true, constant: 5 } });
 let btcEthToArray = new StandardNodes.Common.ToArray(flow, 2);
 let btcLtcToArray = new StandardNodes.Common.ToArray(flow, 2);
 let btcEthLtcToArray = new StandardNodes.Common.ToArray(flow, 3);

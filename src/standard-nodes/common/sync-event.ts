@@ -3,7 +3,7 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Node } from "../../core/node";
-import { Button } from "../../ui/button";
+import { Button } from "../../ui/index";
 
 export class SyncEvent extends Node {
   addButton: Button;

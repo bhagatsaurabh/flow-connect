@@ -4,10 +4,13 @@ import { Color, SerializedColor } from "./color";
 import { Flow } from './flow';
 import { Hooks } from './hooks';
 import { Node } from './node';
-import { Serializable } from "../common/interfaces";
+import { Renderable, RenderFunction, RenderResolver, Serializable } from "../common/interfaces";
 import { ViewPort } from "../common/enums";
 
-export class Group extends Hooks implements Serializable {
+export class Group extends Hooks implements Serializable, Renderable<Group, GroupRenderParams> {
+  static renderResolver: RenderResolver<Group, GroupRenderParams> = () => null;
+  renderFunction: RenderFunction<Group, GroupRenderParams>;
+
   nodes: Node[] = [];
   get name(): string { return this._name; }
   set name(name: string) {
@@ -22,9 +25,8 @@ export class Group extends Hooks implements Serializable {
     this.recomputeNodePositions();
   }
 
-  /** @hidden */
   nodeDeltas: Vector2[] = [];
-  /** @hidden */
+
   hitColor: Color;
   private textWidth: number;
   private textHeight: number;
@@ -32,10 +34,10 @@ export class Group extends Hooks implements Serializable {
   private renderState: ViewPort = ViewPort.INSIDE;
   private _position: Vector2;
 
-  public width: number;
-  public height: number
-  public style: GroupStyle;
-  public id: string;
+  width: number;
+  height: number
+  style: GroupStyle;
+  id: string;
 
   constructor(
     public flow: Flow,
@@ -69,10 +71,10 @@ export class Group extends Hooks implements Serializable {
   private setHitColor(hitColor: Color) {
     if (!hitColor) {
       hitColor = Color.Random();
-      while (this.flow.hitColorToGroup[hitColor.rgbaString]) hitColor = Color.Random();
+      while (this.flow.groupHitColors.get(hitColor.rgbaString)) hitColor = Color.Random();
     }
     this.hitColor = hitColor;
-    this.flow.hitColorToGroup[this.hitColor.rgbaString] = this;
+    this.flow.groupHitColors.set(this.hitColor.rgbaString, this);
   }
   private computeTextMetrics() {
     let context = this.flow.flowConnect.context;
@@ -102,12 +104,10 @@ export class Group extends Hooks implements Serializable {
       realPos.y + this.height * this.flow.flowConnect.scale
     );
   }
-  /** @hidden */
   setContainedNodes() {
     let groupRealPos = this.position.transform(this.flow.flowConnect.transform);
 
-    this.nodes = Object.keys(this.flow.nodes)
-      .map(key => this.flow.nodes[key])
+    this.nodes = [...this.flow.nodes.values()]
       .filter(node => !node.group && node.renderState.viewport === ViewPort.INSIDE)
       .filter(node => {
         let nodeRealPos = node.position.transform(this.flow.flowConnect.transform);
@@ -135,33 +135,42 @@ export class Group extends Hooks implements Serializable {
   render() {
     if (this.renderState === ViewPort.OUTSIDE) return;
 
-    this.flow.flowConnect.context.save();
-    this._render();
-    this.flow.flowConnect.context.restore();
+    let context = this.flow.flowConnect.context;
+    context.save();
+    this.renderFunction = Group.renderResolver() || this._render;
+    this.renderFunction(context, this.getRenderParams(), this);
+    context.restore();
 
     this.flow.flowConnect.offGroupContext.save();
     this._offRender();
     this.flow.flowConnect.offGroupContext.restore();
+
+    this.call('render', this);
   }
-  private _render() {
-    let context = this.flow.flowConnect.context;
-    context.strokeStyle = this.style.borderColor;
+  private _render(context: CanvasRenderingContext2D, params: GroupRenderParams, group: Group) {
+    context.strokeStyle = group.style.borderColor;
     context.lineWidth = 2;
-    context.fillStyle = this.style.color;
-    context.strokeRect(this.position.x, this.position.y, this.width, this.height);
-    context.fillRect(this.position.x, this.position.y, this.width, this.height);
-    context.fillStyle = this.style.titleColor;
+    context.fillStyle = group.style.color;
+    context.strokeRect(params.position.x, params.position.y, params.width, params.height);
+    context.fillRect(params.position.x, params.position.y, params.width, params.height);
+    context.fillStyle = group.style.titleColor;
     context.textBaseline = 'bottom';
-    context.font = this.style.fontSize + ' ' + this.style.font;
-    context.fillText(this.name, this.position.x, this.position.y - 10);
+    context.font = group.style.fontSize + ' ' + group.style.font;
+    context.fillText(group.name, params.position.x, params.position.y - 10);
   }
   private _offRender() {
     this.flow.flowConnect.offGroupContext.fillStyle = this.hitColor.rgbaCSSString;
     this.flow.flowConnect.offGroupContext.fillRect(this.position.x, this.position.y, this.width, this.height);
     this.flow.flowConnect.offGroupContext.fillRect(this.position.x, this.position.y - this.textHeight - 10, this.textWidth, this.textHeight + 10);
   }
+  private getRenderParams(): GroupRenderParams {
+    return {
+      position: this.position.serialize(),
+      width: this.width,
+      height: this.height
+    };
+  }
 
-  /** @hidden */
   onClick(screenPosition: Vector2, realPosition: Vector2) {
     this.call('click', this, screenPosition, realPosition);
 
@@ -204,7 +213,7 @@ export class Group extends Hooks implements Serializable {
     });
 
     data.nodes.forEach(nodeId => {
-      group.nodes.push(flow.nodes[nodeId]);
+      group.nodes.push(flow.nodes.get(nodeId));
     });
     data.nodeDeltas.forEach(serializedVector => {
       group.nodeDeltas.push(Vector2.deSerialize(serializedVector));
@@ -212,14 +221,6 @@ export class Group extends Hooks implements Serializable {
 
     return group;
   }
-}
-
-export interface GroupStyle {
-  color?: string;
-  borderColor?: string;
-  titleColor?: string;
-  fontSize?: string;
-  font?: string;
 }
 
 export interface SerializedGroup {
@@ -234,7 +235,6 @@ export interface SerializedGroup {
   nodeDeltas: SerializedVector2[]
 }
 
-/** @hidden */
 let DefaultGroupColors = {
   colors: [
     ['rgba(239, 134, 119, 1)', 'rgba(239, 134, 119, .5)'],
@@ -247,14 +247,20 @@ let DefaultGroupColors = {
   Random: () => DefaultGroupColors.colors[Math.floor(Math.random() * DefaultGroupColors.colors.length)]
 };
 
-/** @hidden */
+export interface GroupStyle {
+  color?: string;
+  borderColor?: string;
+  titleColor?: string;
+  fontSize?: string;
+  font?: string;
+}
 let DefaultGroupStyle = () => {
   return {
     titleColor: '#000',
     fontSize: '16px',
     font: 'arial'
   };
-};
+}
 
 export interface GroupOptions {
   width?: number,
@@ -264,7 +270,7 @@ export interface GroupOptions {
   id?: string,
   hitColor?: Color
 }
-/** @hidden */
+
 let DefaultGroupOptions = (): GroupOptions => {
   return {
     width: 0,
@@ -272,4 +278,10 @@ let DefaultGroupOptions = (): GroupOptions => {
     style: {},
     id: getNewUUID()
   }
+}
+
+export interface GroupRenderParams {
+  position: SerializedVector2,
+  width: number,
+  height: number
 }

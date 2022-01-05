@@ -1,7 +1,7 @@
 import { Vector2 } from './vector';
 import { Color } from './color';
 import { Flow, FlowState } from './flow';
-import { Node, NodeButton, NodeStyle, SerializedNode } from './node';
+import { Node, NodeButton, NodeStyle, SerializedNode, NodeButtonRenderParams } from './node';
 import { Terminal, TerminalType, TerminalStyle } from './terminal';
 import { TunnelNode } from './tunnel-node';
 import { Align } from '../common/enums';
@@ -43,28 +43,28 @@ export class SubFlowNode extends Node {
     this.subFlow.inputs.forEach((inputNode, index) => inputNode.proxyTerminal = this.inputs[index]);
     this.subFlow.outputs.forEach((outputNode, index) => outputNode.proxyTerminal = this.outputs[index]);
 
-    this.addNodeButton(() => {
-      this.flow.flowConnect.render(this.subFlow);
-    }, (_nodeButton: NodeButton, pos: Vector2) => {
-      let context = this.context;
-      context.strokeStyle = this.style.expandButtonColor;
+    this.addNodeButton(
+      () => this.flow.flowConnect.render(this.subFlow),
+      (context: CanvasRenderingContext2D, params: NodeButtonRenderParams, nodeButton: NodeButton) => {
+        let style = nodeButton.node.style;
 
-      context.beginPath();
-      context.moveTo(pos.x, pos.y + this.style.nodeButtonSize / 2);
-      context.lineTo(pos.x, pos.y + this.style.nodeButtonSize);
-      context.lineTo(pos.x + this.style.nodeButtonSize, pos.y);
-      context.lineTo(pos.x + this.style.nodeButtonSize, pos.y + this.style.nodeButtonSize / 2);
-      context.moveTo(pos.x + this.style.nodeButtonSize, pos.y);
-      context.lineTo(pos.x + this.style.nodeButtonSize / 2, pos.y);
-      context.moveTo(pos.x, pos.y + this.style.nodeButtonSize);
-      context.lineTo(pos.x + this.style.nodeButtonSize / 2, pos.y + this.style.nodeButtonSize);
-      context.closePath();
+        context.strokeStyle = style.expandButtonColor;
+        context.beginPath();
+        context.moveTo(params.position.x, params.position.y + style.nodeButtonSize / 2);
+        context.lineTo(params.position.x, params.position.y + style.nodeButtonSize);
+        context.lineTo(params.position.x + style.nodeButtonSize, params.position.y);
+        context.lineTo(params.position.x + style.nodeButtonSize, params.position.y + style.nodeButtonSize / 2);
+        context.moveTo(params.position.x + style.nodeButtonSize, params.position.y);
+        context.lineTo(params.position.x + style.nodeButtonSize / 2, params.position.y);
+        context.moveTo(params.position.x, params.position.y + style.nodeButtonSize);
+        context.lineTo(params.position.x + style.nodeButtonSize / 2, params.position.y + style.nodeButtonSize);
+        context.closePath();
 
-      context.stroke();
-    }, Align.Right);
+        context.stroke();
+      }, Align.Right
+    );
   }
 
-  /** @hidden */
   run() {
     if (this.flow.state === FlowState.Stopped) return;
     this.subFlow.start();

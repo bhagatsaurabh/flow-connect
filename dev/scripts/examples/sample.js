@@ -17,7 +17,7 @@ let flow = flowConnect.createFlow({
 let node = flow.createNode('Test Node', new Vector2(50, 50), 250, {
   inputs: [{ name: 'R', dataType: 'r' }, { name: 'G', dataType: 'g' }, { name: 'B', dataType: 'b' }],
   outputs: [{ name: 'Image', dataType: 'image' }],
-  props: { labelText: 'Label Text', sliderValue: 50, toggle: false, selectedValue: null, file: null, inputValue: 365 },
+  state: { labelText: 'Label Text', sliderValue: 50, toggle: false, selectedValue: null, file: null, inputValue: 365 },
   style: { padding: 10, spacing: 10, rowHeight: 10 },
   terminalStyle: {}
 });
@@ -49,21 +49,21 @@ node.ui.append([
   ])
 ]);
 let numberNode = flow.createNode('Number Source', new Vector2(50, 50), 140, {
-  props: { value: 15 },
+  state: { value: 15 },
   style: { padding: 10, spacing: 10, rowHeight: 10 }
 });
 numberNode.ui.append(numberNode.createInput({
   propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .6, align: Align.Right }
 }));
 let textNode = flow.createNode('Text Source', new Vector2(50, 120), 140, {
-  props: { value: 'Example Text' },
+  state: { value: 'Example Text' },
   style: { padding: 10, spacing: 10, rowHeight: 10 }
 });
 textNode.ui.append(textNode.createInput({
   propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .6, align: Align.Right }
 }));
 let toggleNode = flow.createNode('Toggle Source', new Vector2(50, 190), 140, {
-  props: { value: true },
+  state: { value: true },
   style: { padding: 10, spacing: 10, rowHeight: 10 }
 });
 toggleNode.ui.append(toggleNode.createToggle({ propName: 'value', input: true, output: true, style: { grow: .2 } }));

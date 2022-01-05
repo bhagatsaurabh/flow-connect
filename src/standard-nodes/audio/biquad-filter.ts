@@ -2,8 +2,7 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
-import { Select } from "../../ui/select";
-import { Toggle } from "../../ui/toggle";
+import { Select, Toggle } from "../../ui/index";
 
 export class BiquadFilter extends Node {
   typeSelect: Select;

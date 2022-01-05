@@ -1,27 +1,26 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType, Input } from "../../ui/input";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Evaluator } from "../../utils/evaluator";
 import { Log } from "../../utils/logger";
 import { Parser } from "../../utils/parser";
 import { Token, TokenType } from "../../utils/lexer";
 import { Node } from "../../core/node";
-import { Button } from "../../ui/button";
+import { InputType, Input, Button } from "../../ui/index";
 
 export class Func extends Node {
   addVarButton: Button
 
-  static DefaultState = { evaluator: new Evaluator({}), newVar: 'y' };
+  static DefaultState = { newVar: 'y' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}, expression?: string) {
     super(flow, options.name || 'Function', options.position || new Vector2(50, 50), options.width || 200, [],
       [{ name: '𝒇', dataType: 'any' }],
       {
         state: options.state
-          ? { ...Func.DefaultState, ...options.state, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))') }
-          : { ...Func.DefaultState, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))') },
+          ? { ...Func.DefaultState, ...options.state, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))'), evaluator: new Evaluator({}) }
+          : { ...Func.DefaultState, expression: (expression || 'a*sin(a^2)+cos(a*tan(a))'), evaluator: new Evaluator({}) },
         style: options.style || { rowHeight: 10 },
         terminalStyle: options.terminalStyle || {}
       }

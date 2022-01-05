@@ -93,12 +93,12 @@ export class Evaluator {
   static multiargFunctions = ['max', 'min', 'hypot', 'sum', 'mean', 'median', 'std', 'var'];
 
   // Optimization: If the curr expr is present in history
-  // no need to invoke lexer and parser, get postfix token array from here
-  history: { [expr: string]: Token[] } = {};
+  // no need to invoke lexer and parser, get postfix tokens array from here
+  history: Record<string, Token[]> = {};
   orderedExprs: string[] = [];
   historyLimit: number = 3;
 
-  constructor(public variables: { [name: string]: any }) { this.parser = new Parser(); }
+  constructor(public variables: Record<string, any>) { this.parser = new Parser(); }
 
   evaluate(expr: string, index?: number) {
     let postFix;

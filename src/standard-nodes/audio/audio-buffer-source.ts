@@ -2,7 +2,7 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
-import { Source } from "../../ui/source";
+import { Source } from "../../ui/index";
 
 export class AudioBufferSource extends Node {
   fileInput: Source

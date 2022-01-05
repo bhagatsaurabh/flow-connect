@@ -1,8 +1,8 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
-import { InputType } from "../../ui/input";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
+import { InputType } from "../../ui/index";
 
 export class Timer extends Node {
   lastTrigger: number = Number.MIN_VALUE;

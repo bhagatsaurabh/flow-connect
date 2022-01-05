@@ -5,7 +5,7 @@ import { FlowConnectState } from "../../flow-connect";
 import { Log } from "../../utils/logger";
 import { Node } from '../../core/node';
 import * as sourceui from '../../ui/source';
-import { Toggle } from "../../ui/toggle";
+import { Toggle } from "../../ui/index";
 
 export class Source extends Node {
   fileInput: sourceui.Source;

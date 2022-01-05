@@ -2,9 +2,9 @@ import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { GlobalEventType } from "../../common/enums";
-import { InputType, Input } from "../../ui/input";
 import { Node } from "../../core/node";
 import { get, getNewUUID } from "../../utils/utils";
+import { InputType, Input } from "../../ui/index";
 
 export class GlobalEvent extends Node {
   eventInput: Input;

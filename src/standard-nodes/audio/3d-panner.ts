@@ -3,10 +3,7 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp, denormalize } from "../../utils/utils";
 import { Node } from '../../core/node';
-import { Toggle } from "../../ui/toggle";
-import { Slider2D } from "../../ui/2d-slider";
-import { Slider } from "../../ui/slider";
-import { Input, InputType } from "../../ui/input";
+import { Toggle, Slider2D, Slider, Input, InputType } from "../../ui/index";
 
 export class SpatialPanner extends Node {
   panSlider2D: Slider2D;
@@ -25,8 +22,6 @@ export class SpatialPanner extends Node {
   orientationY: number = 0.0;
   orientationZ: number = -1.0;
 
-  static DefaultState = { value: new Vector2(.5, .5), z: -1, bypass: false };
-
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
       flow, options.name || '3D Spatial Panner',
@@ -35,7 +30,9 @@ export class SpatialPanner extends Node {
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {
-        state: options.state ? { ...SpatialPanner.DefaultState, ...options.state } : SpatialPanner.DefaultState,
+        state: options.state ?
+          { value: new Vector2(.5, .5), z: -1, bypass: false, ...options.state }
+          : { value: new Vector2(.5, .5), z: -1, bypass: false },
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }

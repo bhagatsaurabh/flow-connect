@@ -1,10 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType, Input } from "../../ui/input";
 import { clamp, denormalize } from "../../utils/utils";
 import { Node } from "../../core/node";
-import { Envelope } from "../../ui/envelope";
+import { InputType, Input, Envelope } from "../../ui/index";
 
 export class ADSR extends Node {
   envelopeInput: Envelope;

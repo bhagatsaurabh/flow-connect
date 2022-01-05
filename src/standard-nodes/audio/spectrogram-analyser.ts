@@ -3,12 +3,9 @@ import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp, denormalize, normalize } from "../../utils/utils";
 import { Node } from '../../core/node';
-import { Slider } from "../../ui/slider";
-import { CanvasType, Display } from "../../ui/display";
-import { Label } from "../../ui/label";
 import { Align } from "../../common/enums";
-import { Select } from "../../ui/select";
 import { Color } from "../../core/color";
+import { Slider, CanvasType, Display, Label, Select } from "../../ui/index";
 
 export class SpectrogramAnalyser extends Node {
   colorScaleSelect: Select;
@@ -24,12 +21,7 @@ export class SpectrogramAnalyser extends Node {
   fftSizes = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
   timerId: number;
 
-  colorScaleToInterp: { [scale: string]: Function } = {
-    'Heated Metal': Function,
-    'Monochrome': Function,
-    'Inverted Monochrome': Function,
-    'Spectrum': Function
-  }
+  colorScaleToInterp: Record<string, Function> = {}
   currInterpolator: Function;
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {

@@ -31,7 +31,7 @@ fetchExamples();
 let setupFlowConnect = async () => {
   window.flowConnect = await FlowConnect.create(canvas);
 
-  flowConnect.on('update', () => {
+  flowConnect.on('render', () => {
     offContext.clearRect(0, 0, offCanvas.width, offCanvas.height);
     offUIContext.clearRect(0, 0, offUICanvas.width, offUICanvas.height);
     offGroupContext.clearRect(0, 0, offGroupCanvas.width, offGroupCanvas.height);

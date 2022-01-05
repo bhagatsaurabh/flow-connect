@@ -1,11 +1,9 @@
 import { Flow } from "../../core/flow";
 import { Vector2 } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
-import { InputType, Input } from "../../ui/input";
 import { clamp } from "../../utils/utils";
 import { Node } from "../../core/node";
-import { Slider } from "../../ui/slider";
-import { Toggle } from "../../ui/toggle";
+import { InputType, Input, Slider, Toggle } from "../../ui/index";
 
 export class BitcrusherEffect extends Node {
   bitsSlider: Slider;
