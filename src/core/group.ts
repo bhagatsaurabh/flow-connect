@@ -4,12 +4,11 @@ import { Color, SerializedColor } from "./color";
 import { Flow } from './flow';
 import { Hooks } from './hooks';
 import { Node } from './node';
-import { Renderable, RenderFunction, RenderResolver, Serializable } from "../common/interfaces";
+import { Renderable, RenderResolver, Serializable } from "../common/interfaces";
 import { ViewPort } from "../common/enums";
 
-export class Group extends Hooks implements Serializable, Renderable<Group, GroupRenderParams> {
-  static renderResolver: RenderResolver<Group, GroupRenderParams> = () => null;
-  renderFunction: RenderFunction<Group, GroupRenderParams>;
+export class Group extends Hooks implements Serializable, Renderable {
+  renderResolver: RenderResolver<Group, GroupRenderParams> = () => null;
 
   nodes: Node[] = [];
   get name(): string { return this._name; }
@@ -137,8 +136,13 @@ export class Group extends Hooks implements Serializable, Renderable<Group, Grou
 
     let context = this.flow.flowConnect.context;
     context.save();
-    this.renderFunction = Group.renderResolver() || this._render;
-    this.renderFunction(context, this.getRenderParams(), this);
+    let flowRenderResolver = this.flow.renderResolver.group;
+    let flowConnectRenderResolver = this.flow.flowConnect.renderResolver.group;
+    ((this.renderResolver && this.renderResolver(this))
+      || (flowRenderResolver && flowRenderResolver(this))
+      || (flowConnectRenderResolver && flowConnectRenderResolver(this))
+      || this._render
+    )(context, this.getRenderParams(), this);
     context.restore();
 
     this.flow.flowConnect.offGroupContext.save();

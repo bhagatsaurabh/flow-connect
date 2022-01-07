@@ -1,5 +1,6 @@
 import { FlowConnect } from 'flow-connect';
 import { Node } from 'flow-connect/core/node';
+import { Vector2 } from 'flow-connect/core/vector';
 import StandardNodes from 'flow-connect/standard-nodes';
 
 // Create an instance of FlowConnect by passing it a reference of <div> or <canvas> element
@@ -13,12 +14,12 @@ class TimerNode extends Node {
   timerId = -1;
   constructor(flow, position, interval) {
     super(flow, 'Timer', position, 100, [], [{ name: 'trigger', dataType: 'event' }], {
-      props: { interval }
+      state: { interval }
     });
 
     flow.on('start', () => {
       this.outputs[0].emit();
-      this.timerId = setInterval(() => this.outputs[0].emit(), this.props.interval);
+      this.timerId = setInterval(() => this.outputs[0].emit(), this.state.interval);
     });
     flow.on('stop', () => clearInterval(this.timerId));
   }
@@ -47,7 +48,7 @@ multiplyNode.on('process', () => {
 
 /* There are also a whole set of pre-built nodes for specific uses */
 let numberSource = new StandardNodes.Common.NumberSource(flow, {
-  position: new Vector2(245, 128), props: { value: 100 }
+  position: new Vector2(245, 128), state: { value: 100 }
 });
 
 let labelNode = flow.createNode('Label', new Vector2(755, 119), 120, [], []);

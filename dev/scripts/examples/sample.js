@@ -6,7 +6,7 @@ let flow = flowConnect.createFlow({
     'b': ['r', 'g', 'b'],
     'image': ['image']
   },
-  terminalTypeColors: {
+  terminalColors: {
     'r': '#ff0000',
     'g': '#00ff00',
     'b': '#0000ff',
@@ -74,7 +74,7 @@ textNode.on('process', () => console.log('Text Source'));
 toggleNode.on('process', () => console.log('Toggle Source'));
 
 
-let flow2 = flowConnect.createFlow({ name: 'Test Flow 2', rules: {}, terminalTypeColors: {} });
+let flow2 = flowConnect.createFlow({ name: 'Test Flow 2', rules: {}, terminalColors: {} });
 flow2.addInput('Input 1', 'number', new Vector2(100, 100));
 flow2.addOutput('Output 1', 'string', new Vector2(200, 200));
 let convertNode = flow2.createNode('Converter', new Vector2(50, 50), 130, {

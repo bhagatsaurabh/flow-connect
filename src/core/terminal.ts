@@ -4,13 +4,11 @@ import { Color, SerializedColor } from "./color";
 import { Connector, ConnectorStyle } from './connector';
 import { Hooks } from './hooks';
 import { Node } from './node';
-import { Events, Renderable, RenderFunction, Serializable } from "../common/interfaces";
+import { Events, Renderable, RenderResolver, Serializable } from "../common/interfaces";
 import { Log } from "../utils/logger";
 import { Constant } from "../resource/constants";
 
-export class Terminal extends Hooks implements Events, Serializable, Renderable<Terminal, TerminalRenderParams> {
-  renderFunction: RenderFunction<Terminal, TerminalRenderParams>;
-
+export class Terminal extends Hooks implements Events, Serializable, Renderable {
   /**
    * Terminals can hold any user-defined reference, using this variable to store a reference to something (and thereby binding it to this terminal) is helpful in special applications
    * for e.g audio connections - terminal can hold a reference to WebAudio Node which can be used to connect said AudioNodes when two terminals are connected,
@@ -42,6 +40,8 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable<
       if (this.type === TerminalType.OUT) this.setData(newVal);
     });
   }
+
+  renderResolver: RenderResolver<Terminal, TerminalRenderParams> = () => null;
 
   constructor(
     public node: Node,
@@ -88,11 +88,15 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable<
   render() {
     let context = this.node.context;
     context.save();
-    this.renderFunction =
-      (this.node.renderResolver.terminal && this.node.renderResolver.terminal())
-      || (Node.renderResolver.terminal && Node.renderResolver.terminal())
-      || this._render;
-    this.renderFunction(context, this.getRenderParams(), this);
+    let nodeRenderResolver = this.node.renderResolver.terminal;
+    let flowRenderResolver = this.node.flow.renderResolver.terminal;
+    let flowConnectRenderResolver = this.node.flow.flowConnect.renderResolver.terminal;
+    ((this.renderResolver && this.renderResolver(this))
+      || (nodeRenderResolver && nodeRenderResolver(this))
+      || (flowRenderResolver && flowRenderResolver(this))
+      || (flowConnectRenderResolver && flowConnectRenderResolver(this))
+      || this._render
+    )(context, this.getRenderParams(), this);
     context.restore();
 
     this.offUIRender();
@@ -119,7 +123,7 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable<
       context.beginPath();
       context.arc(params.position.x, params.position.y, terminal.style.radius, 0, Constant.TAU);
     }
-    context.fillStyle = params.focus ? terminal.style.focusColor : (terminal.node.flow.terminalTypeColors[terminal.dataType] || terminal.style.color);
+    context.fillStyle = params.focus ? terminal.style.focusColor : (terminal.node.flow.terminalColors[terminal.dataType] || terminal.style.color);
     context.strokeStyle = terminal.style.borderColor;
     context.shadowBlur = terminal.style.shadowBlur;
     context.shadowColor = terminal.style.shadowColor;
@@ -286,6 +290,7 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable<
       this.connectors.forEach(connector => {
         connector.end && connector.end.onEvent(data);
       });
+      this.call('emit', this, data);
     }
   }
 

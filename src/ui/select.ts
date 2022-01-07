@@ -8,7 +8,7 @@ import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
 import { FlowState } from "../core/flow";
 import { Align } from "../common/enums";
-import { get } from "../utils/utils";
+import { exists, get } from "../utils/utils";
 
 export class Select extends UINode implements Serializable {
   label: Label;
@@ -46,7 +46,7 @@ export class Select extends UINode implements Serializable {
       style: options.style ? { ...DefaultSelectStyle(), ...options.style } : DefaultSelectStyle(),
       propName: options.propName,
       input: options.input && (typeof options.input === 'boolean'
-        ? new Terminal(node, TerminalType.IN, 'string', '', {})
+        ? new Terminal(node, TerminalType.IN, 'any', '', {})
         : Terminal.deSerialize(node, options.input)),
       output: options.output && (typeof options.output === 'boolean'
         ? new Terminal(node, TerminalType.OUT, 'string', '', {})
@@ -63,10 +63,12 @@ export class Select extends UINode implements Serializable {
 
     if (this.input) {
       this.input.on('connect', (_, connector) => {
-        if (connector.data) this.selected = connector.data;
+        if (typeof connector.data === 'number') this.selected = this.values[connector.data];
+        else if (typeof connector.data === 'string') this.selected = connector.data;
       });
       this.input.on('data', (_, data) => {
-        if (data) this.selected = data;
+        if (typeof data === 'number') this.selected = this.values[data];
+        else if (typeof data === 'string') this.selected = data;
       });
     }
     if (this.output) this.output.on('connect', (_, connector) => connector.data = this.selected);

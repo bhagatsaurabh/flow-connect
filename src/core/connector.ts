@@ -2,13 +2,12 @@ import { Vector2, SerializedVector2 } from "./vector";
 import { get, getNewUUID } from "../utils/utils";
 import { Flow, FlowState } from "./flow";
 import { Terminal, TerminalType } from './terminal';
-import { Renderable, RenderFunction, RenderResolver, Serializable } from "../common/interfaces";
+import { Renderable, RenderResolver, Serializable } from "../common/interfaces";
 import { Node, NodeState } from "./node";
 import { Hooks } from './hooks';
 
-export class Connector extends Hooks implements Serializable, Renderable<Connector, ConnectorRenderParams> {
-  static renderResolver: RenderResolver<Connector, ConnectorRenderParams> = () => null;
-  renderFunction: RenderFunction<Connector, ConnectorRenderParams>;
+export class Connector extends Hooks implements Serializable, Renderable {
+  renderResolver: RenderResolver<Connector, ConnectorRenderParams> = () => null;
 
   start: Terminal;
   end: Terminal;
@@ -125,8 +124,13 @@ export class Connector extends Hooks implements Serializable, Renderable<Connect
   render() {
     let context = this.flow.flowConnect.context;
     context.save();
-    this.renderFunction = Connector.renderResolver() || this._render;
-    this.renderFunction(context, this.getRenderParams(), this);
+    let flowRenderResolver = this.flow.renderResolver.connector;
+    let flowConnectRenderResolver = this.flow.flowConnect.renderResolver.connector;
+    ((this.renderResolver && this.renderResolver(this))
+      || (flowRenderResolver && flowRenderResolver(this))
+      || (flowConnectRenderResolver && flowConnectRenderResolver(this))
+      || this._render
+    )(context, this.getRenderParams(), this);
     context.restore();
 
     let offContext = this.flow.flowConnect.offContext;
@@ -229,8 +233,8 @@ export interface ConnectorStyle {
 }
 let DefaultConnectorStyle = (): ConnectorStyle => {
   return {
-    color: '#7fff00aa',
     width: 5,
+    color: '#7fff00aa',
     border: true,
     borderColor: 'grey'
   };

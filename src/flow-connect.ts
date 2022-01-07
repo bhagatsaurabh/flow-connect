@@ -1,12 +1,13 @@
-import { Connector, Flow, Group, Node, Color, Hooks } from "./core/index";
+import { Connector, Flow, Group, Node, Color, Hooks, ConnectorRenderParams, NodeRenderParams, GroupRenderParams, NodeButton, NodeButtonRenderParams } from "./core/index";
 import { Vector2 } from "./core/vector";
-import { Dimension, Pointer, Rules } from "./common/interfaces";
+import { Dimension, Pointer, RenderResolver, Rules } from "./common/interfaces";
 import { intersects, noop } from "./utils/utils";
 import { Log } from './utils/logger';
-import { TerminalType } from './core/terminal';
+import { Terminal, TerminalRenderParams, TerminalType } from './core/terminal';
 import { FlowState, FlowOptions, SerializedFlow } from './core/flow';
 import { ViewPort } from './common/enums';
 import { generateAudioWorklets, WorkletUtils } from "./resource/audio-worklets";
+import { Container, ContainerRenderParams } from "./ui/container";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -117,6 +118,15 @@ export class FlowConnect extends Hooks {
   private timerId: number;
   /** No. of milliseconds passed since the start of one or more flows */
   get time(): number { return (this.startTime < 0) ? this.startTime : (performance.now() - this.startTime) }
+
+  readonly renderResolver: {
+    connector?: RenderResolver<Connector, ConnectorRenderParams>,
+    node?: RenderResolver<Node, NodeRenderParams>,
+    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>,
+    uiContainer?: RenderResolver<Container, ContainerRenderParams>
+    group?: RenderResolver<Group, GroupRenderParams>,
+    terminal?: RenderResolver<Terminal, TerminalRenderParams>,
+  } = {};
 
   /**
    * @param mount HTML element (div or canvas) on which FlowConnect will render Flows, if no mount is provided, a new canvas element will be created and attached to document.body
@@ -754,12 +764,12 @@ export class FlowConnect extends Hooks {
     this.frameId = window.requestAnimationFrame(this._render.bind(this));
   }
 
-  createFlow(options: FlowOptions = { name: 'New Flow', rules: {}, terminalTypeColors: {} }): Flow {
+  createFlow(options: FlowOptions = { name: 'New Flow', rules: {}, terminalColors: {} }): Flow {
     if (!options.rules) options.rules = {};
-    if (!options.terminalTypeColors) options.terminalTypeColors = {};
+    if (!options.terminalColors) options.terminalColors = {};
 
     options.rules = { ...options.rules, ...DefaultRules() };
-    let flow = new Flow(this, options.name, options.rules, options.terminalTypeColors);
+    let flow = new Flow(this, options.name, options.rules, options.terminalColors);
     this.flows.push(flow);
 
     flow.on('start', () => this.startGlobalTime());

@@ -43,11 +43,17 @@ export class Button extends UINode implements Serializable {
       height: this.height
     });
     this.label.on('click', (_node: Node, position: Vector2) => this.call('click', this, position));
+    /* this.label.on('enter', () => this.node.flow.flowConnect.cursor = 'pointer');
+    this.label.on('exit', () => this.node.flow.flowConnect.cursor = 'unset'); */
     this.children.push(this.label);
   }
 
   paint(): void {
     this.context.fillStyle = this.style.backgroundColor;
+    this.context.shadowColor = this.style.shadowColor;
+    this.context.shadowBlur = this.style.shadowBlur;
+    this.context.shadowOffsetX = this.style.shadowOffset.x;
+    this.context.shadowOffsetY = this.style.shadowOffset.y;
     this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
   paintLOD1() {
@@ -157,7 +163,10 @@ export interface ButtonStyle extends UINodeStyle {
   color?: string,
   fontSize?: string,
   font?: string,
-  padding?: number
+  padding?: number,
+  shadowColor?: string,
+  shadowBlur?: number,
+  shadowOffset?: Vector2;
 }
 let DefaultButtonStyle = () => {
   return {
@@ -166,7 +175,9 @@ let DefaultButtonStyle = () => {
     color: '#fff',
     font: 'arial',
     fontSize: '11px',
-    visible: true
+    shadowColor: '#555',
+    shadowBlur: 3,
+    shadowOffset: new Vector2(3, 3)
   };
 };
 

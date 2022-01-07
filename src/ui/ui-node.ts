@@ -5,11 +5,9 @@ import { SerializedTerminal, Terminal } from "../core/terminal";
 import { SerializedVector2, Vector2 } from "../core/vector";
 import { LOD, ViewPort } from '../common/enums';
 import { get, getNewUUID, intersects } from "../utils/utils";
-import { Events, Renderable, RenderFunction } from "../common/interfaces";
+import { Events, Renderable } from "../common/interfaces";
 
-export abstract class UINode extends Hooks implements Events, Renderable<UINode, UINodeRenderParams> {
-  renderFunction: RenderFunction<UINode, UINodeRenderParams>;
-
+export abstract class UINode extends Hooks implements Events, Renderable {
   private _disabled: boolean;
   private _visible: boolean;
 
@@ -142,6 +140,19 @@ export abstract class UINode extends Hooks implements Events, Renderable<UINode,
     this.node.state[this.propName] = propValue;
   }
 
+  query(query: string): Array<UINode> {
+    let result = [];
+    query = query.trim();
+    let queue: UINode[] = [this];
+    while (queue.length !== 0) {
+      let curr = queue.shift();
+      if (curr.type === query) result.push(curr);
+      curr.children.forEach(child => queue.push(child));
+    }
+
+    return result;
+  }
+
   abstract reflow(): void;
   abstract paint(): void;
   abstract paintLOD1(): void;
@@ -175,23 +186,23 @@ export interface SerializedUINode {
 }
 
 export enum UIType {
-  Button,
-  Container,
-  Display,
-  HorizontalLayout,
-  Stack,
-  Image,
-  Input,
-  Label,
-  Select,
-  Slider,
-  Dial,
-  Source,
-  Toggle,
-  Envelope,
-  RadioGroup,
-  Slider2D,
-  VSlider
+  Button = 'button',
+  Container = 'container',
+  Display = 'display',
+  HorizontalLayout = 'horizontal-layout',
+  Stack = 'stack',
+  Image = 'image',
+  Input = 'input',
+  Label = 'label',
+  Select = 'select',
+  Slider = 'slider',
+  Dial = 'dial',
+  Source = 'source',
+  Toggle = 'toggle',
+  Envelope = 'envelope',
+  RadioGroup = 'radiogroup',
+  Slider2D = 'slider2d',
+  VSlider = 'vslider'
 }
 
 interface UINodeOptions {

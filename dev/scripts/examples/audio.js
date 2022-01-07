@@ -1,4 +1,4 @@
-let flow = flowConnect.createFlow({ name: 'Audio Test', rules: {}, terminalTypeColors: {} });
+let flow = flowConnect.createFlow({ name: 'Audio Test', rules: {}, terminalColors: {} });
 
 // let log = new StandardNodes.Common.Log(flow);
 // let timer = new StandardNodes.Common.Timer(flow);

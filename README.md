@@ -51,7 +51,7 @@ let flowConnect = new FlowConnect(document.getElementById("canvas"));
 let flow = flowConnect.createFlow({
   name: "Stock Flow",
   rules: { array: ["array", "any"] },
-  terminalTypeColors: {}
+  terminalColors: {}
 });
 
 let timer = StandardNodes.Timer(flow);

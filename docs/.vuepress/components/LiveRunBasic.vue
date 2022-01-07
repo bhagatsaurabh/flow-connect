@@ -42,7 +42,7 @@ export default {
 
     let numberSource = new StandardNodes.Common.NumberSource(flow, {
       position: new Vector2(245, 128),
-      props: { value: 100 },
+      state: { value: 100 },
     });
 
     let labelNode = flow.createNode("Label", new Vector2(755, 119), 120, [], []);

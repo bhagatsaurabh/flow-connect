@@ -1,6 +1,6 @@
 let flow = flowConnect.createFlow({ name: 'Test' });
 
-Group.renderResolver = () => {
+flow.renderResolver.group = () => {
   return (context, params, _group) => {
     context.strokeStyle = '#000';
     context.setLineDash([4, 2]);

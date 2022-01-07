@@ -1,5 +1,5 @@
 import { Color } from "../core/color";
-import { Serializable } from "../common/interfaces";
+import { RenderResolver, Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
 import { Vector2 } from "../core/vector";
 import { Button, Display, HorizontalLayout, Stack, Image, Input, Label, Select, Slider, Source, Toggle } from "./index";
@@ -7,6 +7,7 @@ import { SerializedUINode, UINode, UINodeStyle, UIType, UINodeRenderParams } fro
 import { Align } from "../common/enums";
 
 export class Container extends UINode implements Serializable {
+  renderResolver: RenderResolver<Container, ContainerRenderParams> = () => null;
   contentWidth: number;
 
   constructor(
@@ -27,24 +28,25 @@ export class Container extends UINode implements Serializable {
 
   paint(): void {
     let context = this.context;
-    this.renderFunction =
-      (this.node.renderResolver.uiContainer && this.node.renderResolver.uiContainer())
-      || (Node.renderResolver.uiContainer && Node.renderResolver.uiContainer())
-      || this._paint;
-    this.renderFunction(context, this.getRenderParams(), this);
+    let nodeRenderResolver = this.node.renderResolver.uiContainer;
+    let flowRenderResolver = this.node.flow.renderResolver.uiContainer;
+    let flowConnectRenderResolver = this.node.flow.flowConnect.renderResolver.uiContainer;
+    ((this.renderResolver && this.renderResolver(this))
+      || (nodeRenderResolver && nodeRenderResolver(this))
+      || (flowRenderResolver && flowRenderResolver(this))
+      || (flowConnectRenderResolver && flowConnectRenderResolver(this))
+      || this._paint
+    )(context, this.getRenderParams(), this);
   }
   private _paint(context: CanvasRenderingContext2D, params: ContainerRenderParams, container: Container) {
     context.shadowColor = container.style.shadowColor;
-    context.shadowBlur = 3;
+    context.shadowBlur = container.style.shadowBlur;
     context.shadowOffsetX = container.style.shadowOffset.x;
     context.shadowOffsetY = container.style.shadowOffset.y;
     context.fillStyle = container.style.backgroundColor;
     context.strokeStyle = container.style.borderColor;
     context.lineWidth = container.style.borderWidth;
-    context.roundRect(
-      params.position.x, params.position.y + container.node.style.titleHeight,
-      params.width, params.height - container.node.style.titleHeight, 5
-    );
+    context.roundRect(params.position.x, params.position.y, params.width, params.height, 5);
     context.stroke();
     context.fill();
   }
@@ -65,10 +67,12 @@ export class Container extends UINode implements Serializable {
     this.offUIContext.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
   getRenderParams(): ContainerRenderParams {
+    let position = this.position.serialize();
+    position.y += this.node.style.titleHeight
     return {
-      position: this.position.serialize(),
+      position: position,
       width: this.width,
-      height: this.height
+      height: this.height - this.node.style.titleHeight
     }
   }
 
@@ -200,7 +204,7 @@ export interface ContainerStyle extends UINodeStyle {
 }
 let DefaultContainerStyle = () => {
   return {
-    backgroundColor: '#dddddd',
+    backgroundColor: '#ddd',
     shadowColor: '#666',
     shadowBlur: 3,
     shadowOffset: new Vector2(3, 3),

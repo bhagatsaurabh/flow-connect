@@ -1,7 +1,7 @@
 let flow = flowConnect.createFlow({
   name: 'Stock Flow',
   rules: {},
-  terminalTypeColors: {
+  terminalColors: {
     'number': '#7aff66',
     'string': '#ffe366',
     'array': '#66e6ff',

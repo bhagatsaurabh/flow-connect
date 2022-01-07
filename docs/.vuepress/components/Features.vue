@@ -5,11 +5,11 @@
       <template v-slot:desc>
         In FlowConnect, almost anything can be customized, from individual
         styling of nodes, terminals, connectors, and groups to UIs inside each
-        node, or tap into the render pipeline and take over entirely!<br />
+        node, or tap into the render pipeline and take over entirely!
       </template>
-      <template v-slot:live-example>
-        <LiveExample snippet="quick-start" default="run">
-          <template v-slot:name>basic-example.js</template>
+      <template v-slot:live-example="props">
+        <LiveExample :play="props.play" snippet="custom-example" default="run">
+          <template v-slot:name>custom-example.js</template>
           <template v-slot:run="props">
             <LiveRunCustomizable :play="props.play"></LiveRunCustomizable>
           </template>
@@ -27,16 +27,36 @@
         processing a node, new/updated input or output, UI updates, render
         cycles, and much more<br />
       </template>
-      <template v-slot:live-example> </template>
+      <template v-slot:live-example="props">
+        <LiveExample :play="props.play" snippet="event-example" default="run">
+          <template v-slot:name>event-example.js</template>
+          <template v-slot:run="props">
+            <LiveRunEvent :play="props.play"></LiveRunEvent>
+          </template>
+          <template v-slot:code>
+            <slot name="feature-code-2"></slot>
+          </template>
+        </LiveExample>
+      </template>
     </Feature>
     <Feature>
       <template v-slot:name>Reactive</template>
       <template v-slot:desc>
         Every node has its own reactive state, is two-way bindable with any
-        input/output or UI component, comes with inbuilt and customizable prop
+        input/output or UI component, comes with inbuilt and extensible
         validation, and can be watched for changes
       </template>
-      <template v-slot:live-example> </template>
+      <template v-slot:live-example="props">
+        <LiveExample :play="props.play" snippet="reactive-example" default="run">
+          <template v-slot:name>reactive-example.js</template>
+          <template v-slot:run="props">
+            <LiveRunReactive :play="props.play"></LiveRunReactive>
+          </template>
+          <template v-slot:code>
+            <slot name="feature-code-3"></slot>
+          </template>
+        </LiveExample>
+      </template>
     </Feature>
     <Feature align-right="true">
       <template v-slot:name>Executable</template>
@@ -56,6 +76,8 @@ import Feature from "./Feature.vue";
 import LiveExample from "./LiveExample.vue";
 import Markdown from "./Markdown.vue";
 import LiveRunCustomizable from "./LiveRunCustomizable.vue";
+import LiveRunEvent from "./LiveRunEvent.vue";
+import LiveRunReactive from "./LiveRunReactive.vue";
 </script>
 <script>
 export default {

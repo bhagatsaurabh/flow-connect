@@ -64,6 +64,13 @@ export default {
   props: {
     snippet: String,
     default: { default: "code" },
+    play: false,
+  },
+  watch: {
+    play(newVal) {
+      if (!newVal && !this.isGraphPlaying) return;
+      this.playGraph();
+    },
   },
   data() {
     return {
@@ -138,6 +145,7 @@ export default {
   display: flex;
 }
 .live-example-name {
+  text-align: left;
   font-weight: 600;
   margin: 0;
   padding-left: 1rem;
@@ -225,6 +233,7 @@ export default {
   transition: opacity 0.3s ease;
 }
 .live-example-run {
+  text-align: left;
   position: absolute;
   box-sizing: border-box;
   width: 100%;

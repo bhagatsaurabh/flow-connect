@@ -36,7 +36,7 @@ npm install --save flow-connect
 <h5>Example</h5>
 
 <LiveExample snippet="quick-start">
-<template v-slot:name>basic-example.js</template>
+<template v-slot:name>quick-start.js</template>
 <template v-slot:run="props"><LiveRunBasic :play="props.play" /></template>
 <template v-slot:code>
 <div class="code-block">
@@ -53,7 +53,21 @@ npm install --save flow-connect
 <template v-slot:feature-code-1>
 <div class="code-block">
 
-@[code](./snippets/quick-start.js)
+@[code](./snippets/custom-example.js)
+
+</div>
+</template>
+<template v-slot:feature-code-2>
+<div class="code-block">
+
+@[code](./snippets/event-example.js)
+
+</div>
+</template>
+<template v-slot:feature-code-3>
+<div class="code-block">
+
+@[code](./snippets/reactive-example.js)
 
 </div>
 </template>

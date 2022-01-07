@@ -40,20 +40,20 @@ export class Random extends Node {
     this.setOutputs(0, random);
   }
   setupUI() {
-    this.minInput = this.createInput({ propName: 'min', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .5, step: 'any' } });
-    this.maxInput = this.createInput({ propName: 'max', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .5, step: 'any' } });
+    this.minInput = this.createInput({ propName: 'min', input: true, output: true, height: 20, style: { type: InputType.Number, grow: 1, step: 'any' } });
+    this.maxInput = this.createInput({ propName: 'max', input: true, output: true, height: 20, style: { type: InputType.Number, grow: 1, step: 'any' } });
     this.fractionalToggle = this.createToggle({ propName: 'fractional', input: true, output: true, height: 10, style: { grow: .2 } });
     this.ui.append([
       this.createHozLayout([
-        this.createLabel('Min:'),
+        this.createLabel('Min:', { style: { grow: .3 } }),
         this.minInput
       ], { style: { spacing: 20 } }),
       this.createHozLayout([
-        this.createLabel('Max:'),
+        this.createLabel('Max:', { style: { grow: .3 } }),
         this.maxInput
       ], { style: { spacing: 20 } }),
       this.createHozLayout([
-        this.createLabel('Fractional ?'),
+        this.createLabel('Fractional ?', { style: { grow: .8 } }),
         this.fractionalToggle
       ], { style: { spacing: 10 } })
     ]);

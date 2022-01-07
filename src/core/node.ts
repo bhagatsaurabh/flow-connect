@@ -17,21 +17,14 @@ import { Events, Renderable, RenderFunction, RenderResolver, RenderState, Serial
 import { Connector } from "./connector";
 import { Log } from "../utils/logger";
 
-export class Node extends Hooks implements Events, Serializable, Renderable<Node, NodeRenderParams> {
+export class Node extends Hooks implements Events, Serializable, Renderable {
   //#region Properties
-  static renderResolver: {
-    node?: RenderResolver<Node, NodeRenderParams>,
-    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>,
-    terminal?: RenderResolver<Terminal, TerminalRenderParams>,
-    uiContainer?: RenderResolver<Container, ContainerRenderParams>,
-  } = {};
   renderResolver: {
     node?: RenderResolver<Node, NodeRenderParams>,
     nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>,
     terminal?: RenderResolver<Terminal, TerminalRenderParams>,
     uiContainer?: RenderResolver<Container, ContainerRenderParams>,
   } = {};
-  renderFunction: RenderFunction<Node, NodeRenderParams>;
   hitColor: Color;
   private _width: number;
 
@@ -60,6 +53,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable<Node
   //#endregion
 
   //#region Accessors
+  get height(): number { return this.ui.height };
   get context(): CanvasRenderingContext2D { return this.flow.flowConnect.context }
   get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offContext }
   get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offUIContext }
@@ -286,11 +280,13 @@ export class Node extends Hooks implements Events, Serializable, Renderable<Node
     this.renderTerminals(context);
     this.renderName(context);
     this.renderFocused(context);
-    this.renderFunction =
-      (this.renderResolver.node && this.renderResolver.node())
-      || (Node.renderResolver.node && Node.renderResolver.node())
-      || this._render;
-    this.renderFunction(context, this.getRenderParams(), this);
+    let flowRenderResolver = this.flow.renderResolver.node;
+    let flowConnectRenderResolver = this.flow.flowConnect.renderResolver.node;
+    ((this.renderResolver.node && this.renderResolver.node(this))
+      || (flowRenderResolver && flowRenderResolver(this))
+      || (flowConnectRenderResolver && flowConnectRenderResolver(this))
+      || this._render
+    )(context, this.getRenderParams(), this);
     context.restore();
 
     this.nodeButtons.forEach(nodeButton => nodeButton.render());
@@ -864,9 +860,10 @@ interface EnvelopeCreatorOptions {
   style?: EnvelopeStyle
 }
 
-export class NodeButton extends Hooks implements Renderable<NodeButton, NodeButtonRenderParams> {
-  defaultRenderFn: RenderFunction<NodeButton, NodeButtonRenderParams>
-  renderFunction: RenderFunction<NodeButton, NodeButtonRenderParams>;
+export class NodeButton extends Hooks implements Renderable {
+  renderResolver: RenderResolver<NodeButton, NodeButtonRenderParams> = () => null;
+  defaultRenderFn: RenderFunction<NodeButton, NodeButtonRenderParams>;
+  style: Record<string, any> = {};
 
   hitColor: Color;
   deltaX: number = 0;
@@ -875,12 +872,14 @@ export class NodeButton extends Hooks implements Renderable<NodeButton, NodeButt
     public node: Node,
     public callback: () => void,
     render: RenderFunction<NodeButton, NodeButtonRenderParams>,
-    public align: Align
+    public align: Align,
+    style?: Record<string, any>
   ) {
     super();
 
+    this.style = get(style, {});
     this.setHitColor();
-    this.renderFunction = this.defaultRenderFn = render;
+    this.defaultRenderFn = render;
   }
 
   private setHitColor() {
@@ -891,14 +890,15 @@ export class NodeButton extends Hooks implements Renderable<NodeButton, NodeButt
   }
   render() {
     this.node.context.save();
-    let position = this.node.position.serialize();
-    position.x += this.deltaX;
-    position.y += (this.node.style.titleHeight / 2 - this.node.style.nodeButtonSize / 2);
-    this.renderFunction =
-      (this.node.renderResolver.nodeButton && this.node.renderResolver.nodeButton())
-      || (Node.renderResolver.nodeButton && Node.renderResolver.nodeButton())
-      || this.defaultRenderFn;
-    this.renderFunction(this.node.context, { position }, this);
+    let nodeRenderResolver = this.node.renderResolver.nodeButton;
+    let flowRenderResolver = this.node.flow.renderResolver.nodeButton;
+    let flowConnectRenderResolver = this.node.flow.flowConnect.renderResolver.nodeButton;
+    ((this.renderResolver && this.renderResolver(this))
+      || (nodeRenderResolver && nodeRenderResolver(this))
+      || (flowRenderResolver && flowRenderResolver(this))
+      || (flowConnectRenderResolver && flowConnectRenderResolver(this))
+      || this.defaultRenderFn
+    )(this.node.context, this.getRenderParams(), this);
     this.node.context.restore();
 
     this.node.offUIContext.save();
@@ -906,6 +906,12 @@ export class NodeButton extends Hooks implements Renderable<NodeButton, NodeButt
     this.node.offUIContext.restore();
 
     this.call('render', this);
+  }
+  private getRenderParams(): NodeButtonRenderParams {
+    let position = this.node.position.serialize();
+    position.x += this.deltaX;
+    position.y += (this.node.style.titleHeight / 2 - this.node.style.nodeButtonSize / 2);
+    return { position }
   }
   private _offUIRender() {
     this.node.offUIContext.fillStyle = this.hitColor.rgbaCSSString;

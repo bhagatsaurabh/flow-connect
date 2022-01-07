@@ -23,7 +23,7 @@
         ></div>
       </div>
       <div ref="live-example" class="feature-live-content">
-        <slot name="live-example"></slot>
+        <slot name="live-example" :play="isLiveOpen"></slot>
       </div>
     </div>
   </div>
@@ -124,6 +124,7 @@ export default {
   overflow: hidden;
   transition: max-height 0.2s ease-out, min-height 0.2s ease-out;
   background-color: #f1f1f1;
+  box-shadow: 0 0 20px var(--c-block-shadow);
 }
 
 @media (max-width: 419px) {

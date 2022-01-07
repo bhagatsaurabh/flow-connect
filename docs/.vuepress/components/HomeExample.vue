@@ -48,7 +48,7 @@ export default {
       { position: new Vector2(775, 77.2) }
     );
     this.arraySource = new StandardNodes.Common.ArraySource(flow, {
-      props: {
+      state: {
         number: true,
         range: true,
         min: -5 * Math.PI,
@@ -66,7 +66,7 @@ export default {
 
     this.flowConnect.render(flow);
 
-    Object.values(this.flowConnect.currFlow.nodes).forEach(
+    this.flowConnect.currFlow.nodes.forEach(
       (node) => (this.orgPositions[node.id] = node.position.clone())
     );
 

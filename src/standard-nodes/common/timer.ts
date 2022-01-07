@@ -7,10 +7,10 @@ import { InputType } from "../../ui/index";
 export class Timer extends Node {
   lastTrigger: number = Number.MIN_VALUE;
 
-  static DefaultState = { delay: 1000 };
+  static DefaultState: any = { delay: 1000, emitValue: null };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Timer', options.position || new Vector2(50, 50), options.width || 150, [],
+    super(flow, options.name || 'Timer', options.position || new Vector2(50, 50), options.width || 120, [],
       [{ name: 'timer', dataType: 'event' }],
       {
         state: options.state ? { ...Timer.DefaultState, ...options.state } : Timer.DefaultState,
@@ -25,7 +25,7 @@ export class Timer extends Node {
     flow.flowConnect.on('tick', () => {
       let current = flow.flowConnect.time;
       if (current - this.lastTrigger >= this.state.delay) {
-        this.outputs[0].emit(null);
+        this.outputs[0].emit(this.state.emitValue);
         this.lastTrigger = current;
       }
     });

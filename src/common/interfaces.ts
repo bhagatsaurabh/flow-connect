@@ -50,10 +50,10 @@ export interface Serializable {
   serialize(): any;
 }
 export type RenderFunction<T, P> = (context: CanvasRenderingContext2D, params: P, target: T) => void;
-export type RenderResolver<T, P> = () => RenderFunction<T, P>;
+export type RenderResolver<T, P> = (instance: T) => RenderFunction<T, P>;
 
-export interface Renderable<T, P> {
-  renderFunction: RenderFunction<T, P>;
+export interface Renderable {
+  render: () => void;
 }
 
 /** A set of connection rules among different data types */

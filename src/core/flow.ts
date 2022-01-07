@@ -1,17 +1,18 @@
 import { FlowConnect } from "../flow-connect";
 import { Vector2 } from "./vector";
-import { Node, NodeStyle, SerializedNode } from "./node";
+import { Node, NodeButton, NodeButtonRenderParams, NodeRenderParams, NodeStyle, SerializedNode } from "./node";
 import { Hooks } from './hooks';
-import { Group, SerializedGroup } from './group';
-import { Connector, SerializedConnector } from './connector';
+import { Group, GroupRenderParams, SerializedGroup } from './group';
+import { Connector, ConnectorRenderParams, SerializedConnector } from './connector';
 import { AVLTree } from "../utils/avl-tree";
-import { Serializable, Rules } from '../common/interfaces';
+import { Serializable, Rules, RenderResolver } from '../common/interfaces';
 import { SubFlowNode } from "./subflow-node";
 import { TunnelNode, SerializedTunnelNode } from "./tunnel-node";
 import { getNewUUID } from "../utils/utils";
 import { Graph, SerializedGraph } from "./graph";
-import { TerminalStyle } from "./terminal";
+import { Terminal, TerminalRenderParams, TerminalStyle } from "./terminal";
 import { Log } from '../utils/logger';
+import { Container, ContainerRenderParams } from '../ui/container';
 
 /** A Flow is a set of Nodes, Connectors and Groups, it can also contain SubFlowNodes thereby creating a tree of Flows.
  *  ![](media://example.png)
@@ -33,11 +34,20 @@ export class Flow extends Hooks implements Serializable {
 
   executionGraph: Graph;
 
+  readonly renderResolver: {
+    connector?: RenderResolver<Connector, ConnectorRenderParams>,
+    node?: RenderResolver<Node, NodeRenderParams>,
+    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>,
+    uiContainer?: RenderResolver<Container, ContainerRenderParams>
+    group?: RenderResolver<Group, GroupRenderParams>,
+    terminal?: RenderResolver<Terminal, TerminalRenderParams>,
+  } = {};
+
   constructor(
     public flowConnect: FlowConnect,
     public name: string,
     public rules: Rules,
-    public terminalTypeColors: Record<string, string>,
+    public terminalColors: Record<string, string>,
     public id: string = getNewUUID()
   ) {
 
@@ -176,7 +186,7 @@ export class Flow extends Hooks implements Serializable {
       id: this.id,
       name: this.name,
       rules: this.rules,
-      terminalTypeColors: this.terminalTypeColors,
+      terminalColors: this.terminalColors,
       nodes: [...this.nodes.values()].map(node => node.serialize()),
       groups: this.groups.map(group => group.serialize()),
       connectors: [...this.connectors.values()].map(connector => connector.serialize()),
@@ -186,7 +196,7 @@ export class Flow extends Hooks implements Serializable {
     }
   }
   static deSerialize(flowConnect: FlowConnect, data: SerializedFlow): Flow {
-    let flow = new Flow(flowConnect, data.name, data.rules, data.terminalTypeColors, data.id);
+    let flow = new Flow(flowConnect, data.name, data.rules, data.terminalColors, data.id);
 
     data.nodes.forEach(serializedNode => {
       let node;
@@ -236,14 +246,14 @@ export enum FlowState {
 export interface FlowOptions {
   name: string,
   rules: Rules,
-  terminalTypeColors: Record<string, string>
+  terminalColors: Record<string, string>
 }
 
 export interface SerializedFlow {
   id: string,
   name: string,
   rules: Rules,
-  terminalTypeColors: Record<string, string>,
+  terminalColors: Record<string, string>,
   nodes: SerializedNode[],
   groups: SerializedGroup[],
   connectors: SerializedConnector[],
