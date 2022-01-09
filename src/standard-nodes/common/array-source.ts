@@ -75,7 +75,7 @@ export class ArraySource extends Node {
   setupUI() {
     this.numberToggle = this.createToggle({ propName: 'number', input: true, output: true, height: 10, style: { grow: .2 } });
     this.rangeToggle = this.createToggle({ propName: 'range', input: true, output: true, height: 10, style: { grow: .2 } });
-    this.rangeLayout = this.createHozLayout([this.createLabel('Range ?'), this.rangeToggle], { style: { spacing: 10 } });
+    this.rangeLayout = this.createHozLayout([this.createLabel('Range ?', { style: { grow: .4 } }), this.rangeToggle], { style: { spacing: 10 } });
     this.minInput = this.createInput({
       propName: 'min', height: 20, style: { type: InputType.Number, grow: .4, step: 'any' }
     });
@@ -97,7 +97,7 @@ export class ArraySource extends Node {
     });
     this.arrayInput = this.createInput({ value: '', height: 20, style: { pattern: '^[^,]+(\s*,\s*[^,]+)*$' } });
     this.ui.append([
-      this.createHozLayout([this.createLabel('Numbers ?'), this.numberToggle], { style: { spacing: 10 } }),
+      this.createHozLayout([this.createLabel('Numbers ?', { style: { grow: .4 } }), this.numberToggle], { style: { spacing: 10 } }),
       this.rangeLayout,
       this.rangeStack,
       this.arrayInput

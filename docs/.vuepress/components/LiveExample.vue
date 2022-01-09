@@ -31,24 +31,18 @@
     </div>
     <div ref="run" class="live-example-run">
       <slot name="run" :play="isGraphPlaying"></slot>
-      <div class="graph-controls">
-        <div @click="playGraph" class="graph-control-button">
-          <div
-            ref="graph-play-icon"
-            class="graph-control-button-icon graph-icon-play"
-          ></div>
-          <div ref="graph-play-icon-text" class="graph-control-button-text">
-            Run
-          </div>
-        </div>
-      </div>
+      <GraphControls ref="graph-controls" @control="handleControl" />
     </div>
   </div>
 </template>
 
+<script setup>
+import GraphControls from "./GraphControls.vue";
+</script>
 <script>
 export default {
   name: "LiveExample",
+  components: [GraphControls],
   mounted() {
     if (this.default === "code") this.codeClicked();
     else this.runClicked();
@@ -69,7 +63,7 @@ export default {
   watch: {
     play(newVal) {
       if (!newVal && !this.isGraphPlaying) return;
-      this.playGraph();
+      this.$refs["graph-controls"].buttonClicked("play");
     },
   },
   data() {
@@ -110,16 +104,9 @@ export default {
         navigator.clipboard.writeText(this.snippetText);
       }
     },
-    playGraph() {
-      this.isGraphPlaying = !this.isGraphPlaying;
-      if (this.isGraphPlaying) {
-        this.$refs["graph-play-icon"].style.backgroundImage =
-          "url('/images/stop-icon.png')";
-        this.$refs["graph-play-icon-text"].innerText = "Stop";
-      } else {
-        this.$refs["graph-play-icon"].style.backgroundImage =
-          "url('/images/play-icon.png')";
-        this.$refs["graph-play-icon-text"].innerText = "Run";
+    handleControl(controlName) {
+      if (controlName === "play") {
+        this.isGraphPlaying = !this.isGraphPlaying;
       }
     },
     copyActionAnimEnd() {
@@ -289,61 +276,5 @@ export default {
   100% {
     right: 3rem;
   }
-}
-
-.graph-controls {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 2rem;
-  border-top: 2px solid;
-  border-left: 2px solid;
-  border-right: 2px solid;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  box-sizing: border-box;
-  box-shadow: 0 0 6px darkgray;
-  background-color: white;
-}
-.graph-control-button {
-  cursor: pointer;
-  height: calc(100% + 1px);
-  position: relative;
-  top: -0.5px;
-  display: flex;
-  transition: background-color 0.2s ease;
-  padding-right: 1rem;
-}
-.graph-control-button:first-child {
-  padding-left: 1rem;
-  border-top-left-radius: 6px;
-}
-.graph-control-button:last-child {
-  border-top-right-radius: 6px;
-}
-.graph-control-button:hover .graph-control-button-icon {
-  filter: invert(1) drop-shadow(2px 4px 6px black);
-}
-.graph-control-button-icon {
-  transition: filter 0.2s linear;
-  filter: invert(1);
-  background-position: center;
-  background-size: 100%;
-  background-repeat: no-repeat;
-  height: 100%;
-  width: 1.2rem;
-}
-.graph-icon-play {
-  background-image: url("/images/play-icon.png");
-}
-.graph-control-button-text {
-  height: 100%;
-  color: #000;
-  line-height: 1.7rem;
-  margin-left: 0.2rem;
-}
-
-@media (max-width: 419px) {
 }
 </style>

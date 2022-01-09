@@ -31,7 +31,11 @@ npm install --save flow-connect
   </CodeGroupItem>
 </CodeGroup>
 </div>
-
+<div class="quick-start-desc">
+  <h6>Learning FlowConnect is as simple as understanding what these terms mean and how they are related: Flows, Nodes, Connectors, Groups and Sub-Flows.<br/><br/>
+  Every FlowConnect instance that you create has one or more Flows, and every Flow consists of Nodes, Connectors and Groups, Flows can also have Sub-Flows.<br/><br/>
+  Create a <span class="colored-emphasis">Flow</span>, create a bunch of <span class="colored-emphasis">Nodes</span> inside that flow, connect those nodes using <span class="colored-emphasis">Connectors</span>, group similar nodes together using Node <span class="colored-emphasis">Groups</span> and if your flow becomes large, divide it using <span class="colored-emphasis">Sub-Flows</span> (if your sub-flows are also becoming large, you can divide it further into more sub-flows and so on...)</h6>
+</div>
 <div class="quick-start-step quick-start-example">
 <h5>Example</h5>
 
@@ -47,6 +51,12 @@ npm install --save flow-connect
 </template>
 </LiveExample>
 
+</div>
+
+<div class="action-buttons">
+  <ActionButton to="/guide/get-started" primary>Getting Started</ActionButton>
+  <ActionButton to="/guide/intro" secondary>Introduction</ActionButton>
+  <ActionButton to="/guide/reference/flow-connect/api" primary>Docs</ActionButton>
 </div>
 
 <Features>
@@ -86,8 +96,22 @@ npm install --save flow-connect
   import Features from '../../components/Features.vue';
   import LiveRunBasic from '../../components/LiveRunBasic.vue';
   import LiveExample from '../../components/LiveExample.vue';
+  import ActionButton from '../../components/ActionButton.vue';
 </script>
 <style>
+.home .features {
+  border-top: unset;
+}
+.action-buttons {
+  margin: auto;
+  text-align: center;
+  margin-top: 4rem !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
 .footer {
   text-align: left !important;
 }
@@ -106,6 +130,14 @@ npm install --save flow-connect
   position: relative;
   height: 50vh;
 }
+.quick-start-desc {
+  text-align: center;
+  color: var(--c-text);
+  opacity: .7;
+  max-width: 70vw;
+  margin: auto;
+  margin-bottom: 0;
+}
 
 @media (max-width: 419px) {
   .quick-start-step {
@@ -115,9 +147,15 @@ npm install --save flow-connect
     margin-left: -1.5rem;
     margin-right: -1.5rem;
   }
+  .quick-start-desc {
+    max-width: 100vw;
+  }
 }
 @media (max-width: 700px) {
   .quick-start-step {
+    max-width: 90vw;
+  }
+  .quick-start-desc {
     max-width: 90vw;
   }
 }

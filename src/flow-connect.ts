@@ -221,7 +221,7 @@ export class FlowConnect extends Hooks {
     document.getElementsByTagName('head')[0].appendChild(inputStyle);
   }
   private calculateCanvasDimension(adjust: boolean) {
-    if (adjust) {
+    if (adjust && this.canvas.parentElement) {
       let parentBoundingRect = this.canvas.parentElement.getBoundingClientRect();
       this.canvas.width = parentBoundingRect.width;
       this.canvas.height = parentBoundingRect.height;

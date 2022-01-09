@@ -150,6 +150,14 @@ html.dark {
   display: none;
 }
 
+.align-center {
+  text-align: center;
+}
+.colored-emphasis {
+  color: var(--c-brand);
+  font-weight: bold;
+}
+
 .home {
   margin-left: 0;
   max-width: 100%;

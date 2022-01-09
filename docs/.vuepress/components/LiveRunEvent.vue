@@ -79,16 +79,12 @@ export default {
 
     let handleEmitEvent = (terminal) => {
       let currTime = this.flowConnect.time;
-      if (!terminal.node.state.isBlinking) {
-        [...terminal.node.nodeButtons.values()][1].style.color = "#000";
-        terminal.node.state.lastBlink =
-          currTime + terminal.node.state.blinkDuration;
-        terminal.node.state.isBlinking = !terminal.node.state.isBlinking;
-      }
+      [...terminal.node.nodeButtons.values()][1].style.color = "#000";
+      terminal.node.state.lastBlink = currTime;
     };
     flow.nodes.forEach((node) => {
       if (!node.outputs[0]) return;
-      let statusBlip = node.addNodeButton(
+      node.addNodeButton(
         () => null,
         (context, params, nodeButton) => {
           let nodeStyle = nodeButton.node.style;
@@ -108,19 +104,19 @@ export default {
         },
         Align.Right
       );
-      statusBlip.on("render", (nodeButton) => {
-        if (
-          this.flowConnect.time - nodeButton.node.state.lastBlink >
-          nodeButton.node.state.blinkDuration
-        ) {
-          nodeButton.style.color = "transparent";
-          nodeButton.node.state.isBlinking = false;
-        }
-      });
       node.outputs[0] &&
         node.outputs[0].on("emit", (terminal) => handleEmitEvent(terminal));
     });
 
+    flow.flowConnect.on("tick", () => {
+      flow.nodes.forEach((node) => {
+        let statusBlip = [...node.nodeButtons.values()][1];
+        if (statusBlip && statusBlip.style.color === "#000") {
+          if (flow.flowConnect.time - node.state.lastBlink > 50)
+            statusBlip.style.color = "transparent";
+        }
+      });
+    });
     this.flowConnect.on("stop", () => {
       flow.nodes.forEach((node) => {
         if (node.nodeButtons.size === 2) {
