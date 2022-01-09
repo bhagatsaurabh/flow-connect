@@ -49,11 +49,14 @@ export class Button extends UINode implements Serializable {
   }
 
   paint(): void {
-    this.context.fillStyle = this.style.backgroundColor;
-    this.context.shadowColor = this.style.shadowColor;
-    this.context.shadowBlur = this.style.shadowBlur;
-    this.context.shadowOffsetX = this.style.shadowOffset.x;
-    this.context.shadowOffsetY = this.style.shadowOffset.y;
+    Object.assign(this.context, {
+      fillStyle: this.style.backgroundColor,
+      shadowColor: this.style.shadowColor,
+      shadowBlur: this.style.shadowBlur,
+      shadowOffsetX: this.style.shadowOffset.x,
+      shadowOffsetY: this.style.shadowOffset.y
+    })
+    this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
   paintLOD1() {

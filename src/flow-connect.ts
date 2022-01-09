@@ -315,7 +315,7 @@ export class FlowConnect extends Hooks {
         this.currHitGroup = null;
         this.currFlow.removeAllFocus();
         if (this.floatingConnector) {
-          this.fallbackConnection();
+          this.floatingConnector.removeConnection();
         }
       }
     }
@@ -369,7 +369,7 @@ export class FlowConnect extends Hooks {
         }
       }
 
-      if (this.floatingConnector) this.fallbackConnection();
+      if (this.floatingConnector) this.floatingConnector.removeConnection();
 
       if (this.prevHitNode) {
         let screenPosition = this.getRelativePosition(ev);
@@ -604,7 +604,7 @@ export class FlowConnect extends Hooks {
   }
   private handleConnection(hitNode: Node, screenPosition: Vector2, realPosition: Vector2) {
     if (!hitNode) {
-      this.fallbackConnection();
+      this.floatingConnector.removeConnection();
       return;
     }
     let hitTerminal = hitNode.getHitTerminal(
@@ -614,13 +614,13 @@ export class FlowConnect extends Hooks {
     );
     if (hitTerminal) hitNode.currHitTerminal = hitTerminal;
     if (!hitTerminal) {
-      this.fallbackConnection();
+      this.floatingConnector.removeConnection();
       return;
     }
 
     let destination = hitNode.currHitTerminal;
     if (!this.floatingConnector.canConnect(destination)) {
-      this.fallbackConnection();
+      this.floatingConnector.removeConnection();
       hitNode.currHitTerminal = null;
     } else {
       if (destination.type === TerminalType.OUT) {
@@ -629,7 +629,7 @@ export class FlowConnect extends Hooks {
       } else {
         if (destination.connectors.length > 0) {
           if (destination.connectors[0].start === this.floatingConnector.start) {
-            this.fallbackConnection();
+            this.floatingConnector.removeConnection();
             hitNode.currHitTerminal = null;
             return;
           }
@@ -680,10 +680,6 @@ export class FlowConnect extends Hooks {
   }
   scaleBy(scale: number, scaleOrigin: Vector2) {
     this.updateTransform(scale, scaleOrigin);
-  }
-  private fallbackConnection() {
-    this.floatingConnector.removeConnection();
-    this.currFlow.removeConnector(this.floatingConnector.id);
   }
   private addPointer(pointerId: number, position: Vector2) {
     this.pointers.push({
@@ -819,8 +815,8 @@ export class FlowConnect extends Hooks {
 }
 
 export enum FlowConnectState {
-  Stopped,
-  Running
+  Stopped = 'Stopped',
+  Running = 'Running'
 }
 
 /** Default rules every Flow will have, for e.g. a string output can only be connected to string inputs.

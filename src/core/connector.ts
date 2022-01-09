@@ -96,6 +96,7 @@ export class Connector extends Hooks implements Serializable, Renderable {
         this.endNode.currHitTerminal = null;
       }
     }
+    this.flow.removeConnector(this.id);
   }
   setData(data: any) {
     this._data = data;

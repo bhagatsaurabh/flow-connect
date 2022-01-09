@@ -238,9 +238,9 @@ export class Flow extends Hooks implements Serializable {
 }
 
 export enum FlowState {
-  Running,
-  Idle,
-  Stopped
+  Running = 'Running',
+  Idle = 'Idle',
+  Stopped = 'Stopped'
 }
 
 export interface FlowOptions {

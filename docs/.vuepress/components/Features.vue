@@ -43,11 +43,14 @@
       <template v-slot:name>Reactive</template>
       <template v-slot:desc>
         Every node has its own reactive state, is two-way bindable with any
-        input/output or UI component, comes with inbuilt and extensible
-        validation, and can be watched for changes
+        input/output or UI component, and can be watched for changes
       </template>
       <template v-slot:live-example="props">
-        <LiveExample :play="props.play" snippet="reactive-example" default="run">
+        <LiveExample
+          :play="props.play"
+          snippet="reactive-example"
+          default="run"
+        >
           <template v-slot:name>reactive-example.js</template>
           <template v-slot:run="props">
             <LiveRunReactive :play="props.play"></LiveRunReactive>
@@ -61,12 +64,26 @@
     <Feature align-right="true">
       <template v-slot:name>Executable</template>
       <template v-slot:desc>
-        In FlowConnect, every Flow is executable, which means nodes are
+        In FlowConnect, every Flow is executable and nodes are
         processed based on their dependencies, every Flow dynamically
-        constructs/updates an internal representation of what is rendered on
+        constructs/updates an internal 'graph' of what is shown on
         screen but optimized and ready for execution
       </template>
-      <template v-slot:live-example> </template>
+      <template v-slot:live-example="props">
+        <LiveExample
+          :play="props.play"
+          snippet="executable-example"
+          default="run"
+        >
+          <template v-slot:name>executable-example.js</template>
+          <template v-slot:run="props">
+            <LiveRunExecutable :play="props.play"></LiveRunExecutable>
+          </template>
+          <template v-slot:code>
+            <slot name="feature-code-4"></slot>
+          </template>
+        </LiveExample>
+      </template>
     </Feature>
   </div>
 </template>
@@ -78,6 +95,7 @@ import Markdown from "./Markdown.vue";
 import LiveRunCustomizable from "./LiveRunCustomizable.vue";
 import LiveRunEvent from "./LiveRunEvent.vue";
 import LiveRunReactive from "./LiveRunReactive.vue";
+import LiveRunExecutable from "./LiveRunExecutable.vue";
 </script>
 <script>
 export default {

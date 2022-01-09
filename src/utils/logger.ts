@@ -1,5 +1,5 @@
 export enum LogLevel {
-  TRACE = 0, DEBUG = 1, WARN = 2, INFO = 3, LOG = 3, ERROR = 4, DISABLED = 5
+  TRACE = 'TRACE', DEBUG = 'DEBUG', WARN = 'WARN', INFO = 'INFO', LOG = 'LOG', ERROR = 'ERROR', DISABLED = 'DISABLED'
 }
 
 export class Log {

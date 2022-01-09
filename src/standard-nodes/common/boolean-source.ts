@@ -28,10 +28,10 @@ export class BooleanSource extends Node {
 
   process() { this.setOutputs(0, this.state.value); }
   setupUI() {
-    let toggle = this.createToggle({ propName: 'value', input: true, output: true, height: 10, style: { grow: .3 } });
+    this.toggle = this.createToggle({ propName: 'value', input: true, output: true, height: 10, style: { grow: .4 } });
     this.ui.append(this.createHozLayout([
       this.createLabel('Value'),
-      toggle
+      this.toggle
     ], { style: { spacing: 20 } }));
   }
 }

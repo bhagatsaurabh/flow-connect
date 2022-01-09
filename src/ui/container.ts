@@ -209,8 +209,7 @@ let DefaultContainerStyle = () => {
     shadowBlur: 3,
     shadowOffset: new Vector2(3, 3),
     borderWidth: 1,
-    borderColor: '#444',
-    visible: true
+    borderColor: '#444'
   };
 };
 

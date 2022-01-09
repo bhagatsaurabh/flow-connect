@@ -204,8 +204,8 @@ export class Display extends UINode implements Serializable {
 }
 
 export enum CanvasType {
-  OffscreenCanvas,
-  HTMLCanvasElement
+  OffscreenCanvas = 'OffscreenCanvas',
+  HTMLCanvasElement = 'HTMLCanvasElement'
 }
 
 export interface CustomOffCanvasConfig {

@@ -674,8 +674,8 @@ export interface NodeRenderParams {
   focus: boolean
 }
 export enum NodeState {
-  MAXIMIZED,
-  MINIMIZED
+  MAXIMIZED = 'Maximized',
+  MINIMIZED = 'Minimized'
 }
 
 export interface NodeStyle {

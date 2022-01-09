@@ -37,13 +37,13 @@ export class NumberSource extends Node {
 
   process() { this.setOutputs(0, this.state.fractional ? this.state.value : Math.floor(this.state.value)); }
   setupUI() {
-    this.fractionalToggle = this.createToggle({ propName: 'fractional', input: true, output: true, height: 10, style: { grow: .3 } });
+    this.fractionalToggle = this.createToggle({ propName: 'fractional', input: true, output: true, height: 10, style: { grow: .2 } });
     this.input = this.createInput({
       value: 0, propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .6, step: this.state.fractional ? 'any' : '' }
     })
     this.ui.append([
-      this.createHozLayout([this.createLabel('Fractional ?', { style: { grow: .5 } }), this.fractionalToggle], { style: { spacing: 20 } }),
       this.createHozLayout([this.createLabel('Value', { style: { grow: .4 } }), this.input], { style: { spacing: 20 } }),
+      this.createHozLayout([this.createLabel('Fractional ?', { style: { grow: .5 } }), this.fractionalToggle], { style: { spacing: 20 } }),
     ]);
   }
 }

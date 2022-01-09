@@ -20,8 +20,8 @@ export class Log extends Node {
       }
     );
 
-    this.inputs[0].on('event', (terminal, data) => Logger.log(terminal.name, data));
-    this.inputs[1].on('data', (terminal, data) => Logger.log(terminal.name, data));
+    this.inputs[0].on('event', (terminal, data) => Logger.log(terminal.name + ':', data));
+    this.inputs[1].on('data', (terminal, data) => Logger.log(terminal.name + ':', data));
 
     this.setupUI();
 

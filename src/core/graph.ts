@@ -5,7 +5,6 @@ import { Serializable } from "../common/interfaces";
 import { Node } from "./node";
 import { List } from "../utils/linked-list";
 
-
 // A directed acyclic graph
 export class Graph implements Serializable {
   state: FlowState = FlowState.Stopped;
@@ -66,8 +65,8 @@ export class Graph implements Serializable {
       currNode.childs.forEach(child => {
         if (child.order <= currNode.order) {
           this._updateOrder(child, currNode.order + 1);
-          if (!queue.includes(child)) queue.push(child);
         }
+        if (!queue.includes(child)) queue.push(child);
       });
     }
   }

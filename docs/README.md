@@ -71,6 +71,13 @@ npm install --save flow-connect
 
 </div>
 </template>
+<template v-slot:feature-code-4>
+<div class="code-block">
+
+@[code](./snippets/executable-example.js)
+
+</div>
+</template>
 </Features>
 
 <script setup>
