@@ -118,7 +118,7 @@ export default {
 
 <style scoped>
 .live-example {
-  height: 50vh;
+  height: 60vh;
   position: relative;
   box-shadow: 0 0 20px var(--c-block-shadow);
   transition: box-shadow 0.3s ease;

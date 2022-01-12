@@ -50,7 +50,7 @@ export const exists = (value: any): boolean => {
   return typeof value !== 'undefined' && value !== null;
 }
 export const get = <T>(value: T, defaultVal: T): T => {
-  if (typeof value === 'undefined' || value === null) return defaultVal;
+  if (!exists(value)) return defaultVal;
   return value;
 }
 export const binarySearch = ({ max, getValue, match }: { max: number, getValue: Function, match: number }) => {

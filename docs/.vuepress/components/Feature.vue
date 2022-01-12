@@ -43,8 +43,8 @@ export default {
   methods: {
     controlClicked() {
       if (!this.isLiveOpen) {
-        this.$refs["live-example"].style.maxHeight = "50vh";
-        this.$refs["live-example"].style.minHeight = "50vh";
+        this.$refs["live-example"].style.maxHeight = "60vh";
+        this.$refs["live-example"].style.minHeight = "60vh";
         this.$refs["control-icon"].classList.add("flip");
 
         setTimeout(
