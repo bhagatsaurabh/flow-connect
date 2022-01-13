@@ -55,7 +55,9 @@ module.exports = {
         {
           text: 'Classes',
           collapsible: true,
-          children: [],
+          children: [
+            { text: 'FlowConnect', link: '/reference/api/classes/' }
+          ],
         },
         {
           text: 'Interfaces',

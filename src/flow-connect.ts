@@ -514,7 +514,7 @@ export class FlowConnect extends Hooks {
 
     document.body.appendChild(this.genericInput);
   }
-  private async setupAudioContext() {
+  async setupAudioContext() {
     if ((window as any).__FLOWCONNECT_AUDIO_CTX__) {
       this._audioContext = (window as any).__FLOWCONNECT_AUDIO_CTX__;
     } else {
