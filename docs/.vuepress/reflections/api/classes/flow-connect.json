@@ -1,0 +1,163 @@
+{
+  "filePath": "src/flow-connect.ts",
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "canvas",
+      "type": "property"
+    },
+    {
+      "name": "canvasDimensions",
+      "type": "property"
+    },
+    {
+      "name": "disableScale",
+      "type": "property"
+    },
+    {
+      "name": "flows",
+      "type": "property"
+    },
+    {
+      "name": "maxScale",
+      "type": "property"
+    },
+    {
+      "name": "minScale",
+      "type": "property"
+    },
+    {
+      "name": "offCanvas",
+      "type": "property"
+    },
+    {
+      "name": "offGroupCanvas",
+      "type": "property"
+    },
+    {
+      "name": "offUICanvas",
+      "type": "property"
+    },
+    {
+      "name": "pinchScaleDelta",
+      "type": "property"
+    },
+    {
+      "name": "pointers",
+      "type": "property"
+    },
+    {
+      "name": "renderResolver",
+      "type": "property"
+    },
+    {
+      "name": "startTime",
+      "type": "property"
+    },
+    {
+      "name": "state",
+      "type": "property"
+    },
+    {
+      "name": "wheelScaleDelta",
+      "type": "property"
+    }
+  ],
+  "accessors": [
+    {
+      "name": "audioContext",
+      "type": "accessor"
+    },
+    {
+      "name": "context",
+      "type": "accessor"
+    },
+    {
+      "name": "cursor",
+      "type": "accessor"
+    },
+    {
+      "name": "offContext",
+      "type": "accessor"
+    },
+    {
+      "name": "offGroupContext",
+      "type": "accessor"
+    },
+    {
+      "name": "offUIContext",
+      "type": "accessor"
+    },
+    {
+      "name": "scale",
+      "type": "accessor"
+    },
+    {
+      "name": "time",
+      "type": "accessor"
+    },
+    {
+      "name": "transform",
+      "type": "accessor"
+    }
+  ],
+  "methods": [
+    {
+      "name": "call",
+      "type": "method-inherited"
+    },
+    {
+      "name": "createFlow",
+      "type": "method"
+    },
+    {
+      "name": "fromJson",
+      "type": "method"
+    },
+    {
+      "name": "off",
+      "type": "method-inherited"
+    },
+    {
+      "name": "offAll",
+      "type": "method-inherited"
+    },
+    {
+      "name": "on",
+      "type": "method-inherited"
+    },
+    {
+      "name": "render",
+      "type": "method"
+    },
+    {
+      "name": "scaleBy",
+      "type": "method"
+    },
+    {
+      "name": "setupAudioContext",
+      "type": "method-async"
+    },
+    {
+      "name": "toJson",
+      "type": "method"
+    },
+    {
+      "name": "top",
+      "type": "method"
+    },
+    {
+      "name": "translateBy",
+      "type": "method"
+    },
+    {
+      "name": "create",
+      "type": "method-static"
+    }
+  ]
+}

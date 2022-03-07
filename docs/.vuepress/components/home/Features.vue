@@ -90,8 +90,7 @@
 
 <script setup>
 import Feature from "./Feature.vue";
-import LiveExample from "./LiveExample.vue";
-import Markdown from "./Markdown.vue";
+import LiveExample from "../common/LiveExample.vue";
 import LiveRunCustomizable from "./LiveRunCustomizable.vue";
 import LiveRunEvent from "./LiveRunEvent.vue";
 import LiveRunReactive from "./LiveRunReactive.vue";

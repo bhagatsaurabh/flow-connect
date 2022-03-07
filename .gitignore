@@ -11,3 +11,5 @@ testserver/
 bundles/
 .temp
 .cache
+docs/typedocs/
+docs/.vuepress/dist/

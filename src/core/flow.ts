@@ -113,7 +113,7 @@ export class Flow extends Hooks implements Serializable {
     this.call('add-output', this, flowOutput);
     return flowOutput;
   }
-  addSubFlow(flow: Flow, position: Vector2): SubFlowNode {
+  addSubFlow(flow: Flow, position: Vector2 = Vector2.Zero()): SubFlowNode {
     if (flow.parentFlow) {
       Log.error('Provided flow is already a sub-flow, a sub-flow cannot have multiple parent flows');
       return null;

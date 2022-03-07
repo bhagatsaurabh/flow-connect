@@ -14,12 +14,13 @@ module.exports = {
   theme: '@vuepress/theme-default',
   themeConfig: {
     logo: '/images/logo.png',
+    smoothScroll: true,
     navbar: [
       { text: 'Guide', link: '/guide/' },
       // { text: 'Examples', link: '/examples/' },
       {
         text: 'Reference', children: [
-          { text: 'Flow Connect', children: [{ text: 'API', link: '/reference/api/classes/' }] },
+          { text: 'Flow Connect', children: [{ text: 'API', link: '/reference/api/classes/flow-connect' }] },
           {
             text: 'Standard Nodes', children: [
               { text: 'Common', link: '/reference/standard-nodes/common/' },
@@ -56,7 +57,9 @@ module.exports = {
           text: 'Classes',
           collapsible: true,
           children: [
-            { text: 'FlowConnect', link: '/reference/api/classes/' }
+            { text: 'FlowConnect', link: '/reference/api/classes/flow-connect.md' },
+            { text: 'Color', link: '/reference/api/classes/color.md' },
+            { text: 'Flow', link: '/reference/api/classes/flow.md' }
           ],
         },
         {
@@ -102,7 +105,6 @@ module.exports = {
         }
       ]
     },
-    smoothScroll: true,
     repo: 'saurabh-prosoft/flow-connect',
     lastUpdated: true,
     search: true,
@@ -116,7 +118,7 @@ module.exports = {
       getExtraFields: (page) => page.frontmatter.tags ?? [],
     }],
     ['@vuepress/medium-zoom', {
-      selector: '.zoomable-images img'
+      selector: 'img.zoomable'
     }]
   ]
 }

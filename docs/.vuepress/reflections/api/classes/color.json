@@ -1,0 +1,65 @@
+{
+  "filePath": "src/flow-connect.ts",
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "hexValue",
+      "type": "property"
+    },
+    {
+      "name": "rgbaString",
+      "type": "property"
+    },
+    {
+      "name": "rgbaCSSString",
+      "type": "property"
+    },
+    {
+      "name": "rgbaValue",
+      "type": "property"
+    }
+  ],
+  "methods": [
+    {
+      "name": "isEqual",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    },
+    {
+      "name": "rgbaToHex",
+      "type": "method-static"
+    },
+    {
+      "name": "serialize",
+      "type": "method-implementation"
+    },
+    {
+      "name": "hexToRGBA",
+      "type": "method-static"
+    },
+    {
+      "name": "rgbaToString",
+      "type": "method-static"
+    },
+    {
+      "name": "Random",
+      "type": "method-static"
+    },
+    {
+      "name": "rgbaToCSSString",
+      "type": "method-static"
+    },
+    {
+      "name": "scale",
+      "type": "method-static"
+    }
+  ]
+}

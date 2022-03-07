@@ -2,7 +2,7 @@
   // brand colors
   // --c-brand: #3eaf7c;
   --c-brand: #fa9868;
-  --c-brand-light: #ffb38e;
+  --c-brand-light: #e6baa4;
 
   // background colors
   --c-bg: #ffffff;
@@ -25,7 +25,7 @@
   --c-border-dark: #dfe2e5;
 
   // custom container colors
-  --c-tip: #42b983;
+  --c-tip: #fa9868;
   --c-tip-bg: var(--c-bg-light);
   --c-tip-title: var(--c-text);
   --c-tip-text: var(--c-text);
@@ -109,6 +109,10 @@
 // plugin-nprogress
 #nprogress {
   --nprogress-color: var(--c-brand);
+}
+
+.badge.tip {
+  vertical-align: baseline !important;
 }
 
 // plugin-pwa-popup
@@ -224,6 +228,60 @@ div[class*="language-"] {
   border-radius: 6px !important;
 }
 
+.mr-1 {
+  margin-right: 1rem;
+}
+.mr-0p5 {
+  margin-right: 0.5rem;
+}
+.pt-1 {
+  padding-top: 1rem;
+}
+.pt-2 {
+  padding-top: 2rem;
+}
+.pt-3 {
+  padding-top: 3rem;
+}
+.mt-2 {
+  margin-top: 2rem;
+}
+.mt-1 {
+  margin-top: 1rem;
+}
+.ml-1 {
+  margin-left: 1rem;
+}
+.mb-1 {
+  margin-bottom: 1rem;
+}
+.mb-0 {
+  margin-bottom: 0;
+}
+.my-1 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.api-icon {
+  height: 1.2rem;
+  vertical-align: middle;
+}
+.grey {
+  color: grey;
+}
+.bg-grey {
+  background-color: grey !important;
+}
+article {
+  padding: 1rem;
+}
+.d-inline-block {
+  display: inline-block;
+}
+.v-align-bottom {
+  vertical-align: bottom;
+}
+
 @media (max-width: 419px) {
   .home {
     margin-left: auto;
@@ -238,17 +296,18 @@ div[class*="language-"] {
   .home .hero .description {
     margin-left: auto;
   }
-
   .code-block div {
     margin: 0 !important;
   }
-
   .code-group {
     border-radius: 0;
   }
-
   .border-radius {
     border-radius: 0 !important;
+  }
+  article {
+    margin-left: -16px;
+    margin-right: -16px;
   }
 }
 

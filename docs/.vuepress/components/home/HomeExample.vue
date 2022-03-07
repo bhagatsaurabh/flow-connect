@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import GraphControls from "./GraphControls.vue";
+import GraphControls from "../common/GraphControls.vue";
 </script>
 <script>
 export default {

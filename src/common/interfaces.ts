@@ -3,7 +3,7 @@ import { LOD, ViewPort } from './enums';
 import { NodeState, NodeStyle } from "../core/node";
 import { TerminalStyle } from "../core/terminal";
 
-/** @hidden 
+/**
  *  To track canvas position and dimension when scrolling or resizing
  */
 export interface Dimension {

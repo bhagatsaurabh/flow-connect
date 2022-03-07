@@ -55,7 +55,7 @@ npm install --save flow-connect
 
 <div class="action-buttons">
   <ActionButton to="/guide/" primary>Introduction</ActionButton>
-  <ActionButton to="/reference/api/classes/" secondary>Docs</ActionButton>
+  <ActionButton to="/reference/api/classes/flow-connect" secondary>Docs</ActionButton>
   <ActionButton to="/guide/get-started" primary>Getting Started</ActionButton>
 </div>
 
@@ -91,12 +91,12 @@ npm install --save flow-connect
 </Features>
 
 <script setup>
-  import HomeExample from '../../components/HomeExample.vue';
-  import QuickStart from '../../components/QuickStart.vue';
-  import Features from '../../components/Features.vue';
-  import LiveRunBasic from '../../components/LiveRunBasic.vue';
-  import LiveExample from '../../components/LiveExample.vue';
-  import ActionButton from '../../components/ActionButton.vue';
+  import HomeExample from '../../components/home/HomeExample.vue';
+  import QuickStart from '../../components/home/QuickStart.vue';
+  import Features from '../../components/home/Features.vue';
+  import LiveRunBasic from '../../components/home/LiveRunBasic.vue';
+  import LiveExample from '../../components/common/LiveExample.vue';
+  import ActionButton from '../../components/common/ActionButton.vue';
 </script>
 <style>
 .home .features {

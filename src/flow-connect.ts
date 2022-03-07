@@ -131,11 +131,11 @@ export class FlowConnect extends Hooks {
   /**
    * @param mount HTML element (div or canvas) on which FlowConnect will render Flows, if no mount is provided, a new canvas element will be created and attached to document.body
    */
-  private constructor(mount?: HTMLCanvasElement | HTMLDivElement) {
+  constructor(mount?: HTMLCanvasElement | HTMLDivElement) {
     super();
     this.prepareCanvas(mount);
     this.setupHitCanvas();
-    this.calculateCanvasDimension(true);
+    this.calcCanvasDimension(true);
     this.registerChangeListeners();
     this.attachStyles();
     this.canvasUtils();
@@ -149,7 +149,7 @@ export class FlowConnect extends Hooks {
     document.addEventListener('scroll', () => {
       if (!throttle) {
         window.requestAnimationFrame(() => {
-          this.calculateCanvasDimension(false);
+          this.calcCanvasDimension(false);
           throttle = false;
         });
         throttle = true;
@@ -162,13 +162,13 @@ export class FlowConnect extends Hooks {
     this.bodyResizeObserver && this.bodyResizeObserver.disconnect();
 
     this.parentResizeObserver = new ResizeObserver(() => {
-      this.calculateCanvasDimension(true);
+      this.calcCanvasDimension(true);
       this.updateTransform(null, null, null);
     });
     this.parentResizeObserver.observe(parent);
     if (parent !== document.body) {
       this.bodyResizeObserver = new ResizeObserver(() => {
-        this.calculateCanvasDimension(true);
+        this.calcCanvasDimension(true);
         this.updateTransform(null, null, null);
       });
       this.bodyResizeObserver.observe(document.body);
@@ -220,7 +220,7 @@ export class FlowConnect extends Hooks {
     inputStyle.innerHTML = 'input.flow-connect-input { position: fixed; visibility: hidden; pointer-events: none; z-index: 100; border: none; border-radius: 0; box-sizing: border-box;} input.flow-connect-input:focus { outline: none; }';
     document.getElementsByTagName('head')[0].appendChild(inputStyle);
   }
-  private calculateCanvasDimension(adjust: boolean) {
+  private calcCanvasDimension(adjust: boolean) {
     if (adjust && this.canvas.parentElement) {
       let parentBoundingRect = this.canvas.parentElement.getBoundingClientRect();
       this.canvas.width = parentBoundingRect.width;
@@ -523,7 +523,7 @@ export class FlowConnect extends Hooks {
     }
 
     // This one-time setup is not at all related to FlowConnect, couldn't find any place to do this
-    // Might be a better idea to do this somewhere in StandardNodes.Audio scope
+    // Might be a better idea to do this somewhere in StandardNodes.Audio package
 
     let audioWorklets = generateAudioWorklets(WorkletUtils.CircularBuffer);
     await this.audioContext.audioWorklet.addModule(WorkletUtils.CircularBuffer);
