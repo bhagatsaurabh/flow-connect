@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 
@@ -7,7 +7,7 @@ export class Destination extends Node {
   masterVolumeGainNode: GainNode;
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Audio Destination', options.position || new Vector2(50, 50), options.width || 160,
+    super(flow, options.name || 'Audio Destination', options.position || new Vector(50, 50), options.width || 160,
       [{ name: 'out', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' }], [],
       {
         state: options.state || {},

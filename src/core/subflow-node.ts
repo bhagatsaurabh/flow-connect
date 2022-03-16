@@ -1,4 +1,4 @@
-import { Vector2 } from './vector';
+import { Vector } from './vector';
 import { Color } from './color';
 import { Flow, FlowState } from './flow';
 import { Node, NodeButton, NodeStyle, SerializedNode, NodeButtonRenderParams } from './node';
@@ -12,7 +12,7 @@ export class SubFlowNode extends Node {
   constructor(
     flow: Flow,
     subFlow: Flow,
-    position: Vector2,
+    position: Vector,
     width: number,
     inputs: any[],
     outputs: any[],
@@ -90,7 +90,7 @@ export class SubFlowNode extends Node {
   }
   static deSerialize(flow: Flow, data: SerializedNode): SubFlowNode {
     let subFlow = Flow.deSerialize(flow.flowConnect, data.subFlow);
-    return new SubFlowNode(flow, subFlow, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+    return new SubFlowNode(flow, subFlow, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
       name: data.name,
       style: data.style,
       terminalStyle: data.terminalStyle,

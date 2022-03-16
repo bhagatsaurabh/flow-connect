@@ -1,5 +1,4 @@
 {
-  "filePath": "src/flow-connect.ts",
   "constructors": [
     {
       "name": "constructor",

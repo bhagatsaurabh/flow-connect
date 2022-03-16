@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { InputType } from "../../ui/index";
@@ -10,7 +10,7 @@ export class Timer extends Node {
   static DefaultState: any = { delay: 1000, emitValue: null };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Timer', options.position || new Vector2(50, 50), options.width || 120, [],
+    super(flow, options.name || 'Timer', options.position || new Vector(50, 50), options.width || 120, [],
       [{ name: 'timer', dataType: 'event' }],
       {
         state: options.state ? { ...Timer.DefaultState, ...options.state } : Timer.DefaultState,

@@ -1,4 +1,4 @@
-import { Flow, FlowConnect, Vector2 } from '../../../../src/flow-connect';
+import { Flow, FlowConnect, Vector } from '../../../../src/flow-connect';
 
 Cypress.config({
     viewportHeight: 1000,
@@ -28,7 +28,7 @@ describe('Flow', () => {
             let flow = new Flow(flowConnect, 'TestFlow', {}, {});
 
             let node1 = flow.createNode(
-                'Node 1', new Vector2(50, 50),
+                'Node 1', new Vector(50, 50),
                 100,
                 [{ name: 'R', dataType: 'r' }, { name: 'G', dataType: 'g' }, { name: 'B', dataType: 'b' }],
                 [{ name: 'Image', dataType: 'image' }],
@@ -36,7 +36,7 @@ describe('Flow', () => {
             );
             let node2 = flow.createNode(
                 'Node 2',
-                new Vector2(150, 50),
+                new Vector(150, 50),
                 200,
                 [],
                 [],
@@ -46,7 +46,7 @@ describe('Flow', () => {
             );
             let node3 = flow.createNode(
                 'Node 3',
-                new Vector2(300, 120),
+                new Vector(300, 120),
                 250,
                 [],
                 [],

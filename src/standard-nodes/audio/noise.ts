@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from '../../core/node';
 import { Select } from "../../ui/index";
@@ -14,7 +14,7 @@ export class Noise extends Node {
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
       flow, options.name || 'Noise',
-      options.position || new Vector2(50, 50),
+      options.position || new Vector(50, 50),
       options.width || 170, [],
       [{ name: 'out', dataType: 'audio' }],
       {

@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { Source } from "../../ui/index";
@@ -10,7 +10,7 @@ export class AudioBufferSource extends Node {
   static DefaultState: any = { file: null, buffer: null };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'AudioBuffer Source', options.position || new Vector2(50, 50), options.width || 170,
+    super(flow, options.name || 'AudioBuffer Source', options.position || new Vector(50, 50), options.width || 170,
       [],
       [{ name: 'buffer', dataType: 'audio-buffer' }],
       {

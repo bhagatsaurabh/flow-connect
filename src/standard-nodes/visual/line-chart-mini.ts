@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Color } from "../../core/color";
 import { Node } from "../../core/node";
@@ -10,7 +10,7 @@ export class LineChartMini extends Node {
   static DefaultState = { size: 10 };
 
   constructor(flow: Flow, height: number, colors: string[], displayStyle: DisplayStyle, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Line Chart Mini', options.position || new Vector2(50, 50), options.width || 150,
+    super(flow, options.name || 'Line Chart Mini', options.position || new Vector(50, 50), options.width || 150,
       [{ name: 'data', dataType: 'array' }], [],
       {
         state: options.state ? { ...LineChartMini.DefaultState, ...options.state } : LineChartMini.DefaultState,

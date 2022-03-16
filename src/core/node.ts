@@ -1,4 +1,4 @@
-import { SerializedVector2, Vector2 } from "./vector";
+import { SerializedVector2, Vector } from "./vector";
 import { ViewPort, LOD, Align } from '../common/enums';
 import {
   VSlider, VSliderStyle, Slider2D, Slider2DStyle, RadioGroup, RadioGroupStyle, Envelope, EnvelopeStyle,
@@ -32,7 +32,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   terminals: Map<string, Terminal>;
   nodeButtons: Map<string, NodeButton>;
   private _zIndex: number;
-  private _position: Vector2;
+  private _position: Vector;
   private stateObserver = new Hooks();
 
   renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeState.MAXIMIZED, lod: LOD.LOD2 };
@@ -57,8 +57,8 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   get context(): CanvasRenderingContext2D { return this.flow.flowConnect.context }
   get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offContext }
   get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offUIContext }
-  get position(): Vector2 { return this._position }
-  set position(position: Vector2) {
+  get position(): Vector { return this._position }
+  set position(position: Vector) {
     this._position = position;
     this.reflow();
     this.ui.update();
@@ -88,7 +88,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   constructor(
     public flow: Flow,
     public name: string,
-    position: Vector2,
+    position: Vector,
     width: number,
     inputs: SerializedTerminal[], outputs: SerializedTerminal[],
     options: NodeConstructorOptions = DefaultNodeConstructorOptions()
@@ -238,7 +238,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
       y += this.style.terminalRowHeight;
     });
   }
-  getHitTerminal(hitColor: string, screenPosition: Vector2, realPosition: Vector2) {
+  getHitTerminal(hitColor: string, screenPosition: Vector, realPosition: Vector) {
     let hitTerminal = null;
 
     realPosition = realPosition.transform(this.flow.flowConnect.transform);
@@ -478,7 +478,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   //#endregion
 
   //#region Events
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     this.call('down', this, screenPosition, realPosition);
 
     let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
@@ -492,7 +492,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
       this.currHitTerminal.onDown(screenPosition, realPosition);
     }
   }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     this.call('over', this, screenPosition, realPosition);
 
     let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
@@ -516,10 +516,10 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
     }
     this.prevHitUINode = hitUINode;
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2): void {
+  onEnter(screenPosition: Vector, realPosition: Vector): void {
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2): void {
+  onExit(screenPosition: Vector, realPosition: Vector): void {
     this.call('exit', this, screenPosition, realPosition);
 
     let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
@@ -530,7 +530,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
     this.prevHitTerminal = null;
     this.currHitTerminal && this.currHitTerminal.onExit(screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     this.call('up', this, screenPosition, realPosition);
 
     let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
@@ -542,7 +542,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
     let hitTerminal = this.getHitTerminal(hitColor, screenPosition, realPosition);
     hitTerminal && hitTerminal.onUp(screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     this.call('click', this, screenPosition, realPosition);
 
     let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
@@ -556,7 +556,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
       hitUINode && hitUINode.onClick(screenPosition.clone(), realPosition.clone());
     }
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     this.call('drag', this, screenPosition, realPosition);
 
     let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
@@ -576,7 +576,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   onContextMenu(): void {
     this.call('rightclick', this);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2): void {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector): void {
     this.call('wheel', this, direction, screenPosition, realPosition);
 
     let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
@@ -632,7 +632,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   createInput(options?: InputCreatorOptions) {
     return new Input(this, options);
   }
-  createEnvelope(height: number, values?: Vector2[], options?: EnvelopeCreatorOptions): Envelope {
+  createEnvelope(height: number, values?: Vector[], options?: EnvelopeCreatorOptions): Envelope {
     return new Envelope(this, height, values, options);
   }
   //#endregion
@@ -656,7 +656,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
     };
   }
   static deSerialize(flow: Flow, data: SerializedNode): Node {
-    return new Node(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+    return new Node(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
       style: data.style,
       terminalStyle: data.terminalStyle,
       state: data.state,
@@ -793,7 +793,7 @@ interface VSliderCreatorOptions {
   style?: VSliderStyle
 }
 interface Slider2DCreatorOptions {
-  value?: Vector2,
+  value?: Vector,
   propName?: string,
   input?: boolean,
   output?: boolean,

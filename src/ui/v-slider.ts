@@ -1,6 +1,6 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { Vector2 } from "../core/vector";
+import { Vector } from "../core/vector";
 import { clamp, denormalize, get, normalize } from "../utils/utils";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
@@ -35,7 +35,7 @@ export class VSlider extends UINode implements Serializable {
     node: Node, public min: number, public max: number,
     options: VSliderOptions = DefaultVSliderOptions(node)
   ) {
-    super(node, Vector2.Zero(), UIType.VSlider, {
+    super(node, Vector.Zero(), UIType.VSlider, {
       draggable: true,
       style: options.style ? { ...DefaultVSliderStyle(node, options.width), ...options.style } : DefaultVSliderStyle(node, options.width),
       propName: options.propName,
@@ -133,27 +133,27 @@ export class VSlider extends UINode implements Serializable {
 
     this.output && this.output.setData(this.value);
   }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     let x = this.position.x + this.width / 2 - this.style.railWidth / 2;
@@ -166,17 +166,17 @@ export class VSlider extends UINode implements Serializable {
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+  onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2) {
+  onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);

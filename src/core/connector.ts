@@ -1,4 +1,4 @@
-import { Vector2, SerializedVector2 } from "./vector";
+import { Vector, SerializedVector2 } from "./vector";
 import { get, getNewUUID } from "../utils/utils";
 import { Flow, FlowState } from "./flow";
 import { Terminal, TerminalType } from './terminal';
@@ -17,7 +17,7 @@ export class Connector extends Hooks implements Serializable, Renderable {
   id: string;
 
   _data: any;
-  floatingTip: Vector2;
+  floatingTip: Vector;
 
   get data(): any { return this._data; }
   set data(data: any) {
@@ -144,7 +144,7 @@ export class Connector extends Hooks implements Serializable, Renderable {
   private _render(context: CanvasRenderingContext2D, params: ConnectorRenderParams, connector: Connector) {
     let ax = params.start.x, ay = params.start.y, dx = params.end.x, dy = params.end.y;
 
-    let offset = Vector2.Distance(ax, ay, dx, dy);
+    let offset = Vector.Distance(ax, ay, dx, dy);
     offset *= .2;
 
     let [bx, by] = [ax + offset, ay];
@@ -242,7 +242,7 @@ let DefaultConnectorStyle = (): ConnectorStyle => {
 };
 
 export interface ConnectorOptions {
-  floatingTip?: Vector2,
+  floatingTip?: Vector,
   style?: ConnectorStyle,
   id?: string,
   isDeserialization?: boolean

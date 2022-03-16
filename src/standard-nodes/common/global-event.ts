@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { GlobalEventType } from "../../common/enums";
 import { Node } from "../../core/node";
@@ -12,7 +12,7 @@ export class GlobalEvent extends Node {
   static DefaultState = { prevEvent: '', eventId: -1 };
 
   constructor(flow: Flow, type: GlobalEventType, name: string, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Global Event', options.position || new Vector2(50, 50), options.width || 150,
+    super(flow, options.name || 'Global Event', options.position || new Vector(50, 50), options.width || 150,
       type === GlobalEventType.Emitter ? [{ name: 'emit', dataType: 'event' }] : [],
       type === GlobalEventType.Receiver ? [{ name: 'receive', dataType: 'event' }] : [],
       {

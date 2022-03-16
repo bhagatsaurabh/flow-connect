@@ -115,7 +115,7 @@ export class Graph implements Serializable {
   stop() {
     this.state = FlowState.Stopped;
   }
-  // Runs selective nodes within the >same order< in async (how about parallel, future ?)
+  // Runs selective nodes within the >same order< in async
   async runAll(graphNodes: GraphNode[]) {
     await Promise.all(
       graphNodes.map(
@@ -197,7 +197,6 @@ export class Graph implements Serializable {
     return graph;
   }
 }
-
 export interface SerializedGraph {
   nodes: SerializedGraphNode[][],
   nodeToGraphNode: Record<string, string>

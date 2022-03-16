@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { get } from "../../utils/utils";
@@ -12,7 +12,7 @@ export class FunctionPlotter extends Node {
   static DefaultState: any = { points: [], polar: false, config: { gX: 3, gY: 3, xMin: -1.5, xMax: 1.5, yMin: -1.5, yMax: 1.5 } }
 
   constructor(flow: Flow, height: number, public plotStyle: PlotStyle = new Object(), options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Parametric Plotter', options.position || new Vector2(50, 50), options.width || 300,
+    super(flow, options.name || 'Parametric Plotter', options.position || new Vector(50, 50), options.width || 300,
       [{ name: 'data', dataType: 'any' }], [],
       {
         state: options.state ? { ...FunctionPlotter.DefaultState, ...options.state } : FunctionPlotter.DefaultState,
@@ -25,7 +25,7 @@ export class FunctionPlotter extends Node {
 
     this.polarToggle.on('change', () => this.process(this.getInputs()));
 
-    let dragStart: Vector2 = null;
+    let dragStart: Vector = null;
     this.display.on('up', () => dragStart = null);
     this.display.on('exit', () => dragStart = null);
     this.display.on('down', (_, screenPos) => {

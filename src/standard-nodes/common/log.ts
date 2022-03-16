@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Log as Logger } from '../../utils/logger';
@@ -11,7 +11,7 @@ export class Log extends Node {
   addDataButton: Button;
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Log', options.position || new Vector2(50, 50), options.width || 170,
+    super(flow, options.name || 'Log', options.position || new Vector(50, 50), options.width || 170,
       [{ name: 'Log 1', dataType: 'event' }, { name: 'Log 2', dataType: 'any' }], [],
       {
         state: options.state ? { ...options.state } : {},

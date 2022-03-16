@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -23,7 +23,7 @@ export class DelayEffect extends Node {
   static DefaultState = { feedback: 0.45, cutoff: 20000, wet: 0.5, dry: 1, delayTime: 100, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Delay', options.position || new Vector2(50, 50), options.width || 230,
+    super(flow, options.name || 'Delay', options.position || new Vector(50, 50), options.width || 230,
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {

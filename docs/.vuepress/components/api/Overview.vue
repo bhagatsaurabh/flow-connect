@@ -7,7 +7,7 @@
       </router-link>
     </li>
   </ul>
-  <h3>Properties</h3>
+  <h3 v-if="data.properties">Properties</h3>
   <ul class="list">
     <li v-for="item in data.properties" :key="item">
       <router-link :to="'#' + item.name.toLowerCase()">
@@ -16,7 +16,7 @@
       </router-link>
     </li>
   </ul>
-  <h3>Accessors</h3>
+  <h3 v-if="data.accessors">Accessors</h3>
   <ul class="list">
     <li v-for="item in data.accessors" :key="item">
       <router-link :to="'#' + item.name.toLowerCase()">
@@ -25,10 +25,19 @@
       </router-link>
     </li>
   </ul>
-  <h3>Methods</h3>
+  <h3 v-if="data.methods">Methods</h3>
   <ul class="list">
     <li v-for="item in data.methods" :key="item">
       <router-link :to="'#' + item.name.toLowerCase()">
+        <Icon :type="item.type" />
+        <span>{{ item.name }}</span>
+      </router-link>
+    </li>
+  </ul>
+  <h3 v-if="data.events">Events</h3>
+  <ul class="list">
+    <li v-for="item in data.events" :key="item">
+      <router-link :to="'#event-' + item.name.toLowerCase()">
         <Icon :type="item.type" />
         <span>{{ item.name }}</span>
       </router-link>

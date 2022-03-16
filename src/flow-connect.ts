@@ -1,5 +1,5 @@
 import { Connector, Flow, Group, Node, Color, Hooks, ConnectorRenderParams, NodeRenderParams, GroupRenderParams, NodeButton, NodeButtonRenderParams } from "./core/index";
-import { Vector2 } from "./core/vector";
+import { Vector } from "./core/vector";
 import { Dimension, Pointer, RenderResolver, Rules } from "./common/interfaces";
 import { intersects, noop } from "./utils/utils";
 import { Log } from './utils/logger';
@@ -84,7 +84,7 @@ export class FlowConnect extends Hooks {
 
   /** Reference to the new Group being drawn */
   private currGroup: Group;
-  private groupStartPoint: Vector2;
+  private groupStartPoint: Vector;
 
   /** @hidden Reference to the new Connector being drawn */
   floatingConnector: Connector;
@@ -270,8 +270,8 @@ export class FlowConnect extends Hooks {
     }
   }
   private registerEvents(): void {
-    let dragDelta: Vector2;
-    let prevPanPosition: Vector2 = Vector2.Zero();
+    let dragDelta: Vector;
+    let prevPanPosition: Vector = Vector.Zero();
     let prevPinchDistance: number = -1;
 
     window.onkeydown = (ev: KeyboardEvent) => {
@@ -387,10 +387,10 @@ export class FlowConnect extends Hooks {
       this.updatePointer(ev.pointerId, screenPosition, realPosition);
 
       if (this.pointers.length === 2) {
-        let currPinchDistance = Vector2.Distance(this.pointers[0].screenPosition, this.pointers[1].screenPosition);
+        let currPinchDistance = Vector.Distance(this.pointers[0].screenPosition, this.pointers[1].screenPosition);
         if (prevPinchDistance > 0) {
           if (currPinchDistance !== prevPinchDistance) {
-            this.handleZoom(currPinchDistance > prevPinchDistance, Vector2.Midpoint(this.pointers[0].screenPosition, this.pointers[1].screenPosition), this.pinchScaleDelta);
+            this.handleZoom(currPinchDistance > prevPinchDistance, Vector.Midpoint(this.pointers[0].screenPosition, this.pointers[1].screenPosition), this.pinchScaleDelta);
           }
         }
         prevPinchDistance = currPinchDistance;
@@ -530,7 +530,7 @@ export class FlowConnect extends Hooks {
     return Promise.all(Object.keys(audioWorklets).map(key => this.audioContext.audioWorklet.addModule(audioWorklets[key])));
   }
 
-  showGenericInput(position: Vector2 | DOMPoint, value: string, styles: Record<string, any>, attributes: Record<string, any>, callback: (value: string) => void) {
+  showGenericInput(position: Vector | DOMPoint, value: string, styles: Record<string, any>, attributes: Record<string, any>, callback: (value: string) => void) {
     if (document.activeElement === this.genericInput) return;
 
     Object.assign(this.genericInput.style, styles);
@@ -549,19 +549,19 @@ export class FlowConnect extends Hooks {
   changeParent(newParent: HTMLElement) {
     this.registerObservers(newParent);
   }
-  private updatePointer(id: number, screenPosition: Vector2, realPosition: Vector2) {
+  private updatePointer(id: number, screenPosition: Vector, realPosition: Vector) {
     let pointer = this.pointers.find(pntr => pntr.id === id);
     if (pointer) {
       pointer.screenPosition = screenPosition;
       pointer.realPosition = realPosition;
     }
   }
-  private handleZoom(zoomIn: boolean, origin: Vector2, scaleDelta: number) {
+  private handleZoom(zoomIn: boolean, origin: Vector, scaleDelta: number) {
     if ((this._transform.a >= this.maxScale && zoomIn) || (this._transform.a <= this.minScale && !zoomIn)) return;
     this.updateTransform(zoomIn ? scaleDelta : (1 / scaleDelta), origin, null);
     this.call('scale', this.scale);
   }
-  private handleGrouping(screenPosition: Vector2) {
+  private handleGrouping(screenPosition: Vector) {
     let hitGroup = this.getHitGroup(screenPosition);
 
     let intersection;
@@ -602,7 +602,7 @@ export class FlowConnect extends Hooks {
       }
     }
   }
-  private handleConnection(hitNode: Node, screenPosition: Vector2, realPosition: Vector2) {
+  private handleConnection(hitNode: Node, screenPosition: Vector, realPosition: Vector) {
     if (!hitNode) {
       this.floatingConnector.removeConnection();
       return;
@@ -652,9 +652,9 @@ export class FlowConnect extends Hooks {
     }
   }
   private getRelativePosition(ev: PointerEvent | WheelEvent | MouseEvent) {
-    return new Vector2(ev.clientX - this.canvasDimensions.left, ev.clientY - this.canvasDimensions.top);
+    return new Vector(ev.clientX - this.canvasDimensions.left, ev.clientY - this.canvasDimensions.top);
   }
-  private updateTransform(scale?: number, scaleOrigin?: Vector2, translate?: Vector2) {
+  private updateTransform(scale?: number, scaleOrigin?: Vector, translate?: Vector) {
     if (scale) {
       let realSpaceOrigin = scaleOrigin.transform(this.inverseTransform);
       this._transform
@@ -675,13 +675,13 @@ export class FlowConnect extends Hooks {
 
     this.call('transform', this);
   }
-  translateBy(delta: Vector2) {
+  translateBy(delta: Vector) {
     this.updateTransform(null, null, delta);
   }
-  scaleBy(scale: number, scaleOrigin: Vector2) {
+  scaleBy(scale: number, scaleOrigin: Vector) {
     this.updateTransform(scale, scaleOrigin);
   }
-  private addPointer(pointerId: number, position: Vector2) {
+  private addPointer(pointerId: number, position: Vector) {
     this.pointers.push({
       id: pointerId,
       screenPosition: position,
@@ -691,11 +691,11 @@ export class FlowConnect extends Hooks {
   private removePointer(pointers: Pointer[], ev: PointerEvent) {
     pointers.splice(pointers.findIndex(pointer => pointer.id === ev.pointerId), 1);
   }
-  private getHitNode(position: Vector2): Node {
+  private getHitNode(position: Vector): Node {
     let rgbaString = Color.rgbaToString(this._offContext.getImageData(position.x, position.y, 1, 1).data);
     return this.currFlow.nodeHitColors.get(rgbaString);
   }
-  private getHitGroup(position: Vector2): Group {
+  private getHitGroup(position: Vector): Group {
     let rgbaString = Color.rgbaToString(this._offGroupContext.getImageData(position.x, position.y, 1, 1).data);
     return this.currFlow.groupHitColors.get(rgbaString);
   }

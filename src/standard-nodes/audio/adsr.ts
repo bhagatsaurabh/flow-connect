@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp, denormalize } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -20,7 +20,7 @@ export class ADSR extends Node {
   static DefaultState = { min: 0, max: 1, a: 0.4, d: 0.2, s: 0.6, r: 0.4, trigger: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'ADSR', options.position || new Vector2(50, 50), options.width || 280,
+    super(flow, options.name || 'ADSR', options.position || new Vector(50, 50), options.width || 280,
       [{ name: 'trigger', dataType: 'event' }],
       [{ name: 'out', dataType: 'audio' }],
       {
@@ -74,7 +74,7 @@ export class ADSR extends Node {
     let { a, d, r } = this.state;
     let totalDur = a + d + r;
     this.envelopeInput.value = [
-      Vector2.Zero(), new Vector2(a / totalDur, 1), new Vector2((a + d) / totalDur, this.state.s), new Vector2(1, 0)
+      Vector.Zero(), new Vector(a / totalDur, 1), new Vector((a + d) / totalDur, this.state.s), new Vector(1, 0)
     ];
   }
   stopAutomation() {
@@ -91,7 +91,7 @@ export class ADSR extends Node {
     let duration = atck + dcay + rlse;
 
     this.envelopeInput = this.createEnvelope(145, [
-      Vector2.Zero(), new Vector2(atck / duration, 1), new Vector2((atck + dcay) / duration, this.state.s), new Vector2(1, 0)
+      Vector.Zero(), new Vector(atck / duration, 1), new Vector((atck + dcay) / duration, this.state.s), new Vector(1, 0)
     ], { style: { pointColor: '#fcba03' } });
     this.envelopeInput.disabled = true;
 

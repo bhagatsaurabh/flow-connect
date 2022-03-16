@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -17,7 +17,7 @@ export class MoogEffect extends Node {
   static DefaultState = { cutoff: 0.065, resonance: 3.5, bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Moog Effect', options.position || new Vector2(50, 50), options.width || 230,
+    super(flow, options.name || 'Moog Effect', options.position || new Vector(50, 50), options.width || 230,
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {

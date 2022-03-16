@@ -1,12 +1,12 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Log } from "../../utils/logger";
 import { Node } from "../../core/node";
 
 export class ToVector2 extends Node {
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'To Vector2', options.position || new Vector2(50, 50), options.width || 100,
+    super(flow, options.name || 'To Vector', options.position || new Vector(50, 50), options.width || 100,
       [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
       [{ name: 'vector2', dataType: 'any' }],
       {

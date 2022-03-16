@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Node } from "../../core/node";
@@ -11,7 +11,7 @@ export class ChannelMerger extends Node {
   merger: ChannelMergerNode;
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Channel Merger', options.position || new Vector2(50, 50), options.width || 160,
+    super(flow, options.name || 'Channel Merger', options.position || new Vector(50, 50), options.width || 160,
       [{ name: 'Channel 1', dataType: 'audio' }, { name: 'Channel 2', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {

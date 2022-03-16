@@ -1,5 +1,5 @@
 import { ViewPort } from '../../../../src/math/constants';
-import { Vector2 } from '../../../../src/math/vector';
+import { Vector } from '../../../../src/math/vector';
 import { clamp, denormalize, getNewUUID, getRandom, intersects, normalize } from '../../../../src/utils/utils';
 
 describe('Utils', () => {
@@ -25,36 +25,36 @@ describe('Utils', () => {
   });
 
   it('should decide if two rectangles are intersecting or not', () => {
-    let rectangle1 = { start: new Vector2(10, 10), end: new Vector2(20, 20) };
-    let rectangle2 = { start: new Vector2(10, 10), end: new Vector2(15, 15) };
+    let rectangle1 = { start: new Vector(10, 10), end: new Vector(20, 20) };
+    let rectangle2 = { start: new Vector(10, 10), end: new Vector(15, 15) };
     expect(intersects(
       rectangle1.start.x, rectangle1.start.y, rectangle1.end.x, rectangle1.end.y,
       rectangle2.start.x, rectangle2.start.y, rectangle2.end.x, rectangle2.end.y
     )).to.be.equal(ViewPort.INSIDE);
 
-    rectangle1 = { start: new Vector2(10, 10), end: new Vector2(20, 20) };
-    rectangle2 = { start: new Vector2(12, 12), end: new Vector2(15, 15) };
+    rectangle1 = { start: new Vector(10, 10), end: new Vector(20, 20) };
+    rectangle2 = { start: new Vector(12, 12), end: new Vector(15, 15) };
     expect(intersects(
       rectangle1.start.x, rectangle1.start.y, rectangle1.end.x, rectangle1.end.y,
       rectangle2.start.x, rectangle2.start.y, rectangle2.end.x, rectangle2.end.y
     )).to.be.equal(ViewPort.INSIDE);
 
-    rectangle1 = { start: new Vector2(13, 13), end: new Vector2(20, 20) };
-    rectangle2 = { start: new Vector2(12, 12), end: new Vector2(15, 15) };
+    rectangle1 = { start: new Vector(13, 13), end: new Vector(20, 20) };
+    rectangle2 = { start: new Vector(12, 12), end: new Vector(15, 15) };
     expect(intersects(
       rectangle1.start.x, rectangle1.start.y, rectangle1.end.x, rectangle1.end.y,
       rectangle2.start.x, rectangle2.start.y, rectangle2.end.x, rectangle2.end.y
     )).to.be.equal(ViewPort.INTERSECT);
 
-    rectangle1 = { start: new Vector2(-10, -10), end: new Vector2(10, 10) };
-    rectangle2 = { start: new Vector2(-30, 30), end: new Vector2(-20, 40) };
+    rectangle1 = { start: new Vector(-10, -10), end: new Vector(10, 10) };
+    rectangle2 = { start: new Vector(-30, 30), end: new Vector(-20, 40) };
     expect(intersects(
       rectangle1.start.x, rectangle1.start.y, rectangle1.end.x, rectangle1.end.y,
       rectangle2.start.x, rectangle2.start.y, rectangle2.end.x, rectangle2.end.y
     )).to.be.equal(ViewPort.OUTSIDE);
 
-    rectangle1 = { start: new Vector2(10, 10), end: new Vector2(20, 20) };
-    rectangle2 = { start: new Vector2(20, 15), end: new Vector2(25, 20) };
+    rectangle1 = { start: new Vector(10, 10), end: new Vector(20, 20) };
+    rectangle2 = { start: new Vector(20, 15), end: new Vector(25, 20) };
     expect(intersects(
       rectangle1.start.x, rectangle1.start.y, rectangle1.end.x, rectangle1.end.y,
       rectangle2.start.x, rectangle2.start.y, rectangle2.end.x, rectangle2.end.y

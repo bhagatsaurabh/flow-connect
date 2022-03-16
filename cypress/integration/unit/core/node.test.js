@@ -1,4 +1,4 @@
-import { Flow, FlowConnect, Vector2 } from '../../../../src/flow-connect';
+import { Flow, FlowConnect, Vector } from '../../../../src/flow-connect';
 
 Cypress.config({
   viewportHeight: 1000,

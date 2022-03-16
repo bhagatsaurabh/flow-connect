@@ -1,0 +1,36 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "childs",
+      "type": "property"
+    },
+    {
+      "name": "flowNode",
+      "type": "property"
+    },
+    {
+      "name": "id",
+      "type": "property"
+    },
+    {
+      "name": "order",
+      "type": "property"
+    }
+  ],
+  "methods": [
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "registeredEvents",
+      "type": "property"
+    }
+  ],
+  "methods": [
+    {
+      "name": "call",
+      "type": "method"
+    },
+    {
+      "name": "off",
+      "type": "method"
+    },
+    {
+      "name": "offAll",
+      "type": "method"
+    },
+    {
+      "name": "on",
+      "type": "method"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import { Color } from "../core/color";
 import { Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
-import { Vector2 } from "../core/vector";
+import { Vector } from "../core/vector";
 import { Button, Container, Display, Image, Input, Label, Select, Slider, Source, Stack, Toggle, } from "./index";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { clamp } from "../utils/utils";
@@ -14,7 +14,7 @@ export class HorizontalLayout extends UINode implements Serializable {
     childs: UINode[] = [],
     options: HorizontalLayoutOptions = DefaultHorizontalLayoutOptions()
   ) {
-    super(node, Vector2.Zero(), UIType.HorizontalLayout, {
+    super(node, Vector.Zero(), UIType.HorizontalLayout, {
       style: options.style ? { ...DefaultHorizontalLayoutStyle(), ...options.style } : DefaultHorizontalLayoutStyle(),
       input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, 'any', '', {})
@@ -99,42 +99,42 @@ export class HorizontalLayout extends UINode implements Serializable {
   }
 
   onPropChange() { /**/ }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+  onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2) {
+  onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);

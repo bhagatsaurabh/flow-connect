@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp, denormalize } from "../../utils/utils";
 import { Node } from '../../core/node';
@@ -25,14 +25,14 @@ export class SpatialPanner extends Node {
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(
       flow, options.name || '3D Spatial Panner',
-      options.position || new Vector2(50, 50),
+      options.position || new Vector(50, 50),
       options.width || 200,
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }],
       {
         state: options.state ?
-          { value: new Vector2(.5, .5), z: -1, bypass: false, ...options.state }
-          : { value: new Vector2(.5, .5), z: -1, bypass: false },
+          { value: new Vector(.5, .5), z: -1, bypass: false, ...options.state }
+          : { value: new Vector(.5, .5), z: -1, bypass: false },
         style: options.style || { rowHeight: 10, spacing: 10 },
         terminalStyle: options.terminalStyle || {}
       }

@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Align } from "../../common/enums";
 import { Node } from "../../core/node";
@@ -10,7 +10,7 @@ export class Dial extends Node {
   static DefaultState = { value: 0, min: 0, max: 1 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = new Object(), dialStyle: DialStyle = new Object()) {
-    super(flow, options.name || 'Dial', options.position || new Vector2(50, 50), options.width || 90, [], [],
+    super(flow, options.name || 'Dial', options.position || new Vector(50, 50), options.width || 90, [], [],
       {
         state: options.state ? { ...Dial.DefaultState, ...options.state } : Dial.DefaultState,
         style: options.style || { rowHeight: 10, padding: 5, spacing: 10 },

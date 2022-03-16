@@ -1,4 +1,4 @@
-import { Vector2 } from "./vector";
+import { Vector } from "./vector";
 import { Color } from "./color";
 import { Flow } from "./flow";
 import { Node, NodeStyle, SerializedNode } from "./node";
@@ -16,7 +16,7 @@ export class TunnelNode extends Node {
   constructor(
     flow: Flow,
     name: string,
-    position: Vector2,
+    position: Vector,
     width: number,
     inputs: any[],
     outputs: any[],
@@ -62,7 +62,7 @@ export class TunnelNode extends Node {
     }
   }
   static deSerialize(flow: Flow, data: SerializedTunnelNode): TunnelNode {
-    return new TunnelNode(flow, data.name, Vector2.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+    return new TunnelNode(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
       style: data.style,
       terminalStyle: data.terminalStyle,
       state: data.state,

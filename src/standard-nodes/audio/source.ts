@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { FlowConnectState } from "../../flow-connect";
 import { Log } from "../../utils/logger";
@@ -18,7 +18,7 @@ export class Source extends Node {
   static DefaultState: any = { buffer: null, loop: true, prevChannelCount: -1 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Audio Source', options.position || new Vector2(50, 50), options.width || 200,
+    super(flow, options.name || 'Audio Source', options.position || new Vector(50, 50), options.width || 200,
       [
         { name: 'array-buffer', dataType: 'event' }, { name: 'gain', dataType: 'audioparam' },
         { name: 'detune', dataType: 'audioparam' }, { name: 'playback-rate', dataType: 'audioparam' }

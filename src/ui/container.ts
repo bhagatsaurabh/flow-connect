@@ -1,7 +1,7 @@
 import { Color } from "../core/color";
 import { RenderResolver, Serializable } from "../common/interfaces";
 import { Node } from "../core/node";
-import { Vector2 } from "../core/vector";
+import { Vector } from "../core/vector";
 import { Button, Display, HorizontalLayout, Stack, Image, Input, Label, Select, Slider, Source, Toggle } from "./index";
 import { SerializedUINode, UINode, UINodeStyle, UIType, UINodeRenderParams } from "./ui-node";
 import { Align } from "../common/enums";
@@ -94,9 +94,9 @@ export class Container extends UINode implements Serializable {
         } else {
           childX = x;
         }
-        child.position = new Vector2(childX, y);
+        child.position = new Vector(childX, y);
       } else {
-        child.position = new Vector2(x, y);
+        child.position = new Vector(x, y);
       }
       y += child.height;
     });
@@ -104,42 +104,42 @@ export class Container extends UINode implements Serializable {
   }
 
   onPropChange() { /**/ }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+  onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2) {
+  onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
@@ -198,7 +198,7 @@ export interface ContainerStyle extends UINodeStyle {
   backgroundColor?: string,
   shadowColor?: string,
   shadowBlur?: number,
-  shadowOffset?: Vector2,
+  shadowOffset?: Vector,
   borderColor?: string,
   borderWidth?: number
 }
@@ -207,7 +207,7 @@ let DefaultContainerStyle = () => {
     backgroundColor: '#ddd',
     shadowColor: '#666',
     shadowBlur: 3,
-    shadowOffset: new Vector2(3, 3),
+    shadowOffset: new Vector(3, 3),
     borderWidth: 1,
     borderColor: '#444'
   };

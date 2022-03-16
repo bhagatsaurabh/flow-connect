@@ -1,3 +1,5 @@
+const markdownItAttrs = require('markdown-it-attrs');
+
 module.exports = {
   // site config
   lang: 'en-US',
@@ -59,7 +61,17 @@ module.exports = {
           children: [
             { text: 'FlowConnect', link: '/reference/api/classes/flow-connect.md' },
             { text: 'Color', link: '/reference/api/classes/color.md' },
-            { text: 'Flow', link: '/reference/api/classes/flow.md' }
+            { text: 'Connector', link: '/reference/api/classes/connector.md' },
+            { text: 'Flow', link: '/reference/api/classes/flow.md' },
+            { text: 'Graph', link: '/reference/api/classes/graph.md' },
+            { text: 'GraphNode', link: '/reference/api/classes/graph-node.md' },
+            { text: 'Group', link: '/reference/api/classes/group.md' },
+            { text: 'Hooks', link: '/reference/api/classes/hooks.md' },
+            { text: 'Node', link: '/reference/api/classes/node.md' },
+            { text: 'SubFlowNode', link: '/reference/api/classes/subflow-node.md' },
+            { text: 'Terminal', link: '/reference/api/classes/terminal.md' },
+            { text: 'TunnelNode', link: '/reference/api/classes/tunnel-node.md' },
+            { text: 'Vector', link: '/reference/api/classes/vector.md' }
           ],
         },
         {
@@ -112,6 +124,9 @@ module.exports = {
     docsDir: 'docs',
     docsBranch: 'master',
     editLinks: true
+  },
+  extendsMarkdown: (md) => {
+    md.use(markdownItAttrs)
   },
   plugins: [
     ['@vuepress/search', {

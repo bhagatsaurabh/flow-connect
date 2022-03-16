@@ -2,7 +2,7 @@ import { Color, SerializedColor } from "../core/color";
 import { Hooks } from "../core/hooks";
 import { Node, NodeState } from "../core/node";
 import { SerializedTerminal, Terminal } from "../core/terminal";
-import { SerializedVector2, Vector2 } from "../core/vector";
+import { SerializedVector2, Vector } from "../core/vector";
 import { LOD, ViewPort } from '../common/enums';
 import { get, getNewUUID, intersects } from "../utils/utils";
 import { Events, Renderable } from "../common/interfaces";
@@ -25,7 +25,7 @@ export abstract class UINode extends Hooks implements Events, Renderable {
   children: UINode[];
   get context(): CanvasRenderingContext2D { return this.node.context }
   get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.node.offUIContext }
-  position: Vector2;
+  position: Vector;
 
   get disabled(): boolean { return this._disabled }
   set disabled(disabled: boolean) {
@@ -35,7 +35,7 @@ export abstract class UINode extends Hooks implements Events, Renderable {
   get visible(): boolean { return this._visible }
   set visible(value: boolean) { this._visible = value; this.node.ui.update(); }
 
-  constructor(public node: Node, position: Vector2, public type: UIType, options: UINodeOptions = DefaultUINodeOptions()) {
+  constructor(public node: Node, position: Vector, public type: UIType, options: UINodeOptions = DefaultUINodeOptions()) {
     super();
 
     this.setHitColor(options.hitColor);
@@ -158,14 +158,14 @@ export abstract class UINode extends Hooks implements Events, Renderable {
   abstract paintLOD1(): void;
   abstract offPaint(): void;
 
-  abstract onOver(screenPosition: Vector2, realPosition: Vector2): void;
-  abstract onDown(screenPosition: Vector2, realPosition: Vector2): void;
-  abstract onUp(screenPosition: Vector2, realPosition: Vector2): void;
-  abstract onClick(screenPosition: Vector2, realPosition: Vector2): void;
-  abstract onDrag(screenPosition: Vector2, realPosition: Vector2): void;
-  abstract onEnter(screenPosition: Vector2, realPosition: Vector2): void;
-  abstract onExit(screenPosition: Vector2, realPosition: Vector2): void;
-  abstract onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2): void;
+  abstract onOver(screenPosition: Vector, realPosition: Vector): void;
+  abstract onDown(screenPosition: Vector, realPosition: Vector): void;
+  abstract onUp(screenPosition: Vector, realPosition: Vector): void;
+  abstract onClick(screenPosition: Vector, realPosition: Vector): void;
+  abstract onDrag(screenPosition: Vector, realPosition: Vector): void;
+  abstract onEnter(screenPosition: Vector, realPosition: Vector): void;
+  abstract onExit(screenPosition: Vector, realPosition: Vector): void;
+  abstract onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector): void;
   abstract onContextMenu(): void;
   abstract onPropChange(oldValue: any, newValue: any): void;
 }

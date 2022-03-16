@@ -1,0 +1,148 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "connectors",
+      "type": "property"
+    },
+    {
+      "name": "executionGraph",
+      "type": "property"
+    },
+    {
+      "name": "flowConnect",
+      "type": "property"
+    },
+    {
+      "name": "globalEvents",
+      "type": "property"
+    },
+    {
+      "name": "groups",
+      "type": "property"
+    },
+    {
+      "name": "id",
+      "type": "property"
+    },
+    {
+      "name": "inputs",
+      "type": "property"
+    },
+    {
+      "name": "name",
+      "type": "property"
+    },
+    {
+      "name": "nodes",
+      "type": "property"
+    },
+    {
+      "name": "outputs",
+      "type": "property"
+    },
+    {
+      "name": "parentFlow",
+      "type": "property"
+    },
+    {
+      "name": "renderResolver",
+      "type": "property"
+    },
+    {
+      "name": "rules",
+      "type": "property"
+    },
+    {
+      "name": "terminalColors",
+      "type": "property"
+    }
+  ],
+  "accessors": [
+    {
+      "name": "state",
+      "type": "accessor"
+    }
+  ],
+  "methods": [
+    {
+      "name": "addInput",
+      "type": "method"
+    },
+    {
+      "name": "addOutput",
+      "type": "method"
+    },
+    {
+      "name": "addSubFlow",
+      "type": "method"
+    },
+    {
+      "name": "call",
+      "type": "method-inherited"
+    },
+    {
+      "name": "createNode",
+      "type": "method"
+    },
+    {
+      "name": "off",
+      "type": "method-inherited"
+    },
+    {
+      "name": "offAll",
+      "type": "method-inherited"
+    },
+    {
+      "name": "on",
+      "type": "method-inherited"
+    },
+    {
+      "name": "removeNode",
+      "type": "method"
+    },
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "start",
+      "type": "method"
+    },
+    {
+      "name": "stop",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ],
+  "events": [
+    {
+      "name": "add-input",
+      "type": "event"
+    },
+    {
+      "name": "add-output",
+      "type": "event"
+    },
+    {
+      "name": "render",
+      "type": "event"
+    },
+    {
+      "name": "start",
+      "type": "event"
+    },
+    {
+      "name": "stop",
+      "type": "event"
+    }
+  ]
+}

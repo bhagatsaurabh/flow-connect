@@ -21,7 +21,7 @@ export default {
     });
 
     let timerNode1 = new StandardNodes.Common.Timer(flow, {
-      position: new Vector2(22.6, 1.2),
+      position: new Vector(22.6, 1.2),
       state: { delay: 700 },
       style: {
         padding: 15,
@@ -44,7 +44,7 @@ export default {
       backgroundColor: "#6ba4ff",
       shadowColor: "white",
       shadowBlur: 0,
-      shadowOffset: Vector2.Zero(),
+      shadowOffset: Vector.Zero(),
       borderColor: "#0062ff",
       borderWidth: 8,
     };
@@ -53,20 +53,20 @@ export default {
     label.style.color = "#000";
 
     let timerNode2 = new StandardNodes.Common.Timer(flow, {
-      position: new Vector2(22.6, 194.7),
+      position: new Vector(22.6, 194.7),
       state: { delay: 600 },
     });
     timerNode2.ui.style = {
       backgroundColor: "#ffb561",
       shadowColor: "#999",
       shadowBlur: 10,
-      shadowOffset: Vector2.Zero(),
+      shadowOffset: Vector.Zero(),
       borderColor: "#ffb561",
       borderWidth: 0,
     };
 
     let randomNode = new StandardNodes.Common.Random(flow, {
-      position: new Vector2(321.5, 6.7),
+      position: new Vector(321.5, 6.7),
       state: { min: 0, max: 5 },
     });
     randomNode.ui.style.backgroundColor = "#f7ff99";
@@ -83,7 +83,7 @@ export default {
         (input) => (input.children[0].style.backgroundColor = "#abff45")
       );
 
-    let customNode = flow.createNode("Custom", new Vector2(615.3, 79.8), 200, {
+    let customNode = flow.createNode("Custom", new Vector(615.3, 79.8), 200, {
       state: { preset: "default", renderer: 0 },
     });
     let select = customNode.createSelect(
@@ -143,7 +143,7 @@ export default {
       "click",
       () => (customNode.state.renderer = (customNode.state.renderer + 1) % 3)
     );
-    customNode.ui.style.shadowOffset = Vector2.Zero();
+    customNode.ui.style.shadowOffset = Vector.Zero();
     customNode.ui.style.shadowBlur = 20;
     customNode.ui.style.borderWidth = 0;
 
@@ -279,7 +279,7 @@ export default {
 
       context.strokeStyle = "white";
       context.lineWidth = 4;
-      let dist = Vector2.Distance(
+      let dist = Vector.Distance(
         params.start.x,
         params.start.y,
         params.end.x,

@@ -1,6 +1,6 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { Vector2 } from "../core/vector";
+import { Vector } from "../core/vector";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
 import { Color } from "../core/color";
@@ -35,7 +35,7 @@ export class RadioGroup extends UINode implements Serializable {
     selected: string = 'default',
     options: RadioGroupOptions = DefaultRadioGroupOptions(node)
   ) {
-    super(node, Vector2.Zero(), UIType.RadioGroup, {
+    super(node, Vector.Zero(), UIType.RadioGroup, {
       style: options.style ? { ...DefaultRadioGroupStyle(), ...options.style } : DefaultRadioGroupStyle(),
       propName: options.propName,
       input: options.input && (typeof options.input === 'boolean'
@@ -156,42 +156,42 @@ export class RadioGroup extends UINode implements Serializable {
 
     this.output && this.output.setData(this._selected);
   }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+  onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2) {
+  onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);

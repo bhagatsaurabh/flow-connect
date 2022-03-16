@@ -1,4 +1,4 @@
-import { SerializedVector2, Vector2 } from "./vector";
+import { SerializedVector2, Vector } from "./vector";
 import { get, getNewUUID, intersects } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Flow } from './flow';
@@ -17,21 +17,21 @@ export class Group extends Hooks implements Serializable, Renderable {
     else this._name = name;
     this.computeTextMetrics();
   }
-  get position(): Vector2 { return this._position; }
-  set position(position: Vector2) {
+  get position(): Vector { return this._position; }
+  set position(position: Vector) {
     this._position = position;
     this.updateRenderState();
     this.recomputeNodePositions();
   }
 
-  nodeDeltas: Vector2[] = [];
+  nodeDeltas: Vector[] = [];
 
   hitColor: Color;
   private textWidth: number;
   private textHeight: number;
   private _name: string;
   private renderState: ViewPort = ViewPort.INSIDE;
-  private _position: Vector2;
+  private _position: Vector;
 
   width: number;
   height: number
@@ -40,7 +40,7 @@ export class Group extends Hooks implements Serializable, Renderable {
 
   constructor(
     public flow: Flow,
-    position: Vector2,
+    position: Vector,
     options: GroupOptions = DefaultGroupOptions()
   ) {
 
@@ -175,7 +175,7 @@ export class Group extends Hooks implements Serializable, Renderable {
     };
   }
 
-  onClick(screenPosition: Vector2, realPosition: Vector2) {
+  onClick(screenPosition: Vector, realPosition: Vector) {
     this.call('click', this, screenPosition, realPosition);
 
     let thisRealPosition = this.position.transform(this.flow.flowConnect.transform);
@@ -207,7 +207,7 @@ export class Group extends Hooks implements Serializable, Renderable {
     };
   }
   static deSerialize(flow: Flow, data: SerializedGroup): Group {
-    let group = new Group(flow, Vector2.deSerialize(data.position), {
+    let group = new Group(flow, Vector.deSerialize(data.position), {
       width: data.width,
       height: data.height,
       name: data.name,
@@ -220,7 +220,7 @@ export class Group extends Hooks implements Serializable, Renderable {
       group.nodes.push(flow.nodes.get(nodeId));
     });
     data.nodeDeltas.forEach(serializedVector => {
-      group.nodeDeltas.push(Vector2.deSerialize(serializedVector));
+      group.nodeDeltas.push(Vector.deSerialize(serializedVector));
     });
 
     return group;

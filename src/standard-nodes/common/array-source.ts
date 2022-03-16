@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { Align } from "../../common/enums";
@@ -18,7 +18,7 @@ export class ArraySource extends Node {
   static DefaultState: any = { number: true, range: false, min: 0, max: 100, step: 0.1, value: [] };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Array Source', options.position || new Vector2(50, 50), options.width || 180, [],
+    super(flow, options.name || 'Array Source', options.position || new Vector(50, 50), options.width || 180, [],
       [{ name: 'array', dataType: 'array' }],
       {
         state: options.state ? { ...ArraySource.DefaultState, ...options.state } : ArraySource.DefaultState,

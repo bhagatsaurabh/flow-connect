@@ -1,6 +1,6 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { Vector2 } from "../core/vector";
+import { Vector } from "../core/vector";
 import { clamp, denormalize, get, normalize } from "../utils/utils";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
@@ -10,8 +10,8 @@ import { Constant } from "../resource/constants";
 
 export class Dial extends UINode implements Serializable {
   private _value: number;
-  private thumbStart: Vector2 = Vector2.Zero();
-  private thumbEnd: Vector2 = Vector2.Zero();
+  private thumbStart: Vector = Vector.Zero();
+  private thumbEnd: Vector = Vector.Zero();
   private lastAngle: number;
   private deltaValue: number;
   private temp: number;
@@ -37,7 +37,7 @@ export class Dial extends UINode implements Serializable {
     height: number,
     options: DialOptions = DefaultDialOptions(min)
   ) {
-    super(node, Vector2.Zero(), UIType.Dial, {
+    super(node, Vector.Zero(), UIType.Dial, {
       draggable: true,
       style: options.style ? { ...DefaultDialStyle(height), ...options.style } : DefaultDialStyle(height),
       propName: options.propName,
@@ -133,7 +133,7 @@ export class Dial extends UINode implements Serializable {
       );
     }
   }
-  private pointToValue(position: Vector2): number {
+  private pointToValue(position: Vector): number {
     let diff = position.subtract(this.position.add(this.width / 2, this.height / 2));
     let angle = Math.atan2(diff.y, diff.x);
     if (angle < 0) angle += Constant.TAU;
@@ -147,12 +147,12 @@ export class Dial extends UINode implements Serializable {
 
     this.output && this.output.setData(this._value);
   }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.lastAngle = undefined;
@@ -162,17 +162,17 @@ export class Dial extends UINode implements Serializable {
 
     this.call('down', this, screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     let currValue = this.pointToValue(realPosition);
@@ -195,19 +195,19 @@ export class Dial extends UINode implements Serializable {
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+  onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2) {
+  onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.lastAngle = undefined;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);

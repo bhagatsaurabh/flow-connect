@@ -1,6 +1,6 @@
 import { FlowConnect } from 'flow-connect';
 import { Node } from 'flow-connect/core/node';
-import { Vector2 } from 'flow-connect/core/vector';
+import { Vector } from 'flow-connect/core/vector';
 
 let flowConnect = new FlowConnect(document.getElementById('canvas'));
 let flow = flowConnect.createFlow({ name: "Graph Execution Example" });
@@ -58,10 +58,10 @@ flow.renderResolver.uiContainer = () => {
 };
 
 let positions = [
-  new Vector2(510.9, 18), new Vector2(-298, 82.7), new Vector2(-96.4, 21.1),
-  new Vector2(-95.5, 182), new Vector2(105.2, -62), new Vector2(105.9, 76.3),
-  new Vector2(104.4, 221.1), new Vector2(302, 19.5), new Vector2(304.4, 153.2),
-  new Vector2(512, -105.5), new Vector2(505.1, 153.2), new Vector2(720.3, 90)
+  new Vector(510.9, 18), new Vector(-298, 82.7), new Vector(-96.4, 21.1),
+  new Vector(-95.5, 182), new Vector(105.2, -62), new Vector(105.9, 76.3),
+  new Vector(104.4, 221.1), new Vector(302, 19.5), new Vector(304.4, 153.2),
+  new Vector(512, -105.5), new Vector(505.1, 153.2), new Vector(720.3, 90)
 ];
 for (let i = 0; i < 12; i++) {
   let dummyNode = new DummyNode(flow, "Node " + (i + 1), positions[i]);

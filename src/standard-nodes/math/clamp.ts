@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -12,7 +12,7 @@ export class Clamp extends Node {
   static DefaultState = { min: 0, max: 100 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Clamp', options.position || new Vector2(50, 50), options.width || 150,
+    super(flow, options.name || 'Clamp', options.position || new Vector(50, 50), options.width || 150,
       [{ name: 'x', dataType: 'any' }],
       [{ name: '[x]', dataType: 'any' }],
       {

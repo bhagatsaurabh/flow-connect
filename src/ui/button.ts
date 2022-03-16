@@ -1,6 +1,6 @@
 import { Node } from "../core/node";
 import { Terminal, TerminalType, SerializedTerminal } from '../core/terminal';
-import { Vector2 } from "../core/vector";
+import { Vector } from "../core/vector";
 import { Label } from "./label";
 import { SerializedUINode, UINode, UIType, UINodeStyle } from './ui-node';
 import { Serializable } from "../common/interfaces";
@@ -16,7 +16,7 @@ export class Button extends UINode implements Serializable {
     public text: string,
     options: ButtonOptions = DefaultButtonOptions(node)
   ) {
-    super(node, Vector2.Zero(), UIType.Button, {
+    super(node, Vector.Zero(), UIType.Button, {
       style: options.style ? { ...DefaultButtonStyle(), ...options.style } : DefaultButtonStyle(),
       input: options.input && (typeof options.input === 'boolean'
         ? new Terminal(node, TerminalType.IN, 'event', '', {})
@@ -42,7 +42,7 @@ export class Button extends UINode implements Serializable {
       },
       height: this.height
     });
-    this.label.on('click', (_node: Node, position: Vector2) => this.call('click', this, position));
+    this.label.on('click', (_node: Node, position: Vector) => this.call('click', this, position));
     /* this.label.on('enter', () => this.node.flow.flowConnect.cursor = 'pointer');
     this.label.on('exit', () => this.node.flow.flowConnect.cursor = 'unset'); */
     this.children.push(this.label);
@@ -89,42 +89,42 @@ export class Button extends UINode implements Serializable {
   }
 
   onPropChange() { /**/ }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('up', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+  onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2) {
+  onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
@@ -169,7 +169,7 @@ export interface ButtonStyle extends UINodeStyle {
   padding?: number,
   shadowColor?: string,
   shadowBlur?: number,
-  shadowOffset?: Vector2;
+  shadowOffset?: Vector;
 }
 let DefaultButtonStyle = () => {
   return {
@@ -180,7 +180,7 @@ let DefaultButtonStyle = () => {
     fontSize: '11px',
     shadowColor: '#555',
     shadowBlur: 3,
-    shadowOffset: new Vector2(3, 3)
+    shadowOffset: new Vector(3, 3)
   };
 };
 

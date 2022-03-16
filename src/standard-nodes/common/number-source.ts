@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { InputType, Input, Toggle } from "../../ui/index";
@@ -11,7 +11,7 @@ export class NumberSource extends Node {
   static DefaultState = { fractional: false, value: 0 };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Number Source', options.position || new Vector2(50, 50), options.width || 160, [],
+    super(flow, options.name || 'Number Source', options.position || new Vector(50, 50), options.width || 160, [],
       [{ name: 'value', dataType: 'number' }],
       {
         state: options.state ? { ...NumberSource.DefaultState, ...options.state } : NumberSource.DefaultState,

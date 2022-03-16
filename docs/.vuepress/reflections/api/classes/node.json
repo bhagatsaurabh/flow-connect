@@ -1,0 +1,280 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "flow",
+      "type": "property"
+    },
+    {
+      "name": "focused",
+      "type": "property"
+    },
+    {
+      "name": "group",
+      "type": "property"
+    },
+    {
+      "name": "id",
+      "type": "property"
+    },
+    {
+      "name": "inputs",
+      "type": "property"
+    },
+    {
+      "name": "inputsUI",
+      "type": "property"
+    },
+    {
+      "name": "name",
+      "type": "property"
+    },
+    {
+      "name": "nodeButtons",
+      "type": "property"
+    },
+    {
+      "name": "outputs",
+      "type": "property"
+    },
+    {
+      "name": "outputsUI",
+      "type": "property"
+    },
+    {
+      "name": "renderResolver",
+      "type": "property"
+    },
+    {
+      "name": "renderState",
+      "type": "property"
+    },
+    {
+      "name": "state",
+      "type": "property"
+    },
+    {
+      "name": "style",
+      "type": "property"
+    },
+    {
+      "name": "terminalStyle",
+      "type": "property"
+    },
+    {
+      "name": "terminals",
+      "type": "property"
+    },
+    {
+      "name": "ui",
+      "type": "property"
+    },
+    {
+      "name": "uiNodes",
+      "type": "property"
+    }
+  ],
+  "accessors": [
+    {
+      "name": "height",
+      "type": "accessor"
+    },
+    {
+      "name": "position",
+      "type": "accessor"
+    },
+    {
+      "name": "width",
+      "type": "accessor"
+    },
+    {
+      "name": "zIndex",
+      "type": "accessor"
+    }
+  ],
+  "methods": [
+    {
+      "name": "addNodeButton",
+      "type": "method"
+    },
+    {
+      "name": "addTerminal",
+      "type": "method"
+    },
+    {
+      "name": "call",
+      "type": "method-inherited"
+    },
+    {
+      "name": "createButton",
+      "type": "method"
+    },
+    {
+      "name": "createDial",
+      "type": "method"
+    },
+    {
+      "name": "createDisplay",
+      "type": "method"
+    },
+    {
+      "name": "createEnvelope",
+      "type": "method"
+    },
+    {
+      "name": "createHozLayout",
+      "type": "method"
+    },
+    {
+      "name": "createImage",
+      "type": "method"
+    },
+    {
+      "name": "createInput",
+      "type": "method"
+    },
+    {
+      "name": "createLabel",
+      "type": "method"
+    },
+    {
+      "name": "createRadioGroup",
+      "type": "method"
+    },
+    {
+      "name": "createSelect",
+      "type": "method"
+    },
+    {
+      "name": "createSlider",
+      "type": "method"
+    },
+    {
+      "name": "createSlider2D",
+      "type": "method"
+    },
+    {
+      "name": "createSource",
+      "type": "method"
+    },
+    {
+      "name": "createStack",
+      "type": "method"
+    },
+    {
+      "name": "createToggle",
+      "type": "method"
+    },
+    {
+      "name": "createVSlider",
+      "type": "method"
+    },
+    {
+      "name": "dispose",
+      "type": "method"
+    },
+    {
+      "name": "getInput",
+      "type": "method"
+    },
+    {
+      "name": "getInputs",
+      "type": "method"
+    },
+    {
+      "name": "off",
+      "type": "method-inherited"
+    },
+    {
+      "name": "offAll",
+      "type": "method-inherited"
+    },
+    {
+      "name": "on",
+      "type": "method-inherited"
+    },
+    {
+      "name": "createDisplay",
+      "type": "method"
+    },
+    {
+      "name": "removeTerminal",
+      "type": "method"
+    },
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "setOutputs",
+      "type": "method"
+    },
+    {
+      "name": "toggleNodeState",
+      "type": "method"
+    },
+    {
+      "name": "unwatch",
+      "type": "method"
+    },
+    {
+      "name": "watch",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ],
+  "events": [
+    {
+      "name": "process",
+      "type": "event"
+    },
+    {
+      "name": "render",
+      "type": "event"
+    },
+    {
+      "name": "down",
+      "type": "event"
+    },
+    {
+      "name": "over",
+      "type": "event"
+    },
+    {
+      "name": "enter",
+      "type": "event"
+    },
+    {
+      "name": "exit",
+      "type": "event"
+    },
+    {
+      "name": "up",
+      "type": "event"
+    },
+    {
+      "name": "click",
+      "type": "event"
+    },
+    {
+      "name": "drag",
+      "type": "event"
+    },
+    {
+      "name": "rightclick",
+      "type": "event"
+    },
+    {
+      "name": "wheel",
+      "type": "event"
+    }
+  ]
+}

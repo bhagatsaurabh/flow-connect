@@ -1,4 +1,4 @@
-import { Vector2, SerializedVector2 } from "./vector";
+import { Vector, SerializedVector2 } from "./vector";
 import { getNewUUID, canConnect, get, exists } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Connector, ConnectorStyle } from './connector';
@@ -18,7 +18,7 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable 
   ref: any;
   connectors: Connector[];
   focus: boolean;
-  position: Vector2;
+  position: Vector;
   hitColor: Color;
   style: TerminalStyle;
   id: string;
@@ -58,7 +58,7 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable 
     this.id = get(options.id, getNewUUID());
     this.setHitColor(this.hitColor);
     this.connectors = [];
-    this.position = Vector2.Zero();
+    this.position = Vector.Zero();
     this.focus = false;
 
     if (this.type === TerminalType.IN) {
@@ -213,19 +213,19 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable 
     return this.connectors.length > 0;
   }
 
-  onEnter(screenPosition: Vector2, realPosition: Vector2): void {
+  onEnter(screenPosition: Vector, realPosition: Vector): void {
     this.call('enter', this, screenPosition, realPosition);
 
     this.focus = true;
     this.node.flow.flowConnect.cursor = 'pointer';
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2): void {
+  onExit(screenPosition: Vector, realPosition: Vector): void {
     this.call('exit', this, screenPosition, realPosition);
 
     this.focus = false;
     this.node.flow.flowConnect.cursor = 'unset';
   }
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     this.call('down', this, screenPosition, realPosition);
 
     if (this.connectors.length > 0) {
@@ -258,16 +258,16 @@ export class Terminal extends Hooks implements Events, Serializable, Renderable 
       this.node.flow.flowConnect.floatingConnector = connector;
     }
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     this.call('up', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     this.call('drag', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     this.call('click', this, screenPosition, realPosition);
   }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     this.call('over', this, screenPosition, realPosition);
   }
   onContextMenu(): void {

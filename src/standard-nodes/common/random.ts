@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { getRandom } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -13,7 +13,7 @@ export class Random extends Node {
   static DefaultState = { min: 0, max: 100, fractional: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Random', options.position || new Vector2(50, 50), options.width || 150,
+    super(flow, options.name || 'Random', options.position || new Vector(50, 50), options.width || 150,
       [{ name: 'trigger', dataType: 'event' }],
       [{ name: 'value', dataType: 'number' }],
       {

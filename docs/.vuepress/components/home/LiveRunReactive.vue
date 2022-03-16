@@ -13,25 +13,25 @@ export default {
 
     let stringSource = new StandardNodes.Common.StringSource(flow, {
       state: { value: "Sample String" },
-      position: new Vector2(41.1, -3.5),
+      position: new Vector(41.1, -3.5),
     });
     let numberSource = new StandardNodes.Common.NumberSource(flow, {
       state: { value: 100 },
-      position: new Vector2(46.8, 93.2),
+      position: new Vector(46.8, 93.2),
     });
     let booleanSource = new StandardNodes.Common.BooleanSource(flow, {
       state: { value: false },
-      position: new Vector2(60.3, 218),
+      position: new Vector(60.3, 218),
     });
     let log = new StandardNodes.Common.Log(flow, {
-      position: new Vector2(665.1, 64.3),
+      position: new Vector(665.1, 64.3),
     });
     log.addNewTerminal("data");
     log.addNewTerminal("data");
 
     let customNode = flow.createNode(
       "Custom Node",
-      new Vector2(369.1, 70.7),
+      new Vector(369.1, 70.7),
       170,
       {
         state: { stringValue: "", numberValue: 0, boolValue: false },

@@ -1,11 +1,11 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector} from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 
 export class Property extends Node {
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Property', options.position || new Vector2(50, 50), options.width || 130,
+    super(flow, options.name || 'Property', options.position || new Vector(50, 50), options.width || 130,
       [{ name: 'object', dataType: 'any' }, { name: 'key', dataType: 'string' }],
       [{ name: 'value', dataType: 'any' }],
       {

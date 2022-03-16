@@ -1,5 +1,4 @@
 {
-  "filePath": "src/flow-connect.ts",
   "constructors": [
     {
       "name": "constructor",
@@ -158,6 +157,40 @@
     {
       "name": "create",
       "type": "method-static"
+    }
+  ],
+  "events": [
+    {
+      "name": "dimension-change",
+      "type": "event"
+    },
+    {
+      "name": "scale",
+      "type": "event"
+    },
+    {
+      "name": "transform",
+      "type": "event"
+    },
+    {
+      "name": "start",
+      "type": "event"
+    },
+    {
+      "name": "stop",
+      "type": "event"
+    },
+    {
+      "name": "tick",
+      "type": "event"
+    },
+    {
+      "name": "tickreset",
+      "type": "event"
+    },
+    {
+      "name": "render",
+      "type": "event"
     }
   ]
 }

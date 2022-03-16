@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Node } from "../../core/node";
@@ -9,7 +9,7 @@ export class ToArray extends Node {
   addButton: Button;
 
   constructor(flow: Flow, inputs: number, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'To Array', options.position || new Vector2(50, 50), options.width || 100,
+    super(flow, options.name || 'To Array', options.position || new Vector(50, 50), options.width || 100,
       (inputs && inputs > 0
         ? (new Array(inputs).fill(null).map((_, index) => ({ name: 'In ' + (index + 1), dataType: 'any' })))
         : [{ name: 'In 1', dataType: 'any' }]

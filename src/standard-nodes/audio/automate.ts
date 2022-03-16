@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { denormalize } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -22,8 +22,8 @@ export class Automate extends Node {
   scheduleEndTime: number;
   finiteLoop = 2;            // how much iterations to schedule in the future
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}, envelope: Array<Vector2> = [new Vector2(.2, .5), new Vector2(.5, .8), new Vector2(.9, .2)]) {
-    super(flow, options.name || 'Automate', options.position || new Vector2(50, 50), options.width || 280,
+  constructor(flow: Flow, options: NodeCreatorOptions = {}, envelope: Array<Vector> = [new Vector(.2, .5), new Vector(.5, .8), new Vector(.9, .2)]) {
+    super(flow, options.name || 'Automate', options.position || new Vector(50, 50), options.width || 280,
       [{ name: 'trigger', dataType: 'event' }],
       [{ name: 'out', dataType: 'audio' }],
       {
@@ -93,7 +93,7 @@ export class Automate extends Node {
     this.proxyParam.cancelScheduledValues(this.flow.flowConnect.audioContext.currentTime);
     clearInterval(this.timerId);
   }
-  schedule(values: Vector2[], time: number, iterations: number) {
+  schedule(values: Vector[], time: number, iterations: number) {
     for (let i = 0; i < iterations; i += 1) {
       values.forEach(value => {
         this.proxyParam.linearRampToValueAtTime(value.y, time + value.x)
@@ -104,7 +104,7 @@ export class Automate extends Node {
   setMinMax() {
     this.proxyParamNode.port.postMessage({ type: 'set-range', value: { min: this.state.min, max: this.state.max } });
   }
-  setupUI(envelope: Vector2[]) {
+  setupUI(envelope: Vector[]) {
     this.envelopeInput = this.createEnvelope(145, envelope, { input: true, output: true });
     this.minInput = this.createInput({
       propName: 'min', height: 20, style: { type: InputType.Number, grow: .5, step: 'any' }

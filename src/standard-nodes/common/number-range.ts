@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { InputType, Input, Toggle } from "../../ui/index";
@@ -13,7 +13,7 @@ export class NumberRange extends Node {
   static DefaultState = { value: 0, min: 0, max: 100, step: 1, loop: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Number Range', options.position || new Vector2(50, 50), options.width || 200,
+    super(flow, options.name || 'Number Range', options.position || new Vector(50, 50), options.width || 200,
       [{ name: 'trigger', dataType: 'event' }, { name: 'reset', dataType: 'event' }],
       [{ name: 'value', dataType: 'number' }],
       {

@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -19,7 +19,7 @@ export class Metronome extends Node {
   static DefaultState: any = { frequency: 330, buffer: null, bpm: 130, loop: true, auto: true };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Metronome', options.position || new Vector2(50, 50), options.width || 200,
+    super(flow, options.name || 'Metronome', options.position || new Vector(50, 50), options.width || 200,
       [
         { name: 'trigger', dataType: 'event' }, { name: 'gain', dataType: 'audioparam' },
         { name: 'detune', dataType: 'audioparam' }, { name: 'playback-rate', dataType: 'audioparam' }

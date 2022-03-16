@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Align } from "../../common/enums";
 import { Log } from "../../utils/logger";
@@ -11,7 +11,7 @@ export class API extends Node {
   static DefaultState = { src: '' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'API', options.position || new Vector2(50, 50), options.width || 150,
+    super(flow, options.name || 'API', options.position || new Vector(50, 50), options.width || 150,
       [{ name: 'trigger', dataType: 'event' }],
       [{ name: 'text', dataType: 'string' }, { name: 'json', dataType: 'any' }, { name: 'array-buffer', dataType: 'array-buffer' }],
       {

@@ -39,23 +39,23 @@ export default {
 
     this.toVector2 = new StandardNodes.Common.ToVector2(flow, {
       name: "Node",
-      position: new Vector2(585, 105),
+      position: new Vector(585, 105),
     });
     this.func1 = new StandardNodes.Math.Function(
       flow,
-      { position: new Vector2(295, 54), name: "Node" },
+      { position: new Vector(295, 54), name: "Node" },
       "cos(t)"
     );
     this.func2 = new StandardNodes.Math.Function(
       flow,
-      { position: new Vector2(295, 184.3), name: "Node" },
+      { position: new Vector(295, 184.3), name: "Node" },
       "sin(t) + 0.2cos(2.8t)"
     );
     this.parametricPlotter = new StandardNodes.Visual.FunctionPlotter(
       flow,
       250,
       { axisColor: "grey", plotColor: "#fa9868" },
-      { position: new Vector2(775, 77.2), name: "Node" }
+      { position: new Vector(775, 77.2), name: "Node" }
     );
     this.parametricPlotter.ui.query("display")[0].style.borderColor = "#fff";
     this.arraySource = new StandardNodes.Common.ArraySource(flow, {
@@ -66,7 +66,7 @@ export default {
         max: 5 * Math.PI,
         step: 0.1,
       },
-      position: new Vector2(12.4, 120.4),
+      position: new Vector(12.4, 120.4),
       name: "Node",
     });
 
@@ -170,7 +170,7 @@ export default {
           node.position = this.orgPositions[node.id].clone();
         });
       }
-      let origin = new Vector2(
+      let origin = new Vector(
         this.flowConnect.canvasDimensions.width,
         this.flowConnect.canvasDimensions.height
       );

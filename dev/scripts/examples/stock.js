@@ -13,7 +13,7 @@ let flow = flowConnect.createFlow({
 let timer = new StandardNodes.Common.Timer(flow, { state: { delay: 1000 } });
 let api = new StandardNodes.Net.API(flow, { state: { src: 'https://public.polygon.io/v2/market/now' } });
 let log = new StandardNodes.Common.Log(flow);
-let extract = flow.createNode('Data Extract', new Vector2(50, 50), 100, {
+let extract = flow.createNode('Data Extract', new Vector(50, 50), 100, {
   inputs: [{ name: 'data', dataType: 'any' }],
   outputs: [{ name: 'BTC', dataType: 'number' }, { name: 'ETH', dataType: 'number' }, { name: 'LTC', dataType: 'number' }]
 });

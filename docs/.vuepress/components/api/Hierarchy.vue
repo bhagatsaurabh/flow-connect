@@ -4,12 +4,12 @@
       <Badge class="mr-1" type="tip" vertical="middle">extends</Badge>
       <router-link :to="extend.link">{{ extend.name }}</router-link>
     </template>
-    <div v-if="implement && extend"><br /><br /></div>
+    <div v-if="implement && extend"></div>
     <template v-if="implement">
       <Badge class="mr-1" type="tip" vertical="middle">implements</Badge>
-      <router-link v-for="item in implement" :key="item.name" :to="item.link">{{
+      <router-link class="mr-0p5" v-for="item in implement" :key="item.name" :to="item.link"><em>{{
         item.name
-      }}</router-link>
+      }}</em></router-link>
     </template>
   </div>
 </template>

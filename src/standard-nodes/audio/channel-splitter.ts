@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Node } from "../../core/node";
@@ -10,7 +10,7 @@ export class ChannelSplitter extends Node {
   oldNoOfChannels = 1;
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Channel Splitter', options.position || new Vector2(50, 50), options.width || 160,
+    super(flow, options.name || 'Channel Splitter', options.position || new Vector(50, 50), options.width || 160,
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'Channel 1', dataType: 'audio' }],
       {

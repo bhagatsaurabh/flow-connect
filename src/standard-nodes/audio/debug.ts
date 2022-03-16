@@ -1,5 +1,5 @@
 import { Flow, FlowState } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 
@@ -9,7 +9,7 @@ export class Debug extends Node {
   debugNode: AudioWorkletNode;
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Debug', options.position || new Vector2(50, 50), options.width || 120,
+    super(flow, options.name || 'Debug', options.position || new Vector(50, 50), options.width || 120,
       [{ name: 'in', dataType: 'audio' }],
       [{ name: 'out', dataType: 'audio' }, { name: 'debug', dataType: 'any' }],
       {

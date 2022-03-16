@@ -1,5 +1,5 @@
 import { FlowConnect } from 'flow-connect';
-import { Vector2 } from 'flow-connect/core/vector';
+import { Vector } from 'flow-connect/core/vector';
 import StandardNodes from 'flow-connect/standard-nodes';
 
 let flowConnect = new FlowConnect(document.getElementById('canvas'));
@@ -15,7 +15,7 @@ let flow = flowConnect.createFlow({
 });
 
 let timerNode1 = new StandardNodes.Common.Timer(flow, {
-  position: new Vector2(22.6, 1.2),
+  position: new Vector(22.6, 1.2),
   state: { delay: 700 },
   style: {
     padding: 15,
@@ -38,7 +38,7 @@ timerNode1.ui.style = {
   backgroundColor: '#6ba4ff',
   shadowColor: 'white',
   shadowBlur: 0,
-  shadowOffset: Vector2.Zero(),
+  shadowOffset: Vector.Zero(),
   borderColor: '#0062ff',
   borderWidth: 8
 };
@@ -47,27 +47,27 @@ label.style.backgroundColor = '#fff';
 label.style.color = '#000';
 
 let timerNode2 = new StandardNodes.Common.Timer(flow, {
-  position: new Vector2(22.6, 194.7),
+  position: new Vector(22.6, 194.7),
   state: { delay: 600 }
 });
 timerNode2.ui.style = {
   backgroundColor: '#ffb561',
   shadowColor: '#999',
   shadowBlur: 10,
-  shadowOffset: Vector2.Zero(),
+  shadowOffset: Vector.Zero(),
   borderColor: '#ffb561',
   borderWidth: 0,
 };
 
 let randomNode = new StandardNodes.Common.Random(flow, {
-  position: new Vector2(321.5, 6.7), state: { min: 0, max: 5 }
+  position: new Vector(321.5, 6.7), state: { min: 0, max: 5 }
 });
 randomNode.ui.style.backgroundColor = '#f7ff99';
 let labelStyle = { color: '#547053', font: 'courier' };
 randomNode.ui.query('label').forEach(lbl => Object.assign(lbl.style, labelStyle));
 randomNode.ui.query('input').forEach(input => input.children[0].style.backgroundColor = '#abff45');
 
-let customNode = flow.createNode('Custom', new Vector2(615.3, 79.8), 200, {
+let customNode = flow.createNode('Custom', new Vector(615.3, 79.8), 200, {
   state: { preset: 'default', renderer: 0 }
 });
 let select = customNode.createSelect(['default', 'dark', 'transparent', 'red', 'green'], {
@@ -108,7 +108,7 @@ customNode.watch('preset', (_oldVal, newVal) => {
   }
 });
 button.on('click', () => (customNode.state.renderer = (customNode.state.renderer + 1) % 3));
-customNode.ui.style.shadowOffset = Vector2.Zero();
+customNode.ui.style.shadowOffset = Vector.Zero();
 customNode.ui.style.shadowBlur = 20;
 customNode.ui.style.borderWidth = 0;
 
@@ -197,7 +197,7 @@ let customRenderFn2 = (context, params, connector) => {
 
   context.strokeStyle = 'white';
   context.lineWidth = 4;
-  let dist = Vector2.Distance(params.start.x, params.start.y, params.end.x, params.end.y);
+  let dist = Vector.Distance(params.start.x, params.start.y, params.end.x, params.end.y);
   if (!connector.offset) connector.offset = 1;
   connector.offset += dist / 100;
   if (connector.offset > dist * 1.5) connector.offset = 0;

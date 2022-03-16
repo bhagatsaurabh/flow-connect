@@ -1,6 +1,6 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { SerializedVector2, Vector2 } from "../core/vector";
+import { SerializedVector2, Vector } from "../core/vector";
 import { get } from "../utils/utils";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
@@ -9,17 +9,17 @@ import { FlowState } from "../core/flow";
 import { Constant } from "../resource/constants";
 
 export class Slider2D extends UINode implements Serializable {
-  private _value: Vector2;
+  private _value: Vector;
   private thumbHitColor: string;
   offThumbCanvas: OffscreenCanvas | HTMLCanvasElement;
   private offThumbContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   private pointDiameter: number = 20;
 
-  get value(): Vector2 {
+  get value(): Vector {
     if (this.propName) return this.getProp();
     return this._value;
   }
-  set value(value: Vector2) {
+  set value(value: Vector) {
     value = value.clamp(0, 1);
 
     let oldVal = this.value;
@@ -38,7 +38,7 @@ export class Slider2D extends UINode implements Serializable {
     node: Node,
     options: Slider2DOptions = DefaultSlider2DOptions(node)
   ) {
-    super(node, Vector2.Zero(), UIType.Slider2D, {
+    super(node, Vector.Zero(), UIType.Slider2D, {
       draggable: true,
       style: options.style ? { ...DefaultSlider2DStyle(), ...options.style } : DefaultSlider2DStyle(),
       propName: options.propName,
@@ -53,7 +53,7 @@ export class Slider2D extends UINode implements Serializable {
     });
 
     this.height = get(options.height, this.node.style.rowHeight * 4);
-    this._value = this.propName ? this.getProp() : get(options.value, new Vector2(.5, .5));
+    this._value = this.propName ? this.getProp() : get(options.value, new Vector(.5, .5));
     this._value.clampInPlace(0, 1);
 
     if (this.input) {
@@ -86,7 +86,7 @@ export class Slider2D extends UINode implements Serializable {
     let [width, height] = [this.width - this.pointDiameter, this.height - this.pointDiameter];
     this.offThumbContext.clearRect(0, 0, width, height);
 
-    let coord = new Vector2(this.value.x, 1 - this.value.y).multiply(width, height).add(this.pointDiameter / 2);
+    let coord = new Vector(this.value.x, 1 - this.value.y).multiply(width, height).add(this.pointDiameter / 2);
     this.offThumbContext.fillStyle = this.thumbHitColor;
     this.offThumbContext.beginPath();
     this.offThumbContext.arc(coord.x, coord.y, this.pointDiameter / 2, 0, Constant.TAU);
@@ -103,7 +103,7 @@ export class Slider2D extends UINode implements Serializable {
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
     let [width, height] = [this.width - this.pointDiameter, this.height - this.pointDiameter];
-    let point = new Vector2(this.value.x, 1 - this.value.y)
+    let point = new Vector(this.value.x, 1 - this.value.y)
       .multiplyInPlace(width, height)
       .addInPlace(this.position)
       .addInPlace(this.pointDiameter / 2);
@@ -151,12 +151,12 @@ export class Slider2D extends UINode implements Serializable {
       );
     }
   }
-  getHitPoint(realPosition: Vector2): boolean {
+  getHitPoint(realPosition: Vector): boolean {
     let coord = realPosition.subtract(this.position);
     let hitColor = Color.rgbaToHex(this.offThumbContext.getImageData(coord.x, coord.y, 1, 1).data);
     return this.thumbHitColor === hitColor;
   }
-  movePoint(realPosition: Vector2) {
+  movePoint(realPosition: Vector) {
     let [width, height] = [this.width - this.pointDiameter, this.height - this.pointDiameter];
 
     this._value = realPosition
@@ -168,7 +168,7 @@ export class Slider2D extends UINode implements Serializable {
       .clampInPlace(0, width, 0, height)
       .normalizeInPlace(0, width, 0, height);
 
-    this.value = new Vector2(this._value.x, 1 - this._value.y);
+    this.value = new Vector(this._value.x, 1 - this._value.y);
   }
 
   onPropChange(_oldVal: any, newVal: any) {
@@ -177,19 +177,19 @@ export class Slider2D extends UINode implements Serializable {
 
     this.output && this.output.setData(this.value);
   }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
 
   private isHit: boolean;
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('down', this, screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, null, this._value);
@@ -197,24 +197,24 @@ export class Slider2D extends UINode implements Serializable {
 
     this.call('up', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.movePoint(realPosition);
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+  onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2) {
+  onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     if (this.isHit) {
@@ -225,7 +225,7 @@ export class Slider2D extends UINode implements Serializable {
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
@@ -250,7 +250,7 @@ export class Slider2D extends UINode implements Serializable {
   }
   static deSerialize(node: Node, data: SerializedSlider2D) {
     return new Slider2D(node, {
-      value: Vector2.deSerialize(data.value),
+      value: Vector.deSerialize(data.value),
       propName: data.propName,
       input: data.input,
       output: data.output,
@@ -283,7 +283,7 @@ export interface SerializedSlider2D extends SerializedUINode {
 }
 
 interface Slider2DOptions {
-  value?: Vector2,
+  value?: Vector,
   propName?: string,
   input?: boolean | SerializedTerminal,
   output?: boolean | SerializedTerminal,

@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { normalize } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -12,7 +12,7 @@ export class Normalize extends Node {
   static DefaultState = { min: 0, max: 100, relative: false };
 
   constructor(flow: Flow, public type: 'number' | 'array', options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Normalize', options.position || new Vector2(50, 50), options.width || 150,
+    super(flow, options.name || 'Normalize', options.position || new Vector(50, 50), options.width || 150,
       [{ name: 'data', dataType: type }],
       [{ name: 'normalized', dataType: type }],
       {

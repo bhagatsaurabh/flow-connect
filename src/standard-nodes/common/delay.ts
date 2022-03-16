@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { List, ListNode } from "../../utils/linked-list";
 import { Node } from "../../core/node";
@@ -17,7 +17,7 @@ export class Delay extends Node {
   static DefaultState: any = { delay: 0, eventQueue: null };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Delay', options.position || new Vector2(50, 50), options.width || 130,
+    super(flow, options.name || 'Delay', options.position || new Vector(50, 50), options.width || 130,
       [{ name: 'event', dataType: 'event' }],
       [{ name: 'trigger', dataType: 'event' }],
       {

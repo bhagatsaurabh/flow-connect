@@ -1,5 +1,5 @@
 import { FlowConnect } from 'flow-connect';
-import { Vector2 } from 'flow-connect/core/vector';
+import { Vector } from 'flow-connect/core/vector';
 import StandardNodes from 'flow-connect/standard-nodes';
 
 let flowConnect = new FlowConnect(document.getElementById('canvas'));
@@ -13,7 +13,7 @@ let timer1 = new StandardNodes.Common.Timer(flow, {
     blinkDuration: 20,
     emitValue: "Event from Timer1",
   },
-  position: new Vector2(39.6, 5.1),
+  position: new Vector(39.6, 5.1),
 });
 let timer2 = new StandardNodes.Common.Timer(flow, {
   state: {
@@ -23,7 +23,7 @@ let timer2 = new StandardNodes.Common.Timer(flow, {
     blinkDuration: 20,
     emitValue: "Event from Timer2",
   },
-  position: new Vector2(39.6, 126.8),
+  position: new Vector(39.6, 126.8),
 });
 let timer3 = new StandardNodes.Common.Timer(flow, {
   state: {
@@ -33,18 +33,18 @@ let timer3 = new StandardNodes.Common.Timer(flow, {
     blinkDuration: 20,
     emitValue: "Event from Timer3",
   },
-  position: new Vector2(304.3, 194),
+  position: new Vector(304.3, 194),
 });
 let sync1 = new StandardNodes.Common.SyncEvent(flow, {
-  position: new Vector2(262.8, 57.8),
+  position: new Vector(262.8, 57.8),
   state: { lastBlink: 0, isBlinking: false, blinkDuration: 20 },
 });
 let sync2 = new StandardNodes.Common.SyncEvent(flow, {
-  position: new Vector2(526.7, 118.8),
+  position: new Vector(526.7, 118.8),
   state: { lastBlink: 0, isBlinking: false, blinkDuration: 20 },
 });
 
-let outputNode = flow.createNode("Output", new Vector2(746.7, 82.8), 110, {
+let outputNode = flow.createNode("Output", new Vector(746.7, 82.8), 110, {
   state: { isLogEnabled: false },
   inputs: [{ name: "out", dataType: "event" }],
 });

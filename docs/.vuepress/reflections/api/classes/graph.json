@@ -1,0 +1,48 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "dirtyNodes",
+      "type": "property"
+    },
+    {
+      "name": "graphNodes",
+      "type": "property"
+    },
+    {
+      "name": "nodes",
+      "type": "property"
+    },
+    {
+      "name": "state",
+      "type": "property"
+    }
+  ],
+  "methods": [
+    {
+      "name": "propagate",
+      "type": "method"
+    },
+    {
+      "name": "debugNode",
+      "type": "method"
+    },
+    {
+      "name": "debugGraph",
+      "type": "method"
+    },
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ]
+}

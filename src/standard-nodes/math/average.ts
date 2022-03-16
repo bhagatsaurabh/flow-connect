@@ -1,11 +1,11 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 
 export class Average extends Node {
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Average', options.position || new Vector2(50, 50), options.width || 120,
+    super(flow, options.name || 'Average', options.position || new Vector(50, 50), options.width || 120,
       [{ name: 'n', dataType: 'any' }],
       [{ name: 'μ', dataType: 'any' }],
       {

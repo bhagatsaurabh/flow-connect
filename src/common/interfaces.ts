@@ -1,4 +1,4 @@
-import { Vector2 } from "../core/vector";
+import { Vector } from "../core/vector";
 import { LOD, ViewPort } from './enums';
 import { NodeState, NodeStyle } from "../core/node";
 import { TerminalStyle } from "../core/terminal";
@@ -18,21 +18,21 @@ export interface Dimension {
  */
 export interface Pointer {
   id: number,
-  screenPosition: Vector2,
-  realPosition: Vector2
+  screenPosition: Vector,
+  realPosition: Vector
 }
 
 /** @hidden
  *  Common events for [[Node]] and [[UINode]]
  */
 export interface Events {
-  onEnter(screenPosition: Vector2, realPosition: Vector2): void;
-  onExit(screenPosition: Vector2, realPosition: Vector2): void;
-  onOver(screenPosition: Vector2, realPosition: Vector2): void;
-  onDown(screenPosition: Vector2, realPosition: Vector2): void;
-  onUp(screenPosition: Vector2, realPosition: Vector2): void;
-  onClick(screenPosition: Vector2, realPosition: Vector2): void;
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void;
+  onEnter(screenPosition: Vector, realPosition: Vector): void;
+  onExit(screenPosition: Vector, realPosition: Vector): void;
+  onOver(screenPosition: Vector, realPosition: Vector): void;
+  onDown(screenPosition: Vector, realPosition: Vector): void;
+  onUp(screenPosition: Vector, realPosition: Vector): void;
+  onClick(screenPosition: Vector, realPosition: Vector): void;
+  onDrag(screenPosition: Vector, realPosition: Vector): void;
   onContextMenu(): void;
 }
 
@@ -63,7 +63,7 @@ export interface Rules {
 
 export interface NodeCreatorOptions {
   name?: string,
-  position?: Vector2,
+  position?: Vector,
   width?: number,
   state?: {},
   style?: NodeStyle,

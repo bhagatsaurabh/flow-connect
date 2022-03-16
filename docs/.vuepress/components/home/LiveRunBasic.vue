@@ -11,9 +11,9 @@ export default {
     window.basicExampleFC = this.flowConnect;
     let flow = this.flowConnect.createFlow({ name: "Basic Example" });
 
-    let timerNode = new TimerNode(flow, new Vector2(45, 7), 500);
+    let timerNode = new TimerNode(flow, new Vector(45, 7), 500);
 
-    let randomNode = flow.createNode("Random", new Vector2(285, 50), 120, {
+    let randomNode = flow.createNode("Random", new Vector(285, 50), 120, {
       inputs: [{ name: "trigger", dataType: "event" }],
       outputs: [{ name: "random", dataType: "number" }],
     });
@@ -24,7 +24,7 @@ export default {
     let multiplyNode = new Node(
       flow,
       "Multiply",
-      new Vector2(552, 76),
+      new Vector(552, 76),
       100,
       [
         { name: "a", dataType: "number" },
@@ -41,11 +41,11 @@ export default {
     });
 
     let numberSource = new StandardNodes.Common.NumberSource(flow, {
-      position: new Vector2(245, 128),
+      position: new Vector(245, 128),
       state: { value: 100 },
     });
 
-    let labelNode = flow.createNode("Label", new Vector2(755, 119), 120, [], []);
+    let labelNode = flow.createNode("Label", new Vector(755, 119), 120, [], []);
     labelNode.ui.append(
       labelNode.createLabel("", { input: true, style: { precision: 2, fontSize: '14px' } })
     );

@@ -1,11 +1,11 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 
 export class ArrayIndex extends Node {
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Array Index', options.position || new Vector2(50, 50), options.width || 120,
+    super(flow, options.name || 'Array Index', options.position || new Vector(50, 50), options.width || 120,
       [{ name: 'data', dataType: 'array' }, { name: 'index', dataType: 'number' }],
       [{ name: 'value', dataType: 'any' }],
       {

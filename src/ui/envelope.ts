@@ -1,4 +1,4 @@
-import { SerializedVector2, Vector2 } from "../core/vector";
+import { SerializedVector2, Vector } from "../core/vector";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Node } from '../core/node';
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
@@ -10,16 +10,16 @@ import { List, ListNode } from "../utils/linked-list";
 import { BiMap } from "../utils/bidirectional-map";
 
 export class Envelope extends UINode implements Serializable {
-  private _value: List<Vector2>;
-  private pointHitColorPoint: BiMap<string, ListNode<Vector2>> = new BiMap();
+  private _value: List<Vector>;
+  private pointHitColorPoint: BiMap<string, ListNode<Vector>> = new BiMap();
   offPointsCanvas: OffscreenCanvas | HTMLCanvasElement;
   private offPointsContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   private pointDiameter: number = 10;
 
-  get value(): Vector2[] {
+  get value(): Vector[] {
     return this._value.toArray().map(vec => vec.clone());
   }
-  set value(value: Vector2[]) {
+  set value(value: Vector[]) {
     let oldVal = this.value;
     value.forEach(vector => vector.clampInPlace(0, 1, 0, 1));
     value.sort((a, b) => a.x - b.x);
@@ -34,10 +34,10 @@ export class Envelope extends UINode implements Serializable {
   constructor(
     node: Node,
     height: number,
-    values: Vector2[] = [],
+    values: Vector[] = [],
     options: EnvelopeOptions = DefaultEnvelopeOptions()
   ) {
-    super(node, Vector2.Zero(), UIType.Envelope, {
+    super(node, Vector.Zero(), UIType.Envelope, {
       draggable: true,
       style: options.style ? { ...DefaultEnvelopeStyle(), ...options.style } : DefaultEnvelopeStyle(),
       input: options.input && (typeof options.input === 'boolean'
@@ -83,7 +83,7 @@ export class Envelope extends UINode implements Serializable {
     this.offPointsContext.clearRect(0, 0, width, height);
 
     this._value.forEach(node => {
-      let coord = new Vector2(node.data.x, 1 - node.data.y).multiply(width, height).add(this.pointDiameter / 2);
+      let coord = new Vector(node.data.x, 1 - node.data.y).multiply(width, height).add(this.pointDiameter / 2);
       this.offPointsContext.fillStyle = this.pointHitColorPoint.get(node) as string;
       this.offPointsContext.beginPath();
       this.offPointsContext.arc(coord.x, coord.y, this.pointDiameter / 2, 0, Constant.TAU);
@@ -101,8 +101,8 @@ export class Envelope extends UINode implements Serializable {
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
     let [width, height] = [this.width - this.pointDiameter, this.height - this.pointDiameter];
-    let points: Vector2[] = this._value.map(node =>
-      new Vector2(node.data.x, 1 - node.data.y)
+    let points: Vector[] = this._value.map(node =>
+      new Vector(node.data.x, 1 - node.data.y)
         .multiplyInPlace(width, height)
         .addInPlace(this.position)
         .addInPlace(this.pointDiameter / 2)
@@ -161,13 +161,13 @@ export class Envelope extends UINode implements Serializable {
     }
   }
 
-  getHitPoint(realPosition: Vector2): ListNode<Vector2> {
+  getHitPoint(realPosition: Vector): ListNode<Vector> {
     let coord = realPosition.subtract(this.position);
     let hitColor = Color.rgbaToHex(this.offPointsContext.getImageData(coord.x, coord.y, 1, 1).data);
     let hitPointNode = this.pointHitColorPoint.get(hitColor);
-    return hitPointNode as ListNode<Vector2>;
+    return hitPointNode as ListNode<Vector>;
   }
-  movePoint(realPosition: Vector2) {
+  movePoint(realPosition: Vector) {
     let [width, height] = [this.width - this.pointDiameter, this.height - this.pointDiameter];
 
     this.currHitPoint.data = realPosition
@@ -182,17 +182,17 @@ export class Envelope extends UINode implements Serializable {
         this.currHitPoint.prev?.data.x || 0, this.currHitPoint.next?.data.x || 1,
         -Infinity, Infinity
       );
-    this.currHitPoint.data = new Vector2(this.currHitPoint.data.x, 1 - this.currHitPoint.data.y);
+    this.currHitPoint.data = new Vector(this.currHitPoint.data.x, 1 - this.currHitPoint.data.y);
 
     this.renderOffPoints();
   }
-  newPoint(realPosition: Vector2, width: number, height: number) {
+  newPoint(realPosition: Vector, width: number, height: number) {
     let oldVal = this._value.toArray();
 
     let newPoint = realPosition
       .subtract(this.position.add(this.pointDiameter / 2))
       .normalizeInPlace(0, width, 0, height);
-    newPoint = new Vector2(newPoint.x, 1 - newPoint.y);
+    newPoint = new Vector(newPoint.x, 1 - newPoint.y);
 
     let newPointNode;
     let anchor = this._value.searchTail(node => node.data.x <= newPoint.x);
@@ -214,15 +214,15 @@ export class Envelope extends UINode implements Serializable {
   }
 
   onPropChange() { /**/ }
-  onOver(screenPosition: Vector2, realPosition: Vector2): void {
+  onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('over', this, screenPosition, realPosition);
   }
 
-  private currHitPoint: ListNode<Vector2>;
-  private lastDownPosition: Vector2;
-  onDown(screenPosition: Vector2, realPosition: Vector2): void {
+  private currHitPoint: ListNode<Vector>;
+  private lastDownPosition: Vector;
+  onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.currHitPoint = this.getHitPoint(realPosition);
@@ -230,12 +230,12 @@ export class Envelope extends UINode implements Serializable {
 
     this.call('down', this, screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector2, realPosition: Vector2): void {
+  onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     let [width, height] = [this.width - this.pointDiameter, this.height - this.pointDiameter];
     if (!this.currHitPoint && this.lastDownPosition) {
-      if (Vector2.Distance(this.lastDownPosition, realPosition) <= 2) {
+      if (Vector.Distance(this.lastDownPosition, realPosition) <= 2) {
         this.newPoint(realPosition, width, height);
       }
     } else if (
@@ -253,24 +253,24 @@ export class Envelope extends UINode implements Serializable {
 
     this.call('up', this, screenPosition, realPosition);
   }
-  onClick(screenPosition: Vector2, realPosition: Vector2): void {
+  onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     this.call('click', this, screenPosition, realPosition);
   }
-  onDrag(screenPosition: Vector2, realPosition: Vector2): void {
+  onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
     if (this.currHitPoint) this.movePoint(realPosition);
 
     this.call('drag', this, screenPosition, realPosition);
   }
-  onEnter(screenPosition: Vector2, realPosition: Vector2) {
+  onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('enter', this, screenPosition, realPosition);
   }
-  onExit(screenPosition: Vector2, realPosition: Vector2) {
+  onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     if (this.currHitPoint) {
@@ -282,7 +282,7 @@ export class Envelope extends UINode implements Serializable {
 
     this.call('exit', this, screenPosition, realPosition);
   }
-  onWheel(direction: boolean, screenPosition: Vector2, realPosition: Vector2) {
+  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
     this.call('wheel', this, direction, screenPosition, realPosition);
@@ -306,7 +306,7 @@ export class Envelope extends UINode implements Serializable {
     }
   }
   static deSerialize(node: Node, data: SerializedEnvelope): Envelope {
-    return new Envelope(node, data.height, data.values.map(serialVec => Vector2.deSerialize(serialVec)), {
+    return new Envelope(node, data.height, data.values.map(serialVec => Vector.deSerialize(serialVec)), {
       input: data.input,
       output: data.output,
       style: data.style,

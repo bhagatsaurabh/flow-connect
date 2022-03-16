@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { Toggle } from "../../ui/index";
@@ -10,7 +10,7 @@ export class BooleanSource extends Node {
   static DefaultState = { value: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Boolean Source', options.position || new Vector2(50, 50), options.width || 130, [],
+    super(flow, options.name || 'Boolean Source', options.position || new Vector(50, 50), options.width || 130, [],
       [{ name: 'value', dataType: 'boolean' }],
       {
         state: options.state ? { ...BooleanSource.DefaultState, ...options.state } : BooleanSource.DefaultState,

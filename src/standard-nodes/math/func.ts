@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Terminal, TerminalType } from "../../core/terminal";
 import { Evaluator } from "../../utils/evaluator";
@@ -15,7 +15,7 @@ export class Func extends Node {
   static DefaultState = { newVar: 'y' };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}, expression?: string) {
-    super(flow, options.name || 'Function', options.position || new Vector2(50, 50), options.width || 200, [],
+    super(flow, options.name || 'Function', options.position || new Vector(50, 50), options.width || 200, [],
       [{ name: '𝒇', dataType: 'any' }],
       {
         state: options.state

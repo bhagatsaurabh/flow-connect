@@ -1,5 +1,5 @@
 import { FlowConnect } from "../flow-connect";
-import { Vector2 } from "./vector";
+import { Vector } from "./vector";
 import { Node, NodeButton, NodeButtonRenderParams, NodeRenderParams, NodeStyle, SerializedNode } from "./node";
 import { Hooks } from './hooks';
 import { Group, GroupRenderParams, SerializedGroup } from './group';
@@ -88,7 +88,7 @@ export class Flow extends Hooks implements Serializable {
     return false;
   }
 
-  addInput(name: string, dataType: string, position: Vector2): TunnelNode {
+  addInput(name: string, dataType: string, position: Vector): TunnelNode {
     let flowInput = new TunnelNode(this, 'Input', position, 100, [], [{ name: name, dataType: dataType }]);
     flowInput.on('process', () => {
       flowInput.outputs[0].setData(flowInput.proxyTerminal.getData());
@@ -102,7 +102,7 @@ export class Flow extends Hooks implements Serializable {
     this.call('add-input', this, flowInput);
     return flowInput;
   }
-  addOutput(name: string, dataType: string, position: Vector2): TunnelNode {
+  addOutput(name: string, dataType: string, position: Vector): TunnelNode {
     let flowOutput = new TunnelNode(this, 'Output', position, 100, [{ name: name, dataType: dataType }], []);
 
     this.outputs.push(flowOutput);
@@ -113,7 +113,7 @@ export class Flow extends Hooks implements Serializable {
     this.call('add-output', this, flowOutput);
     return flowOutput;
   }
-  addSubFlow(flow: Flow, position: Vector2 = Vector2.Zero()): SubFlowNode {
+  addSubFlow(flow: Flow, position: Vector = Vector.Zero()): SubFlowNode {
     if (flow.parentFlow) {
       Log.error('Provided flow is already a sub-flow, a sub-flow cannot have multiple parent flows');
       return null;
@@ -130,7 +130,7 @@ export class Flow extends Hooks implements Serializable {
 
     return subFlowNode;
   }
-  createNode(name: string, position: Vector2, width: number, options?: NodeOptions): Node {
+  createNode(name: string, position: Vector, width: number, options?: NodeOptions): Node {
     options = options ? { ...DefaultNodeOptions(), ...options } : DefaultNodeOptions();
 
     let inTerminals: any[] = [], outTerminals: any[] = [];

@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { clamp } from "../../utils/utils";
 import { Node } from "../../core/node";
@@ -13,7 +13,7 @@ export class DynamicsCompressor extends Node {
   compressor: DynamicsCompressorNode;
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Dynamics Compressor', options.position || new Vector2(50, 50), options.width || 230,
+    super(flow, options.name || 'Dynamics Compressor', options.position || new Vector(50, 50), options.width || 230,
       [
         { name: 'in', dataType: 'audio' }, { name: 'threshold', dataType: 'audioparam' },
         { name: 'ratio', dataType: 'audioparam' }, { name: 'knee', dataType: 'audioparam' },

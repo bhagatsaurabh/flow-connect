@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { Toggle } from "../../ui/index";
@@ -14,7 +14,7 @@ export class Convolver extends Node {
   static DefaultState = { bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Convolver', options.position || new Vector2(50, 50), options.width || 160,
+    super(flow, options.name || 'Convolver', options.position || new Vector(50, 50), options.width || 160,
       [{ name: 'in', dataType: 'audio' }, { name: 'impulse', dataType: 'audio-buffer' }],
       [{ name: 'out', dataType: 'audio' }],
       {

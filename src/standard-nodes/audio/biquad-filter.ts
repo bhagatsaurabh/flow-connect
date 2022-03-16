@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Node } from "../../core/node";
 import { Select, Toggle } from "../../ui/index";
@@ -15,7 +15,7 @@ export class BiquadFilter extends Node {
   static DefaultState = { filterType: 'lowpass', bypass: false };
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Biquad Filter', options.position || new Vector2(50, 50), options.width || 230,
+    super(flow, options.name || 'Biquad Filter', options.position || new Vector(50, 50), options.width || 230,
       [
         { name: 'in', dataType: 'audio' }, { name: 'gain', dataType: 'audioparam' },
         { name: 'Q', dataType: 'audioparam' }, { name: 'frequency', dataType: 'audioparam' },

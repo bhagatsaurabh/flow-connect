@@ -1,0 +1,84 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "end",
+      "type": "property"
+    },
+    {
+      "name": "endNode",
+      "type": "property"
+    },
+    {
+      "name": "flow",
+      "type": "property"
+    },
+    {
+      "name": "id",
+      "type": "property"
+    },
+    {
+      "name": "renderResolver",
+      "type": "property"
+    },
+    {
+      "name": "start",
+      "type": "property"
+    },
+    {
+      "name": "startNode",
+      "type": "property"
+    },
+    {
+      "name": "style",
+      "type": "property"
+    }
+  ],
+  "accessors": [
+    {
+      "name": "data",
+      "type": "accessor"
+    }
+  ],
+  "methods": [
+    {
+      "name": "call",
+      "type": "method-inherited"
+    },
+    {
+      "name": "off",
+      "type": "method-inherited"
+    },
+    {
+      "name": "offAll",
+      "type": "method-inherited"
+    },
+    {
+      "name": "on",
+      "type": "method-inherited"
+    },
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ],
+  "events": [
+    {
+      "name": "data",
+      "type": "event"
+    },
+    {
+      "name": "render",
+      "type": "event"
+    }
+  ]
+}

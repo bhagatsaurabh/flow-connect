@@ -1,5 +1,5 @@
 import { Flow } from "../../core/flow";
-import { Vector2 } from "../../core/vector";
+import { Vector } from "../../core/vector";
 import { NodeCreatorOptions } from "../../common/interfaces";
 import { Log } from "../../utils/logger";
 import { Node } from "../../core/node";
@@ -9,7 +9,7 @@ export class JsonSource extends Node {
   input: Input;
 
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'JSON Source', options.position || new Vector2(50, 50), options.width || 150, [],
+    super(flow, options.name || 'JSON Source', options.position || new Vector(50, 50), options.width || 150, [],
       [{ name: 'value', dataType: 'any' }],
       {
         state: options.state ? { ...options.state } : {},
