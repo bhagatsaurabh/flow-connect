@@ -1,6 +1,6 @@
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
 import { Node } from "../core/node";
-import { SerializedVector2, Vector } from "../core/vector";
+import { SerializedVector, Vector } from "../core/vector";
 import { get } from "../utils/utils";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Serializable } from "../common/interfaces";
@@ -278,7 +278,7 @@ let DefaultSlider2DStyle = () => {
 }
 
 export interface SerializedSlider2D extends SerializedUINode {
-  value: SerializedVector2,
+  value: SerializedVector,
   height: number
 }
 

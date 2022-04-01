@@ -1,0 +1,24 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "subFlow",
+      "type": "property"
+    }
+  ],
+  "methods": [
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ]
+}

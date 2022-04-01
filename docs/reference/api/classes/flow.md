@@ -207,7 +207,7 @@ Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
       <span class="ml-1">
         <Optional class="mr-0p5" /><strong>uiContainer?: </strong>
         <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./container">Container</Ref>,
+        >&lt;<Ref to="../nodeui/container">Container</Ref>,
         <Ref to="../interfaces/container-renderparams">ContainerRenderParams</Ref>&gt;
       </span>
     <br/>}
@@ -227,7 +227,8 @@ Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
     <em><Ref to="../interfaces/rules">Rules</Ref></em>
   </template>
   <template v-slot:desc>
-    Specifies what terminal types can be connected to one another.
+    Specifies what terminal types can be connected to one another.<br/><br/>
+    Also see, <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>.
   </template>
 </Property>
 

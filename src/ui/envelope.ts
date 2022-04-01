@@ -1,4 +1,4 @@
-import { SerializedVector2, Vector } from "../core/vector";
+import { SerializedVector, Vector } from "../core/vector";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 import { Node } from '../core/node';
 import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
@@ -335,7 +335,7 @@ let DefaultEnvelopeStyle = () => {
 };
 
 export interface SerializedEnvelope extends SerializedUINode {
-  values: SerializedVector2[],
+  values: SerializedVector[],
   height: number
 }
 

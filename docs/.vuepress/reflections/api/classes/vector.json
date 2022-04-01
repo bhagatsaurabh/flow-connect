@@ -1,0 +1,124 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "x",
+      "type": "property"
+    },
+    {
+      "name": "y",
+      "type": "property"
+    }
+  ],
+  "methods": [
+    {
+      "name": "abs",
+      "type": "method"
+    },
+    {
+      "name": "absInPlace",
+      "type": "method"
+    },
+    {
+      "name": "add",
+      "type": "method"
+    },
+    {
+      "name": "addInPlace",
+      "type": "method"
+    },
+    {
+      "name": "assign",
+      "type": "method"
+    },
+    {
+      "name": "clamp",
+      "type": "method"
+    },
+    {
+      "name": "clampInPlace",
+      "type": "method"
+    },
+    {
+      "name": "clone",
+      "type": "method"
+    },
+    {
+      "name": "isEqual",
+      "type": "method"
+    },
+    {
+      "name": "isInside",
+      "type": "method"
+    },
+    {
+      "name": "max",
+      "type": "method"
+    },
+    {
+      "name": "multiply",
+      "type": "method"
+    },
+    {
+      "name": "multiplyInPlace",
+      "type": "method"
+    },
+    {
+      "name": "normalize",
+      "type": "method"
+    },
+    {
+      "name": "normalizeInPlace",
+      "type": "method"
+    },
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "subtract",
+      "type": "method"
+    },
+    {
+      "name": "subtractInPlace",
+      "type": "method"
+    },
+    {
+      "name": "toString",
+      "type": "method"
+    },
+    {
+      "name": "transform",
+      "type": "method"
+    },
+    {
+      "name": "transformInPlace",
+      "type": "method"
+    },
+    {
+      "name": "Distance",
+      "type": "method-static"
+    },
+    {
+      "name": "Midpoint",
+      "type": "method-static"
+    },
+    {
+      "name": "Random",
+      "type": "method-static"
+    },
+    {
+      "name": "Zero",
+      "type": "method-static"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ]
+}

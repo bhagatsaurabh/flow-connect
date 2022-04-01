@@ -42,8 +42,8 @@ export interface Events {
  */
 export interface RenderState {
   viewport: ViewPort;
-  nodeState: NodeState
-  lod: LOD
+  nodeState: NodeState;
+  lod: LOD;
 }
 
 export interface Serializable {

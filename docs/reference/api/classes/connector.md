@@ -42,9 +42,15 @@ If you need to connect two terminals without explicitly creating a connector usi
     </Param>
     <Param name="options?">
       <em><Ref to="../interfaces/connector-options">ConnectorOptions</Ref></em>
-      <template v-slot:default-value>
-        <Ref to="../interfaces/default-connector-options">DefaultConnectorOptions</Ref>
-      </template>
+  <template v-slot:default-value>
+
+  ```js
+  {
+    style: {},
+    id: getNewUUID() // dynamic
+  }
+  ```
+  </template>
     </Param>
   </template>
 </Method>
@@ -144,7 +150,15 @@ If you need to connect two terminals without explicitly creating a connector usi
     <em><Ref to="../interfaces/connector-style">ConnectorStyle</Ref></em>
   </template>
   <template v-slot:default>
-    <Ref to="../interfaces/default-connector-style">DefaultConnectorStyle</Ref>
+
+  ```js
+  {
+    width: 5,
+    color: '#7fff00aa',
+    border: true,
+    borderColor: 'grey'
+  }
+  ```
   </template>
 </Property>
 

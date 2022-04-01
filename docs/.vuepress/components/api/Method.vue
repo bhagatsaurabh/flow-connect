@@ -3,6 +3,7 @@
     <section>
       <template v-if="$slots.signature">
         <Icon :type="type" />
+        <br v-if="multipleSig" />
         <code><slot name="signature"></slot></code><br /><br />
       </template>
       <slot v-if="$slots.inherit" name="inherit"></slot>
@@ -33,7 +34,7 @@ import Icon from "./Icon.vue";
 <script>
 export default {
   name: "Method",
-  props: ["type"],
+  props: ["type", "multipleSig"],
 };
 </script>
 

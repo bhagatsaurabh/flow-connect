@@ -1,4 +1,4 @@
-import { SerializedVector2, Vector } from "./vector";
+import { SerializedVector, Vector } from "./vector";
 import { get, getNewUUID, intersects } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Flow } from './flow';
@@ -228,7 +228,7 @@ export class Group extends Hooks implements Serializable, Renderable {
 }
 
 export interface SerializedGroup {
-  position: SerializedVector2,
+  position: SerializedVector,
   width: number,
   height: number,
   name: string,
@@ -236,7 +236,7 @@ export interface SerializedGroup {
   id: string,
   hitColor: SerializedColor,
   nodes: string[],
-  nodeDeltas: SerializedVector2[]
+  nodeDeltas: SerializedVector[]
 }
 
 let DefaultGroupColors = {
@@ -285,7 +285,7 @@ let DefaultGroupOptions = (): GroupOptions => {
 }
 
 export interface GroupRenderParams {
-  position: SerializedVector2,
+  position: SerializedVector,
   width: number,
   height: number
 }

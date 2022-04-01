@@ -197,14 +197,14 @@ export class Vector implements Serializable {
     );
   }
 
-  serialize(): SerializedVector2 {
+  serialize(): SerializedVector {
     return { x: this.x, y: this.y };
   }
-  static deSerialize(data: SerializedVector2): Vector {
+  static deSerialize(data: SerializedVector): Vector {
     return new Vector(data.x, data.y);
   }
 }
 
-export interface SerializedVector2 {
+export interface SerializedVector {
   x: number, y: number
 }

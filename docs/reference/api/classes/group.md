@@ -34,9 +34,17 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
     </Param>
     <Param name="options?">
       <em><Ref to="../interfaces/group-options">GroupOptions</Ref></em>
-      <template v-slot:default-value>
-        <Ref to="../functions/default-group-options">DefaultGroupOptions</Ref>
-      </template>
+  <template v-slot:default-value>
+
+  ```js
+  {
+    width: 0,
+    height: 0,
+    style: {},
+    id: getNewUUID() // dynamic
+  }
+  ```
+  </template>
     </Param>
   </template>
 </Method>
@@ -110,7 +118,14 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
     <em><Ref to="../interfaces/group-style">GroupStyle</Ref></em>
   </template>
   <template v-slot:default>
-    <Ref to="../interfaces/default-group-style">DefaultGroupStyle</Ref>
+
+  ```js
+  {
+    titleColor: '#000',
+    fontSize: '16px',
+    font: 'arial'
+  }
+  ```
   </template>
 </Property>
 

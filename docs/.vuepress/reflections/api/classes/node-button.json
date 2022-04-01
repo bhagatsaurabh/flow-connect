@@ -1,0 +1,54 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "align",
+      "type": "property"
+    },
+    {
+      "name": "callback",
+      "type": "property"
+    },
+    {
+      "name": "node",
+      "type": "property"
+    },
+    {
+      "name": "renderResolver",
+      "type": "property"
+    },
+    {
+      "name": "style",
+      "type": "property"
+    }
+  ],
+  "methods": [
+    {
+      "name": "call",
+      "type": "method-inherited"
+    },
+    {
+      "name": "off",
+      "type": "method-inherited"
+    },
+    {
+      "name": "offAll",
+      "type": "method-inherited"
+    },
+    {
+      "name": "on",
+      "type": "method-inherited"
+    }
+  ],
+  "events": [
+    {
+      "name": "render",
+      "type": "event"
+    }
+  ]
+}

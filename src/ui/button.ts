@@ -169,7 +169,7 @@ export interface ButtonStyle extends UINodeStyle {
   padding?: number,
   shadowColor?: string,
   shadowBlur?: number,
-  shadowOffset?: Vector;
+  shadowOffset?: Vector
 }
 let DefaultButtonStyle = () => {
   return {

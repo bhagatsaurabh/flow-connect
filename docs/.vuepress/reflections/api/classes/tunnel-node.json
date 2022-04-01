@@ -1,0 +1,24 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "accessors": [
+    {
+      "name": "proxyTerminal",
+      "type": "accessor"
+    }
+  ],
+  "methods": [
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ]
+}

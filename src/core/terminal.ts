@@ -1,4 +1,4 @@
-import { Vector, SerializedVector2 } from "./vector";
+import { Vector, SerializedVector } from "./vector";
 import { getNewUUID, canConnect, get, exists } from "../utils/utils";
 import { Color, SerializedColor } from "./color";
 import { Connector, ConnectorStyle } from './connector';
@@ -353,7 +353,7 @@ let DefaultTerminalStyle = () => {
 
 export interface TerminalRenderParams {
   focus: boolean,
-  position: SerializedVector2
+  position: SerializedVector
 }
 
 export interface TerminalOptions {

@@ -201,7 +201,7 @@ A FlowConnect instance is bound to exactly one <code>&lt;canvas&gt;</code>, this
       <span class="ml-1">
         <Optional class="mr-0p5" /><strong>uiContainer?: </strong>
         <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./container">Container</Ref>,
+        >&lt;<Ref to="../nodeui/container">Container</Ref>,
         <Ref to="../interfaces/container-renderparams">ContainerRenderParams</Ref>&gt;
       </span>
     <br/>}
@@ -230,10 +230,10 @@ A FlowConnect instance is bound to exactly one <code>&lt;canvas&gt;</code>, this
 
 <Property type="property" name="state">
   <template v-slot:type>
-    <em><Ref to="../interfaces/flow-connect-state">FlowConnectState</Ref></em>
+    <em><Ref to="../enums/flow-connect-state">FlowConnectState</Ref></em>
   </template>
   <template v-slot:default>
-    <Ref to="../interfaces/flow-connect-state">FlowConnectState</Ref>.<Ref to="../interfaces/flow-connect-state#stopped">Stopped</Ref>
+    <Ref to="../enums/flow-connect-state">FlowConnectState</Ref>.<Ref to="../enums/flow-connect-state#stopped">Stopped</Ref>
   </template>
 </Property>
 
@@ -373,7 +373,14 @@ A FlowConnect instance is bound to exactly one <code>&lt;canvas&gt;</code>, this
     <Param name="options?">
     <em><Ref to="../interfaces/flow-options">FlowOptions</Ref></em>
   <template v-slot:default-value>
-    <em><Ref to="../functions/default-flow-options">DefaultFlowOptions</Ref></em>
+
+  ```js
+  {
+    name: 'New Flow',
+    rules: {},
+    terminalColors: {}
+  }
+  ```
   </template>
   </Param>
   </template>

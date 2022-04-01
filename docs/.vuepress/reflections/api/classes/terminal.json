@@ -1,0 +1,168 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "connectors",
+      "type": "property"
+    },
+    {
+      "name": "dataType",
+      "type": "property"
+    },
+    {
+      "name": "focus",
+      "type": "property"
+    },
+    {
+      "name": "id",
+      "type": "property"
+    },
+    {
+      "name": "name",
+      "type": "property"
+    },
+    {
+      "name": "node",
+      "type": "property"
+    },
+    {
+      "name": "options",
+      "type": "property"
+    },
+    {
+      "name": "position",
+      "type": "property"
+    },
+    {
+      "name": "ref",
+      "type": "property"
+    },
+    {
+      "name": "renderResolver",
+      "type": "property"
+    },
+    {
+      "name": "style",
+      "type": "property"
+    },
+    {
+      "name": "type",
+      "type": "property"
+    }
+  ],
+  "accessors": [
+    {
+      "name": "propName",
+      "type": "accessor"
+    }
+  ],
+  "methods": [
+    {
+      "name": "call",
+      "type": "method-inherited"
+    },
+    {
+      "name": "connect",
+      "type": "method"
+    },
+    {
+      "name": "disconnect",
+      "type": "method"
+    },
+    {
+      "name": "emit",
+      "type": "method"
+    },
+    {
+      "name": "getData",
+      "type": "method"
+    },
+    {
+      "name": "isConnected",
+      "type": "method"
+    },
+    {
+      "name": "off",
+      "type": "method-inherited"
+    },
+    {
+      "name": "offAll",
+      "type": "method-inherited"
+    },
+    {
+      "name": "on",
+      "type": "method-inherited"
+    },
+    {
+      "name": "serialize",
+      "type": "method"
+    },
+    {
+      "name": "setData",
+      "type": "method"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static"
+    }
+  ],
+  "events": [
+    {
+      "name": "render",
+      "type": "event"
+    },
+    {
+      "name": "down",
+      "type": "event"
+    },
+    {
+      "name": "over",
+      "type": "event"
+    },
+    {
+      "name": "enter",
+      "type": "event"
+    },
+    {
+      "name": "exit",
+      "type": "event"
+    },
+    {
+      "name": "up",
+      "type": "event"
+    },
+    {
+      "name": "click",
+      "type": "event"
+    },
+    {
+      "name": "drag",
+      "type": "event"
+    },
+    {
+      "name": "rightclick",
+      "type": "event"
+    },
+    {
+      "name": "connect",
+      "type": "event"
+    },
+    {
+      "name": "disconnect",
+      "type": "event"
+    },
+    {
+      "name": "event",
+      "type": "event"
+    },
+    {
+      "name": "emit",
+      "type": "event"
+    }
+  ]
+}

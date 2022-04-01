@@ -2,7 +2,7 @@ import { Color, SerializedColor } from "../core/color";
 import { Hooks } from "../core/hooks";
 import { Node, NodeState } from "../core/node";
 import { SerializedTerminal, Terminal } from "../core/terminal";
-import { SerializedVector2, Vector } from "../core/vector";
+import { SerializedVector, Vector } from "../core/vector";
 import { LOD, ViewPort } from '../common/enums';
 import { get, getNewUUID, intersects } from "../utils/utils";
 import { Events, Renderable } from "../common/interfaces";
@@ -176,7 +176,7 @@ export interface UINodeStyle {
 
 export interface SerializedUINode {
   id: string,
-  type: UIType
+  type: UIType,
   hitColor: SerializedColor,
   style: any,
   propName: string,
@@ -231,7 +231,7 @@ let DefaultUINodeOptions = (): UINodeOptions => {
 };
 
 export interface UINodeRenderParams {
-  position: SerializedVector2,
+  position: SerializedVector,
   width: number,
   height: number
 }

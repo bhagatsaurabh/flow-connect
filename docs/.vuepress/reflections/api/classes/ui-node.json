@@ -1,0 +1,120 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "children",
+      "type": "property"
+    },
+    {
+      "name": "draggable",
+      "type": "property"
+    },
+    {
+      "name": "height",
+      "type": "property"
+    },
+    {
+      "name": "id",
+      "type": "property"
+    },
+    {
+      "name": "input",
+      "type": "property"
+    },
+    {
+      "name": "node",
+      "type": "property"
+    },
+    {
+      "name": "output",
+      "type": "property"
+    },
+    {
+      "name": "position",
+      "type": "property"
+    },
+    {
+      "name": "propName",
+      "type": "property"
+    },
+    {
+      "name": "renderState",
+      "type": "property"
+    },
+    {
+      "name": "style",
+      "type": "property"
+    },
+    {
+      "name": "type",
+      "type": "property"
+    },
+    {
+      "name": "width",
+      "type": "property"
+    },
+    {
+      "name": "zoomable",
+      "type": "property"
+    }
+  ],
+  "accessors": [
+    {
+      "name": "disabled",
+      "type": "accessor"
+    },
+    {
+      "name": "visible",
+      "type": "accessor"
+    }
+  ],
+  "methods": [
+    {
+      "name": "append",
+      "type": "method"
+    },
+    {
+      "name": "call",
+      "type": "method-inherited"
+    },
+    {
+      "name": "getProp",
+      "type": "method"
+    },
+    {
+      "name": "off",
+      "type": "method-inherited"
+    },
+    {
+      "name": "offAll",
+      "type": "method-inherited"
+    },
+    {
+      "name": "on",
+      "type": "method-inherited"
+    },
+    {
+      "name": "query",
+      "type": "method"
+    },
+    {
+      "name": "setProp",
+      "type": "method"
+    }
+  ],
+  "events": [
+    {
+      "name": "update",
+      "type": "event"
+    },
+    {
+      "name": "render",
+      "type": "event"
+    }
+  ]
+}

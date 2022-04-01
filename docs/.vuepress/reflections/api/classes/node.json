@@ -199,10 +199,6 @@
       "type": "method-inherited"
     },
     {
-      "name": "createDisplay",
-      "type": "method"
-    },
-    {
       "name": "removeTerminal",
       "type": "method"
     },

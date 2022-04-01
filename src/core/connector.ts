@@ -1,4 +1,4 @@
-import { Vector, SerializedVector2 } from "./vector";
+import { Vector, SerializedVector } from "./vector";
 import { get, getNewUUID } from "../utils/utils";
 import { Flow, FlowState } from "./flow";
 import { Terminal, TerminalType } from './terminal';
@@ -173,7 +173,7 @@ export class Connector extends Hooks implements Serializable, Renderable {
   }
   private _offRender() { /**/ }
   private getRenderParams(): ConnectorRenderParams {
-    let start: SerializedVector2, end: SerializedVector2;
+    let start: SerializedVector, end: SerializedVector;
     if (this.start) {
       if (this.startNode.renderState.nodeState === NodeState.MAXIMIZED)
         start = this.start.position.serialize();
@@ -255,6 +255,6 @@ let DefaultConnectorOptions = (): ConnectorOptions => {
 }
 
 export interface ConnectorRenderParams {
-  start: SerializedVector2,
-  end: SerializedVector2
+  start: SerializedVector,
+  end: SerializedVector
 }

@@ -1,4 +1,4 @@
-import { SerializedVector2, Vector } from "./vector";
+import { SerializedVector, Vector } from "./vector";
 import { ViewPort, LOD, Align } from '../common/enums';
 import {
   VSlider, VSliderStyle, Slider2D, Slider2DStyle, RadioGroup, RadioGroupStyle, Envelope, EnvelopeStyle,
@@ -611,7 +611,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   createStack(options?: StackCreatorOptions) {
     return new Stack(this, options);
   }
-  createButton(text: string, options?: ButtonCreatorOption) {
+  createButton(text: string, options?: ButtonCreatorOptions) {
     return new Button(this, text, options);
   }
   createToggle(options?: ToggleCreatorOptions) {
@@ -668,7 +668,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
 }
 
 export interface NodeRenderParams {
-  position: SerializedVector2,
+  position: SerializedVector,
   width: number,
   height: number,
   focus: boolean
@@ -726,7 +726,7 @@ export interface SerializedNode {
   zIndex: number,
   focused: boolean,
   id: string,
-  position: SerializedVector2,
+  position: SerializedVector,
   state: Record<string, any>,
   renderState: RenderState,
   inputs: SerializedTerminal[],
@@ -838,7 +838,7 @@ interface HorizontalLayoutCreatorOptions {
   input?: boolean,
   output?: boolean
 }
-interface ButtonCreatorOption {
+interface ButtonCreatorOptions {
   input?: boolean,
   output?: boolean,
   height?: number,
@@ -924,5 +924,5 @@ export class NodeButton extends Hooks implements Renderable {
   }
 }
 export interface NodeButtonRenderParams {
-  position: SerializedVector2
+  position: SerializedVector
 }
