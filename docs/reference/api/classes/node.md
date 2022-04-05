@@ -534,7 +534,7 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
 
   node.ui.append([dial, label]);
   ```
-  <img class="zoomable" alt="Node UI Dial example" src="/images/node-dial-example.png" />
+  <img class="zoomable" alt="Node UI Dial example" src="/images/node-ui-dial-example.png" />
   </template>
   <template v-slot:return>
     <em><Ref to="../nodeui/dial">Dial</Ref></em>
@@ -1047,8 +1047,8 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   <template v-slot:signature>
     createVSlider(<strong>min: </strong><em>number</em>,
     <strong>max: </strong><em>number</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/vslider-creator-options">VSliderCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/vslider">VSlider</Ref></em>
+    <strong>options?: </strong><em><Ref to="../interfaces/v-slider-creator-options">VSliderCreatorOptions</Ref></em>):
+    <em><Ref to="../nodeui/v-slider">VSlider</Ref></em>
   </template>
   <template v-slot:params>
     <Param name="min">
@@ -1058,7 +1058,7 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
       <em>number</em>
     </Param>
     <Param name="options?">
-      <em><Ref to="../interfaces/vslider-creator-options">VSliderCreatorOptions</Ref></em>
+      <em><Ref to="../interfaces/v-slider-creator-options">VSliderCreatorOptions</Ref></em>
     </Param>
   </template>
   <template v-slot:desc>
@@ -1085,7 +1085,7 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   <img class="zoomable" alt="Node UI VSlider example" src="/images/node-ui-v-slider-example.png" />
   </template>
   <template v-slot:return>
-    <em><Ref to="../nodeui/vslider">VSlider</Ref></em>
+    <em><Ref to="../nodeui/v-slider">VSlider</Ref></em>
   </template>
 </Method>
 

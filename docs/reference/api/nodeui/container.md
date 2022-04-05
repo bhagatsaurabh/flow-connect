@@ -1,8 +1,6 @@
-# Class: Slider2D
+# Class: Container
 
-<img class="zoomable" alt="Node-ui 2D slider example" src="/images/node-ui-2d-slider-example.png" />
-
-An XY 2D Slider.
+The root <Ref to="../classes/ui-node">UINode</Ref> rendering just a rectangle based on <Ref to="../classes/node">Node</Ref> dimensions.
 
 ## Hierarchy
 
@@ -22,25 +20,25 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 ## Constructor
 
 ::: warning Usage not recommended
-For common usages, this constructor is not recommended, use <Ref to="../classes/node#createslider2d">Node.createSlider2D</Ref> instead.
+For common usages, this constructor is not recommended, a Container gets created for every new <Ref to="../classes/node">Node</Ref>, the reference is stored at <Ref to="../classes/node#ui">Node.ui</Ref>.
 :::
 
 <Method type="constructor">
   <template v-slot:signature>
-    new Slider2D(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
-    <strong>options: </strong><em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>):
-    <em><Ref to="#class-slider2d">Slider2D</Ref></em>
+    new Container(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
+    <strong>width: </strong><em>number</em>,
+    <strong>options: </strong><em><Ref to="../interfaces/container-options">ContainerOptions</Ref></em>):
+    <em><Ref to="#class-container">Container</Ref></em>
   </template>
   <template v-slot:params>
     <Param name="node"><em><Ref to="../classes/node">Node</Ref></em></Param>
+    <Param name="width"><em>number</em></Param>
     <Param name="options">
-      <em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>
+      <em><Ref to="../interfaces/container-options">ContainerOptions</Ref></em>
   <template v-slot:default-value>
 
   ```js
-    {
-      height: node.style.rowHeight * 4
-    }
+    {}
   ```
 
   </template>
@@ -48,13 +46,21 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
   </template>
 </Method>
 
-## Accessors
+## Properties
 
-### value
+### renderResolver
 
-<Property type="accessor" name="value">
+<Property type="property" name="renderResolver">
   <template v-slot:type>
-    <em><Ref to="../classes/vector">Vector</Ref></em>
+    <em><Ref to="../interfaces/render-resolver">RenderResolver</Ref>&lt;<Ref to="#class-container">Container</Ref>, <Ref to="../interfaces/container-render-params">ContainerRenderParams</Ref>&gt;</em>
+  </template>
+  <template v-slot:default>
+    <strong><Function class="mr-0p5" /></strong><em>() => null</em>
+  </template>
+  <template v-slot:desc>
+    A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> scoped to a single <Ref to="#class-container">Container</Ref> instance.
+    <br/><br/>
+    Any custom render function specified using this resolver will only affect this instance of Container.
   </template>
 </Property>
 
@@ -126,7 +132,7 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/slider2d.json';
+import data from '../../../../../reflections/api/classes/container.json';
 import Hierarchy from '../../../../../components/api/Hierarchy.vue';
 import Overview from '../../../../../components/api/Overview.vue';
 import Method from '../../../../../components/api/Method.vue';

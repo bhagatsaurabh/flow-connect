@@ -1,8 +1,8 @@
-# Class: Slider2D
+# Class: Display
 
-<img class="zoomable" alt="Node-ui 2D slider example" src="/images/node-ui-2d-slider-example.png" />
+<img class="zoomable" alt="Node-ui Display example" src="/images/node-ui-display-example.png" />
 
-An XY 2D Slider.
+A generic canvas.
 
 ## Hierarchy
 
@@ -22,25 +22,27 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 ## Constructor
 
 ::: warning Usage not recommended
-For common usages, this constructor is not recommended, use <Ref to="../classes/node#createslider2d">Node.createSlider2D</Ref> instead.
+For common usages, this constructor is not recommended, use <Ref to="../classes/node#createdisplay">Node.createDisplay</Ref> instead.
 :::
 
 <Method type="constructor">
   <template v-slot:signature>
-    new Slider2D(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
-    <strong>options: </strong><em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>):
-    <em><Ref to="#class-slider2d">Slider2D</Ref></em>
+    new Display(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
+    <strong>height: </strong><em>number</em>,
+    <strong>customRenderers: </strong><em><Ref to="../interfaces/custom-renderer-config">CustomRendererConfig</Ref>[]</em>,
+    <strong>options: </strong><em><Ref to="../interfaces/display-options">DisplayOptions</Ref></em>):
+    <em><Ref to="#class-display">Display</Ref></em>
   </template>
   <template v-slot:params>
     <Param name="node"><em><Ref to="../classes/node">Node</Ref></em></Param>
+    <Param name="height"><em>number</em></Param>
+    <Param name="customRenderers"><em><Ref to="../interfaces/custom-renderer-config">CustomRendererConfig</Ref>[]</em></Param>
     <Param name="options">
-      <em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>
+      <em><Ref to="../interfaces/display-options">DisplayOptions</Ref></em>
   <template v-slot:default-value>
 
   ```js
-    {
-      height: node.style.rowHeight * 4
-    }
+    {}
   ```
 
   </template>
@@ -48,13 +50,13 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
   </template>
 </Method>
 
-## Accessors
+## Properties
 
-### value
+### displayConfigs
 
-<Property type="accessor" name="value">
+<Property type="property" name="displayConfigs">
   <template v-slot:type>
-    <em><Ref to="../classes/vector">Vector</Ref></em>
+    <em><Ref to="../interfaces/custom-offcanvas-config">CustomOffCanvasConfig</Ref>[]</em>
   </template>
 </Property>
 
@@ -125,8 +127,16 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
   </template>
 </Event>
 
+### rightclick <Icon type="event" /> {#event-rightclick}
+
+<Event type="event">
+  <template v-slot:desc>
+    When mouse-right click happens on this ui-node.
+  </template>
+</Event>
+
 <script setup>
-import data from '../../../../../reflections/api/classes/slider2d.json';
+import data from '../../../../../reflections/api/classes/display.json';
 import Hierarchy from '../../../../../components/api/Hierarchy.vue';
 import Overview from '../../../../../components/api/Overview.vue';
 import Method from '../../../../../components/api/Method.vue';

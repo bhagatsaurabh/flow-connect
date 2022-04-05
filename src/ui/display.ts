@@ -6,7 +6,7 @@ import { Vector } from "../core/vector";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
 
 export class Display extends UINode implements Serializable {
-  offCanvasConfigs: CustomOffCanvasConfig[] = [];
+  displayConfigs: CustomOffCanvasConfig[] = [];
 
   constructor(
     node: Node,
@@ -38,7 +38,7 @@ export class Display extends UINode implements Serializable {
         }
         offContext = offCanvas.getContext('2d');
         newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true }
-        this.offCanvasConfigs.push(newOffCanvasConfig);
+        this.displayConfigs.push(newOffCanvasConfig);
       });
     } else {
       customRenderers.forEach(rendererConfig => {
@@ -47,12 +47,12 @@ export class Display extends UINode implements Serializable {
         offCanvas.height = this.height;
         let offContext = offCanvas.getContext('2d');
         let newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true }
-        this.offCanvasConfigs.push(newOffCanvasConfig);
+        this.displayConfigs.push(newOffCanvasConfig);
       });
     }
 
     this.input.on('event', () => {
-      this.offCanvasConfigs.filter(config => !config.rendererConfig.auto).forEach(config => {
+      this.displayConfigs.filter(config => !config.rendererConfig.auto).forEach(config => {
         config.context.clearRect(0, 0, config.canvas.width, config.canvas.height);
       });
     });
@@ -84,12 +84,12 @@ export class Display extends UINode implements Serializable {
     context.lineWidth = 1;
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
-    let autoOffCanvasConfigs = this.offCanvasConfigs.filter(config => config.rendererConfig.auto);
+    let autoOffCanvasConfigs = this.displayConfigs.filter(config => config.rendererConfig.auto);
     this.customRender(autoOffCanvasConfigs).then((results: boolean[]) => {
       results.forEach((result, index) => autoOffCanvasConfigs[index].shouldRender = result);
     });
 
-    this.offCanvasConfigs.forEach(offCanvas => {
+    this.displayConfigs.forEach(offCanvas => {
       context.drawImage(
         offCanvas.canvas, 0, 0,
         offCanvas.canvas.width, offCanvas.canvas.height,
@@ -114,7 +114,7 @@ export class Display extends UINode implements Serializable {
     let newWidth = (this.node.width - 2 * this.node.style.padding) * this.node.flow.flowConnect.scale;
     let newHeight = this.height * this.node.flow.flowConnect.scale;
 
-    this.offCanvasConfigs.forEach(offCanvas => {
+    this.displayConfigs.forEach(offCanvas => {
       // Optimization: Do not trigger re-render if width/height is same
       if (Math.floor(offCanvas.canvas.width) !== Math.floor(newWidth) || Math.floor(offCanvas.canvas.height) !== Math.floor(newHeight)) {
         offCanvas.canvas.width = newWidth;

@@ -53,7 +53,7 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   //#endregion
 
   //#region Accessors
-  get height(): number { return this.ui.height };
+  get height(): number { return this.ui.height }
   get context(): CanvasRenderingContext2D { return this.flow.flowConnect.context }
   get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offContext }
   get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offUIContext }

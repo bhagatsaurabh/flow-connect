@@ -1,0 +1,42 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "events": [
+    {
+      "name": "over",
+      "type": "event"
+    },
+    {
+      "name": "down",
+      "type": "event"
+    },
+    {
+      "name": "up",
+      "type": "event"
+    },
+    {
+      "name": "click",
+      "type": "event"
+    },
+    {
+      "name": "drag",
+      "type": "event"
+    },
+    {
+      "name": "enter",
+      "type": "event"
+    },
+    {
+      "name": "exit",
+      "type": "event"
+    },
+    {
+      "name": "wheel",
+      "type": "event"
+    }
+  ]
+}

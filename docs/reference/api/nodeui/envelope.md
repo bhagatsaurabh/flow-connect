@@ -1,8 +1,8 @@
-# Class: Slider2D
+# Class: Envelope
 
-<img class="zoomable" alt="Node-ui 2D slider example" src="/images/node-ui-2d-slider-example.png" />
+<img class="zoomable" alt="Node-ui Envelope example" src="/images/node-ui-envelope-example.png" />
 
-An XY 2D Slider.
+An interactive linear envelope.
 
 ## Hierarchy
 
@@ -22,25 +22,27 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 ## Constructor
 
 ::: warning Usage not recommended
-For common usages, this constructor is not recommended, use <Ref to="../classes/node#createslider2d">Node.createSlider2D</Ref> instead.
+For common usages, this constructor is not recommended, use <Ref to="../classes/node#createenvelope">Node.createEnvelope</Ref> instead.
 :::
 
 <Method type="constructor">
   <template v-slot:signature>
-    new Slider2D(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
-    <strong>options: </strong><em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>):
-    <em><Ref to="#class-slider2d">Slider2D</Ref></em>
+    new Envelope(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
+    <strong>height: </strong><em>number</em>,
+    <strong>values: </strong><em><Ref to="../classes/vector">Vector</Ref>[]</em>,
+    <strong>options: </strong><em><Ref to="../interfaces/envelope-options">EnvelopeOptions</Ref></em>):
+    <em><Ref to="#class-envelope">Envelope</Ref></em>
   </template>
   <template v-slot:params>
     <Param name="node"><em><Ref to="../classes/node">Node</Ref></em></Param>
+    <Param name="height"><em>number</em></Param>
+    <Param name="values"><em><Ref to="../classes/vector">Vector</Ref>[]</em></Param>
     <Param name="options">
-      <em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>
+      <em><Ref to="../interfaces/envelope-options">EnvelopeOptions</Ref></em>
   <template v-slot:default-value>
 
   ```js
-    {
-      height: node.style.rowHeight * 4
-    }
+    {}
   ```
 
   </template>
@@ -52,13 +54,21 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
 
 ### value
 
-<Property type="accessor" name="value">
+<Property type="property" name="value">
   <template v-slot:type>
-    <em><Ref to="../classes/vector">Vector</Ref></em>
+    <em><Ref to="../classes/vector">Vector</Ref>[]</em>
   </template>
 </Property>
 
 ## Events
+
+### change <Icon type="event" /> {#event-change}
+
+<Event type="event">
+  <template v-slot:desc>
+    When value of the envelope changes.
+  </template>
+</Event>
 
 ### over <Icon type="event" /> {#event-over}
 
@@ -126,7 +136,7 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/slider2d.json';
+import data from '../../../../../reflections/api/classes/envelope.json';
 import Hierarchy from '../../../../../components/api/Hierarchy.vue';
 import Overview from '../../../../../components/api/Overview.vue';
 import Method from '../../../../../components/api/Method.vue';

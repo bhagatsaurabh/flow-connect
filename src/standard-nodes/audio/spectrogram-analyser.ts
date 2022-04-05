@@ -71,12 +71,12 @@ export class SpectrogramAnalyser extends Node {
 
     this.currInterpolator = this.colorScaleToInterp['Heated Metal'];
 
-    this.display.offCanvasConfigs[0].shouldRender = false;
+    this.display.displayConfigs[0].shouldRender = false;
     this.flow.flowConnect.on('start', () => {
-      this.display.offCanvasConfigs[0].shouldRender = true;
+      this.display.displayConfigs[0].shouldRender = true;
     });
     this.flow.flowConnect.on('stop', () => {
-      this.display.offCanvasConfigs[0].shouldRender = false;
+      this.display.displayConfigs[0].shouldRender = false;
     });
   }
 

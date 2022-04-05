@@ -30,14 +30,14 @@ export class FunctionPlotter extends Node {
     this.display.on('exit', () => dragStart = null);
     this.display.on('down', (_, screenPos) => {
       dragStart = screenPos.subtract(this.display.position.transform(flow.flowConnect.transform));
-      dragStart.x = this.xPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.width, dragStart.x);
-      dragStart.y = this.yPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.height, dragStart.y);
+      dragStart.x = this.xPixToCoord(this.state.config, this.display.displayConfigs[0].canvas.width, dragStart.x);
+      dragStart.y = this.yPixToCoord(this.state.config, this.display.displayConfigs[0].canvas.height, dragStart.y);
     });
     this.display.on('drag', (_, screenPos) => {
       if (dragStart) {
         let curr = screenPos.subtract(this.display.position.transform(flow.flowConnect.transform));
-        curr.x = this.xPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.width, curr.x);
-        curr.y = this.yPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.height, curr.y);
+        curr.x = this.xPixToCoord(this.state.config, this.display.displayConfigs[0].canvas.width, curr.x);
+        curr.y = this.yPixToCoord(this.state.config, this.display.displayConfigs[0].canvas.height, curr.y);
 
         let delta = dragStart.subtract(curr);
         Object.assign(this.state.config, {
@@ -48,21 +48,21 @@ export class FunctionPlotter extends Node {
         });
 
         this.gridRenderer(
-          this.display.offCanvasConfigs[0].context,
-          this.display.offCanvasConfigs[0].canvas.width,
-          this.display.offCanvasConfigs[0].canvas.height
+          this.display.displayConfigs[0].context,
+          this.display.displayConfigs[0].canvas.width,
+          this.display.displayConfigs[0].canvas.height
         );
         this.functionRenderer(
-          this.display.offCanvasConfigs[1].context,
-          this.display.offCanvasConfigs[1].canvas.width,
-          this.display.offCanvasConfigs[1].canvas.height
+          this.display.displayConfigs[1].context,
+          this.display.displayConfigs[1].canvas.width,
+          this.display.displayConfigs[1].canvas.height
         );
       }
     });
     this.display.on('wheel', (_, direction, screenPos) => {
       let cursor = screenPos.subtract(this.display.position.transform(flow.flowConnect.transform));
-      cursor.x = this.xPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.width, cursor.x);
-      cursor.y = this.yPixToCoord(this.state.config, this.display.offCanvasConfigs[0].canvas.height, cursor.y);
+      cursor.x = this.xPixToCoord(this.state.config, this.display.displayConfigs[0].canvas.width, cursor.x);
+      cursor.y = this.yPixToCoord(this.state.config, this.display.displayConfigs[0].canvas.height, cursor.y);
 
       Object.assign(this.state.config, {
         xMin: this.state.config.xMin - cursor.x,
@@ -93,20 +93,20 @@ export class FunctionPlotter extends Node {
       });
 
       this.gridRenderer(
-        this.display.offCanvasConfigs[0].context,
-        this.display.offCanvasConfigs[0].canvas.width,
-        this.display.offCanvasConfigs[0].canvas.height
+        this.display.displayConfigs[0].context,
+        this.display.displayConfigs[0].canvas.width,
+        this.display.displayConfigs[0].canvas.height
       );
       this.functionRenderer(
-        this.display.offCanvasConfigs[1].context,
-        this.display.offCanvasConfigs[1].canvas.width,
-        this.display.offCanvasConfigs[1].canvas.height
+        this.display.displayConfigs[1].context,
+        this.display.displayConfigs[1].canvas.width,
+        this.display.displayConfigs[1].canvas.height
       );
     });
     flow.flowConnect.on('scale', () => this.functionRenderer(
-      this.display.offCanvasConfigs[1].context,
-      this.display.offCanvasConfigs[1].canvas.width,
-      this.display.offCanvasConfigs[1].canvas.height
+      this.display.displayConfigs[1].context,
+      this.display.displayConfigs[1].canvas.width,
+      this.display.displayConfigs[1].canvas.height
     ));
 
 
@@ -136,9 +136,9 @@ export class FunctionPlotter extends Node {
       );
     }
     this.functionRenderer(
-      this.display.offCanvasConfigs[1].context,
-      this.display.offCanvasConfigs[1].canvas.width,
-      this.display.offCanvasConfigs[1].canvas.height
+      this.display.displayConfigs[1].context,
+      this.display.displayConfigs[1].canvas.width,
+      this.display.displayConfigs[1].canvas.height
     );
   }
   xCoordToPix(config: any, width: number, xCoord: number) {

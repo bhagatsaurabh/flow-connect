@@ -48,7 +48,7 @@ export class FrequencyAnalyser extends Node {
         Math.floor(
           (
             screenPos.subtract(this.display.position.transform(this.flow.flowConnect.transform)).x
-            / this.display.offCanvasConfigs[0].canvas.width
+            / this.display.displayConfigs[0].canvas.width
           )
           * this.analyser.frequencyBinCount
         ) * this.flow.flowConnect.audioContext.sampleRate

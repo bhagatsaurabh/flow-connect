@@ -1,8 +1,8 @@
-# Class: Slider2D
+# Class: Input
 
-<img class="zoomable" alt="Node-ui 2D slider example" src="/images/node-ui-2d-slider-example.png" />
+<img class="zoomable" alt="Node-ui Input example" src="/images/node-ui-input-example.png" />
 
-An XY 2D Slider.
+A generic text/number input.
 
 ## Hierarchy
 
@@ -22,24 +22,24 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 ## Constructor
 
 ::: warning Usage not recommended
-For common usages, this constructor is not recommended, use <Ref to="../classes/node#createslider2d">Node.createSlider2D</Ref> instead.
+For common usages, this constructor is not recommended, use <Ref to="../classes/node#createinput">Node.createInput</Ref> instead.
 :::
 
 <Method type="constructor">
   <template v-slot:signature>
-    new Slider2D(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
-    <strong>options: </strong><em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>):
-    <em><Ref to="#class-slider2d">Slider2D</Ref></em>
+    new Input(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
+    <strong>options: </strong><em><Ref to="../interfaces/input-options">InputOptions</Ref></em>):
+    <em><Ref to="#class-input">Input</Ref></em>
   </template>
   <template v-slot:params>
     <Param name="node"><em><Ref to="../classes/node">Node</Ref></em></Param>
     <Param name="options">
-      <em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>
+      <em><Ref to="../interfaces/input-options">InputOptions</Ref></em>
   <template v-slot:default-value>
 
   ```js
     {
-      height: node.style.rowHeight * 4
+      height: node.style.rowHeight * 1.5
     }
   ```
 
@@ -48,17 +48,65 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
   </template>
 </Method>
 
+## Properties
+
+### label
+
+<Property type="property" name="label">
+  <template v-slot:type>
+    <em><Ref to="./label">Label</Ref></em>
+  </template>
+  <template v-slot:desc>
+    Reference to the label that is displayed inside Input.
+  </template>
+</Property>
+
+### inputEl
+
+<Property type="property" name="inputEl">
+  <template v-slot:type>
+    <em>HTMLInputElement</em>
+  </template>
+  <template v-slot:desc>
+    Reference to the HTML <code>&lt;input&gt;</code> element.
+  </template>
+</Property>
+
 ## Accessors
 
 ### value
 
 <Property type="accessor" name="value">
   <template v-slot:type>
-    <em><Ref to="../classes/vector">Vector</Ref></em>
+    <em>string | number</em>
   </template>
 </Property>
 
 ## Events
+
+### change <Icon type="event" /> {#event-change}
+
+<Event type="event">
+  <template v-slot:desc>
+    When <Ref to="#inputel">inputEl</Ref>'s change event triggers.
+  </template>
+</Event>
+
+### blur <Icon type="event" /> {#event-blur}
+
+<Event type="event">
+  <template v-slot:desc>
+    When <Ref to="#inputel">inputEl</Ref>'s blur event triggers.
+  </template>
+</Event>
+
+### input <Icon type="event" /> {#event-input}
+
+<Event type="event">
+  <template v-slot:desc>
+    When <Ref to="#inputel">inputEl</Ref>'s input event triggers.
+  </template>
+</Event>
 
 ### over <Icon type="event" /> {#event-over}
 
@@ -126,7 +174,7 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/slider2d.json';
+import data from '../../../../../reflections/api/classes/input.json';
 import Hierarchy from '../../../../../components/api/Hierarchy.vue';
 import Overview from '../../../../../components/api/Overview.vue';
 import Method from '../../../../../components/api/Method.vue';

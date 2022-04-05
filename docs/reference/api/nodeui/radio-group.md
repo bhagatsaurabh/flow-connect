@@ -1,8 +1,6 @@
-# Class: Slider2D
+# Class: RadioGroup
 
-<img class="zoomable" alt="Node-ui 2D slider example" src="/images/node-ui-2d-slider-example.png" />
-
-An XY 2D Slider.
+<img class="zoomable" alt="Node-ui Radio-group example" src="/images/node-ui-radio-group-example.png" />
 
 ## Hierarchy
 
@@ -22,24 +20,38 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 ## Constructor
 
 ::: warning Usage not recommended
-For common usages, this constructor is not recommended, use <Ref to="../classes/node#createslider2d">Node.createSlider2D</Ref> instead.
+For common usages, this constructor is not recommended, use <Ref to="../classes/node#createradiogroup">Node.createRadioGroup</Ref> instead.
 :::
 
 <Method type="constructor">
   <template v-slot:signature>
-    new Slider2D(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
-    <strong>options: </strong><em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>):
-    <em><Ref to="#class-slider2d">Slider2D</Ref></em>
+    new RadioGroup(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
+    <strong>values: </strong><em>string[]</em>,
+    <strong>selected: </strong><em>string</em>,
+    <strong>options: </strong><em><Ref to="../interfaces/radio-group-options">RadioGroupOptions</Ref></em>):
+    <em><Ref to="#class-radiogroup">RadioGroup</Ref></em>
   </template>
   <template v-slot:params>
     <Param name="node"><em><Ref to="../classes/node">Node</Ref></em></Param>
+    <Param name="values">
+      <em>string[]</em>
+      <template v-slot:default-value>
+        <em>['default']</em>
+      </template>
+    </Param>
+    <Param name="selected">
+      <em>string</em>
+      <template v-slot:default-value>
+        <em>'default'</em>
+      </template>
+    </Param>
     <Param name="options">
-      <em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>
+      <em><Ref to="../interfaces/radio-group-options">RadioGroupOptions</Ref></em>
   <template v-slot:default-value>
 
   ```js
     {
-      height: node.style.rowHeight * 4
+      height: node.style.rowHeight * 1.5
     }
   ```
 
@@ -50,15 +62,23 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
 
 ## Accessors
 
-### value
+### selected
 
-<Property type="accessor" name="value">
+<Property type="accessor" name="selected">
   <template v-slot:type>
-    <em><Ref to="../classes/vector">Vector</Ref></em>
+    <em>string</em>
   </template>
 </Property>
 
 ## Events
+
+### change <Icon type="event" /> {#event-change}
+
+<Event type="event">
+  <template v-slot:desc>
+    When <Ref to="#selected">selected</Ref> value of this RadioGroup changes.
+  </template>
+</Event>
 
 ### over <Icon type="event" /> {#event-over}
 
@@ -126,7 +146,7 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/slider2d.json';
+import data from '../../../../../reflections/api/classes/radio-group.json';
 import Hierarchy from '../../../../../components/api/Hierarchy.vue';
 import Overview from '../../../../../components/api/Overview.vue';
 import Method from '../../../../../components/api/Method.vue';

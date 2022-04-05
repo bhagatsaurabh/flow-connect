@@ -20,7 +20,6 @@ export class Stack extends UINode implements Serializable {
     if (options.childs) this.children.push(...options.childs);
   }
 
-
   paint(): void { /**/ }
   paintLOD1() { /**/ }
   offPaint(): void {

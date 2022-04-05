@@ -1,8 +1,8 @@
-# Class: Slider2D
+# Class: Source
 
-<img class="zoomable" alt="Node-ui 2D slider example" src="/images/node-ui-2d-slider-example.png" />
+<img class="zoomable" alt="Node-ui Source example" src="/images/node-ui-source-example.png" />
 
-An XY 2D Slider.
+A File input.
 
 ## Hierarchy
 
@@ -22,24 +22,24 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 ## Constructor
 
 ::: warning Usage not recommended
-For common usages, this constructor is not recommended, use <Ref to="../classes/node#createslider2d">Node.createSlider2D</Ref> instead.
+For common usages, this constructor is not recommended, use <Ref to="../classes/node#createsource">Node.createSource</Ref> instead.
 :::
 
 <Method type="constructor">
   <template v-slot:signature>
-    new Slider2D(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
-    <strong>options: </strong><em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>):
-    <em><Ref to="#class-slider2d">Slider2D</Ref></em>
+    new Source(<strong>node: </strong><em><Ref to="../classes/node">Node</Ref></em>,
+    <strong>options: </strong><em><Ref to="../interfaces/source-options">SourceOptions</Ref></em>):
+    <em><Ref to="#class-source">Source</Ref></em>
   </template>
   <template v-slot:params>
     <Param name="node"><em><Ref to="../classes/node">Node</Ref></em></Param>
     <Param name="options">
-      <em><Ref to="../interfaces/slider2d-options">Slider2DOptions</Ref></em>
+      <em><Ref to="../interfaces/source-options">SourceOptions</Ref></em>
   <template v-slot:default-value>
 
   ```js
     {
-      height: node.style.rowHeight * 4
+      height: node.style.rowHeight * 1.5
     }
   ```
 
@@ -48,17 +48,57 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
   </template>
 </Method>
 
+## Properties
+
+### label
+
+<Property type="property" name="label">
+  <template v-slot:type>
+    <em><Ref to="./label">Label</Ref></em>
+  </template>
+  <template v-slot:desc>
+    Reference to the Label used to display filename.
+  </template>
+</Property>
+
+### accept
+
+<Property type="property" name="accept">
+  <template v-slot:type>
+    <em>string</em>
+  </template>
+  <template v-slot:desc>
+    The 'accept' string passed to the HTMLInputElement to restrict file types.
+  </template>
+</Property>
+
 ## Accessors
 
-### value
+### file
 
-<Property type="accessor" name="value">
+<Property type="accessor" name="file">
   <template v-slot:type>
-    <em><Ref to="../classes/vector">Vector</Ref></em>
+    <em>File</em>
   </template>
 </Property>
 
 ## Events
+
+### change <Icon type="event" /> {#event-change}
+
+<Event type="event">
+  <template v-slot:desc>
+    When <Ref to="#file">file</Ref> of this Source changes.
+  </template>
+</Event>
+
+### upload <Icon type="event" /> {#event-upload}
+
+<Event type="event">
+  <template v-slot:desc>
+    When a new file gets uploaded via file select dialog (irrespective of whether the <Ref to="../classes/flow">Flow</Ref> is in Running or Stopped state)
+  </template>
+</Event>
 
 ### over <Icon type="event" /> {#event-over}
 
@@ -126,7 +166,7 @@ For common usages, this constructor is not recommended, use <Ref to="../classes/
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/slider2d.json';
+import data from '../../../../../reflections/api/classes/source.json';
 import Hierarchy from '../../../../../components/api/Hierarchy.vue';
 import Overview from '../../../../../components/api/Overview.vue';
 import Method from '../../../../../components/api/Method.vue';

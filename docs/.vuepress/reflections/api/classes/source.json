@@ -1,0 +1,66 @@
+{
+  "constructors": [
+    {
+      "name": "constructor",
+      "type": "constructor"
+    }
+  ],
+  "properties": [
+    {
+      "name": "label",
+      "type": "property"
+    },
+    {
+      "name": "accept",
+      "type": "property"
+    }
+  ],
+  "accessors": [
+    {
+      "name": "file",
+      "type": "accessor"
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "type": "event"
+    },
+    {
+      "name": "upload",
+      "type": "event"
+    },
+    {
+      "name": "over",
+      "type": "event"
+    },
+    {
+      "name": "down",
+      "type": "event"
+    },
+    {
+      "name": "up",
+      "type": "event"
+    },
+    {
+      "name": "click",
+      "type": "event"
+    },
+    {
+      "name": "drag",
+      "type": "event"
+    },
+    {
+      "name": "enter",
+      "type": "event"
+    },
+    {
+      "name": "exit",
+      "type": "event"
+    },
+    {
+      "name": "wheel",
+      "type": "event"
+    }
+  ]
+}

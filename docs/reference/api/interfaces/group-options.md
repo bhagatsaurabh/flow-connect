@@ -5,9 +5,7 @@
   width?: number,
   height?: number,
   name?: string,
-  style?: <Ref to="./group-style">GroupStyle</Ref>,
-  id?: string,
-  hitColor?: <Ref to="../classes/color">Color</Ref>
+  style?: <Ref to="./group-style">GroupStyle</Ref>
 }
 </pre>
 
