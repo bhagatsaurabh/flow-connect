@@ -25,4 +25,4 @@ jobs:
     - name: Build
       run: |
         npm install
-        npm run test:headless
+        npm run test
