@@ -48,7 +48,6 @@ module.exports = {
             '/guide/flow.md',
             '/guide/nodes.md',
             '/guide/node-ui.md',
-            '/guide/groups.md',
             '/guide/connect.md',
             '/guide/sub-flows.md'
           ]

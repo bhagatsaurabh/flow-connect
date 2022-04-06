@@ -4,11 +4,8 @@ lib-esm/
 /index.html
 /index-mob.html
 /imageIcon.png
-cypress/videos/
-cypress/screenshots/
 __image_snapshots__
 testserver/
-bundles/
 .temp
 .cache
 docs/typedocs/

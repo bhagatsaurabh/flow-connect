@@ -65,10 +65,10 @@ flowConnect.render(flow);
 
 Testing is done via Cypress
 
-- Install [Cypress](https://docs.cypress.io/guides/getting-started/installing-cypress#System-requirements)
+- Install [Jest](https://jestjs.io/docs/getting-started)
 
 ```bash
-npm i cypress --save-dev
+npm i -D jest @types/jest ts-jest
 ```
 
 - Run tests

@@ -4,8 +4,8 @@
  * For e.g you can listen to any Terminal's 'connect'/'disconnect' event to do some custom stuff
  */
 export class Hooks {
-  protected registeredEvents: Record<string, Record<number, (...args: any) => void>>;
-  protected lastId: number;
+  registeredEvents: Record<string, Record<number, (...args: any) => void>>;
+  lastId: number;
 
   constructor() {
     this.registeredEvents = {};

@@ -1,7 +1,7 @@
-import { Color } from '../../../../src/core/color';
+import { Color } from '../../src/core/color';
 
 describe('Color', () => {
-  let toHex = (value) => {
+  let toHex = (value: number) => {
     let hex = value.toString(16);
     return hex.length === 1 ? '0' + hex : hex;
   }
@@ -16,10 +16,10 @@ describe('Color', () => {
       ];
       let color = new Color(rgba);
 
-      expect(color).to.be.an.instanceOf(Color);
-      expect(color.rgbaString).to.be.equal(`${rgba[0]}:${rgba[1]}:${rgba[2]}:${rgba[3]}`);
-      expect(color.rgbaCSSString).to.be.equal(`rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${(rgba[3] / 255).toFixed(3)})`);
-      expect(color.hexValue).to.be.equal(`#${toHex(rgba[0]) + toHex(rgba[1]) + toHex(rgba[2]) + toHex(rgba[3])}`);
+      expect(color).toBeInstanceOf(Color);
+      expect(color.rgbaString).toStrictEqual(`${rgba[0]}:${rgba[1]}:${rgba[2]}:${rgba[3]}`);
+      expect(color.rgbaCSSString).toStrictEqual(`rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${(rgba[3] / 255).toFixed(3)})`);
+      expect(color.hexValue).toStrictEqual(`#${toHex(rgba[0]) + toHex(rgba[1]) + toHex(rgba[2]) + toHex(rgba[3])}`);
     });
   });
   describe('Conversion', () => {
@@ -28,15 +28,19 @@ describe('Color', () => {
       let hex = Color.rgbaToHex(rgba1);
       let rgba2 = Color.hexToRGBA(hex);
 
-      expect(rgba2).to.be.Uint8ClampedArray();
-      expect(rgba1).to.be.equalTo(rgba2);
+      expect(rgba2).toBeInstanceOf(Uint8ClampedArray);
+      console.log(rgba1, rgba2);
+      expect(rgba1[0]).toStrictEqual(rgba2[0]);
+      expect(rgba1[1]).toStrictEqual(rgba2[1]);
+      expect(rgba1[2]).toStrictEqual(rgba2[2]);
+      expect(rgba1[3]).toStrictEqual(rgba2[3]);
 
       let hex1 = "#92b3dde7";
       let rgba = Color.hexToRGBA(hex1);
       let hex2 = Color.rgbaToHex(rgba);
 
-      expect(hex2).to.be.string;
-      expect(hex1).to.be.equal(hex2);
+      expect(hex2).toStrictEqual("#92b3dde7");
+      expect(hex1).toStrictEqual(hex2);
     });
   });
   describe('Serialization and De-serialization', () => {
@@ -45,7 +49,7 @@ describe('Color', () => {
       let color = new Color(rgba);
       let serializedColor = color.serialize();
 
-      expect(serializedColor).to.deep.equal({
+      expect(serializedColor).toStrictEqual({
         rgba: [rgba[0], rgba[1], rgba[2], rgba[3]]
       });
     });
@@ -55,11 +59,11 @@ describe('Color', () => {
       let color = new Color(rgba);
       let deSerializedColor = Color.deSerialize(color.serialize());
 
-      expect(deSerializedColor).to.not.equal(color);
-      expect(deSerializedColor.rgbaValue).to.be.equalTo(color.rgbaValue);
-      expect(deSerializedColor.rgbaString).to.be.equal(color.rgbaString);
-      expect(deSerializedColor.rgbaCSSString).to.be.equal(color.rgbaCSSString);
-      expect(deSerializedColor.hexValue).to.be.equal(color.hexValue);
+      expect(deSerializedColor).not.toBe(color);
+      expect(deSerializedColor.rgbaValue).toEqual(color.rgbaValue);
+      expect(deSerializedColor.rgbaString).toStrictEqual(color.rgbaString);
+      expect(deSerializedColor.rgbaCSSString).toStrictEqual(color.rgbaCSSString);
+      expect(deSerializedColor.hexValue).toStrictEqual(color.hexValue);
     });
   });
 });
