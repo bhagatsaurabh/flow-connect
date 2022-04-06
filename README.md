@@ -85,10 +85,18 @@ npm run build
 
 ## Docs
 
-Docs are generated using [TypeDoc](https://typedoc.org/)
+Docs are generated using [VuePress](https://v2.vuepress.vuejs.org/)
+
+### Docs Development
 
 ```bash
-npm run doc
+npm run docs:dev
+```
+
+### Build Docs
+
+```bash
+npm run docs:build
 ```
 
 ## Feedback
