@@ -87,7 +87,7 @@ npm run build
 
 Docs are generated using [VuePress](https://v2.vuepress.vuejs.org/)
 
-### Docs Development
+### Develop Docs
 
 ```bash
 npm run docs:dev
