@@ -285,7 +285,15 @@ module.exports = {
           { text: 'ToArray', link: '/reference/standard-nodes/common/to-array'},
           { text: 'ToVector', link: '/reference/standard-nodes/common/to-vector'},
         ]},
-        { text: 'Math', link: '/reference/standard-nodes/math' },
+        { text: 'Math', collapsible: true, children: [
+          { text: 'Abs', link: '/reference/standard-nodes/math/abs' },
+          { text: 'Average', link: '/reference/standard-nodes/math/average' },
+          { text: 'Ceil', link: '/reference/standard-nodes/math/ceil' },
+          { text: 'Clamp', link: '/reference/standard-nodes/math/clamp' },
+          { text: 'Floor', link: '/reference/standard-nodes/math/floor' },
+          { text: 'Func', link: '/reference/standard-nodes/math/func' },
+          { text: 'Normalize', link: '/reference/standard-nodes/math/normalize' }
+        ]},
         { text: 'Net', link: '/reference/standard-nodes/net' },
         { text: 'UI', link: '/reference/standard-nodes/ui' },
         { text: 'Audio', collapsible: true, children: [
@@ -295,7 +303,7 @@ module.exports = {
           { text: 'BiquadFilter', link: '/reference/standard-nodes/audio/biquad-filter' },
           { text: 'Bitcrusher', link: '/reference/standard-nodes/audio/bitcrusher' },
           { text: 'ChannelMerger', link: '/reference/standard-nodes/audio/channel-merger' },
-          { text: 'Channel-Splitter', link: '/reference/standard-nodes/audio/channel-splitter' },
+          { text: 'ChannelSplitter', link: '/reference/standard-nodes/audio/channel-splitter' },
           { text: 'Chorus', link: '/reference/standard-nodes/audio/chorus' },
           { text: 'Convolver', link: '/reference/standard-nodes/audio/convolver' },
           { text: 'Debug', link: '/reference/standard-nodes/audio/debug' },

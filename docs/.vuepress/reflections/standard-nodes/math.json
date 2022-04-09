@@ -1,0 +1,11 @@
+{
+  "classes": [
+    { "name": "Abs", "link": "/reference/standard-nodes/math/abs" },
+    { "name": "Average", "link": "/reference/standard-nodes/math/average" },
+    { "name": "Ceil", "link": "/reference/standard-nodes/math/ceil" },
+    { "name": "Clamp", "link": "/reference/standard-nodes/math/clamp" },
+    { "name": "Floor", "link": "/reference/standard-nodes/math/floor" },
+    { "name": "Func", "link": "/reference/standard-nodes/math/func" },
+    { "name": "Normalize", "link": "/reference/standard-nodes/math/normalize" }
+  ]
+}

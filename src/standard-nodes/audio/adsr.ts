@@ -81,7 +81,7 @@ export class ADSR extends Node {
     this.proxyParam.cancelScheduledValues(this.flow.flowConnect.audioContext.currentTime);
   }
   setMinMax() {
-    this.state.proxyParamNode.port.postMessage({
+    this.proxyParamNode.port.postMessage({
       type: 'set-range',
       value: { min: this.state.min, max: this.state.max }
     });
