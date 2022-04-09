@@ -1,7 +1,7 @@
 let flow = flowConnect.createFlow({ name: 'StandardNodes Test' });
 
 let log = new StandardNodes.Common.Log(flow);
-// let timer = new StandardNodes.Common.Timer(flow, { state: { delay:0 } });
+// let timer = new StandardNodes.Common.Timer(flow, { state: { delay: 500 } });
 // let random1 = new StandardNodes.Common.Random(flow);
 // let random2 = new StandardNodes.Common.Random(flow);
 // let random3 = new StandardNodes.Common.Random(flow);
@@ -24,8 +24,9 @@ let log = new StandardNodes.Common.Log(flow);
 // let timer3 = new StandardNodes.Common.Timer(flow, { state: { delay: 1500 } });
 // let timer4 = new StandardNodes.Common.Timer(flow, { state: { delay: 2000 } });
 // let sync = new StandardNodes.Common.SyncEvent(flow, {}, 4);
-// let toVector2 = new StandardNodes.Common.ToVector2(flow);
-// let numberRange = new StandardNodes.Common.NumberRange(flow, { state: { value: -5 * Constant.PI, min: -5 * Constant.PI, max: 5 * Constant.PI, step: 0.1 } });
+// let toVector = new StandardNodes.Common.ToVector(flow);
+// let toArray = new StandardNodes.Common.ToArray(flow, 3);
+// let numberRange = new StandardNodes.Common.NumberRange(flow, { state: { value: -5 * Math.PI, min: -5 * Math.PI, max: 5 * Math.PI, step: 0.1 } });
 
 // let delay = new StandardNodes.Common.Delay(flow);
 

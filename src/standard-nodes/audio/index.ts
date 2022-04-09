@@ -19,7 +19,7 @@ export * from './convolver';
 export * from './tremolo';
 export * from './ping-pong-delay';
 export * from './stereo-panner';
-export * from './3d-panner';
+export * from './spatial-panner';
 export * from './noise';
 export * from './oscillator';
 export * from './microphone';

@@ -837,7 +837,7 @@ let DefaultRules: () => Rules = () => ({
   'array': ['array', 'any'],
   'file': ['file', 'any'],
   'event': ['event', 'any'],
-  'vector2': ['vector2', 'any'],
+  'vector': ['vector', 'any'],
   'array-buffer': ['array-buffer', 'any'],
   'audio': ['audio', 'audioparam'],
   'audioparam': ['audioparam'],

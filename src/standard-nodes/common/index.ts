@@ -16,5 +16,5 @@ export * from './string-source';
 export * from './sync-event';
 export * from './timer';
 export * from './to-array';
-export * from './to-vector2';
+export * from './to-vector';
 export * from './sync-data';

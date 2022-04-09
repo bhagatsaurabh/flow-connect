@@ -4,11 +4,11 @@ import { NodeCreatorOptions } from "../../common/interfaces";
 import { Log } from "../../utils/logger";
 import { Node } from "../../core/node";
 
-export class ToVector2 extends Node {
+export class ToVector extends Node {
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {
     super(flow, options.name || 'To Vector', options.position || new Vector(50, 50), options.width || 100,
       [{ name: 'x', dataType: 'any' }, { name: 'y', dataType: 'any' }],
-      [{ name: 'vector2', dataType: 'any' }],
+      [{ name: 'vector', dataType: 'any' }],
       {
         state: options.state ? { ...options.state } : {},
         style: options.style || { rowHeight: 10 },
@@ -26,7 +26,7 @@ export class ToVector2 extends Node {
         }
         this.setOutputs(0, result);
       } else {
-        Log.error('Type mismatch: Inputs to standard node \'ToVector2\' should be of same type');
+        Log.error('Type mismatch: Inputs to standard node \'ToVector\' should be of same type');
       }
     });
   }

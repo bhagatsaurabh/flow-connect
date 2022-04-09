@@ -15,7 +15,7 @@ import * as property from './common/property';
 import * as syncEvent from './common/sync-event';
 import * as syncData from './common/sync-data';
 import * as delay from './common/delay';
-import * as toVector2 from './common/to-vector2';
+import * as toVector from './common/to-vector';
 import * as numberRange from './common/number-range';
 import * as globalEvent from './common/global-event';
 
@@ -53,7 +53,7 @@ import * as convolver from './audio/convolver';
 import * as tremoloEffect from './audio/tremolo';
 import * as pingPong from './audio/ping-pong-delay';
 import * as stereoPanner from './audio/stereo-panner';
-import * as spatialPanner from './audio/3d-panner';
+import * as spatialPanner from './audio/spatial-panner';
 import * as noise from './audio/noise';
 import * as oscillator from './audio/oscillator';
 import * as microphone from './audio/microphone';
@@ -83,7 +83,7 @@ export namespace StandardNodes.Common {
   export import SyncEvent = syncEvent.SyncEvent;
   export import SyncData = syncData.SyncData;
   export import Delay = delay.Delay;
-  export import ToVector2 = toVector2.ToVector2;
+  export import ToVector = toVector.ToVector;
   export import NumberRange = numberRange.NumberRange;
   export import GlobalEvent = globalEvent.GlobalEvent;
 }

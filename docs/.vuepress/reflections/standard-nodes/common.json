@@ -1,0 +1,24 @@
+{
+  "classes": [
+    { "name": "ArrayIndex", "link": "/reference/standard-nodes/common/array-index" },
+    { "name": "ArraySource", "link": "/reference/standard-nodes/common/array-source" },
+    { "name": "BooleanSource", "link": "/reference/standard-nodes/common/boolean-source" },
+    { "name": "Buffer", "link": "/reference/standard-nodes/common/buffer" },
+    { "name": "Compare", "link": "/reference/standard-nodes/common/compare" },
+    { "name": "Delay", "link": "/reference/standard-nodes/common/delay" },
+    { "name": "FileSource", "link": "/reference/standard-nodes/common/file-source" },
+    { "name": "GlobalEvent", "link": "/reference/standard-nodes/common/global-event" },
+    { "name": "JSONSource", "link": "/reference/standard-nodes/common/json-source" },
+    { "name": "Log", "link": "/reference/standard-nodes/common/log" },
+    { "name": "NumberRange", "link": "/reference/standard-nodes/common/number-range" },
+    { "name": "NumberSource", "link": "/reference/standard-nodes/common/number-source" },
+    { "name": "Property", "link": "/reference/standard-nodes/common/property" },
+    { "name": "Random", "link": "/reference/standard-nodes/common/random" },
+    { "name": "StringSource", "link": "/reference/standard-nodes/common/string-source" },
+    { "name": "SyncData", "link": "/reference/standard-nodes/common/sync-data" },
+    { "name": "SyncEvent", "link": "/reference/standard-nodes/common/sync-event" },
+    { "name": "Timer", "link": "/reference/standard-nodes/common/timer" },
+    { "name": "ToArray", "link": "/reference/standard-nodes/common/to-array" },
+    { "name": "ToVector", "link": "/reference/standard-nodes/common/to-vector" }
+  ]
+}

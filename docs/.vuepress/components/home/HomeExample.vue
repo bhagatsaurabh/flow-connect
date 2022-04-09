@@ -37,7 +37,7 @@ export default {
 
     let flow = this.flowConnect.createFlow({ name: "Math Plot" });
 
-    this.toVector2 = new StandardNodes.Common.ToVector2(flow, {
+    this.tovector = new StandardNodes.Common.ToVector(flow, {
       name: "Node",
       position: new Vector(585, 105),
     });
@@ -72,9 +72,9 @@ export default {
 
     this.arraySource.outputs[0].connect(this.func1.inputs[0]);
     this.arraySource.outputs[0].connect(this.func2.inputs[0]);
-    this.func1.outputs[0].connect(this.toVector2.inputs[0]);
-    this.func2.outputs[0].connect(this.toVector2.inputs[1]);
-    this.toVector2.outputs[0].connect(this.parametricPlotter.inputs[0]);
+    this.func1.outputs[0].connect(this.tovector.inputs[0]);
+    this.func2.outputs[0].connect(this.tovector.inputs[1]);
+    this.tovector.outputs[0].connect(this.parametricPlotter.inputs[0]);
 
     this.flowConnect.render(flow);
 
@@ -146,7 +146,7 @@ export default {
       let nodes = [
         [this.arraySource],
         [this.func1, this.func2],
-        [this.toVector2],
+        [this.tovector],
         [this.parametricPlotter],
       ];
       let totalWidth = nodes.reduce(

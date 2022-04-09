@@ -43,10 +43,10 @@ export class Slider2D extends UINode implements Serializable {
       style: options.style ? { ...DefaultSlider2DStyle(), ...options.style } : DefaultSlider2DStyle(),
       propName: options.propName,
       input: options.input && (typeof options.input === 'boolean'
-        ? new Terminal(node, TerminalType.IN, 'vector2', '', {})
+        ? new Terminal(node, TerminalType.IN, 'vector', '', {})
         : Terminal.deSerialize(node, options.input)),
       output: options.output && (typeof options.output === 'boolean'
-        ? new Terminal(node, TerminalType.OUT, 'vector2', '', {})
+        ? new Terminal(node, TerminalType.OUT, 'vector', '', {})
         : Terminal.deSerialize(node, options.output)),
       id: options.id,
       hitColor: options.hitColor

@@ -63,7 +63,7 @@ Some dataTypes are in-built and every Flow have these rules by default:
   'array': ['array', 'any'],
   'file': ['file', 'any'],
   'event': ['event', 'any'],
-  'vector2': ['vector2', 'any'],
+  'vector': ['vector', 'any'],
   'array-buffer': ['array-buffer', 'any'],
   'audio': ['audio', 'audioparam'],
   'audioparam': ['audioparam'],
