@@ -1,0 +1,6 @@
+{
+  "classes": [
+    { "name": "FunctionPlotter", "link": "/reference/standard-nodes/visual/function-plotter" },
+    { "name": "LineChartMini", "link": "/reference/standard-nodes/visual/line-chart-mini" }
+  ]
+}

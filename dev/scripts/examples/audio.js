@@ -35,7 +35,7 @@ let destination = new StandardNodes.Audio.Destination(flow);
 // let waveformAnalyser = new StandardNodes.Audio.WaveformAnalyser(flow);
 // let spectrogramAnalyser = new StandardNodes.Audio.SpectrogramAnalyser(flow);
 
-// let gain = new StandardNodes.UI.Dial(flow, { state: { min: 0, max: 2, value: 0.5 } });
+// let dial = new StandardNodes.UI.Dial(flow, { state: { min: 0, max: 2, value: 0.5 } });
 // let detune = new StandardNodes.UI.Dial(flow, { state: { min: -2400, max: 2400, value: 0 } });
 // let playRate = new StandardNodes.UI.Dial(flow, { state: { min: 0.25, max: 3, value: 1 } });
 // let threshold = new StandardNodes.UI.Dial(flow, { state: { min: -100, max: 0, value: -20 } });

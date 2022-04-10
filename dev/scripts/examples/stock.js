@@ -36,7 +36,7 @@ let btcLtcToArray = new StandardNodes.Common.ToArray(flow, 2);
 let btcEthLtcToArray = new StandardNodes.Common.ToArray(flow, 3);
 
 let btcEthChart = new StandardNodes.Visual.LineChartMini(
-  flow, 100, ['#ff6666', '#66d4ff'], { backgroundColor: '#7a7a7a' }, { name: 'BTC : ETH', width: 250 }
+  flow, 100, ['#ff6666', '#66d4ff'], { backgroundColor: '#7a7a7a' }, { name: 'Example', width: 250 }
 );
 let btcLtcChart = new StandardNodes.Visual.LineChartMini(
   flow, 100, ['#ffb066', '#668fff'], { backgroundColor: '#7a7a7a' }, { name: 'BTC : LTC', width: 250 }

@@ -32,8 +32,10 @@ let log = new StandardNodes.Common.Log(flow);
 
 // let abs = new StandardNodes.Math.Abs(flow);
 // let average = new StandardNodes.Math.Average(flow);
+// let ceil = new StandardNodes.Math.Ceil(flow);
+// let floor = new StandardNodes.Math.Floor(flow);
 // let clamp = new StandardNodes.Math.Clamp(flow);
-// let func = new StandardNodes.Math.Function(flow, {}, ['cos(t)', 'sin(t) + 0.2cos(2.8t)']);
+// let func = new StandardNodes.Math.Function(flow, {}, 'sin(t) + 0.2cos(2.8t)');
 // let parametricPlotter = new StandardNodes.Visual.ParametricPlotter(flow, {}, 250);
 // let gEventEmitter = new StandardNodes.Common.GlobalEvent(flow, GlobalEventType.Emitter, 'reset', {});
 // let gEventReceiver = new StandardNodes.Common.GlobalEvent(flow, GlobalEventType.Receiver, 'reset', {});

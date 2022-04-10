@@ -118,6 +118,7 @@ module.exports = {
                 { text: 'InputStyle', link: '/reference/api/interfaces/input-style.md' },
                 { text: 'LabelStyle', link: '/reference/api/interfaces/label-style.md' },
                 { text: 'NodeStyle', link: '/reference/api/interfaces/node-style.md' },
+                { text: 'PlotStyle', link: '/reference/api/interfaces/plot-style.md' },
                 { text: 'RadioGroupStyle', link: '/reference/api/interfaces/radio-group-style.md' },
                 { text: 'SelectStyle', link: '/reference/api/interfaces/select-style.md' },
                 { text: 'Slider2DStyle', link: '/reference/api/interfaces/slider2d-style.md' },
@@ -294,8 +295,12 @@ module.exports = {
           { text: 'Func', link: '/reference/standard-nodes/math/func' },
           { text: 'Normalize', link: '/reference/standard-nodes/math/normalize' }
         ]},
-        { text: 'Net', link: '/reference/standard-nodes/net' },
-        { text: 'UI', link: '/reference/standard-nodes/ui' },
+        { text: 'Net', collapsible: true, children: [
+          { text: "API", link: "/reference/standard-nodes/net/api" }
+        ]},
+        { text: 'UI', collapsible: true, children: [
+          { text: "Dial", link: "/reference/standard-nodes/ui/dial" }
+        ]},
         { text: 'Audio', collapsible: true, children: [
           { text: 'ADSR', link: '/reference/standard-nodes/audio/adsr' },
           { text: 'AudioBufferSource', link: '/reference/standard-nodes/audio/audio-buffer-source' },
@@ -328,7 +333,10 @@ module.exports = {
           { text: 'Tremolo', link: '/reference/standard-nodes/audio/tremolo' },
           { text: 'WaveformAnalyser', link: '/reference/standard-nodes/audio/waveform-analyser' }
         ]},
-        { text: 'Visual', link: '/reference/standard-nodes/visual' }
+        { text: 'Visual', collapsible: true, children: [
+          { text: "FunctionPlotter", link: "/reference/standard-nodes/visual/function-plotter" },
+          { text: "LineChartMini", link: "/reference/standard-nodes/visual/line-chart-mini" }
+        ]}
       ]
     },
     repo: 'saurabh-prosoft/flow-connect',
