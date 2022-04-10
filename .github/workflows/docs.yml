@@ -43,10 +43,9 @@ jobs:
       # run build script
       - name: Build VuePress site
         run: |
-          npm install shx
-          npm run build
-          shx rm -rf docs/.vuepress/.temp
-          yarn docs:build -- --no-cache
+          yarn add shx
+          yarn build
+          yarn docs:build
 
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v2
