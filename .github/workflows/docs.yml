@@ -7,6 +7,7 @@ on:
   # trigger deployment on every push to main branch
   push:
     branches: [master]
+  workflow_dispatch:
 
 jobs:
   docs:
