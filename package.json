@@ -3,6 +3,10 @@
   "version": "1.0.1-beta",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "main": "lib/flow-connect.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/saurabh-prosoft/flow-connect.git"
+  },
   "scripts": {
     "test": "jest",
     "clean": "shx rm -rf bundles lib lib-esm && shx rm -rf docs/.vuepress/public/libs",
