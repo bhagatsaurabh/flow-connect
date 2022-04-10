@@ -5,8 +5,8 @@
   "main": "lib/flow-connect.js",
   "scripts": {
     "test": "jest",
-    "clean": "shx rm -rf bundles lib lib-esm",
-    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack --config=webpack.prod.js",
+    "clean": "shx rm -rf bundles lib lib-esm && shx rm -rf docs/.vuepress/public/libs",
+    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack --config=webpack.prod.js && shx cp -R bundles/. docs/.vuepress/public/libs/",
     "dev": "npx webpack serve --config=webpack.dev.js",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
@@ -29,6 +29,7 @@
     "@types/jest": "^27.4.1",
     "@types/node": "^14.18.3",
     "@types/offscreencanvas": "^2019.6.4",
+    "@vuepress/plugin-register-components": "^2.0.0-beta.38",
     "@vuepress/plugin-search": "^2.0.0-beta.32",
     "babel-jest": "^27.5.1",
     "chai-arrays": "^2.2.0",

@@ -1,4 +1,5 @@
 const markdownItAttrs = require('markdown-it-attrs');
+const { path } = require('@vuepress/utils')
 
 let base = '/';
 if (process.env.DOCS_CONTEXT === 'GitHub') {
@@ -362,6 +363,34 @@ module.exports = {
     }],
     ['@vuepress/medium-zoom', {
       selector: 'img.zoomable'
+    }],
+    ['@vuepress/register-components', {
+      components: {
+        Enum: path.resolve(__dirname, './components/api/Enum.vue'),
+        Event: path.resolve(__dirname, './components/api/Event.vue'),
+        Function: path.resolve(__dirname, './components/api/Function.vue'),
+        Hierarchy: path.resolve(__dirname, './components/api/Hierarchy.vue'),
+        Icon: path.resolve(__dirname, './components/api/Icon.vue'),
+        Method: path.resolve(__dirname, './components/api/Method.vue'),
+        Optional: path.resolve(__dirname, './components/api/Optional.vue'),
+        Overview: path.resolve(__dirname, './components/api/Overview.vue'),
+        Param: path.resolve(__dirname, './components/api/Param.vue'),
+        Property: path.resolve(__dirname, './components/api/Property.vue'),
+        Ref: path.resolve(__dirname, './components/api/Ref.vue'),
+        ActionButton: path.resolve(__dirname, './components/common/ActionButton.vue'),
+        GraphControls: path.resolve(__dirname, './components/common/GraphControls.vue'),
+        LiveExample: path.resolve(__dirname, './components/common/LiveExample.vue'),
+        Redirect: path.resolve(__dirname, './components/common/Redirect.vue'),
+        Feature: path.resolve(__dirname, './components/home/Feature.vue'),
+        Features: path.resolve(__dirname, './components/home/Features.vue'),
+        HomeExample: path.resolve(__dirname, './components/home/HomeExample.vue'),
+        LiveRunBasic: path.resolve(__dirname, './components/home/LiveRunBasic.vue'),
+        LiveRunCustomizable: path.resolve(__dirname, './components/home/LiveRunCustomizable.vue'),
+        LiveRunEvent: path.resolve(__dirname, './components/home/LiveRunEvent.vue'),
+        LiveRunExecutable: path.resolve(__dirname, './components/home/LiveRunExecutable.vue'),
+        LiveRunReactive: path.resolve(__dirname, './components/home/LiveRunReactive.vue'),
+        QuickStart: path.resolve(__dirname, './components/home/QuickStart.vue')
+      }
     }]
   ]
 }

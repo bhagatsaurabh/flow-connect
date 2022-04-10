@@ -14,7 +14,3 @@ let flowConnect = new FlowConnect(document.getElementById('canvas'));
 ```
 
 The only thing that is required to create a new FlowConnect instance is a reference to the `<canvas>` element, used as a mount point for rendering Flows.
-
-<script setup>
-  import Ref from "../../../components/api/Ref.vue";
-</script>

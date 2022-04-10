@@ -61,7 +61,3 @@ let numberSource = new StandardNodes.Common.NumberSource(flow, {
   position: new Vector(245, 128), state: { value: 100 }
 });
 ```
-
-<script setup>
-  import Ref from "../../../components/api/Ref.vue";
-</script>

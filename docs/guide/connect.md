@@ -16,7 +16,3 @@ randomNode.outputs[0].connect(multiplyNode.inputs[0]);
 numberSource.outputs[0].connect(multiplyNode.inputs[1]);
 multiplyNode.outputs[0].connect(labelNode.inputsUI[0]);
 ```
-
-<script setup>
-  import Ref from "../../../components/api/Ref.vue";
-</script>

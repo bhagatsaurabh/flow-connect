@@ -12,7 +12,3 @@ A <Ref to="/reference/api/classes/subflow-node">SubFlowNode</Ref> is a special t
 ```js
 let subFlowNode = flow1.addSubFlow(flow2, new Vector(200, 200));
 ```
-
-<script setup>
-import Ref from "../../../components/api/Ref.vue";
-</script>

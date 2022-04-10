@@ -6,7 +6,7 @@ footer: Copyright © 2021-present Saurabh Bhagat
 ---
 
 <ClientOnly>
-  <HomeExample/>
+  <HomeExample />
 </ClientOnly>
 
 <QuickStart/>
@@ -90,14 +90,6 @@ npm install --save flow-connect
 </template>
 </Features>
 
-<script setup>
-  import HomeExample from '../../components/home/HomeExample.vue';
-  import QuickStart from '../../components/home/QuickStart.vue';
-  import Features from '../../components/home/Features.vue';
-  import LiveRunBasic from '../../components/home/LiveRunBasic.vue';
-  import LiveExample from '../../components/common/LiveExample.vue';
-  import ActionButton from '../../components/common/ActionButton.vue';
-</script>
 <style>
 .home .features {
   border-top: unset;

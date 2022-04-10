@@ -71,7 +71,3 @@ Some dataTypes are in-built and every Flow have these rules by default:
   'any': ['any']
 }
 ```
-
-<script setup>
-  import Ref from "../../../components/api/Ref.vue";
-</script>

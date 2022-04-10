@@ -28,9 +28,3 @@ To summarise...
 * Connect those nodes using <span class="colored-emphasis">Connectors</span>
 * Group similar nodes together using Node <span class="colored-emphasis">Groups</span>
 * If your flow becomes large, create <span class="colored-emphasis">Sub-Flows</span> inside flows
-
-<script setup>
-  import LiveRunBasic from '../../../components/home/LiveRunBasic.vue';
-  import LiveExample from '../../../components/common/LiveExample.vue';
-  import Ref from '../../../components/api/Ref.vue'; 
-</script>
