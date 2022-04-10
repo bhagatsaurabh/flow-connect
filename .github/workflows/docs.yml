@@ -7,8 +7,6 @@ on:
   # trigger deployment on every push to main branch
   push:
     branches: [master]
-  # trigger deployment manually
-  workflow_dispatch:
 
 jobs:
   docs:
@@ -44,7 +42,11 @@ jobs:
 
       # run build script
       - name: Build VuePress site
-        run: yarn docs:build
+        run: |
+          npm install shx
+          npm run build
+          shx rm -rf docs/.vuepress/.temp
+          yarn docs:build -- --no-cache
 
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v2
