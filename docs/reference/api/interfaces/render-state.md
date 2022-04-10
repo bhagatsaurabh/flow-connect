@@ -7,7 +7,3 @@
   lod: <Ref to="../enums/lod">LOD</Ref>;
 }
 </pre>
-
-<script setup>
-import Ref from '../../../../../components/api/Ref.vue';
-</script>

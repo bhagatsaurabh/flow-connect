@@ -10,7 +10,3 @@
   style?: <Ref to="./slider2d-style">Slider2DStyle</Ref>
 }
 </pre>
-
-<script setup>
-import Ref from '../../../../../components/api/Ref.vue';
-</script>

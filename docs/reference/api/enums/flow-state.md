@@ -13,7 +13,3 @@
 ### Stopped
 
 <Enum name="FlowState" member="Stopped" value="'Stopped'" refpath="flowstate" />
-
-<script setup>
-import Enum from '../../../../../components/api/Enum.vue';
-</script>

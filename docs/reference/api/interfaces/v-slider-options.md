@@ -11,7 +11,3 @@
   style?: <Ref to="./v-slider-style">VSliderStyle</Ref>
 }
 </pre>
-
-<script setup>
-import Ref from '../../../../../components/api/Ref.vue';
-</script>

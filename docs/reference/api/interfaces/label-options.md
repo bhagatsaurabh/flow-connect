@@ -9,7 +9,3 @@
   style?: <Ref to="./label-style">LabelStyle</Ref>
 }
 </pre>
-
-<script setup>
-import Ref from '../../../../../components/api/Ref.vue';
-</script>

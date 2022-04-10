@@ -9,7 +9,3 @@
 ### MINIMIZED
 
 <Enum name="NodeState" member="MINIMIZED" value="Minimized" refpath="nodestate" />
-
-<script setup>
-import Enum from '../../../../../components/api/Enum.vue';
-</script>

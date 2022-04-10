@@ -7,7 +7,3 @@ RenderFunction&lt;T, P&gt;: (
   target: T
 ) => void
 </pre>
-
-<script setup>
-import Ref from '../../../../../components/api/Ref.vue';
-</script>

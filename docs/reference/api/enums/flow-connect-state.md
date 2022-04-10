@@ -9,7 +9,3 @@
 ### Stopped
 
 <Enum name="FlowConnectState" member="Stopped" value="'Stopped'" refpath="flowconnectstate" />
-
-<script setup>
-import Enum from '../../../../../components/api/Enum.vue';
-</script>

@@ -13,7 +13,3 @@
 ### OUTSIDE
 
 <Enum name="ViewPort" member="OUTSIDE" value="'outside'" refpath="viewport" />
-
-<script setup>
-import Enum from '../../../../../components/api/Enum.vue';
-</script>

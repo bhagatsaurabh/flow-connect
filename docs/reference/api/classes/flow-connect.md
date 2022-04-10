@@ -681,13 +681,4 @@ In active development, might not work or can be unstable leading to unexpected r
 
 <script setup>
 import data from '../../../../../reflections/api/classes/flow-connect.json';
-import Hierarchy from '../../../../../components/api/Hierarchy.vue';
-import Overview from '../../../../../components/api/Overview.vue';
-import Method from '../../../../../components/api/Method.vue';
-import Property from '../../../../../components/api/Property.vue';
-import Ref from '../../../../../components/api/Ref.vue';
-import Param from '../../../../../components/api/Param.vue';
-import Optional from '../../../../../components/api/Optional.vue';
-import Icon from '../../../../../components/api/Icon.vue';
-import Event from '../../../../../components/api/Event.vue';
 </script>

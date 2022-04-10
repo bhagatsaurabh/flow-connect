@@ -1421,14 +1421,4 @@ In active development, may not work as expected, implementation likely to change
 
 <script setup>
 import data from '../../../../../reflections/api/classes/node.json';
-import Hierarchy from '../../../../../components/api/Hierarchy.vue';
-import Overview from '../../../../../components/api/Overview.vue';
-import Method from '../../../../../components/api/Method.vue';
-import Property from '../../../../../components/api/Property.vue';
-import Ref from '../../../../../components/api/Ref.vue';
-import Param from '../../../../../components/api/Param.vue';
-import Optional from '../../../../../components/api/Optional.vue';
-import Function from '../../../../../components/api/Function.vue';
-import Icon from '../../../../../components/api/Icon.vue';
-import Event from '../../../../../components/api/Event.vue';
 </script>

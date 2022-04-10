@@ -11,7 +11,6 @@
 
 <script setup>
 import data from "../../../../reflections/standard-nodes/audio.json";
-import Icon from "../../../../components/api/Icon.vue";
 </script>
 
 <style scoped>

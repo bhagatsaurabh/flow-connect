@@ -10,7 +10,3 @@
   style?: <Ref to="./input-style">InputStyle</Ref>
 }
 </pre>
-
-<script setup>
-import Ref from '../../../../../components/api/Ref.vue';
-</script>

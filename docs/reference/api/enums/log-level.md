@@ -29,7 +29,3 @@
 ### WARN
 
 <Enum name="LogLevel" member="WARN" value="3" refpath="loglevel" />
-
-<script setup>
-import Enum from '../../../../../components/api/Enum.vue';
-</script>

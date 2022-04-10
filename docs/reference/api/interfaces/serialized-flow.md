@@ -14,7 +14,3 @@
   executionGraph: <Ref to="./serialized-graph">SerializedGraph</Ref>
 }
 </pre>
-
-<script setup>
-import Ref from '../../../../../components/api/Ref.vue';
-</script>

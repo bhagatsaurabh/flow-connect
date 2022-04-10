@@ -37,10 +37,3 @@ let biquadFilter = new StandardNodes.Audio.BiquadFilter(flow);
     </Param>
   </template>
 </Method>
-
-<script setup>
-import Method from "../../../../../components/api/Method.vue";
-import Param from "../../../../../components/api/Param.vue";
-import Ref from "../../../../../components/api/Ref.vue";
-import Hierarchy from "../../../../../components/api/Hierarchy.vue";
-</script>

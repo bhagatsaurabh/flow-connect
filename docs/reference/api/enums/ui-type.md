@@ -69,7 +69,3 @@
 ### VSlider
 
 <Enum name="UIType" member="VSlider" value="'vslider'" refpath="uitype" />
-
-<script setup>
-import Enum from '../../../../../components/api/Enum.vue';
-</script>

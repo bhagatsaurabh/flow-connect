@@ -13,7 +13,3 @@
 ### LOD2
 
 <Enum name="LOD" member="LOD2" value="2" refpath="lod" />
-
-<script setup>
-import Enum from '../../../../../components/api/Enum.vue';
-</script>

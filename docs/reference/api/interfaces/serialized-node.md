@@ -19,7 +19,3 @@
   subFlow?: <Ref to="./serialized-flow">SerializedFlow</Ref>
 }
 </pre>
-
-<script setup>
-import Ref from '../../../../../components/api/Ref.vue';
-</script>

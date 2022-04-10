@@ -13,7 +13,3 @@
 ### Right
 
 <Enum name="Align" member="Right" value="2" refpath="align" />
-
-<script setup>
-import Enum from '../../../../../components/api/Enum.vue';
-</script>
