@@ -1,5 +1,11 @@
 const markdownItAttrs = require('markdown-it-attrs');
 
+let base = '/';
+console.log(process.env.DOCS_CONTEXT);
+if (process.env.DOCS_CONTEXT === 'GitHub') {
+  base = '/flow-connect/';
+}
+
 module.exports = {
   // site config
   lang: 'en-US',
@@ -11,6 +17,7 @@ module.exports = {
     ['script', { src: '/libs/standard-nodes.js' }],
     ['script', { src: '/example/custom-nodes.js' }]
   ],
+  base,
 
   // theme and its config
   theme: '@vuepress/theme-default',
