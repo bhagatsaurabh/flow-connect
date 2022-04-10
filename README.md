@@ -31,7 +31,7 @@ npm i flow-connect
 #### CDN
 
 ```html
-<script src=""></script>
+<script src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.1-beta/bundles/flow-connect.js"></script>
 ```
 
 ## Example Usage
