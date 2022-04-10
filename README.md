@@ -12,11 +12,11 @@ FlowConnect is a highly-customizable library for creating node-based editors, gr
 \
 \
 \
-:globe_with_meridians: **Website:** https://flow-connect.saurabhagat.me
+:globe_with_meridians: **Docs:** https://flow-connect.saurabhagat.me
 
-:mag: **Examples:** https://flow-connect.saurabhagat.me/guide
+:mag: **Guide:** https://flow-connect.saurabhagat.me/guide
 
-:books: **Docs:** https://flow-connect.saurabhagat.me/reference/api
+:books: **API:** https://flow-connect.saurabhagat.me/reference/api
 \
 \.
 
@@ -49,7 +49,7 @@ Example
 let flowConnect = new FlowConnect(document.getElementById("canvas"));
 
 let flow = flowConnect.createFlow({
-  name: "Stock Flow",
+  name: "New Flow",
   rules: { array: ["array", "any"] },
   terminalColors: {}
 });
@@ -60,8 +60,6 @@ flowConnect.render(flow);
 ```
 
 ## Testing
-
-Testing is done via Jest
 
 - Install [Jest](https://jestjs.io/docs/getting-started)
 
