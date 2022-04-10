@@ -1,7 +1,6 @@
 const markdownItAttrs = require('markdown-it-attrs');
 
 let base = '/';
-console.log(process.env.DOCS_CONTEXT);
 if (process.env.DOCS_CONTEXT === 'GitHub') {
   base = '/flow-connect/';
 }
