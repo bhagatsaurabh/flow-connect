@@ -1,6 +1,6 @@
 import { FlowConnect } from 'flow-connect';
 import { Node } from 'flow-connect/core/node';
-import { Vector2 } from 'flow-connect/core/vector';
+import { Vector } from 'flow-connect/core/vector';
 import StandardNodes from 'flow-connect/standard-nodes';
 
 // Create an instance of FlowConnect by passing it a reference of <div> or <canvas> element
@@ -24,10 +24,10 @@ class TimerNode extends Node {
     flowInstance.on('stop', () => clearInterval(this.timerId));
   }
 }
-let timerNode = new TimerNode(flow, new Vector2(45, 7), 500);
+let timerNode = new TimerNode(flow, new Vector(45, 7), 500);
 
 /* Or, you can create a node using Flow.createNode() */
-let randomNode = flow.createNode('Random', new Vector2(285, 50), 120, {
+let randomNode = flow.createNode('Random', new Vector(285, 50), 120, {
   inputs: [{ name: 'trigger', dataType: 'event' }],
   outputs: [{ name: 'random', dataType: 'number' }],
 });
@@ -36,7 +36,7 @@ randomNode.inputs[0].on('event', () => {
 });
 
 /* Or, you can create an instance of Node class directly by using 'new Node()' */
-let multiplyNode = new Node(flow, 'Multiply', new Vector2(552, 76), 100,
+let multiplyNode = new Node(flow, 'Multiply', new Vector(552, 76), 100,
   [{ name: 'a', dataType: 'number' }, { name: 'b', dataType: 'number' }],
   [{ name: 'result', dataType: 'number' }]
 );
@@ -48,10 +48,10 @@ multiplyNode.on('process', () => {
 
 /* There are also a whole set of pre-built nodes for specific uses */
 let numberSource = new StandardNodes.Common.NumberSource(flow, {
-  position: new Vector2(245, 128), state: { value: 100 }
+  position: new Vector(245, 128), state: { value: 100 }
 });
 
-let labelNode = flow.createNode('Label', new Vector2(755, 119), 120, [], []);
+let labelNode = flow.createNode('Label', new Vector(755, 119), 120, [], []);
 labelNode.ui.append(labelNode.createLabel('', { input: true, style: { precision: 2, fontSize: '14px' } }));
 
 // Connect all the nodes
