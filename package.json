@@ -9,7 +9,7 @@
     "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack --config=webpack.prod.js && shx cp -R bundles/. docs/.vuepress/public/libs/",
     "dev": "npx webpack serve --config=webpack.dev.js",
     "docs:dev": "vuepress dev docs",
-    "docs:build": "shx rm -rf docs/.vuepress/.temp && vuepress build docs --no-cache"
+    "docs:build": "vuepress build docs --clean-temp --clean-cache"
   },
   "keywords": [
     "node editor",
