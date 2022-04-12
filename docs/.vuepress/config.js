@@ -13,6 +13,7 @@ module.exports = {
   title: 'Flow Connect',
   description: 'A lightweight yet powerful library for creating node-based visual programming interfaces.',
   head: [
+    ['base', { href: base }],
     ['link', { rel: 'icon', href: '/images/logo.png' }],
     ['script', { src: '/libs/flow-connect.js' }],
     ['script', { src: '/libs/standard-nodes.js' }],
