@@ -14,10 +14,10 @@ module.exports = {
   description: 'A lightweight yet powerful library for creating node-based visual programming interfaces.',
   head: [
     ['base', { href: base }],
-    ['link', { rel: 'icon', href: '/images/logo.png' }],
-    ['script', { src: '/libs/flow-connect.js' }],
-    ['script', { src: '/libs/standard-nodes.js' }],
-    ['script', { src: '/example/custom-nodes.js' }]
+    ['link', { rel: 'icon', href: 'images/logo.png' }],
+    ['script', { src: 'libs/flow-connect.js' }],
+    ['script', { src: 'libs/standard-nodes.js' }],
+    ['script', { src: 'example/custom-nodes.js' }]
   ],
   base,
 

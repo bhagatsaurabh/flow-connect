@@ -20,10 +20,10 @@ export default {
     this.lastTheme = document.querySelector("html").className;
     this.themeChanged();
 
-    fetch("/images/hero-dark.png")
+    fetch("images/hero-dark.png")
       .then((res) => res.blob())
       .then((blob) => (this.loadedDarkHeroImage = URL.createObjectURL(blob)));
-    fetch("/images/hero.png")
+    fetch("images/hero.png")
       .then((res) => res.blob())
       .then((blob) => (this.loadedLightHeroImage = URL.createObjectURL(blob)));
 
@@ -190,8 +190,8 @@ export default {
       document.querySelector(".home .hero img").src = this.lastTheme.includes(
         "dark"
       )
-        ? this.loadedDarkHeroImage || "/images/hero-dark.png"
-        : this.loadedLightHeroImage || "/images/hero.png";
+        ? this.loadedDarkHeroImage || "images/hero-dark.png"
+        : this.loadedLightHeroImage || "images/hero.png";
 
       let titleColor, outlineColor, connectorColor;
       if (this.lastTheme === "dark") {

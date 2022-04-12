@@ -12,7 +12,7 @@
           title="Run Demo"
           data-title="Run"
         >
-          <img alt="Run" src="/images/play-icon.png" />
+          <img alt="Run" src="images/play-icon.png" />
         </div>
         <div
           ref="codeButton"
@@ -21,8 +21,8 @@
           title="See Code"
           data-title="Code"
         >
-          <img alt="Code" src="/images/code-icon.png" />
-          <img alt="Copy" src="/images/copy-icon.png" />
+          <img alt="Code" src="images/code-icon.png" />
+          <img alt="Copy" src="images/copy-icon.png" />
         </div>
       </div>
     </div>
@@ -47,7 +47,7 @@ export default {
     if (this.default === "code") this.codeClicked();
     else this.runClicked();
 
-    fetch(`/snippets/${this.snippet}.js`)
+    fetch(`snippets/${this.snippet}.js`)
       .then((res) => res.text())
       .then((text) => (this.snippetText = text));
 
@@ -255,8 +255,8 @@ export default {
   background-size: 60%;
   background-position: center;
   transition: right 0.3s ease;
-  background-image: url(/images/done-icon.png);
-  content: url(/images/done-icon.png);
+  background-image: url(images/done-icon.png);
+  content: url(images/done-icon.png);
 }
 .anim-copy::before {
   animation-name: slide-in-out;

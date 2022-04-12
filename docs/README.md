@@ -1,7 +1,7 @@
 ---
 home: true
 title: Home
-heroImage: /images/hero.png
+heroImage: images/hero.png
 footer: Copyright © 2021-present Saurabh Bhagat
 ---
 
@@ -45,7 +45,7 @@ npm install --save flow-connect
 <template v-slot:code>
 <div class="code-block">
 
-@[code](./snippets/quick-start.js)
+@[code](snippets/quick-start.js)
 
 </div>
 </template>
@@ -63,28 +63,28 @@ npm install --save flow-connect
 <template v-slot:feature-code-1>
 <div class="code-block">
 
-@[code](./snippets/custom-example.js)
+@[code](snippets/custom-example.js)
 
 </div>
 </template>
 <template v-slot:feature-code-2>
 <div class="code-block">
 
-@[code](./snippets/event-example.js)
+@[code](snippets/event-example.js)
 
 </div>
 </template>
 <template v-slot:feature-code-3>
 <div class="code-block">
 
-@[code](./snippets/reactive-example.js)
+@[code](snippets/reactive-example.js)
 
 </div>
 </template>
 <template v-slot:feature-code-4>
 <div class="code-block">
 
-@[code](./snippets/executable-example.js)
+@[code](snippets/executable-example.js)
 
 </div>
 </template>
