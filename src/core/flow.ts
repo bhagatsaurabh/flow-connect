@@ -123,9 +123,6 @@ export class Flow extends Hooks implements Serializable {
       flow.outputs.map(outputNode => { return { name: outputNode.inputs[0].name, dataType: outputNode.inputs[0].dataType } }),
       { name: flow.name }
     );
-    this.nodes.set(subFlowNode.id, subFlowNode);
-    this.sortedNodes.add(subFlowNode);
-    this.executionGraph.add(subFlowNode);
     flow.parentFlow = this;
 
     return subFlowNode;
@@ -144,7 +141,20 @@ export class Flow extends Hooks implements Serializable {
     });
   }
   removeNode(nodeOrID: Node | string) {
-    /** TODO */
+    let node = typeof nodeOrID === 'string' ? this.nodes.get(nodeOrID) : nodeOrID;
+
+    [...node.inputs, ...node.outputs, ...node.inputsUI, ...node.outputsUI]
+      .filter(terminal => terminal.isConnected())
+      .forEach(terminal => terminal.disconnect());
+
+    if (node.group) {
+      node.group.nodes
+        .splice(node.group.nodes.findIndex(currNode => currNode.id === node.id), 1);
+    }
+
+    this.nodes.delete(node.id);
+    this.sortedNodes.remove(node);
+    this.executionGraph.remove(node);
   }
   removeConnector(id: string) {
     if (this.connectors.get(id) === this.flowConnect.floatingConnector) this.flowConnect.floatingConnector = null;

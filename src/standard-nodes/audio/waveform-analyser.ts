@@ -55,6 +55,7 @@ export class WaveformAnalyser extends Node {
     this.fftSizeLabel = this.createLabel(this.getFFTSize(), { height: 20, style: { grow: .2, align: Align.Right } });
     this.display = this.createDisplay(200, [{
       auto: true,
+      clear: true,
       renderer: (...args) => this.customRenderer(args[0], args[1], args[2])
     }]);
 

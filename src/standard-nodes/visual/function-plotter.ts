@@ -120,6 +120,7 @@ export class FunctionPlotter extends Node {
     return false;
   }
   process(inputs: any) {
+    if (!inputs[0]) return;
     if (Array.isArray(inputs[0])) {
       if (this.state.polar) {
         this.state.points = [];

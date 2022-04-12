@@ -24,6 +24,12 @@ export class Graph implements Serializable {
     this.nodes[0].push(graphNode);
     this.graphNodes.set(data.id, graphNode);
   }
+  remove(data: Node) {
+    let graphNode = this.graphNodes.get(data.id);
+    this.dirtyNodes.delete(graphNode.id);
+    this.graphNodes.delete(data.id);
+    this.nodes[0].splice(this.nodes[0].findIndex(node => node.id === graphNode.id), 1);
+  }
   connect(sourceNode: Node, destinationNode: Node) {
     let startGraphNode = this.graphNodes.get(sourceNode.id);
     let endGraphNode = this.graphNodes.get(destinationNode.id);
