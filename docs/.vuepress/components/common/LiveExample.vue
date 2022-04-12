@@ -255,8 +255,8 @@ export default {
   background-size: 60%;
   background-position: center;
   transition: right 0.3s ease;
-  background-image: url(images/done-icon.png);
-  content: url(images/done-icon.png);
+  background-image: url(/images/done-icon.png);
+  content: url(/images/done-icon.png);
 }
 .anim-copy::before {
   animation-name: slide-in-out;

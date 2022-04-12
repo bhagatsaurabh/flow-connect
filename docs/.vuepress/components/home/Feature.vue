@@ -110,7 +110,7 @@ export default {
   border: 2px solid var(--c-text);
   background-color: #000;
   position: relative;
-  background-image: url("images/expand-icon.png");
+  background-image: url("/images/expand-icon.png");
   cursor: pointer;
   transition: box-shadow 0.3s ease, transform 0.3s ease, border 0.3s ease;
   box-shadow: 0 0 20px var(--c-block-shadow);
