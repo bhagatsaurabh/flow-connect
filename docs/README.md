@@ -34,7 +34,7 @@ npm install --save flow-connect
 <div class="quick-start-desc">
   <h6>Learning FlowConnect is as simple as understanding what these terms mean and how they are related: Flows, Nodes, Connectors, Groups and Sub-Flows.<br/><br/>
   Every FlowConnect instance that you create has one or more Flows, and every Flow consists of Nodes, Connectors and Groups, Flows can also have Sub-Flows.<br/><br/>
-  Create a <span class="colored-emphasis">Flow</span>, create a bunch of <span class="colored-emphasis">Nodes</span> inside that flow, connect those nodes using <span class="colored-emphasis">Connectors</span>, group similar nodes together using Node <span class="colored-emphasis">Groups</span> and if your flow becomes large, create <span class="colored-emphasis">Sub-Flows</span> (if your sub-flows are also becoming large, you can create more sub-flows inside sub-flows...)</h6>
+  Create a <span class="colored-emphasis">Flow</span>, create a bunch of <span class="colored-emphasis">Nodes</span> inside that flow, connect those nodes using <span class="colored-emphasis">Connectors</span>, group similar nodes together using Node <span class="colored-emphasis">Groups</span> and if your flow becomes large, create <span class="colored-emphasis">Sub-Flows</span></h6>
 </div>
 <div class="quick-start-step quick-start-example">
 <h5>Example</h5>
