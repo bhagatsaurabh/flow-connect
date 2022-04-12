@@ -24,12 +24,14 @@ export default {
     buttonClicked(name) {
       if (name === "play") {
         if (this.$refs["graph-play-icon-text"].innerText.trim() === "Run") {
-          this.$refs["graph-play-icon"].style.backgroundImage =
-            "url('/images/stop-icon.png')";
+          const iconEl = this.$refs["graph-play-icon"];
+          iconEl.classList.remove('graph-icon-play');
+          iconEl.classList.add('graph-icon-stop');
           this.$refs["graph-play-icon-text"].innerText = "Stop";
         } else {
-          this.$refs["graph-play-icon"].style.backgroundImage =
-            "url('/images/play-icon.png')";
+          const iconEl = this.$refs["graph-play-icon"];
+          iconEl.classList.remove('graph-icon-stop');
+          iconEl.classList.add('graph-icon-play');
           this.$refs["graph-play-icon-text"].innerText = "Run";
         }
       }
@@ -85,6 +87,9 @@ export default {
 }
 .graph-icon-play {
   background-image: url("/images/play-icon.png");
+}
+.graph-icon-stop {
+  background-image: url("/images/stop-icon.png");
 }
 .graph-control-button-text {
   height: 100%;
