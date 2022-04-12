@@ -5,6 +5,7 @@ let base = '/';
 if (process.env.DOCS_CONTEXT === 'GitHub') {
   base = '/flow-connect/';
 }
+console.log('Base URL:', base);
 
 module.exports = {
   // site config

@@ -23,6 +23,8 @@ jobs:
           node-version: '14'
 
       - name: Build VuePress site
+        env:
+          DOCS_CONTEXT: GitHub
         run: |
           npm ci
           npm install shx
