@@ -429,10 +429,6 @@ Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
 
 ### removeNode
 
-::: danger BETA
-In active development, might not work or can be unstable leading to unexpected results
-:::
-
 <Method type="method">
   <template v-slot:signature>
     removeNode(<strong>nodeOrId: </strong><em>string | <Ref to="./node">Node</Ref></em>):

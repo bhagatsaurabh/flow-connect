@@ -1091,10 +1091,6 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
 
 ### dispose
 
-::: danger BETA
-In active development, may not work as expected, implementation likely to change.
-:::
-
 <Method type="method">
   <template v-slot:signature>
     dispose():
