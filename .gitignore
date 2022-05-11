@@ -10,3 +10,4 @@ testserver/
 .cache
 docs/typedocs/
 docs/.vuepress/dist/
+dist/
