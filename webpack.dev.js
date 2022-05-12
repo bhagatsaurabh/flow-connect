@@ -1,16 +1,16 @@
-const path = require('path');
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common.js');
-const fs = require('fs');
-const examples = fs.readdirSync('dev/scripts/examples/');
+const path = require("path");
+const { merge } = require("webpack-merge");
+const common = require("./webpack.common.js");
+const fs = require("fs");
+const examples = fs.readdirSync("dev/scripts/examples/");
 
 module.exports = merge(common, {
-  mode: 'development',
-  devtool: 'source-map',
+  mode: "development",
+  devtool: "source-map",
   devServer: {
     static: [
-      { directory: path.join(__dirname, 'dev') },
-      { directory: path.join(__dirname, 'dist') }
+      { directory: path.join(__dirname, "dev") },
+      { directory: path.join(__dirname, "dist") },
     ],
     onBeforeSetupMiddleware: (devServer) => {
       devServer.app.get("/examples", function (_req, res) {
@@ -18,6 +18,6 @@ module.exports = merge(common, {
       });
     },
     compress: true,
-    port: 9000
-  }
+    port: 9000,
+  },
 });
