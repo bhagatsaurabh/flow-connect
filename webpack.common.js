@@ -9,7 +9,7 @@ module.exports = {
     }
   },
   output: {
-    path: path.resolve(__dirname, 'bundles'),
+    path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     libraryTarget: 'umd',
     umdNamedDefine: true

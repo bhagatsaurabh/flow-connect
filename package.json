@@ -9,8 +9,8 @@
   },
   "scripts": {
     "test": "jest",
-    "clean": "shx rm -rf bundles lib lib-esm && shx rm -rf docs/.vuepress/public/libs",
-    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack --config=webpack.prod.js && shx cp -R bundles/. docs/.vuepress/public/libs/",
+    "clean": "shx rm -rf dist lib lib-esm && shx rm -rf docs/.vuepress/public/libs",
+    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack --config=webpack.prod.js && shx cp -R dist/. docs/.vuepress/public/libs/",
     "dev": "npx webpack serve --config=webpack.dev.js",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --clean-temp --clean-cache"

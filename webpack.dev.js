@@ -10,7 +10,7 @@ module.exports = merge(common, {
   devServer: {
     static: [
       { directory: path.join(__dirname, 'dev') },
-      { directory: path.join(__dirname, 'bundles') }
+      { directory: path.join(__dirname, 'dist') }
     ],
     onBeforeSetupMiddleware: (devServer) => {
       devServer.app.get("/examples", function (_req, res) {
