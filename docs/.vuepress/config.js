@@ -1,5 +1,9 @@
 const markdownItAttrs = require('markdown-it-attrs');
 const { path } = require('@vuepress/utils')
+const { defaultTheme } = require('vuepress');
+const { searchPlugin } = require('@vuepress/plugin-search');
+const { mediumZoomPlugin  } = require('@vuepress/plugin-medium-zoom');
+const {registerComponentsPlugin } = require('@vuepress/plugin-register-components');
 
 let base = '/';
 if (process.env.DOCS_CONTEXT === 'GitHub') {
@@ -24,8 +28,7 @@ module.exports = {
   base,
 
   // theme and its config
-  theme: '@vuepress/theme-default',
-  themeConfig: {
+  theme: defaultTheme({
     logo: '/images/logo.png',
     smoothScroll: true,
     navbar: [
@@ -357,18 +360,18 @@ module.exports = {
     docsDir: 'docs',
     docsBranch: 'master',
     editLinks: true
-  },
+  }),
   extendsMarkdown: (md) => {
     md.use(markdownItAttrs)
   },
   plugins: [
-    ['@vuepress/search', {
+    searchPlugin({
       getExtraFields: (page) => page.frontmatter.tags ?? [],
-    }],
-    ['@vuepress/medium-zoom', {
+    }),
+    mediumZoomPlugin({
       selector: 'img.zoomable'
-    }],
-    ['@vuepress/register-components', {
+    }),
+    registerComponentsPlugin({
       components: {
         Enum: path.resolve(__dirname, './components/api/Enum.vue'),
         Event: path.resolve(__dirname, './components/api/Event.vue'),
@@ -395,6 +398,6 @@ module.exports = {
         LiveRunReactive: path.resolve(__dirname, './components/home/LiveRunReactive.vue'),
         QuickStart: path.resolve(__dirname, './components/home/QuickStart.vue')
       }
-    }]
+    })
   ]
 }
