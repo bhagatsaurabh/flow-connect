@@ -1,0 +1,151 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build
+        run: |
+          npm i
+          npm run build
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: flow-connect-dist
+          path: dist
+  Test:
+    needs: [Build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Test
+        run: |
+          npm i
+          npm test
+  Docs:
+    needs: [Test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: flow-connect-dist
+          path: dist
+
+      - name: Build VuePress site
+        env:
+          DOCS_CONTEXT: GitHub
+        run: |
+          npm i
+          npm run postbuild
+          npm run docs:build
+
+      - name: Upload docs artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: flow-connect-docs
+          path: docs/.vuepress/dist
+  Deploy-ghpages:
+    needs: [Docs]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Download docs artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: flow-connect-docs
+          path: docs/.vuepress/dist
+
+      - name: Deploy to GitHub Pages
+        uses: crazy-max/ghaction-github-pages@v2
+        with:
+          target_branch: gh-pages
+          build_dir: docs/.vuepress/dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  Deploy-Firebase:
+    needs: [Docs]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: flow-connect-dist
+          path: dist
+
+      - name: Build VuePress site
+        env:
+          DOCS_CONTEXT: Firebase
+        run: |
+          npm i
+          npm run postbuild
+          npm run docs:build
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FLOW_CONNECT_70CFB }}"
+          channelId: live
+          projectId: flow-connect-70cfb
+  Cleanup:
+    needs: [Deploy-ghpages, Deploy-Firebase]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete dist artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: flow-connect-dist
+
+      - name: Delete docs artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: flow-connect-docs
