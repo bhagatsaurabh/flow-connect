@@ -145,4 +145,4 @@ Feel free to send any feedback on <saurabhbhagat98die@gmail.com>
 
 [MIT](./LICENSE) licensed
 
-Copyright &copy; | Saurabh Bhagat
+Copyright &copy; 2021-present | Saurabh Bhagat
