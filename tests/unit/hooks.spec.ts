@@ -15,7 +15,6 @@ describe("Hooks", () => {
 
       let callback1 = () => { /**/ };
       let id1 = hooks.on("event1", callback1);
-      console.log(hooks.registeredEvents);
       expect(hooks.registeredEvents).toHaveProperty("event1");
       expect(hooks.registeredEvents.event1).toStrictEqual({ [id1]: callback1 });
 

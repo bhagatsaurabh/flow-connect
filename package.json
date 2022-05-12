@@ -1,28 +1,38 @@
 {
   "name": "flow-connect",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
-  "main": "lib/flow-connect.js",
+  "main": "dist/cjs/flow-connect.js",
+  "types": "dist/cjs/flow-connect.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/saurabh-prosoft/flow-connect.git"
   },
   "scripts": {
     "test": "jest",
-    "clean": "shx rm -rf dist lib lib-esm && shx rm -rf docs/.vuepress/public/libs",
-    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack --config=webpack.prod.js && shx cp -R dist/. docs/.vuepress/public/libs/",
+    "clean": "npx shx rm -rf dist && npx shx rm -rf docs/.vuepress/public/libs",
+    "prebuild": "npm run clean",
+    "build": "npm run build:umd && npm run build:cjs && npm run build:esm",
+    "postbuild": "npx shx mkdir docs/.vuepress/public/libs && npx shx cp dist/* docs/.vuepress/public/libs",
+    "build:umd": "webpack --config=webpack.prod.js",
+    "build:cjs": "tsc",
+    "build:esm": "tsc -m es6 --outDir dist/esm",
     "dev": "npx webpack serve --config=webpack.dev.js",
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs --clean-temp --clean-cache"
+    "docs:build": "vuepress build docs --clean-temp --clean-cache",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "node editor",
     "node-based editor",
+    "flow-connect",
     "HTML5 node editor",
     "node-editor framework",
-    "flow-connect",
     "flow connect",
-    "canvas library"
+    "canvas library",
+    "visual programming",
+    "visual programming ui library",
+    "node ui library"
   ],
   "author": "Saurabh Bhagat",
   "license": "MIT",
@@ -36,7 +46,6 @@
     "@vuepress/plugin-register-components": "^2.0.0-beta.38",
     "@vuepress/plugin-search": "^2.0.0-beta.32",
     "babel-jest": "^27.5.1",
-    "chai-arrays": "^2.2.0",
     "cross-blob": "^3.0.0",
     "jest": "^27.5.1",
     "markdown-it-attrs": "^4.1.3",

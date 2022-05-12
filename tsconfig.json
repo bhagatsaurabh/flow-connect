@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "moduleResolution": "node",
     "target": "es2020",
     "module": "CommonJS",
     "lib": [
@@ -12,9 +13,8 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "rootDir": "./src",
-    "outDir": "lib",
-    "declaration": true,
-    "moduleResolution": "node"
+    "outDir": "dist/cjs",
+    "declaration": true
   },
   "include": [
     "src/**/*.ts",

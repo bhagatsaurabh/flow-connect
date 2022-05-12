@@ -29,7 +29,6 @@ describe('Color', () => {
       let rgba2 = Color.hexToRGBA(hex);
 
       expect(rgba2).toBeInstanceOf(Uint8ClampedArray);
-      console.log(rgba1, rgba2);
       expect(rgba1[0]).toStrictEqual(rgba2[0]);
       expect(rgba1[1]).toStrictEqual(rgba2[1]);
       expect(rgba1[2]).toStrictEqual(rgba2[2]);

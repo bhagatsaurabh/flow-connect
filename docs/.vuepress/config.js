@@ -16,7 +16,9 @@ module.exports = {
     ['base', { href: base }],
     ['link', { rel: 'icon', href: 'images/logo.png' }],
     ['script', { src: 'libs/flow-connect.js' }],
+    ['script', { src: 'libs/flow-connect.js.map', type: 'application/json' }],
     ['script', { src: 'libs/standard-nodes.js' }],
+    ['script', { src: 'libs/standard-nodes.js.map', type: 'application/json' }],
     ['script', { src: 'example/custom-nodes.js' }]
   ],
   base,

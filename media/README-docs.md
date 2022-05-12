@@ -42,7 +42,7 @@ ES6
 
 ```js
 import * as FlowConnect from "flow-connect";
-import { StandardNodes } from "flow-connect/lib/standard-nodes";
+import { StandardNodes } from "flow-connect/cjs/standard-nodes";
 ```
 
 Example
