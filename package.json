@@ -3,11 +3,38 @@
   "version": "1.0.5",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "main": "dist/cjs/flow-connect.js",
-  "types": "dist/cjs/flow-connect.d.ts",
+  "types": "dist/types/flow-connect.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/saurabh-prosoft/flow-connect.git"
   },
+  "author": "Saurabh Bhagat",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "prebuild": "npx shx rm -rf dist",
+    "build": "npm run build:umd && npm run build:cjs && npm run build:esm && npm run build:types",
+    "build:umd": "webpack --config=webpack.prod.js",
+    "build:cjs": "tsc -p tsconfig/cjs.tsconfig.json",
+    "build:esm": "tsc -p tsconfig/esm.tsconfig.json",
+    "build:types": "tsc -p tsconfig/types.tsconfig.json",
+    "dev": "npx webpack serve --config=webpack.dev.js",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs --clean-temp --clean-cache",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "node editor",
+    "node-based editor",
+    "flow-connect",
+    "HTML5 node editor",
+    "node-editor framework",
+    "flow connect",
+    "canvas library",
+    "visual programming",
+    "visual programming ui library",
+    "node ui library"
+  ],
   "exports": {
     "./*": {
       "import": "./dist/esm/*",
@@ -34,33 +61,7 @@
       ]
     }
   },
-  "scripts": {
-    "test": "jest",
-    "clean": "npx shx rm -rf dist",
-    "prebuild": "npm run clean",
-    "build": "npm run build:umd && npm run build:cjs && npm run build:esm",
-    "build:umd": "webpack --config=webpack.prod.js",
-    "build:cjs": "tsc",
-    "build:esm": "tsc -m es6 --outDir dist/esm",
-    "dev": "npx webpack serve --config=webpack.dev.js",
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs --clean-temp --clean-cache",
-    "prepublishOnly": "npm run build"
-  },
-  "keywords": [
-    "node editor",
-    "node-based editor",
-    "flow-connect",
-    "HTML5 node editor",
-    "node-editor framework",
-    "flow connect",
-    "canvas library",
-    "visual programming",
-    "visual programming ui library",
-    "node ui library"
-  ],
-  "author": "Saurabh Bhagat",
-  "license": "MIT",
+  "browser": "./dist/flow-connect.js",
   "devDependencies": {
     "@babel/core": "^7.17.8",
     "@babel/preset-env": "^7.16.11",
@@ -86,5 +87,6 @@
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.7.2",
     "webpack-merge": "^5.8.0"
-  }
+  },
+  "dependencies": {}
 }

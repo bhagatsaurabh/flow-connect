@@ -1,20 +1,17 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compileOnSave": false,
   "compilerOptions": {
+    "target": "es6",
     "moduleResolution": "node",
-    "target": "es2020",
-    "module": "CommonJS",
     "lib": [
-      "ES2020",
+      "ES6",
       "DOM"
     ],
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "sourceMap": true,
-    "rootDir": "./src",
-    "outDir": "dist/cjs",
-    "declaration": true
+    "sourceMap": false
   },
   "include": [
     "src/**/*.ts",

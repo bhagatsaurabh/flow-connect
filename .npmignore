@@ -20,3 +20,4 @@ webpack.dev.js
 webpack.prod.js
 CODE_OF_CONDUCT.md
 *.tgz
+tsconfig/
