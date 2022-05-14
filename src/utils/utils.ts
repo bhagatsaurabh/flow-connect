@@ -1,7 +1,7 @@
-import { Graph } from "../core/graph";
-import { Rules } from "../common/interfaces";
-import { Terminal } from "../core/terminal";
-import { ViewPort } from "../common/enums";
+import { Graph } from "../core/graph.js";
+import { Rules } from "../common/interfaces.js";
+import { Terminal } from "../core/terminal.js";
+import { ViewPort } from "../common/enums.js";
 
 export const getNewUUID = () => {
   var S4 = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);

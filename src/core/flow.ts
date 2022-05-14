@@ -1,18 +1,18 @@
-import { FlowConnect } from "../flow-connect";
-import { Vector } from "./vector";
-import { Node, NodeButton, NodeButtonRenderParams, NodeRenderParams, NodeStyle, SerializedNode } from "./node";
-import { Hooks } from './hooks';
-import { Group, GroupRenderParams, SerializedGroup } from './group';
-import { Connector, ConnectorRenderParams, SerializedConnector } from './connector';
-import { AVLTree } from "../utils/avl-tree";
-import { Serializable, Rules, RenderResolver } from '../common/interfaces';
-import { SubFlowNode } from "./subflow-node";
-import { TunnelNode, SerializedTunnelNode } from "./tunnel-node";
-import { getNewUUID } from "../utils/utils";
-import { Graph, SerializedGraph } from "./graph";
-import { Terminal, TerminalRenderParams, TerminalStyle } from "./terminal";
-import { Log } from '../utils/logger';
-import { Container, ContainerRenderParams } from '../ui/container';
+import { FlowConnect } from "../flow-connect.js";
+import { Vector } from "./vector.js";
+import { Node, NodeButton, NodeButtonRenderParams, NodeRenderParams, NodeStyle, SerializedNode } from "./node.js";
+import { Hooks } from './hooks.js';
+import { Group, GroupRenderParams, SerializedGroup } from './group.js';
+import { Connector, ConnectorRenderParams, SerializedConnector } from './connector.js';
+import { AVLTree } from "../utils/avl-tree.js";
+import { Serializable, Rules, RenderResolver } from '../common/interfaces.js';
+import { SubFlowNode } from "./subflow-node.js";
+import { TunnelNode, SerializedTunnelNode } from "./tunnel-node.js";
+import { getNewUUID } from "../utils/utils.js";
+import { Graph, SerializedGraph } from "./graph.js";
+import { Terminal, TerminalRenderParams, TerminalStyle } from "./terminal.js";
+import { Log } from '../utils/logger.js';
+import { Container, ContainerRenderParams } from '../ui/container.js';
 
 /** A Flow is a set of Nodes, Connectors and Groups, it can also contain SubFlowNodes thereby creating a tree of Flows.
  *  ![](media://example.png)

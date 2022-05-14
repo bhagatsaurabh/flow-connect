@@ -1,10 +1,10 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { Align } from "../../common/enums";
-import { Slider, Display, Label } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { clamp } from "../../utils/utils.js";
+import { Node } from '../../core/node.js';
+import { Align } from "../../common/enums.js";
+import { Slider, Display, Label } from "../../ui/index.js";
 
 export class FrequencyAnalyser extends Node {
   freqLabel: Label;

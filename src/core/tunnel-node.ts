@@ -1,8 +1,8 @@
-import { Vector } from "./vector";
-import { Color } from "./color";
-import { Flow } from "./flow";
-import { Node, NodeStyle, SerializedNode } from "./node";
-import { Terminal, TerminalStyle } from "./terminal";
+import { Vector } from "./vector.js";
+import { Color } from "./color.js";
+import { Flow } from "./flow.js";
+import { Node, NodeStyle, SerializedNode } from "./node.js";
+import { Terminal, TerminalStyle } from "./terminal.js";
 
 export class TunnelNode extends Node {
   private _proxyTerminal: Terminal;

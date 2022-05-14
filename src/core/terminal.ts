@@ -1,12 +1,12 @@
-import { Vector, SerializedVector } from "./vector";
-import { getNewUUID, canConnect, get, exists } from "../utils/utils";
-import { Color, SerializedColor } from "./color";
-import { Connector, ConnectorStyle } from './connector';
-import { Hooks } from './hooks';
-import { Node } from './node';
-import { Events, Renderable, RenderResolver, Serializable } from "../common/interfaces";
-import { Log } from "../utils/logger";
-import { Constant } from "../resource/constants";
+import { Vector, SerializedVector } from "./vector.js";
+import { getNewUUID, canConnect, get, exists } from "../utils/utils.js";
+import { Color, SerializedColor } from "./color.js";
+import { Connector, ConnectorStyle } from './connector.js';
+import { Hooks } from './hooks.js';
+import { Node } from './node.js';
+import { Events, Renderable, RenderResolver, Serializable } from "../common/interfaces.js";
+import { Log } from "../utils/logger.js";
+import { Constant } from "../resource/constants.js";
 
 export class Terminal extends Hooks implements Events, Serializable, Renderable {
   /**

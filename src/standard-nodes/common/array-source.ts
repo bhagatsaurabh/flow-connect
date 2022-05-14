@@ -1,9 +1,9 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from "../../core/node";
-import { Align } from "../../common/enums";
-import { InputType, Input, Toggle, HorizontalLayout, Stack } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { Node } from "../../core/node.js";
+import { Align } from "../../common/enums.js";
+import { InputType, Input, Toggle, HorizontalLayout, Stack } from "../../ui/index.js";
 
 export class ArraySource extends Node {
   arrayInput: Input;

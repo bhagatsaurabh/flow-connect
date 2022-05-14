@@ -1,1 +1,1 @@
-export * from './dial';
+export * from './dial.js';

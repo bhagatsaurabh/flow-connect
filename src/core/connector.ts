@@ -1,10 +1,10 @@
-import { Vector, SerializedVector } from "./vector";
-import { get, getNewUUID } from "../utils/utils";
-import { Flow, FlowState } from "./flow";
-import { Terminal, TerminalType } from './terminal';
-import { Renderable, RenderResolver, Serializable } from "../common/interfaces";
-import { Node, NodeState } from "./node";
-import { Hooks } from './hooks';
+import { Vector, SerializedVector } from "./vector.js";
+import { get, getNewUUID } from "../utils/utils.js";
+import { Flow, FlowState } from "./flow.js";
+import { Terminal, TerminalType } from './terminal.js';
+import { Renderable, RenderResolver, Serializable } from "../common/interfaces.js";
+import { Node, NodeState } from "./node.js";
+import { Hooks } from './hooks.js';
 
 export class Connector extends Hooks implements Serializable, Renderable {
   renderResolver: RenderResolver<Connector, ConnectorRenderParams> = () => null;

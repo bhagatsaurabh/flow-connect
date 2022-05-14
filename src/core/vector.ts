@@ -1,5 +1,5 @@
-import { Serializable } from '../common/interfaces';
-import { normalize, clamp } from '../utils/utils';
+import { Serializable } from '../common/interfaces.js';
+import { normalize, clamp } from '../utils/utils.js';
 
 export class Vector implements Serializable {
   x: number;

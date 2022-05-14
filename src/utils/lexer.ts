@@ -1,4 +1,4 @@
-import { Evaluator } from "./evaluator";
+import { Evaluator } from "./evaluator.js";
 
 export class Lexer {
   static operators = ['+', '-', '*', '/', '^', '%', '&', '|'];

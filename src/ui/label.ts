@@ -1,12 +1,12 @@
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { Serializable } from "../common/interfaces";
-import { Color } from "../core/color";
-import { binarySearch, exists, get } from "../utils/utils";
-import { FlowState } from "../core/flow";
-import { Align } from "../common/enums";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { Serializable } from "../common/interfaces.js";
+import { Color } from "../core/color.js";
+import { binarySearch, exists, get } from "../utils/utils.js";
+import { FlowState } from "../core/flow.js";
+import { Align } from "../common/enums.js";
 
 export class Label extends UINode implements Serializable {
   private displayText: string;

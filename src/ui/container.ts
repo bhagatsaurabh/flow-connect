@@ -1,10 +1,10 @@
-import { Color } from "../core/color";
-import { RenderResolver, Serializable } from "../common/interfaces";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { Button, Display, HorizontalLayout, Stack, Image, Input, Label, Select, Slider, Source, Toggle } from "./index";
-import { SerializedUINode, UINode, UINodeStyle, UIType, UINodeRenderParams } from "./ui-node";
-import { Align } from "../common/enums";
+import { Color } from "../core/color.js";
+import { RenderResolver, Serializable } from "../common/interfaces.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { Button, Display, HorizontalLayout, Stack, Image, Input, Label, Select, Slider, Source, Toggle } from "./index.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType, UINodeRenderParams } from "./ui-node.js";
+import { Align } from "../common/enums.js";
 
 export class Container extends UINode implements Serializable {
   renderResolver: RenderResolver<Container, ContainerRenderParams> = () => null;

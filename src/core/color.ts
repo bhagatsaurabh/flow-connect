@@ -1,6 +1,6 @@
-import { clamp, getRandom, lerp, normalize } from "../utils/utils";
-import { Serializable } from "../common/interfaces";
-import { Log } from "../utils/logger";
+import { clamp, getRandom, lerp, normalize } from "../utils/utils.js";
+import { Serializable } from "../common/interfaces.js";
+import { Log } from "../utils/logger.js";
 
 export class Color implements Serializable {
   hexValue: string;

@@ -1,12 +1,12 @@
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { Serializable } from "../common/interfaces";
-import { Color } from "../core/color";
-import { FlowState } from "../core/flow";
-import { get } from "../utils/utils";
-import { Constant } from "../resource/constants";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { Serializable } from "../common/interfaces.js";
+import { Color } from "../core/color.js";
+import { FlowState } from "../core/flow.js";
+import { get } from "../utils/utils.js";
+import { Constant } from "../resource/constants.js";
 
 export class Toggle extends UINode implements Serializable {
   private _checked: boolean = false;

@@ -1,6 +1,6 @@
-import { Token, TokenType } from "./lexer";
-import { Constant } from "../resource/constants";
-import { Parser } from "./parser";
+import { Token, TokenType } from "./lexer.js";
+import { Constant } from "../resource/constants.js";
+import { Parser } from "./parser.js";
 
 export class Evaluator {
   parser: Parser;

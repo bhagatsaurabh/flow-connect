@@ -1,13 +1,13 @@
-import { SerializedVector, Vector } from "../core/vector";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { Node } from '../core/node';
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
-import { Serializable } from "../common/interfaces";
-import { Color } from "../core/color";
-import { FlowState } from "../core/flow";
-import { Constant } from "../resource/constants";
-import { List, ListNode } from "../utils/linked-list";
-import { BiMap } from "../utils/bidirectional-map";
+import { SerializedVector, Vector } from "../core/vector.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { Node } from '../core/node.js';
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { Serializable } from "../common/interfaces.js";
+import { Color } from "../core/color.js";
+import { FlowState } from "../core/flow.js";
+import { Constant } from "../resource/constants.js";
+import { List, ListNode } from "../utils/linked-list.js";
+import { BiMap } from "../utils/bidirectional-map.js";
 
 export class Envelope extends UINode implements Serializable {
   private _value: List<Vector>;

@@ -1,21 +1,21 @@
-import { SerializedVector, Vector } from "./vector";
-import { ViewPort, LOD, Align } from '../common/enums';
+import { SerializedVector, Vector } from "./vector.js";
+import { ViewPort, LOD, Align } from '../common/enums.js';
 import {
   VSlider, VSliderStyle, Slider2D, Slider2DStyle, RadioGroup, RadioGroupStyle, Envelope, EnvelopeStyle,
   Dial, DialStyle, Container, ContainerRenderParams, SerializedContainer, Label, LabelStyle,
   Button, ButtonStyle, Image, ImageStyle, HorizontalLayout, HorizontalLayoutStyle, Toggle, ToggleStyle,
   Select, SelectStyle, Source, SourceStyle, Display, DisplayStyle, CustomRendererConfig, Input, InputStyle,
   Stack, StackStyle, Slider, SliderStyle, UINode
-} from "../ui/index";
-import { get, getNewUUID, intersects } from "../utils/utils";
-import { Color, SerializedColor } from "./color";
-import { Flow, FlowState, SerializedFlow } from './flow';
-import { Group } from './group';
-import { Terminal, TerminalType, TerminalStyle, SerializedTerminal, TerminalRenderParams } from './terminal';
-import { Hooks } from './hooks';
-import { Events, Renderable, RenderFunction, RenderResolver, RenderState, Serializable } from "../common/interfaces";
-import { Connector } from "./connector";
-import { Log } from "../utils/logger";
+} from "../ui/index.js";
+import { get, getNewUUID, intersects } from "../utils/utils.js";
+import { Color, SerializedColor } from "./color.js";
+import { Flow, FlowState, SerializedFlow } from './flow.js';
+import { Group } from './group.js';
+import { Terminal, TerminalType, TerminalStyle, SerializedTerminal, TerminalRenderParams } from './terminal.js';
+import { Hooks } from './hooks.js';
+import { Events, Renderable, RenderFunction, RenderResolver, RenderState, Serializable } from "../common/interfaces.js";
+import { Connector } from "./connector.js";
+import { Log } from "../utils/logger.js";
 
 export class Node extends Hooks implements Events, Serializable, Renderable {
   //#region Properties

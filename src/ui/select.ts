@@ -1,14 +1,14 @@
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { Label } from "./label";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { Constant } from "../resource/constants";
-import { Serializable } from "../common/interfaces";
-import { Color } from "../core/color";
-import { FlowState } from "../core/flow";
-import { Align } from "../common/enums";
-import { get } from "../utils/utils";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { Label } from "./label.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { Constant } from "../resource/constants.js";
+import { Serializable } from "../common/interfaces.js";
+import { Color } from "../core/color.js";
+import { FlowState } from "../core/flow.js";
+import { Align } from "../common/enums.js";
+import { get } from "../utils/utils.js";
 
 export class Select extends UINode implements Serializable {
   label: Label;

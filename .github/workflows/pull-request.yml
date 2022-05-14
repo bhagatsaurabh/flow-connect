@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build
+        run: |
+          npm i
+          npm run build
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: flow-connect-dist
+          path: dist
+  Test:
+    needs: [Build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Test
+        run: |
+          npm i
+          npm test
+  Docs:
+    needs: [Test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: flow-connect-dist
+          path: dist
+
+      - name: Build VuePress site
+        env:
+          DOCS_CONTEXT: GitHub
+        run: |
+          npm i
+          npm run docs:build
+  Cleanup:
+    needs: [Docs]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete dist artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: flow-connect-dist

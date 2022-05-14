@@ -1,2 +1,2 @@
-export * from './line-chart-mini';
-export * from './function-plotter';
+export * from './line-chart-mini.js';
+export * from './function-plotter.js';

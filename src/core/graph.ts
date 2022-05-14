@@ -1,9 +1,9 @@
-import { Log } from "../utils/logger";
-import { getNewUUID } from "../utils/utils";
-import { Flow, FlowState } from "./flow";
-import { Serializable } from "../common/interfaces";
-import { Node } from "./node";
-import { List } from "../utils/linked-list";
+import { Log } from "../utils/logger.js";
+import { getNewUUID } from "../utils/utils.js";
+import { Flow, FlowState } from "./flow.js";
+import { Serializable } from "../common/interfaces.js";
+import { Node } from "./node.js";
+import { List } from "../utils/linked-list.js";
 
 // A directed acyclic graph
 export class Graph implements Serializable {
