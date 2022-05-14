@@ -6,7 +6,7 @@ import { Log } from './utils/logger.js';
 import { Terminal, TerminalRenderParams, TerminalType } from './core/terminal.js';
 import { FlowState, FlowOptions, SerializedFlow } from './core/flow.js';
 import { ViewPort } from './common/enums.js';
-import { generateAudioWorklets, WorkletUtils } from "./resource/audio-worklets.js";
+import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
 import { Container, ContainerRenderParams } from "./ui/container.js";
 
 declare global {
@@ -525,8 +525,9 @@ export class FlowConnect extends Hooks {
     // This one-time setup is not at all related to FlowConnect, couldn't find any place to do this
     // Might be a better idea to do this somewhere in StandardNodes.Audio package
 
-    let audioWorklets = generateAudioWorklets(WorkletUtils.CircularBuffer);
-    await this.audioContext.audioWorklet.addModule(WorkletUtils.CircularBuffer);
+    let workletUtils = generateWorkletUtils();
+    let audioWorklets = generateAudioWorklets(workletUtils.CircularBuffer);
+    await this.audioContext.audioWorklet.addModule(workletUtils.CircularBuffer);
     return Promise.all(Object.keys(audioWorklets).map(key => this.audioContext.audioWorklet.addModule(audioWorklets[key])));
   }
 
