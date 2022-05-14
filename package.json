@@ -8,6 +8,32 @@
     "type": "git",
     "url": "https://github.com/saurabh-prosoft/flow-connect.git"
   },
+  "exports": {
+    "./*": {
+      "import": "./dist/esm/*",
+      "require": "./dist/cjs/*"
+    },
+    "./flow-connect": {
+      "import": "./dist/esm/flow-connect.js",
+      "require": "./dist/cjs/flow-connect.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "common": [
+        "dist/cjs/common/index.d.ts"
+      ],
+      "core": [
+        "dist/cjs/core/index.d.ts"
+      ],
+      "ui": [
+        "dist/cjs/ui/index.d.ts"
+      ],
+      "utils": [
+        "dist/cjs/utils/index.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "test": "jest",
     "clean": "npx shx rm -rf dist",
