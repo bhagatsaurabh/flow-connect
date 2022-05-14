@@ -1,6 +1,6 @@
 const markdownItAttrs = require('markdown-it-attrs');
 const { path } = require('@vuepress/utils')
-const { defaultTheme } = require('vuepress');
+const { defaultTheme, viteBundler } = require('vuepress');
 const { searchPlugin } = require('@vuepress/plugin-search');
 const { mediumZoomPlugin } = require('@vuepress/plugin-medium-zoom');
 const { registerComponentsPlugin } = require('@vuepress/plugin-register-components');
@@ -12,6 +12,7 @@ if (process.env.DOCS_CONTEXT === 'GitHub') {
 console.log('Base URL:', base);
 
 module.exports = {
+  bundler: viteBundler(),
   // site config
   lang: 'en-US',
   title: 'Flow Connect',
@@ -20,9 +21,9 @@ module.exports = {
     ['base', { href: base }],
     ['link', { rel: 'icon', href: 'images/logo.png' }],
     ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.9/dist/flow-connect.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.9/dist/flow-connect.js.map', type: 'application/json' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.9/dist/standard-nodes.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.9/dist/standard-nodes.js.map', type: 'application/json' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.8/dist/flow-connect.js.map', type: 'application/json' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.8/dist/standard-nodes.js' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.8/dist/standard-nodes.js.map', type: 'application/json' }],
     ['script', { src: 'example/custom-nodes.js' }]
   ],
   base,
@@ -49,7 +50,7 @@ module.exports = {
           }
         ]
       },
-      { text: 'v1.0.5', link: '/' }
+      { text: 'v1.0.9', link: '/' }
     ],
     sidebar: {
       '/guide/': [
