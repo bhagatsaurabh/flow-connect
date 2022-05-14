@@ -844,9 +844,3 @@ let DefaultRules: () => Rules = () => ({
   'audio-buffer': ['audio-buffer', 'any'],
   'any': ['any']
 });
-
-export * from './common/index';
-export * from './core/index';
-export { Constant } from './resource/constants';
-export * from './ui/index';
-export * from './utils/index';

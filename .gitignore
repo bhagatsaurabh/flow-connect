@@ -12,3 +12,4 @@ docs/typedocs/
 docs/.vuepress/dist/
 dist/
 bundles/
+*.tgz

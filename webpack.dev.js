@@ -6,7 +6,7 @@ const examples = fs.readdirSync("dev/scripts/examples/");
 
 module.exports = merge(common, {
   mode: "development",
-  devtool: "source-map",
+  devtool: "inline-source-map",
   devServer: {
     static: [
       { directory: path.join(__dirname, "dev") },
@@ -19,5 +19,6 @@ module.exports = merge(common, {
     },
     compress: true,
     port: 9000,
+    hot: true
   },
 });
