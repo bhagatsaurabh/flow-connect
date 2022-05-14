@@ -1,44 +1,47 @@
-export const WorkletUtils = {
-  CircularBuffer: URL.createObjectURL(new Blob([
-    `export default class CircularBuffer {
-      constructor(bufferLength, noOfChannels) {
-        this.noOfChannels = noOfChannels;
-        this.bufferLength = bufferLength;
-
-        this.read = this.write = this.frames = 0;
-        this.channels = [];
-        for (let i = 0; i < this.noOfChannels; ++i) this.channels[i] = new Float32Array(bufferLength);
-      }
-      pushBlock(buffer) {
-        let sourceLength = buffer[0].length;
-        for (let i = 0; i < sourceLength; ++i) {
-          let write = (this.write + i) % this.bufferLength;
-          for (let c = 0; c < this.noOfChannels; ++c) {
-            this.channels[c][write] = buffer[c][i];
-          }
+export const generateWorkletUtils = () => {
+  return {
+    CircularBuffer: URL.createObjectURL(new Blob([
+      `export default class CircularBuffer {
+        constructor(bufferLength, noOfChannels) {
+          this.noOfChannels = noOfChannels;
+          this.bufferLength = bufferLength;
+  
+          this.read = this.write = this.frames = 0;
+          this.channels = [];
+          for (let i = 0; i < this.noOfChannels; ++i) this.channels[i] = new Float32Array(bufferLength);
         }
-        this.write += sourceLength;
-        if (this.write >= this.bufferLength) this.write = 0;
-        this.frames += sourceLength;
-        if (this.frames > this.bufferLength) this.frames = this.bufferLength;
-      }
-      popBlock(buffer) {
-        if (this.frames === 0) return;
-        let destinationLength = buffer[0].length;
-        for (let i = 0; i < destinationLength; ++i) {
-          let read = (this.read + i) % this.bufferLength;
-          for (let c = 0; c < this.noOfChannels; ++c) {
-            buffer[c][i] = this.channels[c][read];
+        pushBlock(buffer) {
+          let sourceLength = buffer[0].length;
+          for (let i = 0; i < sourceLength; ++i) {
+            let write = (this.write + i) % this.bufferLength;
+            for (let c = 0; c < this.noOfChannels; ++c) {
+              this.channels[c][write] = buffer[c][i];
+            }
           }
+          this.write += sourceLength;
+          if (this.write >= this.bufferLength) this.write = 0;
+          this.frames += sourceLength;
+          if (this.frames > this.bufferLength) this.frames = this.bufferLength;
         }
-        this.read += destinationLength;
-        if (this.read >= this.bufferLength) this.read = 0;
-        this.frames -= destinationLength;
-        if (this.frames < 0) this.frames = 0;
-      }
-    }`
-  ], { type: 'application/javascript' })),
+        popBlock(buffer) {
+          if (this.frames === 0) return;
+          let destinationLength = buffer[0].length;
+          for (let i = 0; i < destinationLength; ++i) {
+            let read = (this.read + i) % this.bufferLength;
+            for (let c = 0; c < this.noOfChannels; ++c) {
+              buffer[c][i] = this.channels[c][read];
+            }
+          }
+          this.read += destinationLength;
+          if (this.read >= this.bufferLength) this.read = 0;
+          this.frames -= destinationLength;
+          if (this.frames < 0) this.frames = 0;
+        }
+      }`
+    ], { type: 'application/javascript' })),
+  }
 }
+
 export const generateAudioWorklets = (utilsFileName: string) => {
   let audioWorklets: Record<string, string> = {
     // Creates a AudioWorkletProcessor to setup custom AudioParams for AudioBufferSourceNode's automation (because of their fire-forget-destroy behaviour)
