@@ -1,13 +1,13 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Terminal, TerminalType } from "../../core/terminal";
-import { Evaluator } from "../../utils/evaluator";
-import { Log } from "../../utils/logger";
-import { Parser } from "../../utils/parser";
-import { Token, TokenType } from "../../utils/lexer";
-import { Node } from "../../core/node";
-import { InputType, Input, Button } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { Terminal, TerminalType } from "../../core/terminal.js";
+import { Evaluator } from "../../utils/evaluator.js";
+import { Log } from "../../utils/logger.js";
+import { Parser } from "../../utils/parser.js";
+import { Token, TokenType } from "../../utils/lexer.js";
+import { Node } from "../../core/node.js";
+import { InputType, Input, Button } from "../../ui/index.js";
 
 export class Func extends Node {
   addVarButton: Button

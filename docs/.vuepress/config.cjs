@@ -2,7 +2,7 @@ const markdownItAttrs = require('markdown-it-attrs');
 const { path } = require('@vuepress/utils')
 const { defaultTheme } = require('vuepress');
 const { searchPlugin } = require('@vuepress/plugin-search');
-const { mediumZoomPlugin  } = require('@vuepress/plugin-medium-zoom');
+const { mediumZoomPlugin } = require('@vuepress/plugin-medium-zoom');
 const { registerComponentsPlugin } = require('@vuepress/plugin-register-components');
 
 let base = '/';
@@ -278,79 +278,91 @@ module.exports = {
         }
       ],
       '/reference/standard-nodes/': [
-        { text: 'Common', collapsible: true, children: [
-          { text: 'ArrayIndex', link: '/reference/standard-nodes/common/array-index'},
-          { text: 'ArraySource', link: '/reference/standard-nodes/common/array-source'},
-          { text: 'BooleanSource', link: '/reference/standard-nodes/common/boolean-source'},
-          { text: 'Buffer', link: '/reference/standard-nodes/common/buffer'},
-          { text: 'Compare', link: '/reference/standard-nodes/common/compare'},
-          { text: 'Delay', link: '/reference/standard-nodes/common/delay'},
-          { text: 'FileSource', link: '/reference/standard-nodes/common/file-source'},
-          { text: 'GlobalEvent', link: '/reference/standard-nodes/common/global-event'},
-          { text: 'JSONSource', link: '/reference/standard-nodes/common/json-source'},
-          { text: 'Log', link: '/reference/standard-nodes/common/log'},
-          { text: 'NumberRange', link: '/reference/standard-nodes/common/number-range'},
-          { text: 'NumberSource', link: '/reference/standard-nodes/common/number-source'},
-          { text: 'Property', link: '/reference/standard-nodes/common/property'},
-          { text: 'Random', link: '/reference/standard-nodes/common/random'},
-          { text: 'StringSource', link: '/reference/standard-nodes/common/string-source'},
-          { text: 'SyncData', link: '/reference/standard-nodes/common/sync-data'},
-          { text: 'SyncEvent', link: '/reference/standard-nodes/common/sync-event'},
-          { text: 'Timer', link: '/reference/standard-nodes/common/timer'},
-          { text: 'ToArray', link: '/reference/standard-nodes/common/to-array'},
-          { text: 'ToVector', link: '/reference/standard-nodes/common/to-vector'},
-        ]},
-        { text: 'Math', collapsible: true, children: [
-          { text: 'Abs', link: '/reference/standard-nodes/math/abs' },
-          { text: 'Average', link: '/reference/standard-nodes/math/average' },
-          { text: 'Ceil', link: '/reference/standard-nodes/math/ceil' },
-          { text: 'Clamp', link: '/reference/standard-nodes/math/clamp' },
-          { text: 'Floor', link: '/reference/standard-nodes/math/floor' },
-          { text: 'Func', link: '/reference/standard-nodes/math/func' },
-          { text: 'Normalize', link: '/reference/standard-nodes/math/normalize' }
-        ]},
-        { text: 'Net', collapsible: true, children: [
-          { text: "API", link: "/reference/standard-nodes/net/api" }
-        ]},
-        { text: 'UI', collapsible: true, children: [
-          { text: "Dial", link: "/reference/standard-nodes/ui/dial" }
-        ]},
-        { text: 'Audio', collapsible: true, children: [
-          { text: 'ADSR', link: '/reference/standard-nodes/audio/adsr' },
-          { text: 'AudioBufferSource', link: '/reference/standard-nodes/audio/audio-buffer-source' },
-          { text: 'Automate', link: '/reference/standard-nodes/audio/automate' },
-          { text: 'BiquadFilter', link: '/reference/standard-nodes/audio/biquad-filter' },
-          { text: 'Bitcrusher', link: '/reference/standard-nodes/audio/bitcrusher' },
-          { text: 'ChannelMerger', link: '/reference/standard-nodes/audio/channel-merger' },
-          { text: 'ChannelSplitter', link: '/reference/standard-nodes/audio/channel-splitter' },
-          { text: 'Chorus', link: '/reference/standard-nodes/audio/chorus' },
-          { text: 'Convolver', link: '/reference/standard-nodes/audio/convolver' },
-          { text: 'Debug', link: '/reference/standard-nodes/audio/debug' },
-          { text: 'Delay', link: '/reference/standard-nodes/audio/delay' },
-          { text: 'Destination', link: '/reference/standard-nodes/audio/destination' },
-          { text: 'Distorter', link: '/reference/standard-nodes/audio/distorter' },
-          { text: 'DynamicsCompressor', link: '/reference/standard-nodes/audio/dynamics-compressor' },
-          { text: 'Equalizer', link: '/reference/standard-nodes/audio/equalizer' },
-          { text: 'FrequencyAnalyser', link: '/reference/standard-nodes/audio/frequency-analyser' },
-          { text: 'Gain', link: '/reference/standard-nodes/audio/gain' },
-          { text: 'Metronome', link: '/reference/standard-nodes/audio/metronome' },
-          { text: 'Microphone', link: '/reference/standard-nodes/audio/microphone' },
-          { text: 'Moog', link: '/reference/standard-nodes/audio/moog' },
-          { text: 'Noise', link: '/reference/standard-nodes/audio/noise' },
-          { text: 'Oscillator', link: '/reference/standard-nodes/audio/oscillator' },
-          { text: 'Overdrive', link: '/reference/standard-nodes/audio/overdrive' },
-          { text: 'PingPongDelay', link: '/reference/standard-nodes/audio/ping-pong-delay' },
-          { text: 'Source', link: '/reference/standard-nodes/audio/source' },
-          { text: 'SpatialPanner', link: '/reference/standard-nodes/audio/spatial-panner' },
-          { text: 'SpectrogramAnalyser', link: '/reference/standard-nodes/audio/spectrogram-analyser' },
-          { text: 'StereoPanner', link: '/reference/standard-nodes/audio/stereo-panner' },
-          { text: 'Tremolo', link: '/reference/standard-nodes/audio/tremolo' },
-          { text: 'WaveformAnalyser', link: '/reference/standard-nodes/audio/waveform-analyser' }
-        ]},
-        { text: 'Visual', collapsible: true, children: [
-          { text: "FunctionPlotter", link: "/reference/standard-nodes/visual/function-plotter" },
-          { text: "LineChartMini", link: "/reference/standard-nodes/visual/line-chart-mini" }
-        ]}
+        {
+          text: 'Common', collapsible: true, children: [
+            { text: 'ArrayIndex', link: '/reference/standard-nodes/common/array-index' },
+            { text: 'ArraySource', link: '/reference/standard-nodes/common/array-source' },
+            { text: 'BooleanSource', link: '/reference/standard-nodes/common/boolean-source' },
+            { text: 'Buffer', link: '/reference/standard-nodes/common/buffer' },
+            { text: 'Compare', link: '/reference/standard-nodes/common/compare' },
+            { text: 'Delay', link: '/reference/standard-nodes/common/delay' },
+            { text: 'FileSource', link: '/reference/standard-nodes/common/file-source' },
+            { text: 'GlobalEvent', link: '/reference/standard-nodes/common/global-event' },
+            { text: 'JSONSource', link: '/reference/standard-nodes/common/json-source' },
+            { text: 'Log', link: '/reference/standard-nodes/common/log' },
+            { text: 'NumberRange', link: '/reference/standard-nodes/common/number-range' },
+            { text: 'NumberSource', link: '/reference/standard-nodes/common/number-source' },
+            { text: 'Property', link: '/reference/standard-nodes/common/property' },
+            { text: 'Random', link: '/reference/standard-nodes/common/random' },
+            { text: 'StringSource', link: '/reference/standard-nodes/common/string-source' },
+            { text: 'SyncData', link: '/reference/standard-nodes/common/sync-data' },
+            { text: 'SyncEvent', link: '/reference/standard-nodes/common/sync-event' },
+            { text: 'Timer', link: '/reference/standard-nodes/common/timer' },
+            { text: 'ToArray', link: '/reference/standard-nodes/common/to-array' },
+            { text: 'ToVector', link: '/reference/standard-nodes/common/to-vector' },
+          ]
+        },
+        {
+          text: 'Math', collapsible: true, children: [
+            { text: 'Abs', link: '/reference/standard-nodes/math/abs' },
+            { text: 'Average', link: '/reference/standard-nodes/math/average' },
+            { text: 'Ceil', link: '/reference/standard-nodes/math/ceil' },
+            { text: 'Clamp', link: '/reference/standard-nodes/math/clamp' },
+            { text: 'Floor', link: '/reference/standard-nodes/math/floor' },
+            { text: 'Func', link: '/reference/standard-nodes/math/func' },
+            { text: 'Normalize', link: '/reference/standard-nodes/math/normalize' }
+          ]
+        },
+        {
+          text: 'Net', collapsible: true, children: [
+            { text: "API", link: "/reference/standard-nodes/net/api" }
+          ]
+        },
+        {
+          text: 'UI', collapsible: true, children: [
+            { text: "Dial", link: "/reference/standard-nodes/ui/dial" }
+          ]
+        },
+        {
+          text: 'Audio', collapsible: true, children: [
+            { text: 'ADSR', link: '/reference/standard-nodes/audio/adsr' },
+            { text: 'AudioBufferSource', link: '/reference/standard-nodes/audio/audio-buffer-source' },
+            { text: 'Automate', link: '/reference/standard-nodes/audio/automate' },
+            { text: 'BiquadFilter', link: '/reference/standard-nodes/audio/biquad-filter' },
+            { text: 'Bitcrusher', link: '/reference/standard-nodes/audio/bitcrusher' },
+            { text: 'ChannelMerger', link: '/reference/standard-nodes/audio/channel-merger' },
+            { text: 'ChannelSplitter', link: '/reference/standard-nodes/audio/channel-splitter' },
+            { text: 'Chorus', link: '/reference/standard-nodes/audio/chorus' },
+            { text: 'Convolver', link: '/reference/standard-nodes/audio/convolver' },
+            { text: 'Debug', link: '/reference/standard-nodes/audio/debug' },
+            { text: 'Delay', link: '/reference/standard-nodes/audio/delay' },
+            { text: 'Destination', link: '/reference/standard-nodes/audio/destination' },
+            { text: 'Distorter', link: '/reference/standard-nodes/audio/distorter' },
+            { text: 'DynamicsCompressor', link: '/reference/standard-nodes/audio/dynamics-compressor' },
+            { text: 'Equalizer', link: '/reference/standard-nodes/audio/equalizer' },
+            { text: 'FrequencyAnalyser', link: '/reference/standard-nodes/audio/frequency-analyser' },
+            { text: 'Gain', link: '/reference/standard-nodes/audio/gain' },
+            { text: 'Metronome', link: '/reference/standard-nodes/audio/metronome' },
+            { text: 'Microphone', link: '/reference/standard-nodes/audio/microphone' },
+            { text: 'Moog', link: '/reference/standard-nodes/audio/moog' },
+            { text: 'Noise', link: '/reference/standard-nodes/audio/noise' },
+            { text: 'Oscillator', link: '/reference/standard-nodes/audio/oscillator' },
+            { text: 'Overdrive', link: '/reference/standard-nodes/audio/overdrive' },
+            { text: 'PingPongDelay', link: '/reference/standard-nodes/audio/ping-pong-delay' },
+            { text: 'Source', link: '/reference/standard-nodes/audio/source' },
+            { text: 'SpatialPanner', link: '/reference/standard-nodes/audio/spatial-panner' },
+            { text: 'SpectrogramAnalyser', link: '/reference/standard-nodes/audio/spectrogram-analyser' },
+            { text: 'StereoPanner', link: '/reference/standard-nodes/audio/stereo-panner' },
+            { text: 'Tremolo', link: '/reference/standard-nodes/audio/tremolo' },
+            { text: 'WaveformAnalyser', link: '/reference/standard-nodes/audio/waveform-analyser' }
+          ]
+        },
+        {
+          text: 'Visual', collapsible: true, children: [
+            { text: "FunctionPlotter", link: "/reference/standard-nodes/visual/function-plotter" },
+            { text: "LineChartMini", link: "/reference/standard-nodes/visual/line-chart-mini" }
+          ]
+        }
       ]
     },
     repo: 'saurabh-prosoft/flow-connect',

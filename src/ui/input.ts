@@ -1,13 +1,13 @@
-import { Vector } from "../core/vector";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { Node } from '../core/node';
-import { Label } from './label';
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
-import { Serializable } from "../common/interfaces";
-import { Color } from "../core/color";
-import { FlowState } from "../core/flow";
-import { Align } from "../common/enums";
-import { exists, get } from "../utils/utils";
+import { Vector } from "../core/vector.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { Node } from '../core/node.js';
+import { Label } from './label.js';
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { Serializable } from "../common/interfaces.js";
+import { Color } from "../core/color.js";
+import { FlowState } from "../core/flow.js";
+import { Align } from "../common/enums.js";
+import { exists, get } from "../utils/utils.js";
 
 export class Input extends UINode implements Serializable {
   label: Label;

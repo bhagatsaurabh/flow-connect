@@ -1,12 +1,12 @@
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { clamp, denormalize, exists, get, normalize } from "../utils/utils";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { Serializable } from "../common/interfaces";
-import { Color } from "../core/color";
-import { FlowState } from "../core/flow";
-import { Constant } from "../resource/constants";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { clamp, denormalize, exists, get, normalize } from "../utils/utils.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { Serializable } from "../common/interfaces.js";
+import { Color } from "../core/color.js";
+import { FlowState } from "../core/flow.js";
+import { Constant } from "../resource/constants.js";
 
 export class Slider extends UINode implements Serializable {
   private thumbFill: number;

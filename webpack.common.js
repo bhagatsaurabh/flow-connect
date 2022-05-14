@@ -1,5 +1,6 @@
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import ResolveTypeScriptPlugin from "resolve-typescript-plugin";
 
 export default {
   entry: {
@@ -16,7 +17,8 @@ export default {
     umdNamedDefine: true
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: ['.js'],
+    plugins: [new ResolveTypeScriptPlugin()]
   },
   module: {
     rules: [{

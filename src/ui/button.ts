@@ -1,12 +1,12 @@
-import { Node } from "../core/node";
-import { Terminal, TerminalType, SerializedTerminal } from '../core/terminal';
-import { Vector } from "../core/vector";
-import { Label } from "./label";
-import { SerializedUINode, UINode, UIType, UINodeStyle } from './ui-node';
-import { Serializable } from "../common/interfaces";
-import { Color } from "../core/color";
-import { Align } from "../common/enums";
-import { get } from "../utils/utils";
+import { Node } from "../core/node.js";
+import { Terminal, TerminalType, SerializedTerminal } from '../core/terminal.js';
+import { Vector } from "../core/vector.js";
+import { Label } from "./label.js";
+import { SerializedUINode, UINode, UIType, UINodeStyle } from './ui-node.js';
+import { Serializable } from "../common/interfaces.js";
+import { Color } from "../core/color.js";
+import { Align } from "../common/enums.js";
+import { get } from "../utils/utils.js";
 
 export class Button extends UINode implements Serializable {
   label: Label;

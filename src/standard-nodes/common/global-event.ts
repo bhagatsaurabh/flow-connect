@@ -1,10 +1,10 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { GlobalEventType } from "../../common/enums";
-import { Node } from "../../core/node";
-import { get, getNewUUID } from "../../utils/utils";
-import { InputType, Input } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { GlobalEventType } from "../../common/enums.js";
+import { Node } from "../../core/node.js";
+import { get, getNewUUID } from "../../utils/utils.js";
+import { InputType, Input } from "../../ui/index.js";
 
 export class GlobalEvent extends Node {
   eventInput: Input;

@@ -1,11 +1,11 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp, denormalize, normalize } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { Align } from "../../common/enums";
-import { Color } from "../../core/color";
-import { Slider, CanvasType, Display, Label, Select } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { clamp, denormalize, normalize } from "../../utils/utils.js";
+import { Node } from '../../core/node.js';
+import { Align } from "../../common/enums.js";
+import { Color } from "../../core/color.js";
+import { Slider, CanvasType, Display, Label, Select } from "../../ui/index.js";
 
 export class SpectrogramAnalyser extends Node {
   colorScaleSelect: Select;

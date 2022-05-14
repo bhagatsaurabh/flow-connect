@@ -1,9 +1,9 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { List, ListNode } from "../../utils/linked-list";
-import { Node } from "../../core/node";
-import { InputType } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { List, ListNode } from "../../utils/linked-list.js";
+import { Node } from "../../core/node.js";
+import { InputType } from "../../ui/index.js";
 
 interface BufferedEvent {
   data: any;

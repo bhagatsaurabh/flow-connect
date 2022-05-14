@@ -1,6 +1,9 @@
-module.exports = {
+export default {
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest"
+    "^.+\\.(t|j)sx?$": "ts-jest"
   },
-  testEnvironment: 'jsdom'
+  testEnvironment: 'jsdom',
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  }
 }

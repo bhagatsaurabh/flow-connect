@@ -1,4 +1,4 @@
-import { Hooks } from "../core/hooks";
+import { Hooks } from "../core/hooks.js";
 
 export class List<T> extends Hooks {
   head: ListNode<T> = null;

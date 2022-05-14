@@ -1,9 +1,9 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Log } from "../../utils/logger";
-import { Node } from "../../core/node";
-import { InputType, Input } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { Log } from "../../utils/logger.js";
+import { Node } from "../../core/node.js";
+import { InputType, Input } from "../../ui/index.js";
 
 export class JsonSource extends Node {
   input: Input;

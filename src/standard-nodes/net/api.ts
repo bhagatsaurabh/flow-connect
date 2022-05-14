@@ -1,10 +1,10 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Align } from "../../common/enums";
-import { Log } from "../../utils/logger";
-import { isEmpty } from "../../utils/utils";
-import { Node } from "../../core/node";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { Align } from "../../common/enums.js";
+import { Log } from "../../utils/logger.js";
+import { isEmpty } from "../../utils/utils.js";
+import { Node } from "../../core/node.js";
 
 export class API extends Node {
 

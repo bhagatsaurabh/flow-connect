@@ -1,11 +1,11 @@
-import { SerializedVector, Vector } from "./vector";
-import { get, getNewUUID, intersects } from "../utils/utils";
-import { Color, SerializedColor } from "./color";
-import { Flow } from './flow';
-import { Hooks } from './hooks';
-import { Node } from './node';
-import { Renderable, RenderResolver, Serializable } from "../common/interfaces";
-import { ViewPort } from "../common/enums";
+import { SerializedVector, Vector } from "./vector.js";
+import { get, getNewUUID, intersects } from "../utils/utils.js";
+import { Color, SerializedColor } from "./color.js";
+import { Flow } from './flow.js';
+import { Hooks } from './hooks.js';
+import { Node } from './node.js';
+import { Renderable, RenderResolver, Serializable } from "../common/interfaces.js";
+import { ViewPort } from "../common/enums.js";
 
 export class Group extends Hooks implements Serializable, Renderable {
   renderResolver: RenderResolver<Group, GroupRenderParams> = () => null;

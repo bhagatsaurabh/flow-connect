@@ -1,9 +1,9 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Color } from "../../core/color";
-import { Node } from "../../core/node";
-import { InputType, DisplayStyle } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { Color } from "../../core/color.js";
+import { Node } from "../../core/node.js";
+import { InputType, DisplayStyle } from "../../ui/index.js";
 
 export class LineChartMini extends Node {
 

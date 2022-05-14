@@ -1,10 +1,10 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp, isInRange } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { Align } from "../../common/enums";
-import { Toggle, VSlider, Stack } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { clamp, isInRange } from "../../utils/utils.js";
+import { Node } from '../../core/node.js';
+import { Align } from "../../common/enums.js";
+import { Toggle, VSlider, Stack } from "../../ui/index.js";
 
 export class Equalizer extends Node {
   vSliders: VSlider[] = [];

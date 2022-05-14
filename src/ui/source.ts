@@ -1,15 +1,15 @@
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { fileIcon } from "../resource/icons";
-import { Image } from "./image";
-import { Label } from "./label";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { Serializable } from "../common/interfaces";
-import { Color } from "../core/color";
-import { FlowState } from "../core/flow";
-import { Align } from "../common/enums";
-import { get } from "../utils/utils";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { fileIcon } from "../resource/icons.js";
+import { Image } from "./image.js";
+import { Label } from "./label.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { Serializable } from "../common/interfaces.js";
+import { Color } from "../core/color.js";
+import { FlowState } from "../core/flow.js";
+import { Align } from "../common/enums.js";
+import { get } from "../utils/utils.js";
 
 export class Source extends UINode implements Serializable {
   private htmlInput: HTMLInputElement;

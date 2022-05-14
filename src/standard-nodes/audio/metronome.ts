@@ -1,11 +1,11 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp } from "../../utils/utils";
-import { Node } from "../../core/node";
-import { FlowConnectState } from "../../flow-connect";
-import { Constant } from "../../resource/constants";
-import { InputType, Input, Toggle } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { clamp } from "../../utils/utils.js";
+import { Node } from "../../core/node.js";
+import { FlowConnectState } from "../../flow-connect.js";
+import { Constant } from "../../resource/constants.js";
+import { InputType, Input, Toggle } from "../../ui/index.js";
 
 export class Metronome extends Node {
   autoToggle: Toggle;

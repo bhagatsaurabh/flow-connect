@@ -1,9 +1,9 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp, denormalize } from "../../utils/utils";
-import { Node } from "../../core/node";
-import { InputType, Input, Envelope } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { clamp, denormalize } from "../../utils/utils.js";
+import { Node } from "../../core/node.js";
+import { InputType, Input, Envelope } from "../../ui/index.js";
 
 export class ADSR extends Node {
   envelopeInput: Envelope;

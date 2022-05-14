@@ -1,10 +1,10 @@
-import { Vector } from './vector';
-import { Color } from './color';
-import { Flow, FlowState } from './flow';
-import { Node, NodeButton, NodeStyle, SerializedNode, NodeButtonRenderParams } from './node';
-import { Terminal, TerminalType, TerminalStyle } from './terminal';
-import { TunnelNode } from './tunnel-node';
-import { Align } from '../common/enums';
+import { Vector } from './vector.js';
+import { Color } from './color.js';
+import { Flow, FlowState } from './flow.js';
+import { Node, NodeButton, NodeStyle, SerializedNode, NodeButtonRenderParams } from './node.js';
+import { Terminal, TerminalType, TerminalStyle } from './terminal.js';
+import { TunnelNode } from './tunnel-node.js';
+import { Align } from '../common/enums.js';
 
 export class SubFlowNode extends Node {
   subFlow: Flow;

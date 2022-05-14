@@ -1,11 +1,11 @@
-import { Color } from "../core/color";
-import { Serializable } from "../common/interfaces";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { Button, Container, Display, Image, Input, Label, Select, Slider, Source, Stack, Toggle, } from "./index";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { clamp } from "../utils/utils";
-import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal";
+import { Color } from "../core/color.js";
+import { Serializable } from "../common/interfaces.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { Button, Container, Display, Image, Input, Label, Select, Slider, Source, Stack, Toggle, } from "./index.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { clamp } from "../utils/utils.js";
+import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal.js";
 
 export class HorizontalLayout extends UINode implements Serializable {
 

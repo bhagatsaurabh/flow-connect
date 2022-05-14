@@ -1,9 +1,9 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { InputType, Input, Slider, Toggle } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { clamp } from "../../utils/utils.js";
+import { Node } from '../../core/node.js';
+import { InputType, Input, Slider, Toggle } from "../../ui/index.js";
 
 export class StereoPanner extends Node {
   panSlider: Slider;

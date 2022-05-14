@@ -1,9 +1,9 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { normalize } from "../../utils/utils";
-import { Node } from "../../core/node";
-import { InputType } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { normalize } from "../../utils/utils.js";
+import { Node } from "../../core/node.js";
+import { InputType } from "../../ui/index.js";
 
 export class Normalize extends Node {
   min = Number.MAX_SAFE_INTEGER;

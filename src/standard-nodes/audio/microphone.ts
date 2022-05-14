@@ -1,8 +1,8 @@
-import { Flow, FlowState } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from '../../core/node';
-import { Log } from "../../utils/logger";
+import { Flow, FlowState } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { Node } from '../../core/node.js';
+import { Log } from "../../utils/logger.js";
 
 export class Microphone extends Node {
   microphone: MediaStreamAudioSourceNode;

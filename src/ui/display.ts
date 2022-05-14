@@ -1,9 +1,9 @@
-import { Color } from "../core/color";
-import { Serializable } from "../common/interfaces";
-import { Node } from "../core/node";
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal";
-import { Vector } from "../core/vector";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
+import { Color } from "../core/color.js";
+import { Serializable } from "../common/interfaces.js";
+import { Node } from "../core/node.js";
+import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { Vector } from "../core/vector.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
 
 export class Display extends UINode implements Serializable {
   displayConfigs: CustomOffCanvasConfig[] = [];

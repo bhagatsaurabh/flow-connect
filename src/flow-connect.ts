@@ -1,13 +1,13 @@
-import { Connector, Flow, Group, Node, Color, Hooks, ConnectorRenderParams, NodeRenderParams, GroupRenderParams, NodeButton, NodeButtonRenderParams } from "./core/index";
-import { Vector } from "./core/vector";
-import { Dimension, Pointer, RenderResolver, Rules } from "./common/interfaces";
-import { intersects, noop } from "./utils/utils";
-import { Log } from './utils/logger';
-import { Terminal, TerminalRenderParams, TerminalType } from './core/terminal';
-import { FlowState, FlowOptions, SerializedFlow } from './core/flow';
-import { ViewPort } from './common/enums';
-import { generateAudioWorklets, WorkletUtils } from "./resource/audio-worklets";
-import { Container, ContainerRenderParams } from "./ui/container";
+import { Connector, Flow, Group, Node, Color, Hooks, ConnectorRenderParams, NodeRenderParams, GroupRenderParams, NodeButton, NodeButtonRenderParams } from "./core/index.js";
+import { Vector } from "./core/vector.js";
+import { Dimension, Pointer, RenderResolver, Rules } from "./common/interfaces.js";
+import { intersects, noop } from "./utils/utils.js";
+import { Log } from './utils/logger.js';
+import { Terminal, TerminalRenderParams, TerminalType } from './core/terminal.js';
+import { FlowState, FlowOptions, SerializedFlow } from './core/flow.js';
+import { ViewPort } from './common/enums.js';
+import { generateAudioWorklets, WorkletUtils } from "./resource/audio-worklets.js";
+import { Container, ContainerRenderParams } from "./ui/container.js";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -845,7 +845,7 @@ let DefaultRules: () => Rules = () => ({
   'any': ['any']
 });
 
-export * from './common';
-export * from './core';
-export * from './utils';
-export * from './ui';
+export * from './common/index.js';
+export * from './core/index.js';
+export * from './utils/index.js';
+export * from './ui/index.js';

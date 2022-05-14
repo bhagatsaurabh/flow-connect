@@ -1,14 +1,14 @@
-import { Color } from "../core/color";
-import { Serializable } from "../common/interfaces";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { imageIcon } from "../resource/icons";
-import { Log } from "../utils/logger";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
-import { Align } from "../common/enums";
-import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal";
-import { FlowState } from '../core/flow';
-import { get } from "../utils/utils";
+import { Color } from "../core/color.js";
+import { Serializable } from "../common/interfaces.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { imageIcon } from "../resource/icons.js";
+import { Log } from "../utils/logger.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { Align } from "../common/enums.js";
+import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal.js";
+import { FlowState } from '../core/flow.js';
+import { get } from "../utils/utils.js";
 
 export class Image extends UINode implements Serializable {
   private imageCanvas: OffscreenCanvas | HTMLCanvasElement;

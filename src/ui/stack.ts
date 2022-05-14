@@ -1,9 +1,9 @@
-import { Color } from "../core/color";
-import { Serializable } from "../common/interfaces";
-import { Node } from "../core/node";
-import { Vector } from "../core/vector";
-import { Button, Container, Display, Image, Input, Label, Select, Slider, Source, Toggle } from "./index";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node";
+import { Color } from "../core/color.js";
+import { Serializable } from "../common/interfaces.js";
+import { Node } from "../core/node.js";
+import { Vector } from "../core/vector.js";
+import { Button, Container, Display, Image, Input, Label, Select, Slider, Source, Toggle } from "./index.js";
+import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
 
 export class Stack extends UINode implements Serializable {
 

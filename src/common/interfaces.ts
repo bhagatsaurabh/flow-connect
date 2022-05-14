@@ -1,7 +1,7 @@
-import { Vector } from "../core/vector";
-import { LOD, ViewPort } from './enums';
-import { NodeState, NodeStyle } from "../core/node";
-import { TerminalStyle } from "../core/terminal";
+import { Vector } from "../core/vector.js";
+import { LOD, ViewPort } from './enums.js';
+import { NodeState, NodeStyle } from "../core/node.js";
+import { TerminalStyle } from "../core/terminal.js";
 
 /**
  *  To track canvas position and dimension when scrolling or resizing

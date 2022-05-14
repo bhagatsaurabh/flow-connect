@@ -1,11 +1,11 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { FlowConnectState } from "../../flow-connect";
-import { Log } from "../../utils/logger";
-import { Node } from '../../core/node';
-import * as sourceui from '../../ui/source';
-import { Toggle } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { FlowConnectState } from "../../flow-connect.js";
+import { Log } from "../../utils/logger.js";
+import { Node } from '../../core/node.js';
+import * as sourceui from '../../ui/source.js';
+import { Toggle } from "../../ui/index.js";
 
 export class Source extends Node {
   fileInput: sourceui.Source;

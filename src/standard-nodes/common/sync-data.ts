@@ -1,9 +1,9 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Terminal, TerminalType } from "../../core/terminal";
-import { Node } from "../../core/node";
-import { RadioGroup, Button } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { Terminal, TerminalType } from "../../core/terminal.js";
+import { Node } from "../../core/node.js";
+import { RadioGroup, Button } from "../../ui/index.js";
 
 export class SyncData extends Node {
   syncTypeInput: RadioGroup;

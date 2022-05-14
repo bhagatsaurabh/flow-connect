@@ -1,8 +1,8 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from '../../core/node';
-import { Select } from "../../ui/index";
+import { Flow } from "../../core/flow.js";
+import { Vector } from "../../core/vector.js";
+import { NodeCreatorOptions } from "../../common/interfaces.js";
+import { Node } from '../../core/node.js';
+import { Select } from "../../ui/index.js";
 
 export class Noise extends Node {
   noiseSelect: Select
