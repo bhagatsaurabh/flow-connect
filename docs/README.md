@@ -25,7 +25,7 @@ npm install --save flow-connect
   <CodeGroupItem title="CDN">
 
 ```js:no-line-numbers
-<script src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.9/dist/flow-connect.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.10/dist/flow-connect.js"></script>
 ```
 
   </CodeGroupItem>
