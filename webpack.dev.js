@@ -1,16 +1,17 @@
-const path = require("path");
-const { merge } = require("webpack-merge");
-const common = require("./webpack.common.js");
-const fs = require("fs");
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import { merge } from "webpack-merge";
+import common from './webpack.common.js';
+import * as fs from 'fs';
 const examples = fs.readdirSync("dev/scripts/examples/");
 
-module.exports = merge(common, {
+export default merge(common, {
   mode: "development",
   devtool: "inline-source-map",
   devServer: {
     static: [
-      { directory: path.join(__dirname, "dev") },
-      { directory: path.join(__dirname, "dist") },
+      { directory: path.join(dirname(fileURLToPath(import.meta.url)), "dev") },
+      { directory: path.join(dirname(fileURLToPath(import.meta.url)), "dist") },
     ],
     onBeforeSetupMiddleware: (devServer) => {
       devServer.app.get("/examples", function (_req, res) {

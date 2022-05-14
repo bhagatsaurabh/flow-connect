@@ -1,6 +1,7 @@
-const path = require('path');
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-module.exports = {
+export default {
   entry: {
     'flow-connect': './src/flow-connect.ts',
     'standard-nodes': {
@@ -9,7 +10,7 @@ module.exports = {
     }
   },
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(dirname(fileURLToPath(import.meta.url)), 'dist'),
     filename: '[name].js',
     libraryTarget: 'umd',
     umdNamedDefine: true

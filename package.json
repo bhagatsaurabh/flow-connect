@@ -2,6 +2,7 @@
   "name": "flow-connect",
   "version": "1.0.8",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
+  "type": "module",
   "main": "dist/cjs/flow-connect.js",
   "types": "dist/types/flow-connect.d.ts",
   "repository": {
@@ -43,6 +44,22 @@
     ".": {
       "import": "./dist/esm/flow-connect.js",
       "require": "./dist/cjs/flow-connect.js"
+    },
+    "./common": {
+      "import": "./dist/esm/common/index.js",
+      "require": "./dist/cjs/common/index.js"
+    },
+    "./core": {
+      "import": "./dist/esm/core/index.js",
+      "require": "./dist/cjs/core/index.js"
+    },
+    "./ui": {
+      "import": "./dist/esm/ui/index.js",
+      "require": "./dist/cjs/ui/index.js"
+    },
+    "./utils": {
+      "import": "./dist/esm/utils/index.js",
+      "require": "./dist/cjs/utils/index.js"
     }
   },
   "typesVersions": {

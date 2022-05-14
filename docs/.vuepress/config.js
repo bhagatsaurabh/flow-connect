@@ -3,7 +3,7 @@ const { path } = require('@vuepress/utils')
 const { defaultTheme } = require('vuepress');
 const { searchPlugin } = require('@vuepress/plugin-search');
 const { mediumZoomPlugin  } = require('@vuepress/plugin-medium-zoom');
-const {registerComponentsPlugin } = require('@vuepress/plugin-register-components');
+const { registerComponentsPlugin } = require('@vuepress/plugin-register-components');
 
 let base = '/';
 if (process.env.DOCS_CONTEXT === 'GitHub') {
