@@ -19,10 +19,10 @@ module.exports = {
   head: [
     ['base', { href: base }],
     ['link', { rel: 'icon', href: 'images/logo.png' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.6/dist/flow-connect.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.6/dist/flow-connect.js.map', type: 'application/json' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.6/dist/standard-nodes.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.6/dist/standard-nodes.js.map', type: 'application/json' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.7/dist/flow-connect.js' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.7/dist/flow-connect.js.map', type: 'application/json' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.7/dist/standard-nodes.js' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.7/dist/standard-nodes.js.map', type: 'application/json' }],
     ['script', { src: 'example/custom-nodes.js' }]
   ],
   base,

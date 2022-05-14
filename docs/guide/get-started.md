@@ -12,7 +12,7 @@ npm i flow-connect
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.6/dist/flow-connect.js"
+  src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.7/dist/flow-connect.js"
 ></script>
 ```
 
