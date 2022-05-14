@@ -96,7 +96,7 @@ flow.nodes.forEach((node) => {
         params.position.y + nodeStyle.nodeButtonSize / 2,
         nodeStyle.nodeButtonSize / 2,
         0,
-        Constant.TAU
+        2 * Math.PI
       );
       context.stroke();
       context.fill();
