@@ -15,7 +15,6 @@
     "allowJs": true
   },
   "include": [
-    "src/**/*.ts",
-    "src/lib/tuna.js"
+    "src/**/*.ts"
   ]
 }

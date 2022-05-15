@@ -40,7 +40,7 @@ yarn add flow-connect
 #### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.10/dist/flow-connect.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.11/dist/flow-connect.js"></script>
 ```
 
 <br/>
