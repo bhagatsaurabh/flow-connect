@@ -20,10 +20,10 @@ module.exports = {
   head: [
     ['base', { href: base }],
     ['link', { rel: 'icon', href: 'images/logo.png' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.10/dist/flow-connect.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.10/dist/flow-connect.js.map', type: 'application/json' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.10/dist/standard-nodes.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.10/dist/standard-nodes.js.map', type: 'application/json' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.11/dist/flow-connect.js' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.11/dist/flow-connect.js.map', type: 'application/json' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.11/dist/standard-nodes.js' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.11/dist/standard-nodes.js.map', type: 'application/json' }],
     ['script', { src: 'example/custom-nodes.js' }]
   ],
   base,
@@ -50,7 +50,7 @@ module.exports = {
           }
         ]
       },
-      { text: 'v1.0.10', link: '/' }
+      { text: 'v1.0.11', link: '/' }
     ],
     sidebar: {
       '/guide/': [
