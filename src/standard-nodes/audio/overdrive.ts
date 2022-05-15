@@ -4,7 +4,6 @@ import { NodeCreatorOptions } from "../../common/interfaces.js";
 import { clamp } from "../../utils/utils.js";
 import { Node } from '../../core/node.js';
 import { InputType, Input, Slider, Toggle, Select } from "../../ui/index.js";
-let Tuna = require('../../lib/tuna.js');
 
 export class OverdriveEffect extends Node {
   driveSlider: Slider;
@@ -32,8 +31,6 @@ export class OverdriveEffect extends Node {
         state: options.state ? { ...OverdriveEffect.DefaultState, ...options.state } : OverdriveEffect.DefaultState
       }
     )
-
-    if (!(window as any).__tuna__) (window as any).__tuna__ = new Tuna(flow.flowConnect.audioContext);
 
     this.overdrive = new (window as any).__tuna__.Overdrive();
     this.inputs[0].ref = this.outputs[0].ref = this.overdrive;

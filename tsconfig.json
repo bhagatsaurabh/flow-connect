@@ -11,7 +11,8 @@
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "sourceMap": false
+    "sourceMap": false,
+    "allowJs": true
   },
   "include": [
     "src/**/*.ts",
