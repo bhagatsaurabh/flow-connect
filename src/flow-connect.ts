@@ -8,7 +8,7 @@ import { FlowState, FlowOptions, SerializedFlow } from './core/flow.js';
 import { ViewPort } from './common/enums.js';
 import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
 import { Container, ContainerRenderParams } from "./ui/container.js";
-import { initializeTuna } from './lib/tuna.js';
+import { TunaInitializer } from "./lib/tuna.js";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -27,7 +27,7 @@ export class FlowConnect extends Hooks {
   static async create(mount?: HTMLCanvasElement | HTMLDivElement): Promise<FlowConnect> {
     let flowConnect = new FlowConnect(mount);
     await flowConnect.setupAudioContext();
-    if (!(window as any).__tuna__) (window as any).__tuna__ = new (initializeTuna() as any)(flowConnect.audioContext);
+    if (!(window as any).__tuna__) (window as any).__tuna__ = new (TunaInitializer.initialize() as any)(flowConnect.audioContext);
     return flowConnect;
   }
 
