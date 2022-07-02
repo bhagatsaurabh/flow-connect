@@ -5,7 +5,12 @@
   <link rel="stylesheet" href="styles/index.css" />
   <script src="lib/split.min.js"></script>
   <script src="flow-connect.js"></script>
-  <script src="standard-nodes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/common@latest/dist/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/net@latest/dist/net.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/audio@latest/dist/audio.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/visual@latest/dist/visual.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/ui@latest/dist/ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/math@latest/dist/math.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 </head>
 
@@ -106,34 +111,6 @@
   </div>
 
   <script>
-    /* let examples = [];
-    let fetchExamples = async () => {
-      examples = await (await fetch('/examples')).json();
-      let select = document.getElementById('examples-select');
-      let lastExample = localStorage.getItem('example');
-      examples.forEach(example => {
-        let option = document.createElement('option');
-        option.innerText = example;
-        if (example === lastExample) option.selected = true;
-        select.appendChild(option);
-      });
-
-      if (lastExample) {
-        let script = document.createElement('script');
-        script.src = 'scripts/examples/' + lastExample;
-        script.onload = () => typeof flow !== 'undefined' && flowConnect.render(flow);
-        document.body.appendChild(script);
-      }
-      else {
-        localStorage.setItem('example', examples[0]);
-      }
-    }
-    let exampleChangeHandler = (example) => {
-      localStorage.setItem('example', example);
-      location.reload();
-    }
-    fetchExamples(); */
-
     let flowControlHandler = () => {
       if (flow.state !== FlowState.Stopped) {
         document.getElementById('flow-control-button').children[0].src = 'assets/play.png';

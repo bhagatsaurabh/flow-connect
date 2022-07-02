@@ -1,11 +1,11 @@
 import { FlowConnect } from 'flow-connect';
-import { Vector } from 'flow-connect/core/vector';
-import StandardNodes from 'flow-connect/standard-nodes';
+import { Vector } from 'flow-connect/core';
+import { Timer, SyncEvent } from '@flow-connect/common';
 
 let flowConnect = new FlowConnect(document.getElementById('canvas'));
 let flow = flowConnect.createFlow({ name: "Events Example" });
 
-let timer1 = new StandardNodes.Common.Timer(flow, {
+let timer1 = new Timer(flow, {
   state: {
     delay: 500,
     lastBlink: 0,
@@ -15,7 +15,7 @@ let timer1 = new StandardNodes.Common.Timer(flow, {
   },
   position: new Vector(39.6, 5.1),
 });
-let timer2 = new StandardNodes.Common.Timer(flow, {
+let timer2 = new Timer(flow, {
   state: {
     delay: 1000,
     lastBlink: 0,
@@ -25,7 +25,7 @@ let timer2 = new StandardNodes.Common.Timer(flow, {
   },
   position: new Vector(39.6, 126.8),
 });
-let timer3 = new StandardNodes.Common.Timer(flow, {
+let timer3 = new Timer(flow, {
   state: {
     delay: 200,
     lastBlink: 0,
@@ -35,11 +35,11 @@ let timer3 = new StandardNodes.Common.Timer(flow, {
   },
   position: new Vector(304.3, 194),
 });
-let sync1 = new StandardNodes.Common.SyncEvent(flow, {
+let sync1 = new SyncEvent(flow, {
   position: new Vector(262.8, 57.8),
   state: { lastBlink: 0, isBlinking: false, blinkDuration: 20 },
 });
-let sync2 = new StandardNodes.Common.SyncEvent(flow, {
+let sync2 = new SyncEvent(flow, {
   position: new Vector(526.7, 118.8),
   state: { lastBlink: 0, isBlinking: false, blinkDuration: 20 },
 });

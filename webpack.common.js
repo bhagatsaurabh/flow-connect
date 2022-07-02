@@ -4,11 +4,7 @@ import ResolveTypeScriptPlugin from "resolve-typescript-plugin";
 
 export default {
   entry: {
-    'flow-connect': './src/flow-connect.ts',
-    'standard-nodes': {
-      import: './src/standard-nodes/index.ts',
-      dependOn: 'flow-connect'
-    }
+    'flow-connect': './src/flow-connect.ts'
   },
   output: {
     path: path.resolve(dirname(fileURLToPath(import.meta.url)), 'dist'),

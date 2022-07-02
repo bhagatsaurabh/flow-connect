@@ -195,6 +195,8 @@ export class FlowConnect extends Hooks {
 
     Object.assign(this.canvas.style, {
       position: 'absolute',
+      left: 0,
+      top: 0,
       width: '100%',
       height: '100%'
     })
@@ -525,7 +527,7 @@ export class FlowConnect extends Hooks {
     }
 
     // This one-time setup is not at all related to FlowConnect, couldn't find any place to do this
-    // Might be a better idea to do this somewhere in StandardNodes.Audio package
+    // Might be a better idea to do this somewhere in StandardNodes Audio package
 
     let workletUtils = generateWorkletUtils();
     let audioWorklets = generateAudioWorklets(workletUtils.CircularBuffer);

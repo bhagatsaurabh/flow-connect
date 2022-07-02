@@ -41,12 +41,12 @@ export default {
       name: "Node",
       position: new Vector(585, 105),
     });
-    this.func1 = new StandardNodes.Math.Function(
+    this.func1 = new StandardNodes.Math.Func(
       flow,
       { position: new Vector(295, 54), name: "Node" },
       "cos(t)"
     );
-    this.func2 = new StandardNodes.Math.Function(
+    this.func2 = new StandardNodes.Math.Func(
       flow,
       { position: new Vector(295, 184.3), name: "Node" },
       "sin(t) + 0.2cos(2.8t)"

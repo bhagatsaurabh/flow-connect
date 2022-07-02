@@ -1,6 +1,6 @@
 import { FlowConnect } from 'flow-connect';
-import { Vector } from 'flow-connect/core/vector';
-import StandardNodes from 'flow-connect/standard-nodes';
+import { Vector } from 'flow-connect/core';
+import { Timer, Random } from '@flow-connect/common';
 
 let flowConnect = new FlowConnect(document.getElementById('canvas'));
 let flow = flowConnect.createFlow({
@@ -14,7 +14,7 @@ let flow = flowConnect.createFlow({
   }
 });
 
-let timerNode1 = new StandardNodes.Common.Timer(flow, {
+let timerNode1 = new Timer(flow, {
   position: new Vector(22.6, 1.2),
   state: { delay: 700 },
   style: {
@@ -46,7 +46,7 @@ let label = timerNode1.ui.query('input')[0].children[0];
 label.style.backgroundColor = '#fff';
 label.style.color = '#000';
 
-let timerNode2 = new StandardNodes.Common.Timer(flow, {
+let timerNode2 = new Timer(flow, {
   position: new Vector(22.6, 194.7),
   state: { delay: 600 }
 });
@@ -59,7 +59,7 @@ timerNode2.ui.style = {
   borderWidth: 0,
 };
 
-let randomNode = new StandardNodes.Common.Random(flow, {
+let randomNode = new Random(flow, {
   position: new Vector(321.5, 6.7), state: { min: 0, max: 5 }
 });
 randomNode.ui.style.backgroundColor = '#f7ff99';
