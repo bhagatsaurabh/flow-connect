@@ -46,10 +46,8 @@ module.exports = {
       };
       `
     ],
-    // ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.12/dist/flow-connect.js', onload: 'loadPackages()' }],
-    // ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.12/dist/flow-connect.js.map', type: 'application/json' }],
-    ['script', { src: 'flow-connect.js', onload: 'loadPackages()' }],
-    ['script', { src: 'flow-connect.js.map', type: 'application/json' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.13/dist/flow-connect.js', onload: 'loadPackages()' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.13/dist/flow-connect.js.map', type: 'application/json' }],
     // ['script', { src: 'example/custom-nodes.js' }]
   ],
   base,
