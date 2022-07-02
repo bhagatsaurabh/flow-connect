@@ -74,7 +74,7 @@ module.exports = {
           }
         ]
       },
-      { text: 'v1.0.12', link: '/' }
+      { text: 'v1.0.13', link: '/' }
     ],
     sidebar: {
       '/guide/': [
