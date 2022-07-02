@@ -20,21 +20,37 @@ module.exports = {
   head: [
     ['base', { href: base }],
     ['link', { rel: 'icon', href: 'images/logo.png' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.12/dist/flow-connect.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.12/dist/flow-connect.js.map', type: 'application/json' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/common@latest/dist/common.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/common@latest/dist/common.js.map' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/visual@latest/dist/visual.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/visual@latest/dist/visual.js.map' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/ui@latest/dist/ui.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/ui@latest/dist/ui.js.map' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/net@latest/dist/net.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/net@latest/dist/net.js.map' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/math@latest/dist/math.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/math@latest/dist/math.js.map' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/audio@latest/dist/audio.js' }],
-    ['script', { src: 'https://cdn.jsdelivr.net/npm/@flow-connect/audio@latest/dist/audio.js.map' }],
-    ['script', { src: 'example/custom-nodes.js' }]
+    ['script', {}, `
+      function loadPackages() {
+        const packages = [
+          'https://cdn.jsdelivr.net/npm/@flow-connect/common@latest/dist/common.js',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/common@latest/dist/common.js.map',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/visual@latest/dist/visual.js',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/visual@latest/dist/visual.js.map',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/ui@latest/dist/ui.js',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/ui@latest/dist/ui.js.map',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/net@latest/dist/net.js',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/net@latest/dist/net.js.map',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/math@latest/dist/math.js',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/math@latest/dist/math.js.map',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/audio@latest/dist/audio.js',
+          'https://cdn.jsdelivr.net/npm/@flow-connect/audio@latest/dist/audio.js.map',
+          'example/custom-nodes.js'
+        ];
+        packages.forEach(package => {
+          const script = document.createElement('script');
+          script.src = package;
+          if (package.slice(-3) === 'map') script.type = 'application/json';
+          document.head.append(script);
+        });
+      };
+      `
+    ],
+    // ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.12/dist/flow-connect.js', onload: 'loadPackages()' }],
+    // ['script', { src: 'https://cdn.jsdelivr.net/npm/flow-connect@1.0.12/dist/flow-connect.js.map', type: 'application/json' }],
+    ['script', { src: 'flow-connect.js', onload: 'loadPackages()' }],
+    ['script', { src: 'flow-connect.js.map', type: 'application/json' }],
+    // ['script', { src: 'example/custom-nodes.js' }]
   ],
   base,
 
