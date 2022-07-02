@@ -1,7 +1,6 @@
 import { FlowConnect } from 'flow-connect';
-import { Node } from 'flow-connect/core/node';
-import { Vector } from 'flow-connect/core/vector';
-import StandardNodes from 'flow-connect/standard-nodes';
+import { Vector, Node } from 'flow-connect/core';
+import { NumberSource } from '@flow-connect/common';
 
 // Create an instance of FlowConnect by passing it a reference of <div> or <canvas> element
 let flowConnect = new FlowConnect(document.getElementById('canvas'));
@@ -47,7 +46,7 @@ multiplyNode.on('process', () => {
 });
 
 /* There are also a whole set of pre-built nodes for specific uses */
-let numberSource = new StandardNodes.Common.NumberSource(flow, {
+let numberSource = new NumberSource(flow, {
   position: new Vector(245, 128), state: { value: 100 }
 });
 

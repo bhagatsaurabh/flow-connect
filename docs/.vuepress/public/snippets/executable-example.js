@@ -1,6 +1,5 @@
 import { FlowConnect } from 'flow-connect';
-import { Node } from 'flow-connect/core/node';
-import { Vector } from 'flow-connect/core/vector';
+import { Vector, Node } from 'flow-connect/core';
 
 let flowConnect = new FlowConnect(document.getElementById('canvas'));
 let flow = flowConnect.createFlow({ name: "Graph Execution Example" });

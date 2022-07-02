@@ -40,7 +40,7 @@ yarn add flow-connect
 #### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.12/dist/flow-connect.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.13/dist/flow-connect.js"></script>
 ```
 
 <br/>
@@ -49,25 +49,32 @@ yarn add flow-connect
 
 ESM
 
+#### Note: Seperate dependency required for '@flow-connect/*' packages, check [flow-connect-standard-nodes](https://github.com/saurabh-prosoft/flow-connect-standard-nodes) monorepo for further details.
+
+<br/>
+
 ```js
-import * as FlowConnect from "flow-connect";
-import { StandardNodes } from "flow-connect/cjs/standard-nodes";
+import { FlowConnect, Vector } from "flow-connect";
+import { Timer, Log } from "@flow-connect/common";
 ```
 
 Example
 
 ```js
-let flowConnect = new FlowConnect(document.getElementById("canvas"));
+const flowConnect = new FlowConnect(canvasElement);
 
-let flow = flowConnect.createFlow({
-  name: "New Flow",
-  rules: { array: ["array", "any"] },
-  terminalColors: {}
+const flow = flowConnect.createFlow({ name: "New Flow" });
+
+const timer = new Timer(flow, {
+  state: { delay: 500 },
+  position: new Vector(50, 50),
 });
+const log = new Log(flow, { position: new Vector(250, 100) });
 
-let timer = StandardNodes.Timer(flow);
+timer.outputs[0].connect(log.inputs[0]);
 
-flowConnect.render(flow);
+this.flowConnect.render(flow);
+flow.start();
 ```
 
 <br/>
