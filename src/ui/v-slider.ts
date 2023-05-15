@@ -8,7 +8,7 @@ import { Color } from "../core/color.js";
 import { FlowState } from "../core/flow.js";
 import { Constant } from "../resource/constants.js";
 
-export class VSlider extends UINode implements Serializable {
+export class VSlider extends UINode implements Serializable<SerializedVSlider> {
   private thumbFill: number;
   private _value: number;
 

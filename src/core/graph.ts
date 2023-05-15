@@ -6,7 +6,7 @@ import { Node } from "./node.js";
 import { List } from "../utils/linked-list.js";
 
 // A directed acyclic graph
-export class Graph implements Serializable {
+export class Graph implements Serializable<SerializedGraph> {
   state: FlowState = FlowState.Stopped;
   nodes: GraphNode[][];
   graphNodes: Map<string, GraphNode>;
@@ -148,7 +148,7 @@ export class Graph implements Serializable {
     let lowestOrder = Math.min(...graphNodes.map(graphNode => graphNode.order));
     return graphNodes.filter(graphNode => graphNode.order === lowestOrder);
   }
-  // Generic graph traversing function that can be used to do some stuff with nodes starting with provided root
+  // Generic BFS graph traversing function
   propagate(root: Node | GraphNode, callback: (node: Node) => void) {
     let start = root instanceof Node ? this.graphNodes.get(root.id) : root;
     let queue = new List<GraphNode>();
@@ -208,7 +208,7 @@ export interface SerializedGraph {
   nodeToGraphNode: Record<string, string>
 }
 
-export class GraphNode implements Serializable {
+export class GraphNode implements Serializable<SerializedGraphNode> {
   id: string;
   childs: GraphNode[] = [];
   order: number;

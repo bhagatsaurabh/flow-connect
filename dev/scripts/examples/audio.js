@@ -1,10 +1,19 @@
-let flow = flowConnect.createFlow({ name: 'Audio Test', rules: {}, terminalColors: {} });
+let flow = flowConnect.createFlow({
+  name: "Audio Test",
+  rules: {},
+  terminalColors: {},
+});
 
 // let log = new StandardNodes.Common.Log(flow);
 // let timer = new StandardNodes.Common.Timer(flow);
 
 let audioSource = new StandardNodes.Audio.Source(flow);
 let destination = new StandardNodes.Audio.Destination(flow);
+audioSource.outputs[0].connect(destination.inputs[0]);
+
+// let serialized = flowConnect.toJson(flow);
+// flow = flowConnect.fromJson(serialized);
+
 // let automate = new StandardNodes.Audio.Automate(flow, { state: { min: 20, max: 800, value: 20 } });
 // let splitter = new StandardNodes.Audio.ChannelSplitter(flow);
 // let merger = new StandardNodes.Audio.ChannelMerger(flow);
@@ -12,7 +21,7 @@ let destination = new StandardNodes.Audio.Destination(flow);
 // let adsr = new StandardNodes.Audio.ADSR(flow);
 // let gainNode = new StandardNodes.Audio.Gain(flow);
 // let metronome = new StandardNodes.Audio.Metronome(flow);
-let moogEffect = new StandardNodes.Audio.MoogEffect(flow);
+// let moogEffect = new StandardNodes.Audio.MoogEffect(flow);
 // let bitcrusherEffect = new StandardNodes.Audio.BitcrusherEffect(flow);
 // let biquadFilter = new StandardNodes.Audio.BiquadFilter(flow);
 // let delayEffect = new StandardNodes.Audio.DelayEffect(flow);

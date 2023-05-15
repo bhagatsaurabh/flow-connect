@@ -9,7 +9,7 @@ import { Label } from "./label.js";
 import { Align } from "../common/enums.js";
 import { get } from "../utils/utils.js";
 
-export class RadioGroup extends UINode implements Serializable {
+export class RadioGroup extends UINode implements Serializable<SerializedRadioGroup> {
   private _values: string[];
   private _selected: string;
 

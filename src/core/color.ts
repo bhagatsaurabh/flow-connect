@@ -2,7 +2,7 @@ import { clamp, getRandom, lerp, normalize } from "../utils/utils.js";
 import { Serializable } from "../common/interfaces.js";
 import { Log } from "../utils/logger.js";
 
-export class Color implements Serializable {
+export class Color implements Serializable<SerializedColor> {
   hexValue: string;
   rgbaValue: Uint8ClampedArray | number[];
   rgbaString: string;

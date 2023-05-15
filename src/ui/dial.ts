@@ -8,7 +8,7 @@ import { Color } from "../core/color.js";
 import { FlowState } from "../core/flow.js";
 import { Constant } from "../resource/constants.js";
 
-export class Dial extends UINode implements Serializable {
+export class Dial extends UINode implements Serializable<SerializedDial> {
   private _value: number;
   private thumbStart: Vector = Vector.Zero();
   private thumbEnd: Vector = Vector.Zero();

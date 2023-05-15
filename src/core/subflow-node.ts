@@ -5,6 +5,7 @@ import { Node, NodeButton, NodeStyle, SerializedNode, NodeButtonRenderParams } f
 import { Terminal, TerminalType, TerminalStyle } from './terminal.js';
 import { TunnelNode } from './tunnel-node.js';
 import { Align } from '../common/enums.js';
+import { Container, DataFetchProvider, DataPersistenceProvider } from '../flow-connect.js';
 
 export class SubFlowNode extends Node {
   subFlow: Flow;
@@ -69,8 +70,11 @@ export class SubFlowNode extends Node {
     if (this.flow.state === FlowState.Stopped) return;
     this.subFlow.start();
   }
-  serialize(): SerializedNode {
-    return {
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedNode> {
+    const ui = await this.ui.serialize(persist);
+    const subFlow = await this.subFlow.serialize(persist);
+
+    return Promise.resolve<SerializedNode>({
       id: this.id,
       name: this.name,
       position: this.position.serialize(),
@@ -84,20 +88,26 @@ export class SubFlowNode extends Node {
       zIndex: this.zIndex,
       focused: this.focused,
       renderState: this.renderState,
-      ui: this.ui.serialize(),
-      subFlow: this.subFlow.serialize()
-    };
+      ui,
+      subFlow
+    });
   }
-  static deSerialize(flow: Flow, data: SerializedNode): SubFlowNode {
-    let subFlow = Flow.deSerialize(flow.flowConnect, data.subFlow);
-    return new SubFlowNode(flow, subFlow, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+  static async deSerialize(flow: Flow, data: SerializedNode, receive?: DataFetchProvider): Promise<SubFlowNode> {
+    let subFlow = await Flow.deSerialize(flow.flowConnect, data.subFlow, receive);
+    const subFlowNode = new SubFlowNode(flow, subFlow, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
       name: data.name,
       style: data.style,
       terminalStyle: data.terminalStyle,
       state: data.state,
       id: data.id,
       hitColor: Color.deSerialize(data.hitColor)
-    });
+    })
+
+    const ui = await Container.deSerialize(subFlowNode, data.ui, receive);
+    subFlowNode.ui = ui;
+    subFlowNode.ui.update();
+
+    return Promise.resolve<SubFlowNode>(subFlowNode);
   }
 }
 

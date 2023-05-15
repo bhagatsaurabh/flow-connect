@@ -10,7 +10,7 @@ import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
 import { get } from "../utils/utils.js";
 
-export class Select extends UINode implements Serializable {
+export class Select extends UINode implements Serializable<SerializedSelect> {
   label: Label;
   private _selected: string;
 

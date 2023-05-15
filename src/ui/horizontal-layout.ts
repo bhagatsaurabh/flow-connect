@@ -1,13 +1,13 @@
 import { Color } from "../core/color.js";
-import { Serializable } from "../common/interfaces.js";
+import { DataFetchProvider, DataPersistenceProvider, Serializable } from "../common/interfaces.js";
 import { Node } from "../core/node.js";
 import { Vector } from "../core/vector.js";
-import { Button, Container, Display, Image, Input, Label, Select, Slider, Source, Stack, Toggle, } from "./index.js";
+import { Button, Container, Dial, Display, Envelope, Image, Input, Label, RadioGroup, Select, SerializedButton, SerializedContainer, SerializedDial, SerializedDisplay, SerializedEnvelope, SerializedImage, SerializedInput, SerializedLabel, SerializedRadioGroup, SerializedSelect, SerializedSlider, SerializedSlider2D, SerializedSource, SerializedStack, SerializedToggle, SerializedVSlider, Slider, Slider2D, Source, Stack, Toggle, VSlider, } from "./index.js";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
 import { clamp } from "../utils/utils.js";
 import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal.js";
 
-export class HorizontalLayout extends UINode implements Serializable {
+export class HorizontalLayout extends UINode implements Serializable<SerializedHorizontalLayout> {
 
   constructor(
     node: Node,
@@ -141,8 +141,10 @@ export class HorizontalLayout extends UINode implements Serializable {
   }
   onContextMenu(): void { /**/ }
 
-  serialize(): SerializedHorizontalLayout {
-    return {
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedHorizontalLayout> {
+    const childs = await Promise.all(this.children.map(child => (child as unknown as Serializable<SerializedUINode>).serialize(persist)));
+
+    return Promise.resolve<SerializedHorizontalLayout>({
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
       output: this.output ? this.output.serialize() : null,
@@ -150,10 +152,10 @@ export class HorizontalLayout extends UINode implements Serializable {
       style: this.style,
       hitColor: this.hitColor.serialize(),
       type: this.type,
-      childs: this.children.map(child => (child as any).serialize())
-    }
+      childs
+    });
   }
-  static deSerialize(node: Node, data: SerializedHorizontalLayout): HorizontalLayout {
+  static async deSerialize(node: Node, data: SerializedHorizontalLayout, receive?: DataFetchProvider): Promise<HorizontalLayout> {
     let hozLayout = new HorizontalLayout(node, [], {
       style: data.style,
       input: data.input,
@@ -162,24 +164,33 @@ export class HorizontalLayout extends UINode implements Serializable {
       hitColor: Color.deSerialize(data.hitColor)
     });
 
-    hozLayout.children.push(...data.childs.map(serializedChild => {
+    const deSerializingChilds = data.childs.map(serializedChild => {
       switch (serializedChild.type) {
-        case UIType.Button: return Button.deSerialize(node, serializedChild);
-        case UIType.Container: return Container.deSerialize(node, serializedChild);
-        case UIType.Display: return Display.deSerialize(node, serializedChild);
-        case UIType.HorizontalLayout: return HorizontalLayout.deSerialize(node, serializedChild);
-        case UIType.Stack: return Stack.deSerialize(node, serializedChild);
-        case UIType.Image: return Image.deSerialize(node, serializedChild);
-        case UIType.Input: return Input.deSerialize(node, serializedChild);
-        case UIType.Label: return Label.deSerialize(node, serializedChild);
-        case UIType.Select: return Select.deSerialize(node, serializedChild);
-        case UIType.Slider: return Slider.deSerialize(node, serializedChild);
-        case UIType.Source: return Source.deSerialize(node, serializedChild);
-        case UIType.Toggle: return Toggle.deSerialize(node, serializedChild);
+        case UIType.Button: return Button.deSerialize(node, serializedChild as SerializedButton);
+        case UIType.Container: return Container.deSerialize(node, serializedChild as SerializedContainer, receive);
+        case UIType.Dial: return Dial.deSerialize(node, serializedChild as SerializedDial);
+        case UIType.Display: return Display.deSerialize(node, serializedChild as SerializedDisplay);
+        case UIType.Envelope: return Envelope.deSerialize(node, serializedChild as SerializedEnvelope);
+        case UIType.HorizontalLayout: return HorizontalLayout.deSerialize(node, serializedChild as SerializedHorizontalLayout, receive);
+        case UIType.Image: return Image.deSerialize(node, serializedChild as SerializedImage);
+        case UIType.Input: return Input.deSerialize(node, serializedChild as SerializedInput);
+        case UIType.Label: return Label.deSerialize(node, serializedChild as SerializedLabel);
+        case UIType.RadioGroup: return RadioGroup.deSerialize(node, serializedChild as SerializedRadioGroup);
+        case UIType.Select: return Select.deSerialize(node, serializedChild as SerializedSelect);
+        case UIType.Slider2D: return Slider2D.deSerialize(node, serializedChild as SerializedSlider2D);
+        case UIType.Slider: return Slider.deSerialize(node, serializedChild as SerializedSlider);
+        case UIType.Source: return Source.deSerialize(node, serializedChild as SerializedSource, receive);
+        case UIType.Stack: return Stack.deSerialize(node, serializedChild as SerializedStack, receive);
+        case UIType.Toggle: return Toggle.deSerialize(node, serializedChild as SerializedToggle);
+        case UIType.VSlider: return VSlider.deSerialize(node, serializedChild as SerializedVSlider);
         default: return;
       }
-    }));
-    return hozLayout;
+    });
+
+    const children = await Promise.all(deSerializingChilds);
+    hozLayout.children.push(...children);
+
+    return Promise.resolve<HorizontalLayout>(hozLayout);
   }
 }
 

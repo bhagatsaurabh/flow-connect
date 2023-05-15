@@ -1,7 +1,7 @@
 import { Serializable } from '../common/interfaces.js';
 import { normalize, clamp } from '../utils/utils.js';
 
-export class Vector implements Serializable {
+export class Vector implements Serializable<SerializedVector> {
   x: number;
   y: number;
 

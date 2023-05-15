@@ -8,7 +8,7 @@ import { Color } from "../core/color.js";
 import { FlowState } from "../core/flow.js";
 import { Constant } from "../resource/constants.js";
 
-export class Slider2D extends UINode implements Serializable {
+export class Slider2D extends UINode implements Serializable<SerializedSlider2D> {
   private _value: Vector;
   private thumbHitColor: string;
   offThumbCanvas: OffscreenCanvas | HTMLCanvasElement;

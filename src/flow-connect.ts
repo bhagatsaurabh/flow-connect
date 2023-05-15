@@ -1,6 +1,6 @@
 import { Connector, Flow, Group, Node, Color, Hooks, ConnectorRenderParams, NodeRenderParams, GroupRenderParams, NodeButton, NodeButtonRenderParams } from "./core/index.js";
 import { Vector } from "./core/vector.js";
-import { Dimension, Pointer, RenderResolver, Rules } from "./common/interfaces.js";
+import { DataFetchProvider, DataPersistenceProvider, Dimension, Pointer, RenderResolver, Rules } from "./common/interfaces.js";
 import { intersects, noop } from "./utils/utils.js";
 import { Log } from './utils/logger.js';
 import { Terminal, TerminalRenderParams, TerminalType } from './core/terminal.js';
@@ -213,9 +213,9 @@ export class FlowConnect extends Hooks {
       this.offUICanvas = document.createElement('canvas');
       this.offGroupCanvas = document.createElement('canvas');
     }
-    this._offContext = this.offCanvas.getContext('2d');
-    this._offUIContext = this.offUICanvas.getContext('2d');
-    this._offGroupContext = this.offGroupCanvas.getContext('2d');
+    this._offContext = this.offCanvas.getContext('2d', { willReadFrequently: true });
+    this._offUIContext = this.offUICanvas.getContext('2d', { willReadFrequently: true });
+    this._offGroupContext = this.offGroupCanvas.getContext('2d', { willReadFrequently: true });
   }
   private attachStyles() {
     this.canvas.style.touchAction = 'none';
@@ -794,28 +794,31 @@ export class FlowConnect extends Hooks {
   top() {
     this.render(this.rootFlow);
   }
+  /** Serializes a flow to json
+   * @param flow The flow
+   */
+  async toJson(flow: Flow, persist?: DataPersistenceProvider): Promise<string> {
+    try {
+      let serializedFlow: SerializedFlow = await flow.serialize(persist);
+      return JSON.stringify(serializedFlow, null);
+    } catch (error) {
+      Log.error(error);
+    }
+  }
   /** Creates a flow from json
    * @param json Json string with schema SerializedFlow
    */
-  fromJson(json: string): Flow {
+  async fromJson(json: string, receive?: DataFetchProvider): Promise<Flow> {
     let data: SerializedFlow;
     let flow: Flow = null;
 
     try {
       data = JSON.parse(json);
-      flow = Flow.deSerialize(this, data);
+      flow = await Flow.deSerialize(this, data, receive);
     } catch (error) {
       Log.error(error);
     }
     return flow;
-  }
-  toJson(flow: Flow): string {
-    let serializedFlow: SerializedFlow = flow.serialize();
-    try {
-      return JSON.stringify(serializedFlow, null);
-    } catch (error) {
-      Log.error(error);
-    }
   }
 }
 

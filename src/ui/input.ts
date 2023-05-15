@@ -9,7 +9,7 @@ import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
 import { exists, get } from "../utils/utils.js";
 
-export class Input extends UINode implements Serializable {
+export class Input extends UINode implements Serializable<SerializedInput> {
   label: Label;
   inputEl: HTMLInputElement;
   private _value: string | number;

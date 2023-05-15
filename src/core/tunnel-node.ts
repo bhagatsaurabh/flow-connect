@@ -3,10 +3,11 @@ import { Color } from "./color.js";
 import { Flow } from "./flow.js";
 import { Node, NodeStyle, SerializedNode } from "./node.js";
 import { Terminal, TerminalStyle } from "./terminal.js";
+import { Container, DataFetchProvider, DataPersistenceProvider } from "../flow-connect.js";
 
 export class TunnelNode extends Node {
   private _proxyTerminal: Terminal;
-  
+
   get proxyTerminal(): Terminal { return this._proxyTerminal; }
   set proxyTerminal(terminal: Terminal) {
     this._proxyTerminal = terminal;
@@ -42,8 +43,10 @@ export class TunnelNode extends Node {
     }
   }
 
-  serialize(): SerializedTunnelNode {
-    return {
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedTunnelNode> {
+    const ui = await this.ui.serialize(persist);
+
+    return Promise.resolve<SerializedTunnelNode>({
       id: this.id,
       name: this.name,
       position: this.position.serialize(),
@@ -57,18 +60,24 @@ export class TunnelNode extends Node {
       zIndex: this.zIndex,
       focused: this.focused,
       renderState: this.renderState,
-      ui: this.ui.serialize(),
+      ui,
       proxyTerminalId: this.proxyTerminal.id
-    }
+    });
   }
-  static deSerialize(flow: Flow, data: SerializedTunnelNode): TunnelNode {
-    return new TunnelNode(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+  static async deSerialize(flow: Flow, data: SerializedTunnelNode, receive?: DataFetchProvider): Promise<TunnelNode> {
+    const tunnelNode = new TunnelNode(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
       style: data.style,
       terminalStyle: data.terminalStyle,
       state: data.state,
       id: data.id,
       hitColor: Color.deSerialize(data.hitColor)
     });
+
+    const ui = await Container.deSerialize(tunnelNode, data.ui, receive);
+    tunnelNode.ui = ui;
+    tunnelNode.ui.update();
+
+    return Promise.resolve<TunnelNode>(tunnelNode);
   }
 }
 

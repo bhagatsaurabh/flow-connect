@@ -5,7 +5,7 @@ import { Hooks } from './hooks.js';
 import { Group, GroupRenderParams, SerializedGroup } from './group.js';
 import { Connector, ConnectorRenderParams, SerializedConnector } from './connector.js';
 import { AVLTree } from "../utils/avl-tree.js";
-import { Serializable, Rules, RenderResolver } from '../common/interfaces.js';
+import { Serializable, Rules, RenderResolver, DataPersistenceProvider, DataFetchProvider } from '../common/interfaces.js';
 import { SubFlowNode } from "./subflow-node.js";
 import { TunnelNode, SerializedTunnelNode } from "./tunnel-node.js";
 import { getNewUUID } from "../utils/utils.js";
@@ -17,7 +17,7 @@ import { Container, ContainerRenderParams } from '../ui/container.js';
 /** A Flow is a set of Nodes, Connectors and Groups, it can also contain SubFlowNodes thereby creating a tree of Flows.
  *  ![](media://example.png)
  */
-export class Flow extends Hooks implements Serializable {
+export class Flow extends Hooks implements Serializable<SerializedFlow> {
   sortedNodes: AVLTree<Node>;
   nodes: Map<string, Node>;
   groups: Group[];
@@ -191,47 +191,57 @@ export class Flow extends Hooks implements Serializable {
     this.call('stop', this);
   }
 
-  serialize(): SerializedFlow {
-    return {
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedFlow> {
+    const nodes = await Promise.all([...this.nodes.values()].map(node => node.serialize(persist)));
+    const inputs = await Promise.all(this.inputs.map(input => input.serialize()));
+    const outputs = await Promise.all(this.outputs.map(output => output.serialize()));
+
+    return Promise.resolve<SerializedFlow>({
       id: this.id,
       name: this.name,
       rules: this.rules,
       terminalColors: this.terminalColors,
-      nodes: [...this.nodes.values()].map(node => node.serialize()),
+      nodes,
       groups: this.groups.map(group => group.serialize()),
       connectors: [...this.connectors.values()].map(connector => connector.serialize()),
-      inputs: this.inputs.map(input => input.serialize()),
-      outputs: this.outputs.map(output => output.serialize()),
-      executionGraph: this.executionGraph.serialize()
-    }
+      inputs,
+      outputs,
+      executionGraph: this.executionGraph.serialize(),
+    });
   }
-  static deSerialize(flowConnect: FlowConnect, data: SerializedFlow): Flow {
+  static async deSerialize(flowConnect: FlowConnect, data: SerializedFlow, receive?: DataFetchProvider): Promise<Flow> {
     let flow = new Flow(flowConnect, data.name, data.rules, data.terminalColors, data.id);
 
-    data.nodes.forEach(serializedNode => {
+    for (let serializedNode of data.nodes) {
       let node;
-      if (serializedNode.subFlow) node = SubFlowNode.deSerialize(flow, serializedNode);
-      else node = Node.deSerialize(flow, serializedNode);
+      if (serializedNode.subFlow) {
+        node = await SubFlowNode.deSerialize(flow, serializedNode, receive);
+        node.subFlow.parentFlow = flow;
+      }
+      else {
+        node = await Node.deSerialize(flow, serializedNode, receive);
+      }
       flow.nodes.set(node.id, node);
       flow.sortedNodes.add(node);
-    });
+    }
     data.groups.forEach(serializedGroup => {
       let group = Group.deSerialize(flow, serializedGroup);
       flow.groups.push(group);
       group.nodes.forEach(node => node.group = group);
     });
-    data.inputs.forEach(serializedInput => {
-      let input = TunnelNode.deSerialize(flow, serializedInput);
+    for (let serializedInput of data.inputs) {
+      let input = await TunnelNode.deSerialize(flow, serializedInput, receive);
       flow.inputs.push(input);
       flow.nodes.set(input.id, input);
       flow.sortedNodes.add(input);
-    });
-    data.outputs.forEach(serializedOutput => {
-      let output = TunnelNode.deSerialize(flow, serializedOutput);
+    }
+    for (let serializedOutput of data.outputs) {
+      let output = await TunnelNode.deSerialize(flow, serializedOutput, receive);
       flow.outputs.push(output);
       flow.nodes.set(output.id, output);
       flow.sortedNodes.add(output);
-    });
+    }
+
     data.connectors.forEach(serializedConnector => {
       let startNode = flow.nodes.get(serializedConnector.startNodeId);
       let startTerminal = startNode.outputs.concat(startNode.outputsUI).find(terminal => terminal.id === serializedConnector.startId);
@@ -243,7 +253,7 @@ export class Flow extends Hooks implements Serializable {
 
     flow.executionGraph = Graph.deSerialize(flow, data.executionGraph);
 
-    return flow;
+    return Promise.resolve<Flow>(flow);
   }
 }
 

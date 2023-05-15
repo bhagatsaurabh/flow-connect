@@ -20,9 +20,17 @@
       <select onchange="exampleChangeHandler(event.target.value)" id="examples-select"></select>
     </div>
     <div class="flow-controls">
-      <div id="flow-control-button" title="Start" onclick="flowControlHandler()" class="control-button"><img
-          src="assets/play.png" /></div>
-      <div class="control-button" title="Goto Root Flow" onclick="flowConnect.top()"><img src="assets/up-arrow.png" />
+      <div id="flow-control-button" title="Start" onclick="flowControlHandler()" class="control-button">
+        <img src="assets/play.png" />
+      </div>
+      <div class="control-button" title="Goto Root Flow" onclick="flowConnect.top()">
+        <img src="assets/up-arrow.png" />
+      </div>
+      <div class="control-button" title="Export" onclick="exportHandler()">
+        <img src="assets/export.png" />
+      </div>
+      <div class="control-button" title="Import" onclick="importHandler()">
+        <img src="assets/import.png" />
       </div>
     </div>
     <div class="layout-container" id="layout-1">
@@ -120,6 +128,41 @@
         document.getElementById('flow-control-button').children[0].src = 'assets/pause.png';
         document.getElementById('flow-control-button').children[0].title = 'Stop';
         flow.start();
+      }
+    }
+
+    let exportHandler = async () => {
+      if (flow.state !== FlowState.Stopped) flowControlHandler();
+      const content = await flowConnect.toJson(flow);
+      if (content) {
+        const downloader = document.createElement("a");
+        document.body.appendChild(downloader);
+        downloader.style.display = 'none';
+        const blob = new Blob([content], {type: "octet/stream"})
+        const url = URL.createObjectURL(blob);
+        downloader.href = url;
+        downloader.download = 'exported.json';
+        downloader.click();
+        URL.revokeObjectURL(url);
+        downloader.remove();
+      }
+    }
+
+    let importHandler = async () => {
+      if (flow.state !== FlowState.Stopped) flowControlHandler();
+
+      const uploader = document.createElement("input");
+      uploader.type = 'file';
+      uploader.accept = 'application/json,.vap'
+      document.body.appendChild(uploader);
+      uploader.style.display = 'none';
+      uploader.click();
+      uploader.onchange = async () => {
+        if (uploader.files.length > 0) {
+          const content = await (await fetch(URL.createObjectURL(uploader.files[0]))).text();
+          const flow = await flowConnect.fromJson(content);
+          flowConnect.render(flow);
+        }
       }
     }
 

@@ -8,7 +8,7 @@ import { Color } from "../core/color.js";
 import { Align } from "../common/enums.js";
 import { get } from "../utils/utils.js";
 
-export class Button extends UINode implements Serializable {
+export class Button extends UINode implements Serializable<SerializedButton> {
   label: Label;
 
   constructor(
