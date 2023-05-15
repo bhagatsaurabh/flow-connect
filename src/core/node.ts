@@ -13,11 +13,11 @@ import { Flow, FlowState, SerializedFlow } from './flow.js';
 import { Group } from './group.js';
 import { Terminal, TerminalType, TerminalStyle, SerializedTerminal, TerminalRenderParams } from './terminal.js';
 import { Hooks } from './hooks.js';
-import { Events, Renderable, RenderFunction, RenderResolver, RenderState, Serializable } from "../common/interfaces.js";
+import { DataFetchProvider, DataPersistenceProvider, Events, Renderable, RenderFunction, RenderResolver, RenderState, Serializable } from "../common/interfaces.js";
 import { Connector } from "./connector.js";
 import { Log } from "../utils/logger.js";
 
-export class Node extends Hooks implements Events, Serializable, Renderable {
+export class Node extends Hooks implements Events, Serializable<SerializedNode>, Renderable {
   //#region Properties
   renderResolver: {
     node?: RenderResolver<Node, NodeRenderParams>,
@@ -114,8 +114,8 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
 
     this.setupTerminals(options, inputs, outputs);
 
-    if (options.ui) {
-      this.ui = options.ui instanceof Container ? options.ui : Container.deSerialize(this, options.ui)
+    if (options.ui instanceof Container) {
+      this.ui = options.ui;
     } else {
       this.ui = new Container(this, width);
     }
@@ -637,8 +637,10 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
   }
   //#endregion
 
-  serialize(): SerializedNode {
-    return {
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedNode> {
+    const ui = await this.ui.serialize(persist);
+
+    return Promise.resolve<SerializedNode>({
       id: this.id,
       name: this.name,
       position: this.position.serialize(),
@@ -652,18 +654,26 @@ export class Node extends Hooks implements Events, Serializable, Renderable {
       zIndex: this.zIndex,
       focused: this.focused,
       renderState: this.renderState,
-      ui: this.ui.serialize()
-    };
+      ui
+    });
   }
-  static deSerialize(flow: Flow, data: SerializedNode): Node {
-    return new Node(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+  static async deSerialize(flow: Flow, data: SerializedNode, receive?: DataFetchProvider): Promise<Node> {
+    const node = new Node(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
       style: data.style,
       terminalStyle: data.terminalStyle,
       state: data.state,
       id: data.id,
       hitColor: Color.deSerialize(data.hitColor),
-      ui: data.ui
+      ui: data.ui,
+      focused: data.focused,
+      renderState: data.renderState
     });
+
+    const ui = await Container.deSerialize(node, data.ui, receive);
+    node.ui = ui;
+    node.ui.update();
+
+    return Promise.resolve<Node>(node);
   }
 }
 
@@ -745,7 +755,9 @@ export interface NodeConstructorOptions {
   state?: Object,
   id?: string,
   hitColor?: Color,
-  ui?: Container | SerializedContainer
+  ui?: Container | SerializedContainer,
+  focused?: boolean,
+  renderState?: RenderState
 }
 let DefaultNodeConstructorOptions = (): NodeConstructorOptions => {
   return {

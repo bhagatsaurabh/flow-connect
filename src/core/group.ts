@@ -7,7 +7,7 @@ import { Node } from './node.js';
 import { Renderable, RenderResolver, Serializable } from "../common/interfaces.js";
 import { ViewPort } from "../common/enums.js";
 
-export class Group extends Hooks implements Serializable, Renderable {
+export class Group extends Hooks implements Serializable<SerializedGroup>, Renderable {
   renderResolver: RenderResolver<Group, GroupRenderParams> = () => null;
 
   nodes: Node[] = [];
@@ -218,6 +218,8 @@ export class Group extends Hooks implements Serializable, Renderable {
 
     data.nodes.forEach(nodeId => {
       group.nodes.push(flow.nodes.get(nodeId));
+      flow.nodes.get(nodeId).group = group;
+
     });
     data.nodeDeltas.forEach(serializedVector => {
       group.nodeDeltas.push(Vector.deSerialize(serializedVector));

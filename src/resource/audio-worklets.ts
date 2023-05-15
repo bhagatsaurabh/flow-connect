@@ -44,7 +44,7 @@ export const generateWorkletUtils = () => {
 
 export const generateAudioWorklets = (utilsFileName: string) => {
   let audioWorklets: Record<string, string> = {
-    // Creates a AudioWorkletProcessor to setup custom AudioParams for AudioBufferSourceNode's automation (because of their fire-forget-destroy behaviour)
+    // Creates an AudioWorkletProcessor to setup custom AudioParams for AudioBufferSourceNode's automation (because of their fire-forget-destroy behaviour)
     Worklet_ProxyParamForSource: URL.createObjectURL(new Blob([
       `registerProcessor('proxy-param-for-source', class ProxyParamForSource extends AudioWorkletProcessor {
           static get parameterDescriptors() {

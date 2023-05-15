@@ -3,10 +3,8 @@ import { Rules } from "../common/interfaces.js";
 import { Terminal } from "../core/terminal.js";
 import { ViewPort } from "../common/enums.js";
 
-export const getNewUUID = () => {
-  var S4 = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-  return (S4() + "-" + S4() + "-" + S4() + "-" + S4());
-}
+export const getNewUUID = () => crypto.randomUUID();
+
 export const normalize = (value: number, min: number, max: number) => {
   if (min === max) return 1;
   return (value - min) / (max - min);

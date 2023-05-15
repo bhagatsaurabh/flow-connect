@@ -10,7 +10,7 @@ import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal.js"
 import { FlowState } from '../core/flow.js';
 import { get } from "../utils/utils.js";
 
-export class Image extends UINode implements Serializable {
+export class Image extends UINode implements Serializable<SerializedImage> {
   private imageCanvas: OffscreenCanvas | HTMLCanvasElement;
   private imageContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   private source: HTMLImageElement;
@@ -202,7 +202,7 @@ export class Image extends UINode implements Serializable {
       hitColor: this.hitColor.serialize(),
       type: this.type,
       childs: []
-    }
+    };
   }
   static deSerialize(node: Node, data: SerializedImage): Image {
     return new Image(node, data.source, {

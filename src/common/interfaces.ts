@@ -46,8 +46,8 @@ export interface RenderState {
   lod: LOD;
 }
 
-export interface Serializable {
-  serialize(): any;
+export interface Serializable<T> {
+  serialize(persist?: DataPersistenceProvider): Promise<T> | T;
 }
 export type RenderFunction<T, P> = (context: CanvasRenderingContext2D, params: P, target: T) => void;
 export type RenderResolver<T, P> = (instance: T) => RenderFunction<T, P>;
@@ -69,3 +69,6 @@ export interface NodeCreatorOptions {
   style?: NodeStyle,
   terminalStyle?: TerminalStyle
 }
+
+export type DataPersistenceProvider = (id: string, ref: Blob) => Promise<void>
+export type DataFetchProvider = (id: string) => Promise<Blob>

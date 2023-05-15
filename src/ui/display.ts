@@ -5,7 +5,7 @@ import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js"
 import { Vector } from "../core/vector.js";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
 
-export class Display extends UINode implements Serializable {
+export class Display extends UINode implements Serializable<SerializedDisplay> {
   displayConfigs: CustomOffCanvasConfig[] = [];
 
   constructor(
@@ -180,8 +180,8 @@ export class Display extends UINode implements Serializable {
     this.call('rightclick', this);
   }
 
-  serialize(): SerializedDisplay {
-    return {
+  async serialize(): Promise<SerializedDisplay> {
+    return Promise.resolve<SerializedDisplay>({
       height: this.height,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
@@ -191,15 +191,15 @@ export class Display extends UINode implements Serializable {
       style: this.style,
       type: this.type,
       childs: []
-    };
+    });
   }
-  static deSerialize(node: Node, data: SerializedDisplay): Display {
-    return new Display(node, data.height, null, {
+  static async deSerialize(node: Node, data: SerializedDisplay): Promise<Display> {
+    return Promise.resolve<Display>(new Display(node, data.height, null, {
       style: data.style,
       id: data.id,
       hitColor: Color.deSerialize(data.hitColor),
       clear: data.input
-    });
+    }));
   }
 }
 

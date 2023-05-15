@@ -1,4 +1,4 @@
-export * from './2d-slider.js';
+export * from './slider-2d.js';
 export * from './button.js';
 export * from './dial.js';
 export * from './display.js';

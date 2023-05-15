@@ -8,7 +8,7 @@ import { binarySearch, exists, get } from "../utils/utils.js";
 import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
 
-export class Label extends UINode implements Serializable {
+export class Label extends UINode implements Serializable<SerializedLabel> {
   private displayText: string;
   private _text: string | number;
   private textWidth: number;    // This may be smaller due to surrounding width constraints (this is som...)

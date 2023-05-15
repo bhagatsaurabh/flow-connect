@@ -5,13 +5,13 @@ import { fileIcon } from "../resource/icons.js";
 import { Image } from "./image.js";
 import { Label } from "./label.js";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
-import { Serializable } from "../common/interfaces.js";
+import { DataFetchProvider, DataPersistenceProvider, Serializable } from "../common/interfaces.js";
 import { Color } from "../core/color.js";
 import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
-import { get } from "../utils/utils.js";
+import { get, getNewUUID } from "../utils/utils.js";
 
-export class Source extends UINode implements Serializable {
+export class Source extends UINode implements Serializable<SerializedSource> {
   private htmlInput: HTMLInputElement;
   private fileIcon: Image;
   private _file: File;
@@ -77,6 +77,8 @@ export class Source extends UINode implements Serializable {
     this.node.on('process', () => {
       if (this.output) this.output.setData(this.file);
     });
+
+    if (options.file) this.file = options.file
   }
 
   setupInputElement(options: SourceOptions) {
@@ -180,8 +182,14 @@ export class Source extends UINode implements Serializable {
     if (this.disabled) return;
   }
 
-  serialize(): SerializedSource {
-    return {
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedSource> {
+    let file = null;
+    if (persist) {
+      file = { id: getNewUUID(), name: this.file.name };
+      await persist(file.id, this.file);
+    }
+
+    return Promise.resolve<SerializedSource>({
       accept: this.accept,
       propName: this.propName,
       input: this.input ? this.input.serialize() : null,
@@ -191,11 +199,18 @@ export class Source extends UINode implements Serializable {
       id: this.id,
       hitColor: this.hitColor.serialize(),
       type: this.type,
-      childs: []
-    }
+      childs: [],
+      file
+    });
   }
-  static deSerialize(node: Node, data: SerializedSource) {
-    return new Source(node, {
+  static async deSerialize(node: Node, data: SerializedSource, receive?: DataFetchProvider): Promise<Source> {
+    let file = null;
+    if (data.file) {
+      const blob = await receive(data.file.id);
+      file = new File([blob], data.file.name);
+    }
+
+    return Promise.resolve(new Source(node, {
       accept: data.accept,
       propName: data.propName,
       input: data.input,
@@ -203,8 +218,9 @@ export class Source extends UINode implements Serializable {
       height: data.height,
       style: data.style,
       id: data.id,
-      hitColor: Color.deSerialize(data.hitColor)
-    });
+      hitColor: Color.deSerialize(data.hitColor),
+      file
+    }));
   }
 }
 
@@ -223,7 +239,11 @@ let DefaultSourceStyle = () => {
 
 export interface SerializedSource extends SerializedUINode {
   accept: string,
-  height: number
+  height: number,
+  file: {
+    id: string,
+    name: string
+  }
 }
 
 interface SourceOptions {
@@ -234,7 +254,8 @@ interface SourceOptions {
   height?: number,
   style?: SourceStyle,
   id?: string,
-  hitColor?: Color
+  hitColor?: Color,
+  file?: File
 }
 let DefaultSourceOptions = (node: Node): SourceOptions => {
   return {

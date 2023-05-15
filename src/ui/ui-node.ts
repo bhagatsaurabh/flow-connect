@@ -182,7 +182,7 @@ export interface SerializedUINode {
   propName: string,
   input: SerializedTerminal,
   output: SerializedTerminal,
-  childs: any[]
+  childs: SerializedUINode[]
 }
 
 export enum UIType {

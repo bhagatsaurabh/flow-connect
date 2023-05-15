@@ -9,7 +9,7 @@ import { Constant } from "../resource/constants.js";
 import { List, ListNode } from "../utils/linked-list.js";
 import { BiMap } from "../utils/bidirectional-map.js";
 
-export class Envelope extends UINode implements Serializable {
+export class Envelope extends UINode implements Serializable<SerializedEnvelope> {
   private _value: List<Vector>;
   private pointHitColorPoint: BiMap<string, ListNode<Vector>> = new BiMap();
   offPointsCanvas: OffscreenCanvas | HTMLCanvasElement;

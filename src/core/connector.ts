@@ -6,7 +6,7 @@ import { Renderable, RenderResolver, Serializable } from "../common/interfaces.j
 import { Node, NodeState } from "./node.js";
 import { Hooks } from './hooks.js';
 
-export class Connector extends Hooks implements Serializable, Renderable {
+export class Connector extends Hooks implements Serializable<SerializedConnector>, Renderable {
   renderResolver: RenderResolver<Connector, ConnectorRenderParams> = () => null;
 
   start: Terminal;

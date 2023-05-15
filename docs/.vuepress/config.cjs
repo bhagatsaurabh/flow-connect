@@ -243,7 +243,7 @@ module.exports = {
                 { text: 'SerializedSlider', link: '/reference/api/interfaces/serialized-slider.md' },
                 { text: 'SerializedSlider2D', link: '/reference/api/interfaces/serialized-slider2d.md' },
                 { text: 'SerializedSource', link: '/reference/api/interfaces/serialized-source.md' },
-                { text: 'SerializedStackLayout', link: '/reference/api/interfaces/serialized-stack-layout.md' },
+                { text: 'SerializedStack', link: '/reference/api/interfaces/serialized-stack.md' },
                 { text: 'SerializedTerminal', link: '/reference/api/interfaces/serialized-terminal.md' },
                 { text: 'SerializedToggle', link: '/reference/api/interfaces/serialized-toggle.md' },
                 { text: 'SerializedTunnelNode', link: '/reference/api/interfaces/serialized-tunnel-node.md' },

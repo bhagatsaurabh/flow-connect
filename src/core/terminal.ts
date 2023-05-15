@@ -8,12 +8,12 @@ import { Events, Renderable, RenderResolver, Serializable } from "../common/inte
 import { Log } from "../utils/logger.js";
 import { Constant } from "../resource/constants.js";
 
-export class Terminal extends Hooks implements Events, Serializable, Renderable {
+export class Terminal extends Hooks implements Events, Serializable<SerializedTerminal>, Renderable {
   /**
    * Terminals can hold any user-defined reference, using this variable to store a reference to something (and thereby binding it to this terminal) is helpful in special applications
    * for e.g audio connections - terminal can hold a reference to WebAudio Node which can be used to connect said AudioNodes when two terminals are connected,
    * almost all StandardNodes.Audio nodes uses this variable.
-   * This can be ignored for other applications where such pattern is not useful or doesn't make sense.
+   * This can be ignored for other applications where such pattern is not useful or relevant.
   **/
   ref: any;
   connectors: Connector[];

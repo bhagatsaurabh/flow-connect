@@ -8,7 +8,7 @@ import { FlowState } from "../core/flow.js";
 import { get } from "../utils/utils.js";
 import { Constant } from "../resource/constants.js";
 
-export class Toggle extends UINode implements Serializable {
+export class Toggle extends UINode implements Serializable<SerializedToggle> {
   private _checked: boolean = false;
 
   get checked(): boolean {

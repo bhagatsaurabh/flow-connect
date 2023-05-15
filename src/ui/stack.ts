@@ -1,11 +1,11 @@
 import { Color } from "../core/color.js";
-import { Serializable } from "../common/interfaces.js";
+import { DataFetchProvider, DataPersistenceProvider, Serializable } from "../common/interfaces.js";
 import { Node } from "../core/node.js";
 import { Vector } from "../core/vector.js";
-import { Button, Container, Display, Image, Input, Label, Select, Slider, Source, Toggle } from "./index.js";
+import { Button, Container, Dial, Display, Envelope, HorizontalLayout, Image, Input, Label, RadioGroup, Select, SerializedButton, SerializedContainer, SerializedDial, SerializedDisplay, SerializedEnvelope, SerializedHorizontalLayout, SerializedImage, SerializedInput, SerializedLabel, SerializedRadioGroup, SerializedSelect, SerializedSlider, SerializedSlider2D, SerializedSource, SerializedToggle, SerializedVSlider, Slider, Slider2D, Source, Toggle, VSlider } from "./index.js";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
 
-export class Stack extends UINode implements Serializable {
+export class Stack extends UINode implements Serializable<SerializedStack> {
 
   constructor(
     node: Node,
@@ -84,8 +84,10 @@ export class Stack extends UINode implements Serializable {
   }
   onContextMenu(): void { /**/ }
 
-  serialize(): SerializedStackLayout {
-    return {
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedStack> {
+    const childs = await Promise.all(this.children.map(child => (child as unknown as Serializable<SerializedUINode>).serialize(persist)));
+
+    return Promise.resolve<SerializedStack>({
       style: this.style,
       id: this.id,
       hitColor: this.hitColor.serialize(),
@@ -93,30 +95,39 @@ export class Stack extends UINode implements Serializable {
       propName: null,
       input: null,
       output: null,
-      childs: this.children.map(child => (child as any).serialize())
-    }
+      childs
+    });
   }
-  static deSerialize(node: Node, data: SerializedStackLayout): Stack {
+  static async deSerialize(node: Node, data: SerializedStack, receive?: DataFetchProvider): Promise<Stack> {
     let stack = new Stack(node, { style: data.style, id: data.id, hitColor: Color.deSerialize(data.hitColor), childs: [] });
 
-    stack.children.push(...data.childs.map(serializedChild => {
+    const deSerializingChilds = data.childs.map(serializedChild => {
       switch (serializedChild.type) {
-        case UIType.Button: return Button.deSerialize(node, serializedChild);
-        case UIType.Container: return Container.deSerialize(node, serializedChild);
-        case UIType.Display: return Display.deSerialize(node, serializedChild);
-        case UIType.HorizontalLayout: return Stack.deSerialize(node, serializedChild);
-        case UIType.Stack: return Stack.deSerialize(node, serializedChild);
-        case UIType.Image: return Image.deSerialize(node, serializedChild);
-        case UIType.Input: return Input.deSerialize(node, serializedChild);
-        case UIType.Label: return Label.deSerialize(node, serializedChild);
-        case UIType.Select: return Select.deSerialize(node, serializedChild);
-        case UIType.Slider: return Slider.deSerialize(node, serializedChild);
-        case UIType.Source: return Source.deSerialize(node, serializedChild);
-        case UIType.Toggle: return Toggle.deSerialize(node, serializedChild);
+        case UIType.Button: return Button.deSerialize(node, serializedChild as SerializedButton);
+        case UIType.Container: return Container.deSerialize(node, serializedChild as SerializedContainer, receive);
+        case UIType.Dial: return Dial.deSerialize(node, serializedChild as SerializedDial);
+        case UIType.Display: return Display.deSerialize(node, serializedChild as SerializedDisplay);
+        case UIType.Envelope: return Envelope.deSerialize(node, serializedChild as SerializedEnvelope);
+        case UIType.HorizontalLayout: return HorizontalLayout.deSerialize(node, serializedChild as SerializedHorizontalLayout, receive);
+        case UIType.Image: return Image.deSerialize(node, serializedChild as SerializedImage);
+        case UIType.Input: return Input.deSerialize(node, serializedChild as SerializedInput);
+        case UIType.Label: return Label.deSerialize(node, serializedChild as SerializedLabel);
+        case UIType.RadioGroup: return RadioGroup.deSerialize(node, serializedChild as SerializedRadioGroup);
+        case UIType.Select: return Select.deSerialize(node, serializedChild as SerializedSelect);
+        case UIType.Slider2D: return Slider2D.deSerialize(node, serializedChild as SerializedSlider2D);
+        case UIType.Slider: return Slider.deSerialize(node, serializedChild as SerializedSlider);
+        case UIType.Source: return Source.deSerialize(node, serializedChild as SerializedSource, receive);
+        case UIType.Stack: return Stack.deSerialize(node, serializedChild as SerializedStack, receive);
+        case UIType.Toggle: return Toggle.deSerialize(node, serializedChild as SerializedToggle);
+        case UIType.VSlider: return VSlider.deSerialize(node, serializedChild as SerializedVSlider);
         default: return;
       }
-    }));
-    return stack;
+    })
+
+    const children = await Promise.all(deSerializingChilds);
+    stack.children.push(...children);
+
+    return Promise.resolve<Stack>(stack);
   }
 }
 
@@ -130,7 +141,7 @@ let DefaultStackStyle = () => {
   };
 };
 
-export interface SerializedStackLayout extends SerializedUINode { }
+export interface SerializedStack extends SerializedUINode { }
 
 interface StackOptions {
   childs?: UINode[],

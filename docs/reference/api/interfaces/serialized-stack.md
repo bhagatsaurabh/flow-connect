@@ -1,4 +1,4 @@
-# Interface: SerializedStackLayout
+# Interface: SerializedStack
 
 ## Hierarchy
 
