@@ -184,7 +184,7 @@ export class Source extends UINode implements Serializable<SerializedSource> {
 
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedSource> {
     let file = null;
-    if (persist) {
+    if (persist && this.file) {
       file = { id: getNewUUID(), name: this.file.name };
       await persist(file.id, this.file);
     }
