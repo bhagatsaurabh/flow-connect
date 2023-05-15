@@ -281,6 +281,8 @@ module.exports = {
             { text: 'RenderState', link: '/reference/api/interfaces/render-state.md' },
             { text: 'Rules', link: '/reference/api/interfaces/rules.md' },
             { text: 'Serializable', link: '/reference/api/interfaces/serializable.md' },
+            { text: 'DataPersistenceProvider', link: '/reference/api/interfaces/data-persistence-provider.md' },
+            { text: 'DataFetchProvider', link: '/reference/api/interfaces/data-fetch-provider.md' },
           ],
         },
         {

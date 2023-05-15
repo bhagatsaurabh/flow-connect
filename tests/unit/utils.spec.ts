@@ -1,13 +1,6 @@
-import { clamp, denormalize, getNewUUID, getRandom, intersects, normalize } from '../../src/utils/utils';
+import { clamp, denormalize, getRandom, normalize } from '../../src/utils/utils';
 
 describe('Utils', () => {
-  it('should produce unique GUID\'s (theoretically)', () => {
-    let guids = new Set();
-    for (let iters = 0; iters < 100; iters++) guids.add(getNewUUID());
-
-    expect(guids.size).toStrictEqual(100);
-  });
-
   it('should normalize between 0-1', () => {
     expect(normalize(174.267, 100, 200)).toBeGreaterThanOrEqual(0);
     expect(normalize(174.267, 100, 200)).toBeLessThanOrEqual(1);

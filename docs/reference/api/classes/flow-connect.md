@@ -417,7 +417,10 @@ In active development, might not work or can be unstable leading to unexpected r
 
 <Method type="method">
   <template v-slot:signature>
-    fromJson(<strong>json: </strong><em>string</em>):
+    fromJson(
+      <strong>json: </strong><em>string</em>,
+      <Optional class="mr-0p5"/><strong>receive?: </strong><em><Ref to="../interfaces/data-fetch-provider">DataFetchProvider</Ref></em>
+    ):
     <em><Ref to="./flow">Flow</Ref></em>
   </template>
   <template v-slot:desc>
@@ -426,6 +429,8 @@ In active development, might not work or can be unstable leading to unexpected r
   <template v-slot:params>
     <Param name="json"><em>string</em></Param>
     Expected schema is <Ref to="../interfaces/serialized-flow">SerializedFlow</Ref>
+    <Param name="receive?"><em><Ref to="/reference/api/interfaces/data-fetch-provider">DataFetchProvider</Ref></em></Param>
+    A developer implemented function abstracting the retrieval of externally stored files that are being referenced in a flow.
   </template>
   <template v-slot:return>
     <em><Ref to="./flow">Flow</Ref></em>
@@ -524,7 +529,10 @@ In active development, might not work or can be unstable leading to unexpected r
 
 <Method type="method">
   <template v-slot:signature>
-    toJson(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>):
+    toJson(
+      <strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
+      <Optional class="mr-0p5"/><strong>persist?: </strong><em><Ref to="../interfaces/data-persistence-provider">DataPersistenceProvider</Ref></em>
+    ):
     <em>string</em>
   </template>
   <template v-slot:desc>
@@ -532,6 +540,8 @@ In active development, might not work or can be unstable leading to unexpected r
   </template>
   <template v-slot:params>
     <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
+    <Param name="persist?"><em><Ref to="/reference/api/interfaces/data-persistence-provider">DataPersistenceProvider</Ref></em></Param>
+    A developer implemented function abstracting where and how the externally referenced files are stored.
   </template>
   <template v-slot:return>
     <em>string</em> (<Ref to="../interfaces/serialized-flow">SerializedFlow</Ref> schema)
