@@ -3,7 +3,7 @@ import { Rules } from "../common/interfaces.js";
 import { Terminal } from "../core/terminal.js";
 import { ViewPort } from "../common/enums.js";
 
-export const getNewUUID = () => crypto.randomUUID();
+export const uuid = () => crypto.randomUUID();
 
 export const normalize = (value: number, min: number, max: number) => {
   if (min === max) return 1;
@@ -33,7 +33,7 @@ export const canConnect = (source: Terminal, destination: Terminal, rules: Rules
   if (source === destination) return false;
   if (source.node === destination.node) return false;
   if (source.type === destination.type) return false;
-  if (!rules[source.dataType].includes(destination.dataType)) return false;
+  if (!rules[source.dataType].includes(destination.dataType)) return false; // Directional !!
   if (!executionGraph.canConnect(source.node, destination.node)) return false;
   return true;
 }

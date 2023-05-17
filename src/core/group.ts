@@ -1,5 +1,5 @@
 import { SerializedVector, Vector } from "./vector.js";
-import { get, getNewUUID, intersects } from "../utils/utils.js";
+import { get, uuid, intersects } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
 import { Flow } from './flow.js';
 import { Hooks } from './hooks.js';
@@ -49,11 +49,11 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
     this.width = get(options.width, 0);
     this.height = get(options.height, 0);
     this.style = get(options.style, {});
-    this.id = get(options.id, getNewUUID());
+    this.id = get(options.id, uuid());
 
     this.hitColor = options.hitColor;
     this.style = { ...DefaultGroupStyle(), ...options.style };
-    this.id = getNewUUID();
+    this.id = uuid();
     this._position = position;
     if (!this.style.color || !this.style.borderColor) {
       let colors = DefaultGroupColors.Random();
@@ -282,7 +282,7 @@ let DefaultGroupOptions = (): GroupOptions => {
     width: 0,
     height: 0,
     style: {},
-    id: getNewUUID()
+    id: uuid()
   }
 }
 

@@ -1,5 +1,5 @@
 import { Log } from "../utils/logger.js";
-import { getNewUUID } from "../utils/utils.js";
+import { uuid } from "../utils/utils.js";
 import { Flow, FlowState } from "./flow.js";
 import { Serializable } from "../common/interfaces.js";
 import { Node } from "./node.js";
@@ -215,7 +215,7 @@ export class GraphNode implements Serializable<SerializedGraphNode> {
 
   constructor(public flowNode: Node, order?: number, id?: string) {
     this.order = order ? order : 0;
-    this.id = id ? id : getNewUUID();
+    this.id = id ? id : uuid();
   }
 
   serialize(): SerializedGraphNode {

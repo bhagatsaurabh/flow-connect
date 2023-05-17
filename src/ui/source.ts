@@ -9,7 +9,7 @@ import { DataFetchProvider, DataPersistenceProvider, Serializable } from "../com
 import { Color } from "../core/color.js";
 import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
-import { get, getNewUUID } from "../utils/utils.js";
+import { get, uuid } from "../utils/utils.js";
 
 export class Source extends UINode implements Serializable<SerializedSource> {
   private htmlInput: HTMLInputElement;
@@ -185,7 +185,7 @@ export class Source extends UINode implements Serializable<SerializedSource> {
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedSource> {
     let file = null;
     if (persist && this.file) {
-      file = { id: getNewUUID(), name: this.file.name };
+      file = { id: uuid(), name: this.file.name };
       await persist(file.id, this.file);
     }
 

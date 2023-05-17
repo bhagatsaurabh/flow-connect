@@ -1,25 +1,45 @@
-import { Connector, Flow, Group, Node, Color, Hooks, ConnectorRenderParams, NodeRenderParams, GroupRenderParams, NodeButton, NodeButtonRenderParams } from "./core/index.js";
+import {
+  Connector,
+  Flow,
+  Group,
+  Node,
+  Color,
+  Hooks,
+  ConnectorRenderParams,
+  NodeRenderParams,
+  GroupRenderParams,
+  NodeButton,
+  NodeButtonRenderParams,
+} from "./core/index.js";
 import { Vector } from "./core/vector.js";
-import { DataFetchProvider, DataPersistenceProvider, Dimension, Pointer, RenderResolver, Rules } from "./common/interfaces.js";
+import {
+  DataFetchProvider,
+  DataPersistenceProvider,
+  Dimension,
+  Pointer,
+  RenderResolver,
+  Rules,
+} from "./common/interfaces.js";
 import { intersects, noop } from "./utils/utils.js";
-import { Log } from './utils/logger.js';
-import { Terminal, TerminalRenderParams, TerminalType } from './core/terminal.js';
-import { FlowState, FlowOptions, SerializedFlow } from './core/flow.js';
-import { ViewPort } from './common/enums.js';
+import { Log } from "./utils/logger.js";
+import { Terminal, TerminalRenderParams, TerminalType } from "./core/terminal.js";
+import { FlowState, FlowOptions, SerializedFlow } from "./core/flow.js";
+import { ViewPort } from "./common/enums.js";
 import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
 import { Container, ContainerRenderParams } from "./ui/container.js";
 import { TunaInitializer } from "./lib/tuna.js";
 
 declare global {
   interface CanvasRenderingContext2D {
-    roundRect: (x: number, y: number, width: number, height: number, radius: number) => void,
-    strokeRoundRect: (x: number, y: number, width: number, height: number, radius: number) => void,
-    fillRoundRect: (x: number, y: number, width: number, height: number, radius: number) => void
+    roundRect: (x: number, y: number, width: number, height: number, radius: number) => void;
+    strokeRoundRect: (x: number, y: number, width: number, height: number, radius: number) => void;
+    fillRoundRect: (x: number, y: number, width: number, height: number, radius: number) => void;
   }
 }
+
 /**
  * FlowConnect is like a placeholder that contains references to all Flows created by this instance and can render one flow at a time on-screen
- * 
+ *
  * One FlowConnect instance is bound to exactly one HTMLCanvasElement, this instance maintains/tracks the dimensions of HTMLCanvasElement,
  * it registers user-interaction events (mouse, keyboard, touch) and creates additional OffScreenCanvas's to track/act-upon these events
  */
@@ -27,18 +47,24 @@ export class FlowConnect extends Hooks {
   static async create(mount?: HTMLCanvasElement | HTMLDivElement): Promise<FlowConnect> {
     let flowConnect = new FlowConnect(mount);
     await flowConnect.setupAudioContext();
-    if (!(window as any).__tuna__) (window as any).__tuna__ = new (TunaInitializer.initialize() as any)(flowConnect.audioContext);
+    if (!(window as any).__tuna__)
+      (window as any).__tuna__ = new (TunaInitializer.initialize() as any)(flowConnect.audioContext);
     return flowConnect;
   }
 
+  //#region Properties and Accessors
   /** Reference to the canvas element on which the flows will be rendered by FlowConnect instance */
   canvas: HTMLCanvasElement;
   private _context: CanvasRenderingContext2D;
-  get context(): CanvasRenderingContext2D { return this._context }
+  get context(): CanvasRenderingContext2D {
+    return this._context;
+  }
 
   /** Reference to the AudioContext (one FlowConnect instance will only have one audio context) */
   private _audioContext: AudioContext;
-  get audioContext(): AudioContext { return this._audioContext }
+  get audioContext(): AudioContext {
+    return this._audioContext;
+  }
 
   /** @hidden Only used for audio stuff */
   audioBufferCache: Map<ArrayBuffer, AudioBuffer> = new Map();
@@ -48,23 +74,33 @@ export class FlowConnect extends Hooks {
   /** For rendering color hit-maps for Nodes */
   offCanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offContext }
+  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
+    return this._offContext;
+  }
 
   /** For rendering color hit-maps for UI elements and Terminals of Nodes */
   offUICanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offUIContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offUIContext }
+  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
+    return this._offUIContext;
+  }
 
   /** For rendering color hit-maps for Groups */
   offGroupCanvas: OffscreenCanvas | HTMLCanvasElement;
   private _offGroupContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  get offGroupContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this._offGroupContext }
+  get offGroupContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
+    return this._offGroupContext;
+  }
 
   /** Canvas's absolute position and dimension from viewport origin (top-left) (for e.g. if the canvas element is inside a scrollable parent) */
   canvasDimensions: Dimension = { top: 0, left: 0, width: 0, height: 0 };
 
-  get cursor(): string { return this.canvas.style.cursor; }
-  set cursor(cursor: string) { this.canvas.style.cursor = cursor; }
+  get cursor(): string {
+    return this.canvas.style.cursor;
+  }
+  set cursor(cursor: string) {
+    this.canvas.style.cursor = cursor;
+  }
 
   state: FlowConnectState = FlowConnectState.Stopped;
 
@@ -88,16 +124,13 @@ export class FlowConnect extends Hooks {
   private currGroup: Group;
   private groupStartPoint: Vector;
 
-  /** @hidden Reference to the new Connector being drawn */
-  floatingConnector: Connector;
-
   /** For controlling user-interaction */
   pointers: Pointer[] = [];
   private keymap: Record<string, boolean> = {};
-  private touchControls: Record<string, boolean> = { 'CreateGroup': false };
+  private touchControls: Record<string, boolean> = { CreateGroup: false };
 
   /** @hidden HTML input overlayed on canvas when focused */
-  private genericInput: HTMLInputElement = document.createElement('input');
+  private genericInput: HTMLInputElement = document.createElement("input");
   /** @hidden ResizeObservers to trigger re-render when dimensions change */
   private parentResizeObserver: ResizeObserver;
   private bodyResizeObserver: ResizeObserver;
@@ -106,12 +139,16 @@ export class FlowConnect extends Hooks {
   maxScale: number = 5;
   wheelScaleDelta: number = 1.05;
   pinchScaleDelta: number = 1.02;
-  get scale(): number { return this._transform.a }
+  get scale(): number {
+    return this._transform.a;
+  }
   disableScale: boolean = false;
   private _transform: DOMMatrix = new DOMMatrix();
 
   /** Current transformation matrix */
-  get transform(): DOMMatrix { return this._transform }
+  get transform(): DOMMatrix {
+    return this._transform;
+  }
   private inverseTransform: DOMMatrix = new DOMMatrix();
   private identity: DOMMatrix = new DOMMatrix();
 
@@ -119,16 +156,19 @@ export class FlowConnect extends Hooks {
   startTime: number = -1;
   private timerId: number;
   /** No. of milliseconds passed since the start of one or more flows */
-  get time(): number { return (this.startTime < 0) ? this.startTime : (performance.now() - this.startTime) }
+  get time(): number {
+    return this.startTime < 0 ? this.startTime : performance.now() - this.startTime;
+  }
 
   readonly renderResolver: {
-    connector?: RenderResolver<Connector, ConnectorRenderParams>,
-    node?: RenderResolver<Node, NodeRenderParams>,
-    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>,
-    uiContainer?: RenderResolver<Container, ContainerRenderParams>
-    group?: RenderResolver<Group, GroupRenderParams>,
-    terminal?: RenderResolver<Terminal, TerminalRenderParams>,
+    connector?: RenderResolver<Connector, ConnectorRenderParams>;
+    node?: RenderResolver<Node, NodeRenderParams>;
+    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>;
+    uiContainer?: RenderResolver<Container, ContainerRenderParams>;
+    group?: RenderResolver<Group, GroupRenderParams>;
+    terminal?: RenderResolver<Terminal, TerminalRenderParams>;
   } = {};
+  //#endregion
 
   /**
    * @param mount HTML element (div or canvas) on which FlowConnect will render Flows, if no mount is provided, a new canvas element will be created and attached to document.body
@@ -145,10 +185,11 @@ export class FlowConnect extends Hooks {
     this.setGenericInput();
   }
 
+  //#region Methods
   /** Re-calculates cavnvas position/dimension when scrolling/resizing happens */
   private registerChangeListeners() {
     let throttle = false;
-    document.addEventListener('scroll', () => {
+    document.addEventListener("scroll", () => {
       if (!throttle) {
         window.requestAnimationFrame(() => {
           this.calcCanvasDimension(false);
@@ -178,58 +219,59 @@ export class FlowConnect extends Hooks {
   }
   private prepareCanvas(mount?: HTMLCanvasElement | HTMLDivElement) {
     if (!mount) {
-      this.canvas = document.createElement('canvas');
+      this.canvas = document.createElement("canvas");
       this.canvas.width = document.body.clientWidth;
       this.canvas.height = document.body.clientHeight;
       document.body.appendChild(this.canvas);
     } else if (mount instanceof HTMLDivElement) {
-      this.canvas = document.createElement('canvas');
+      this.canvas = document.createElement("canvas");
       this.canvas.width = mount.clientWidth;
       this.canvas.height = mount.clientHeight;
       mount.appendChild(this.canvas);
     } else if (mount instanceof HTMLCanvasElement) {
       this.canvas = mount;
     } else {
-      Log.error('mount provided is not of type HTMLDivElement or HTMLCanvasElement')
+      Log.error("mount provided is not of type HTMLDivElement or HTMLCanvasElement");
     }
 
     Object.assign(this.canvas.style, {
-      position: 'absolute',
+      position: "absolute",
       left: 0,
       top: 0,
-      width: '100%',
-      height: '100%'
-    })
-    this._context = this.canvas.getContext('2d');
+      width: "100%",
+      height: "100%",
+    });
+    this._context = this.canvas.getContext("2d");
   }
-  /** Creates additional canvas's for rendering color hit-maps */
+  /** Creates additional canvases for rendering color hit-maps */
   private setupHitCanvas() {
-    if (typeof OffscreenCanvas !== 'undefined' && typeof OffscreenCanvasRenderingContext2D !== 'undefined') {
+    if (typeof OffscreenCanvas !== "undefined" && typeof OffscreenCanvasRenderingContext2D !== "undefined") {
       this.offCanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
       this.offUICanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
       this.offGroupCanvas = new OffscreenCanvas(this.canvasDimensions.width, this.canvasDimensions.height);
     } else {
-      this.offCanvas = document.createElement('canvas');
-      this.offUICanvas = document.createElement('canvas');
-      this.offGroupCanvas = document.createElement('canvas');
+      this.offCanvas = document.createElement("canvas");
+      this.offUICanvas = document.createElement("canvas");
+      this.offGroupCanvas = document.createElement("canvas");
     }
-    this._offContext = this.offCanvas.getContext('2d', { willReadFrequently: true });
-    this._offUIContext = this.offUICanvas.getContext('2d', { willReadFrequently: true });
-    this._offGroupContext = this.offGroupCanvas.getContext('2d', { willReadFrequently: true });
+    this._offContext = this.offCanvas.getContext("2d", { willReadFrequently: true });
+    this._offUIContext = this.offUICanvas.getContext("2d", { willReadFrequently: true });
+    this._offGroupContext = this.offGroupCanvas.getContext("2d", { willReadFrequently: true });
   }
   private attachStyles() {
-    this.canvas.style.touchAction = 'none';
+    this.canvas.style.touchAction = "none";
 
-    let inputStyle = document.createElement('style');
-    inputStyle.innerHTML = 'input.flow-connect-input { position: fixed; visibility: hidden; pointer-events: none; z-index: 100; border: none; border-radius: 0; box-sizing: border-box;} input.flow-connect-input:focus { outline: none; }';
-    document.getElementsByTagName('head')[0].appendChild(inputStyle);
+    let inputStyle = document.createElement("style");
+    inputStyle.innerHTML =
+      "input.flow-connect-input { position: fixed; visibility: hidden; pointer-events: none; z-index: 100; border: none; border-radius: 0; box-sizing: border-box;} input.flow-connect-input:focus { outline: none; }";
+    document.getElementsByTagName("head")[0].appendChild(inputStyle);
   }
   private calcCanvasDimension(adjust: boolean) {
     if (adjust && this.canvas.parentElement) {
       let parentBoundingRect = this.canvas.parentElement.getBoundingClientRect();
       this.canvas.width = parentBoundingRect.width;
       this.canvas.height = parentBoundingRect.height;
-      this.call('dimension-change', this, this.canvas.width, this.canvas.height);
+      this.call("dimension-change", this, this.canvas.width, this.canvas.height);
     }
 
     let boundingRect = this.canvas.getBoundingClientRect();
@@ -237,8 +279,8 @@ export class FlowConnect extends Hooks {
       top: Math.round(boundingRect.top),
       left: Math.round(boundingRect.left),
       width: Math.round(boundingRect.width),
-      height: Math.round(boundingRect.height)
-    }
+      height: Math.round(boundingRect.height),
+    };
 
     this.offCanvas.width = this.canvasDimensions.width;
     this.offCanvas.height = this.canvasDimensions.height;
@@ -249,7 +291,13 @@ export class FlowConnect extends Hooks {
   }
   private canvasUtils() {
     FlowConnect.prototype.canvasUtils = noop;
-    CanvasRenderingContext2D.prototype.roundRect = function (x: number, y: number, width: number, height: number, radius: number) {
+    CanvasRenderingContext2D.prototype.roundRect = function (
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      radius: number
+    ) {
       this.beginPath();
       this.moveTo(x + radius, y);
       this.lineTo(x + width - radius, y);
@@ -261,17 +309,29 @@ export class FlowConnect extends Hooks {
       this.lineTo(x, y + radius);
       this.quadraticCurveTo(x, y, x + radius, y);
       this.closePath();
-    }
-    CanvasRenderingContext2D.prototype.strokeRoundRect = function (x: number, y: number, width: number, height: number, radius: number) {
-      if (typeof radius === 'undefined') radius = 5;
+    };
+    CanvasRenderingContext2D.prototype.strokeRoundRect = function (
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      radius: number
+    ) {
+      if (typeof radius === "undefined") radius = 5;
       this.roundRect(x, y, width, height, radius);
       this.stroke();
-    }
-    CanvasRenderingContext2D.prototype.fillRoundRect = function (x: number, y: number, width: number, height: number, radius: number) {
-      if (typeof radius === 'undefined') radius = 5;
+    };
+    CanvasRenderingContext2D.prototype.fillRoundRect = function (
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      radius: number
+    ) {
+      if (typeof radius === "undefined") radius = 5;
       this.roundRect(x, y, width, height, radius);
       this.fill();
-    }
+    };
   }
   private registerEvents(): void {
     let dragDelta: Vector;
@@ -280,10 +340,10 @@ export class FlowConnect extends Hooks {
 
     window.onkeydown = (ev: KeyboardEvent) => {
       !this.keymap[ev.key] && (this.keymap[ev.key] = true);
-    }
+    };
     window.onkeyup = (ev: KeyboardEvent) => {
       this.keymap[ev.key] = false;
-    }
+    };
 
     this.canvas.onpointerdown = (ev: PointerEvent) => {
       if (!this.currFlow) return;
@@ -294,7 +354,7 @@ export class FlowConnect extends Hooks {
         this.currHitNode = this.getHitNode(this.pointers[0].screenPosition);
         if (this.currHitNode) {
           this.currHitNode.zIndex = Number.MAX_SAFE_INTEGER;
-          if (this.keymap['Control']) {
+          if (this.keymap["Control"]) {
             this.currHitNode.focused = !this.currHitNode.focused;
           } else {
             this.currFlow.removeAllFocus();
@@ -303,26 +363,25 @@ export class FlowConnect extends Hooks {
           this.currHitNode.onDown(this.pointers[0].screenPosition.clone(), this.pointers[0].realPosition.clone());
           dragDelta = this.currHitNode.position.subtract(this.pointers[0].realPosition);
         } else {
-          if (!this.keymap['Control']) {
+          if (!this.keymap["Control"]) {
             this.currFlow.removeAllFocus();
 
             this.currHitGroup = this.getHitGroup(this.pointers[0].screenPosition);
             this.currHitGroup && (dragDelta = this.currHitGroup.position.subtract(this.pointers[0].realPosition));
-          }
-          else if (this.keymap['Control'] || this.touchControls['CreateGroup']) {
+          } else if (this.keymap["Control"] || this.touchControls["CreateGroup"]) {
             this.groupStartPoint = this.pointers[0].realPosition.clone();
-            this.currGroup = new Group(this.currFlow, this.groupStartPoint.clone(), { name: 'New Group' });
+            this.currGroup = new Group(this.currFlow, this.groupStartPoint.clone(), {
+              name: "New Group",
+            });
           }
         }
       } else {
         this.currHitNode = null;
         this.currHitGroup = null;
         this.currFlow.removeAllFocus();
-        if (this.floatingConnector) {
-          this.floatingConnector.removeConnection();
-        }
+        this.currFlow.removeFloatingConnector();
       }
-    }
+    };
     this.canvas.onpointerup = (ev) => {
       if (!this.currFlow) return;
 
@@ -349,8 +408,8 @@ export class FlowConnect extends Hooks {
           newGroup.setContainedNodes();
         }
       }
-      if (this.floatingConnector) this.handleConnection(hitNode, screenPosition, realPosition);
-    }
+      if (this.currFlow.floatingConnector) this.handleConnection(hitNode, screenPosition, realPosition);
+    };
     this.canvas.onpointerout = (ev) => {
       if (!this.currFlow) return;
 
@@ -373,7 +432,7 @@ export class FlowConnect extends Hooks {
         }
       }
 
-      if (this.floatingConnector) this.floatingConnector.removeConnection();
+      if (this.currFlow.floatingConnector) this.currFlow.removeFloatingConnector();
 
       if (this.prevHitNode) {
         let screenPosition = this.getRelativePosition(ev);
@@ -381,7 +440,7 @@ export class FlowConnect extends Hooks {
         this.prevHitNode.onExit(screenPosition, realPosition);
         this.prevHitNode = null;
       }
-    }
+    };
     this.canvas.onpointermove = (ev) => {
       if (!this.currFlow) return;
 
@@ -394,7 +453,11 @@ export class FlowConnect extends Hooks {
         let currPinchDistance = Vector.Distance(this.pointers[0].screenPosition, this.pointers[1].screenPosition);
         if (prevPinchDistance > 0) {
           if (currPinchDistance !== prevPinchDistance) {
-            this.handleZoom(currPinchDistance > prevPinchDistance, Vector.Midpoint(this.pointers[0].screenPosition, this.pointers[1].screenPosition), this.pinchScaleDelta);
+            this.handleZoom(
+              currPinchDistance > prevPinchDistance,
+              Vector.Midpoint(this.pointers[0].screenPosition, this.pointers[1].screenPosition),
+              this.pinchScaleDelta
+            );
           }
         }
         prevPinchDistance = currPinchDistance;
@@ -412,7 +475,11 @@ export class FlowConnect extends Hooks {
         // If dragging UINode outside its bounds, Node can pre-empt currHitNode
         this.currHitNode.onDrag(screenPosition.clone(), realPosition.clone());
         if (this.currHitNode) {
-          if ((!this.currHitNode.currHitUINode || !this.currHitNode.currHitUINode.draggable) && !this.currHitNode.currHitTerminal && !this.floatingConnector) {
+          if (
+            (!this.currHitNode.currHitUINode || !this.currHitNode.currHitUINode.draggable) &&
+            !this.currHitNode.currHitTerminal &&
+            !this.currFlow.floatingConnector
+          ) {
             this.currHitNode.position = realPosition.add(dragDelta);
 
             let hitGroup = this.getHitGroup(screenPosition);
@@ -420,16 +487,19 @@ export class FlowConnect extends Hooks {
               let groupRealPos = hitGroup.position.transform(this._transform);
               let nodeRealPos = this.currHitNode.position.transform(this._transform);
 
-              let intersection = intersects(groupRealPos.x, groupRealPos.y,
+              let intersection = intersects(
+                groupRealPos.x,
+                groupRealPos.y,
                 groupRealPos.x + hitGroup.width * this.scale,
                 groupRealPos.y + hitGroup.height * this.scale,
-                nodeRealPos.x, nodeRealPos.y,
+                nodeRealPos.x,
+                nodeRealPos.y,
                 nodeRealPos.x + this.currHitNode.width * this.scale,
                 nodeRealPos.y + this.currHitNode.ui.height * this.scale
               );
 
               if (intersection === ViewPort.INSIDE) {
-                let nodeIndex = hitGroup.nodes.findIndex(node => node.id === this.currHitNode.id);
+                let nodeIndex = hitGroup.nodes.findIndex((node) => node.id === this.currHitNode.id);
                 hitGroup.nodeDeltas[nodeIndex] = this.currHitNode.position.subtract(hitGroup.position);
               }
             }
@@ -438,25 +508,25 @@ export class FlowConnect extends Hooks {
       } else {
         if (this.currHitGroup) {
           this.currHitGroup.position = realPosition.add(dragDelta);
-        } else if (this.pointers.length === 1 && !this.keymap['Control'] && !this.touchControls['CreateGroup']) {
+        } else if (this.pointers.length === 1 && !this.keymap["Control"] && !this.touchControls["CreateGroup"]) {
           let delta = screenPosition.subtract(prevPanPosition).multiplyInPlace(1 / this.scale);
           prevPanPosition = screenPosition;
           this.updateTransform(null, null, delta);
         }
       }
-      if (this.floatingConnector) this.floatingConnector.floatingTip = realPosition;
+      if (this.currFlow.floatingConnector) this.currFlow.floatingConnector.floatingTip = realPosition;
 
-      if (ev.pointerType === 'mouse' && !this.currHitNode) {
+      if (ev.pointerType === "mouse" && !this.currHitNode) {
         let hitNode = this.getHitNode(screenPosition);
         if (hitNode !== this.prevHitNode) {
           this.prevHitNode && this.prevHitNode.onExit(screenPosition, realPosition);
           hitNode && hitNode.onEnter(screenPosition, realPosition);
         } else {
-          hitNode && (!this.currHitNode) && hitNode.onOver(screenPosition, realPosition);
+          hitNode && !this.currHitNode && hitNode.onOver(screenPosition, realPosition);
         }
         this.prevHitNode = hitNode;
       }
-    }
+    };
     this.canvas.onclick = (ev) => {
       if (!this.currFlow) return;
 
@@ -478,16 +548,18 @@ export class FlowConnect extends Hooks {
       let screenPosition = this.getRelativePosition(ev);
       let hitNode = this.getHitNode(screenPosition);
       hitNode && hitNode.onContextMenu();
-      if (!this.keymap['Control']) this.currFlow.removeAllFocus();
+      if (!this.keymap["Control"]) this.currFlow.removeAllFocus();
       hitNode && (hitNode.focused = true);
-    }
+    };
     this.canvas.onwheel = (ev: WheelEvent) => {
       if (!this.currFlow) return;
 
       let screenPosition = this.getRelativePosition(ev);
       let hitNode = this.getHitNode(screenPosition);
       if (hitNode) {
-        let hitColor = Color.rgbaToString(this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+        let hitColor = Color.rgbaToString(
+          this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+        );
         let hitUINode = hitNode.getHitUINode(hitColor);
 
         // Need to add touch compability for pinch on UINodes
@@ -501,20 +573,20 @@ export class FlowConnect extends Hooks {
         ev.preventDefault();
         this.handleZoom(ev.deltaY < 0, screenPosition, this.wheelScaleDelta);
       }
-    }
+    };
   }
   private setGenericInput() {
-    this.genericInput.className = 'flow-connect-input';
-    this.genericInput.style.visibility = 'hidden';
-    this.genericInput.style.pointerEvents = 'none';
-    this.genericInput.style.padding = '0';
+    this.genericInput.className = "flow-connect-input";
+    this.genericInput.style.visibility = "hidden";
+    this.genericInput.style.pointerEvents = "none";
+    this.genericInput.style.padding = "0";
 
     this.genericInput.onblur = () => {
-      this.genericInput.style.visibility = 'hidden';
-      this.genericInput.style.pointerEvents = 'none';
+      this.genericInput.style.visibility = "hidden";
+      this.genericInput.style.pointerEvents = "none";
 
       this.genericInput.onchange = null;
-    }
+    };
 
     document.body.appendChild(this.genericInput);
   }
@@ -532,20 +604,28 @@ export class FlowConnect extends Hooks {
     let workletUtils = generateWorkletUtils();
     let audioWorklets = generateAudioWorklets(workletUtils.CircularBuffer);
     await this.audioContext.audioWorklet.addModule(workletUtils.CircularBuffer);
-    return Promise.all(Object.keys(audioWorklets).map(key => this.audioContext.audioWorklet.addModule(audioWorklets[key])));
+    return Promise.all(
+      Object.keys(audioWorklets).map((key) => this.audioContext.audioWorklet.addModule(audioWorklets[key]))
+    );
   }
 
-  showGenericInput(position: Vector | DOMPoint, value: string, styles: Record<string, any>, attributes: Record<string, any>, callback: (value: string) => void) {
+  showGenericInput(
+    position: Vector | DOMPoint,
+    value: string,
+    styles: Record<string, any>,
+    attributes: Record<string, any>,
+    callback: (value: string) => void
+  ) {
     if (document.activeElement === this.genericInput) return;
 
     Object.assign(this.genericInput.style, styles);
     Object.assign(this.genericInput, attributes);
 
     Object.assign(this.genericInput.style, {
-      left: (position.x + this.canvasDimensions.left) + 'px',
-      top: (position.y + this.canvasDimensions.top - 3) + 'px',
-      visibility: 'visible',
-      pointerEvents: 'all'
+      left: position.x + this.canvasDimensions.left + "px",
+      top: position.y + this.canvasDimensions.top - 3 + "px",
+      visibility: "visible",
+      pointerEvents: "all",
     });
     this.genericInput.value = value;
     this.genericInput.onchange = () => callback(this.genericInput.value);
@@ -555,7 +635,7 @@ export class FlowConnect extends Hooks {
     this.registerObservers(newParent);
   }
   private updatePointer(id: number, screenPosition: Vector, realPosition: Vector) {
-    let pointer = this.pointers.find(pntr => pntr.id === id);
+    let pointer = this.pointers.find((pntr) => pntr.id === id);
     if (pointer) {
       pointer.screenPosition = screenPosition;
       pointer.realPosition = realPosition;
@@ -563,8 +643,8 @@ export class FlowConnect extends Hooks {
   }
   private handleZoom(zoomIn: boolean, origin: Vector, scaleDelta: number) {
     if ((this._transform.a >= this.maxScale && zoomIn) || (this._transform.a <= this.minScale && !zoomIn)) return;
-    this.updateTransform(zoomIn ? scaleDelta : (1 / scaleDelta), origin, null);
-    this.call('scale', this.scale);
+    this.updateTransform(zoomIn ? scaleDelta : 1 / scaleDelta, origin, null);
+    this.call("scale", this.scale);
   }
   private handleGrouping(screenPosition: Vector) {
     let hitGroup = this.getHitGroup(screenPosition);
@@ -574,10 +654,13 @@ export class FlowConnect extends Hooks {
       let groupRealPos = hitGroup.position.transform(this._transform);
       let nodeRealPos = this.currHitNode.position.transform(this._transform);
 
-      intersection = intersects(groupRealPos.x, groupRealPos.y,
+      intersection = intersects(
+        groupRealPos.x,
+        groupRealPos.y,
         groupRealPos.x + hitGroup.width * this.scale,
         groupRealPos.y + hitGroup.height * this.scale,
-        nodeRealPos.x, nodeRealPos.y,
+        nodeRealPos.x,
+        nodeRealPos.y,
         nodeRealPos.x + this.currHitNode.width * this.scale,
         nodeRealPos.y + this.currHitNode.ui.height * this.scale
       );
@@ -585,13 +668,13 @@ export class FlowConnect extends Hooks {
 
     if (this.currHitNode.group) {
       if (this.currHitNode.group !== hitGroup) {
-        let nodeIndex = this.currHitNode.group.nodes.findIndex(node => node.id === this.currHitNode.id);
+        let nodeIndex = this.currHitNode.group.nodes.findIndex((node) => node.id === this.currHitNode.id);
         this.currHitNode.group.nodes.splice(nodeIndex, 1);
         this.currHitNode.group.nodeDeltas.splice(nodeIndex, 1);
         this.currHitNode.group = null;
       } else {
         if (intersection !== ViewPort.INSIDE) {
-          let nodeIndex = this.currHitNode.group.nodes.findIndex(node => node.id === this.currHitNode.id);
+          let nodeIndex = this.currHitNode.group.nodes.findIndex((node) => node.id === this.currHitNode.id);
           this.currHitNode.group.nodes.splice(nodeIndex, 1);
           this.currHitNode.group.nodeDeltas.splice(nodeIndex, 1);
           this.currHitNode.group = null;
@@ -609,7 +692,7 @@ export class FlowConnect extends Hooks {
   }
   private handleConnection(hitNode: Node, screenPosition: Vector, realPosition: Vector) {
     if (!hitNode) {
-      this.floatingConnector.removeConnection();
+      this.currFlow.removeFloatingConnector();
       return;
     }
     let hitTerminal = hitNode.getHitTerminal(
@@ -619,41 +702,47 @@ export class FlowConnect extends Hooks {
     );
     if (hitTerminal) hitNode.currHitTerminal = hitTerminal;
     if (!hitTerminal) {
-      this.floatingConnector.removeConnection();
+      this.currFlow.removeFloatingConnector();
       return;
     }
 
     let destination = hitNode.currHitTerminal;
-    if (!this.floatingConnector.canConnect(destination)) {
-      this.floatingConnector.removeConnection();
+    if (!this.currFlow.floatingConnector.canConnect(destination)) {
+      this.currFlow.removeFloatingConnector();
       hitNode.currHitTerminal = null;
+      destination.node.currHitTerminal = null;
     } else {
       if (destination.type === TerminalType.OUT) {
-        this.floatingConnector.completeConnection(destination);
+        const terminal = this.currFlow.removeFloatingConnector();
+        hitNode.currHitTerminal?.onExit(null, null);
         hitNode.currHitTerminal = null;
+        destination.node.currHitTerminal?.onExit(null, null);
+        destination.node.currHitTerminal = null;
+        terminal.connect(destination);
       } else {
         if (destination.connectors.length > 0) {
-          if (destination.connectors[0].start === this.floatingConnector.start) {
-            this.floatingConnector.removeConnection();
+          if (destination.connectors[0].start === this.currFlow.floatingConnector.start) {
+            this.currFlow.removeFloatingConnector();
             hitNode.currHitTerminal = null;
             return;
           }
-          let index = destination.connectors[0].start.connectors.indexOf(destination.connectors[0]);
-          let [oldConnector] = destination.connectors[0].start.connectors.splice(index, 1);
-          let [startTerm, endTerm] = [oldConnector.start, oldConnector.end];
-          this.currFlow.connectors.delete(oldConnector.id);
-          this.currFlow.executionGraph.disconnect(startTerm.node, endTerm.node);
-          oldConnector.start.onDisconnect(oldConnector, startTerm, endTerm);
-          oldConnector.end.onDisconnect(oldConnector, startTerm, endTerm);
 
-          this.floatingConnector.completeConnection(destination);
+          destination.disconnect();
+          const terminal = this.currFlow.removeFloatingConnector();
+          hitNode.currHitTerminal?.onExit(null, null);
           hitNode.currHitTerminal = null;
+          destination.node.currHitTerminal?.onExit(null, null);
+          destination.node.currHitTerminal = null;
+          terminal.connect(destination);
         } else {
-          this.floatingConnector.completeConnection(destination);
+          const terminal = this.currFlow.removeFloatingConnector();
+          hitNode.currHitTerminal?.onExit(null, null);
           hitNode.currHitTerminal = null;
+          destination.node.currHitTerminal?.onExit(null, null);
+          destination.node.currHitTerminal = null;
+          terminal.connect(destination);
         }
       }
-      this.floatingConnector = null;
     }
   }
   private getRelativePosition(ev: PointerEvent | WheelEvent | MouseEvent) {
@@ -678,7 +767,7 @@ export class FlowConnect extends Hooks {
     this._offUIContext.setTransform(this._transform);
     this._offGroupContext.setTransform(this._transform);
 
-    this.call('transform', this);
+    this.call("transform", this);
   }
   translateBy(delta: Vector) {
     this.updateTransform(null, null, delta);
@@ -690,11 +779,14 @@ export class FlowConnect extends Hooks {
     this.pointers.push({
       id: pointerId,
       screenPosition: position,
-      realPosition: position.transform(this.inverseTransform)
+      realPosition: position.transform(this.inverseTransform),
     });
   }
   private removePointer(pointers: Pointer[], ev: PointerEvent) {
-    pointers.splice(pointers.findIndex(pointer => pointer.id === ev.pointerId), 1);
+    pointers.splice(
+      pointers.findIndex((pointer) => pointer.id === ev.pointerId),
+      1
+    );
   }
   private getHitNode(position: Vector): Node {
     let rgbaString = Color.rgbaToString(this._offContext.getImageData(position.x, position.y, 1, 1).data);
@@ -731,11 +823,11 @@ export class FlowConnect extends Hooks {
       this.startTime = performance.now();
       this._startGlobalTime();
       this.state = FlowConnectState.Running;
-      this.call('start', this);
+      this.call("start", this);
     }
   }
   private _startGlobalTime() {
-    this.call('tick', this);
+    this.call("tick", this);
     this.timerId = window.requestAnimationFrame(this._startGlobalTime.bind(this));
   }
 
@@ -744,8 +836,8 @@ export class FlowConnect extends Hooks {
       cancelAnimationFrame(this.timerId);
       this.startTime = -1;
       this.state = FlowConnectState.Stopped;
-      this.call('tickreset', this);
-      this.call('stop', this);
+      this.call("tickreset", this);
+      this.call("stop", this);
     }
   }
   private isRootFlowStopped(): boolean {
@@ -760,12 +852,12 @@ export class FlowConnect extends Hooks {
 
     this.currGroup && this.currGroup.render();
     this.currFlow.render();
-    this.call('render', this);
+    this.call("render", this);
 
     this.frameId = window.requestAnimationFrame(this._render.bind(this));
   }
 
-  createFlow(options: FlowOptions = { name: 'New Flow', rules: {}, terminalColors: {} }): Flow {
+  createFlow(options: FlowOptions = { name: "New Flow", rules: {}, terminalColors: {} }): Flow {
     if (!options.rules) options.rules = {};
     if (!options.terminalColors) options.terminalColors = {};
 
@@ -773,8 +865,8 @@ export class FlowConnect extends Hooks {
     let flow = new Flow(this, options.name, options.rules, options.terminalColors);
     this.flows.push(flow);
 
-    flow.on('start', () => this.startGlobalTime());
-    flow.on('stop', () => this.stopGlobalTime());
+    flow.on("start", () => this.startGlobalTime());
+    flow.on("stop", () => this.stopGlobalTime());
 
     return flow;
   }
@@ -820,40 +912,41 @@ export class FlowConnect extends Hooks {
     }
     return flow;
   }
+  //#endregion
 }
 
 export enum FlowConnectState {
-  Stopped = 'Stopped',
-  Running = 'Running'
+  Stopped = "Stopped",
+  Running = "Running",
 }
 
 /** Default rules every Flow will have, for e.g. a string output can only be connected to string inputs.
-   *  ```javascript
-   *  {
-   *    'string': ['string'],
-   *    'number': ['number'],
-   *    'boolean': ['boolean'],
-   *    'file': ['file'],
-   *    'event': ['event'], ...
-   *  }
-   *  ```
-   */
+ *  ```javascript
+ *  {
+ *    'string': ['string'],
+ *    'number': ['number'],
+ *    'boolean': ['boolean'],
+ *    'file': ['file'],
+ *    'event': ['event'], ...
+ *  }
+ *  ```
+ */
 let DefaultRules: () => Rules = () => ({
-  'string': ['string', 'any'],
-  'number': ['number', 'audioparam', 'any'],
-  'boolean': ['boolean', 'any'],
-  'array': ['array', 'any'],
-  'file': ['file', 'any'],
-  'event': ['event', 'any'],
-  'vector': ['vector', 'any'],
-  'array-buffer': ['array-buffer', 'any'],
-  'audio': ['audio', 'audioparam'],
-  'audioparam': ['audioparam'],
-  'audio-buffer': ['audio-buffer', 'any'],
-  'any': ['any']
+  string: ["string", "any"],
+  number: ["number", "audioparam", "any"],
+  boolean: ["boolean", "any"],
+  array: ["array", "any"],
+  file: ["file", "any"],
+  event: ["event", "any"],
+  vector: ["vector", "any"],
+  "array-buffer": ["array-buffer", "any"],
+  audio: ["audio", "audioparam"],
+  audioparam: ["audioparam"],
+  "audio-buffer": ["audio-buffer", "any"],
+  any: ["any"],
 });
 
-export * from './common/index.js';
-export * from './core/index.js';
-export * from './utils/index.js';
-export * from './ui/index.js';
+export * from "./common/index.js";
+export * from "./core/index.js";
+export * from "./utils/index.js";
+export * from "./ui/index.js";

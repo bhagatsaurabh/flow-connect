@@ -41,6 +41,10 @@ export class TunnelNode extends Node {
         }
       });
     }
+
+    this.on('process', () => {
+      this.outputs[0].setData(this.proxyTerminal.getData());
+    });
   }
 
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedTunnelNode> {
