@@ -94,13 +94,13 @@ export class SubFlowNode extends Node {
   }
   static async deSerialize(flow: Flow, data: SerializedNode, receive?: DataFetchProvider): Promise<SubFlowNode> {
     let subFlow = await Flow.deSerialize(flow.flowConnect, data.subFlow, receive);
-    const subFlowNode = new SubFlowNode(flow, subFlow, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+    const subFlowNode = new SubFlowNode(flow, subFlow, Vector.create(data.position), data.width, data.inputs, data.outputs, {
       name: data.name,
       style: data.style,
       terminalStyle: data.terminalStyle,
       state: data.state,
       id: data.id,
-      hitColor: Color.deSerialize(data.hitColor)
+      hitColor: Color.create(data.hitColor)
     })
 
     const ui = await Container.deSerialize(subFlowNode, data.ui, receive);

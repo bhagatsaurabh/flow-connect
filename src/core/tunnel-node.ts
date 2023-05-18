@@ -69,12 +69,12 @@ export class TunnelNode extends Node {
     });
   }
   static async deSerialize(flow: Flow, data: SerializedTunnelNode, receive?: DataFetchProvider): Promise<TunnelNode> {
-    const tunnelNode = new TunnelNode(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+    const tunnelNode = new TunnelNode(flow, data.name, Vector.create(data.position), data.width, data.inputs, data.outputs, {
       style: data.style,
       terminalStyle: data.terminalStyle,
       state: data.state,
       id: data.id,
-      hitColor: Color.deSerialize(data.hitColor)
+      hitColor: Color.create(data.hitColor)
     });
 
     const ui = await Container.deSerialize(tunnelNode, data.ui, receive);

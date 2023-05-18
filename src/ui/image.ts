@@ -7,7 +7,7 @@ import { Log } from "../utils/logger.js";
 import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
 import { Align } from "../common/enums.js";
 import { SerializedTerminal, Terminal, TerminalType } from "../core/terminal.js";
-import { FlowState } from '../core/flow.js';
+import { FlowState } from "../core/flow.js";
 import { get } from "../utils/utils.js";
 
 export class Image extends UINode implements Serializable<SerializedImage> {
@@ -29,25 +29,25 @@ export class Image extends UINode implements Serializable<SerializedImage> {
     else this._src = newVal;
     this.setupImage();
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
+    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
-  constructor(
-    node: Node,
-    sourceString: string,
-    options: ImageOptions = DefaultImageOptions()
-  ) {
+  constructor(node: Node, sourceString: string, options: ImageOptions = DefaultImageOptions()) {
     super(node, Vector.Zero(), UIType.Image, {
       style: options.style ? { ...DefaultImageStyle(), ...options.style } : DefaultImageStyle(),
       propName: options.propName,
-      input: options.input && (typeof options.input === 'boolean'
-        ? new Terminal(node, TerminalType.IN, 'string', '', {})
-        : Terminal.deSerialize(node, options.input)),
-      output: options.output && (typeof options.output === 'boolean'
-        ? new Terminal(node, TerminalType.OUT, 'string', '', {})
-        : Terminal.deSerialize(node, options.output)),
+      input:
+        options.input &&
+        (typeof options.input === "boolean"
+          ? new Terminal(node, TerminalType.IN, "string", "", {})
+          : Terminal.deSerialize(node, options.input)),
+      output:
+        options.output &&
+        (typeof options.output === "boolean"
+          ? new Terminal(node, TerminalType.OUT, "string", "", {})
+          : Terminal.deSerialize(node, options.output)),
       id: options.id,
-      hitColor: options.hitColor
+      hitColor: options.hitColor,
     });
 
     this._src = get(sourceString, imageIcon);
@@ -56,7 +56,7 @@ export class Image extends UINode implements Serializable<SerializedImage> {
 
   setupImage() {
     if (!this.source) {
-      this.source = document.createElement('img');
+      this.source = document.createElement("img");
       this.source.onerror = (error) => Log.error(error);
       this.source.onload = () => {
         this.imageCanvas.width = this.source.width;
@@ -69,13 +69,13 @@ export class Image extends UINode implements Serializable<SerializedImage> {
       };
     }
     if (!this.imageCanvas) {
-      if (typeof OffscreenCanvas !== 'undefined') this.imageCanvas = new OffscreenCanvas(0, 0);
+      if (typeof OffscreenCanvas !== "undefined") this.imageCanvas = new OffscreenCanvas(0, 0);
       else {
-        this.imageCanvas = document.createElement('canvas');
+        this.imageCanvas = document.createElement("canvas");
         this.imageCanvas.width = 0;
         this.imageCanvas.height = 0;
       }
-      this.imageContext = this.imageCanvas.getContext('2d');
+      this.imageContext = this.imageCanvas.getContext("2d");
     }
 
     this.source.src = this._src;
@@ -86,11 +86,18 @@ export class Image extends UINode implements Serializable<SerializedImage> {
       let x = this.position.x;
       if (this.source.width < this.node.ui.contentWidth) {
         if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
-        else if (this.style.align === Align.Right) x += + (this.node.ui.contentWidth - this.source.width);
+        else if (this.style.align === Align.Right) x += +(this.node.ui.contentWidth - this.source.width);
       }
       this.context.drawImage(
-        this.imageCanvas, 0, 0, this.source.width, this.source.height,
-        x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height
+        this.imageCanvas,
+        0,
+        0,
+        this.source.width,
+        this.source.height,
+        x,
+        this.position.y,
+        this.source.width < this.width ? this.source.width : this.width,
+        this.height
       );
     }
   }
@@ -99,13 +106,23 @@ export class Image extends UINode implements Serializable<SerializedImage> {
       let x = this.position.x;
       if (this.source.width < this.node.ui.contentWidth) {
         if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
-        else if (this.style.align === Align.Right) x += + (this.node.ui.contentWidth - this.source.width);
+        else if (this.style.align === Align.Right) x += +(this.node.ui.contentWidth - this.source.width);
       }
       let context = this.context;
-      context.fillStyle = 'lightgrey';
-      context.strokeStyle = '#000';
-      context.fillRect(x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height);
-      context.strokeRect(x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height)
+      context.fillStyle = "lightgrey";
+      context.strokeStyle = "#000";
+      context.fillRect(
+        x,
+        this.position.y,
+        this.source.width < this.width ? this.source.width : this.width,
+        this.height
+      );
+      context.strokeRect(
+        x,
+        this.position.y,
+        this.source.width < this.width ? this.source.width : this.width,
+        this.height
+      );
     }
   }
   offPaint(): void {
@@ -114,9 +131,14 @@ export class Image extends UINode implements Serializable<SerializedImage> {
     let x = this.position.x;
     if (this.source.width < this.node.ui.contentWidth) {
       if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
-      else if (this.style.align === Align.Right) x += + (this.node.ui.contentWidth - this.source.width);
+      else if (this.style.align === Align.Right) x += +(this.node.ui.contentWidth - this.source.width);
     }
-    this.offUIContext.fillRect(x, this.position.y, this.source.width < this.width ? this.source.width : this.width, this.height);
+    this.offUIContext.fillRect(
+      x,
+      this.position.y,
+      this.source.width < this.width ? this.source.width : this.width,
+      this.height
+    );
   }
 
   reflow(): void {
@@ -152,44 +174,46 @@ export class Image extends UINode implements Serializable<SerializedImage> {
   onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('over', this, screenPosition, realPosition);
+    this.call("over", this, screenPosition, realPosition);
   }
   onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('down', this, screenPosition, realPosition);
+    this.call("down", this, screenPosition, realPosition);
   }
   onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('up', this, screenPosition, realPosition);
+    this.call("up", this, screenPosition, realPosition);
   }
   onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('click', this, screenPosition, realPosition);
+    this.call("click", this, screenPosition, realPosition);
   }
   onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('drag', this, screenPosition, realPosition);
+    this.call("drag", this, screenPosition, realPosition);
   }
   onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
-    this.call('enter', this, screenPosition, realPosition);
+    this.call("enter", this, screenPosition, realPosition);
   }
   onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
-    this.call('exit', this, screenPosition, realPosition);
+    this.call("exit", this, screenPosition, realPosition);
   }
   onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
-    this.call('wheel', this, direction, screenPosition, realPosition);
+    this.call("wheel", this, direction, screenPosition, realPosition);
   }
-  onContextMenu(): void { /**/ }
+  onContextMenu(): void {
+    /**/
+  }
 
   serialize(): SerializedImage {
     return {
@@ -201,7 +225,7 @@ export class Image extends UINode implements Serializable<SerializedImage> {
       id: this.id,
       hitColor: this.hitColor.serialize(),
       type: this.type,
-      childs: []
+      childs: [],
     };
   }
   static deSerialize(node: Node, data: SerializedImage): Image {
@@ -211,32 +235,32 @@ export class Image extends UINode implements Serializable<SerializedImage> {
       output: data.output,
       style: data.style,
       id: data.id,
-      hitColor: Color.deSerialize(data.hitColor)
+      hitColor: Color.create(data.hitColor),
     });
   }
 }
 
 export interface ImageStyle extends UINodeStyle {
-  align?: Align
+  align?: Align;
 }
 let DefaultImageStyle = () => {
   return {
     align: Align.Left,
-    visible: true
+    visible: true,
   };
 };
 
 export interface SerializedImage extends SerializedUINode {
-  source: string
+  source: string;
 }
 
 interface ImageOptions {
-  propName?: string,
-  input?: boolean | SerializedTerminal,
-  output?: boolean | SerializedTerminal,
-  style?: ImageStyle,
-  id?: string,
-  hitColor?: Color
+  propName?: string;
+  input?: boolean | SerializedTerminal;
+  output?: boolean | SerializedTerminal;
+  style?: ImageStyle;
+  id?: string;
+  hitColor?: Color;
 }
 let DefaultImageOptions = (): ImageOptions => {
   return {};

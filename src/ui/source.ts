@@ -30,28 +30,28 @@ export class Source extends UINode implements Serializable<SerializedSource> {
     if (this.propName) this.setProp(newVal);
     else {
       this._file = newVal;
-      this.label.text = newVal.name.substring(0, this._file.name.toString().lastIndexOf('.'));
+      this.label.text = newVal.name.substring(0, this._file.name.toString().lastIndexOf("."));
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
+    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
-  constructor(
-    node: Node,
-    options: SourceOptions = DefaultSourceOptions(node)
-  ) {
-
+  constructor(node: Node, options: SourceOptions = DefaultSourceOptions(node)) {
     super(node, Vector.Zero(), UIType.Source, {
       style: options.style ? { ...DefaultSourceStyle(), ...options.style } : DefaultSourceStyle(),
       propName: options.propName,
-      input: options.input && (typeof options.input === 'boolean'
-        ? new Terminal(node, TerminalType.IN, 'file', '', {})
-        : Terminal.deSerialize(node, options.input)),
-      output: options.output && (typeof options.output === 'boolean'
-        ? new Terminal(node, TerminalType.OUT, 'file', '', {})
-        : Terminal.deSerialize(node, options.output)),
+      input:
+        options.input &&
+        (typeof options.input === "boolean"
+          ? new Terminal(node, TerminalType.IN, "file", "", {})
+          : Terminal.deSerialize(node, options.input)),
+      output:
+        options.output &&
+        (typeof options.output === "boolean"
+          ? new Terminal(node, TerminalType.OUT, "file", "", {})
+          : Terminal.deSerialize(node, options.output)),
       id: options.id,
-      hitColor: options.hitColor
+      hitColor: options.hitColor,
     });
 
     this.accept = options.accept;
@@ -59,37 +59,37 @@ export class Source extends UINode implements Serializable<SerializedSource> {
 
     this.setupInputElement(options);
 
-    this.label = new Label(this.node, 'Select', { style: { align: Align.Center, ...this.style }, height: this.height });
+    this.label = new Label(this.node, "Select", { style: { align: Align.Center, ...this.style }, height: this.height });
     this.fileIcon = new Image(this.node, fileIcon);
-    this.label.on('click', () => this.htmlInput.click());
+    this.label.on("click", () => this.htmlInput.click());
     this.children.push(this.label, this.fileIcon);
 
     if (this.input) {
-      this.input.on('connect', (_, connector) => {
+      this.input.on("connect", (_, connector) => {
         if (connector.data) this.file = connector.data;
       });
-      this.input.on('data', (_, data) => {
+      this.input.on("data", (_, data) => {
         if (data) this.file = data;
       });
     }
-    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.file);
+    if (this.output) this.output.on("connect", (_, connector) => (connector.data = this.file));
 
-    this.node.on('process', () => {
+    this.node.on("process", () => {
       if (this.output) this.output.setData(this.file);
     });
 
-    if (options.file) this.file = options.file
+    if (options.file) this.file = options.file;
   }
 
   setupInputElement(options: SourceOptions) {
-    this.htmlInput = document.createElement('input');
-    this.htmlInput.type = 'file';
+    this.htmlInput = document.createElement("input");
+    this.htmlInput.type = "file";
     if (options.accept) this.htmlInput.accept = options.accept;
     this.htmlInput.onchange = () => {
       if (this.htmlInput.files.length > 0) {
         let oldVal = this.file;
         this.file = this.htmlInput.files[0];
-        if (this.node.flow.state === FlowState.Stopped) this.call('upload', this, oldVal, this.file);
+        if (this.node.flow.state === FlowState.Stopped) this.call("upload", this, oldVal, this.file);
       }
     };
   }
@@ -115,7 +115,7 @@ export class Source extends UINode implements Serializable<SerializedSource> {
     this.label.height = this.height;
     this.label.position = this.position;
 
-    this.fileIcon.width = this.width * .1;
+    this.fileIcon.width = this.width * 0.1;
     this.fileIcon.position.assign(this.position.x + 5, this.position.y + this.height / 2 - this.fileIcon.height / 2);
 
     if (this.input) {
@@ -134,49 +134,49 @@ export class Source extends UINode implements Serializable<SerializedSource> {
 
   onPropChange(_oldVal: any, newVal: any) {
     this._file = newVal;
-    this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf('.'));
+    this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf("."));
 
     this.output && this.output.setData(this._file);
   }
   onOver(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('over', this, screenPosition, realPosition);
+    this.call("over", this, screenPosition, realPosition);
   }
   onDown(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('down', this, screenPosition, realPosition);
+    this.call("down", this, screenPosition, realPosition);
   }
   onUp(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('up', this, screenPosition, realPosition);
+    this.call("up", this, screenPosition, realPosition);
   }
   onClick(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('click', this, screenPosition, realPosition);
+    this.call("click", this, screenPosition, realPosition);
   }
   onDrag(screenPosition: Vector, realPosition: Vector): void {
     if (this.disabled) return;
 
-    this.call('drag', this, screenPosition, realPosition);
+    this.call("drag", this, screenPosition, realPosition);
   }
   onEnter(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
-    this.call('enter', this, screenPosition, realPosition);
+    this.call("enter", this, screenPosition, realPosition);
   }
   onExit(screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
-    this.call('exit', this, screenPosition, realPosition);
+    this.call("exit", this, screenPosition, realPosition);
   }
   onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
     if (this.disabled) return;
 
-    this.call('wheel', this, direction, screenPosition, realPosition);
+    this.call("wheel", this, direction, screenPosition, realPosition);
   }
   onContextMenu(): void {
     if (this.disabled) return;
@@ -200,7 +200,7 @@ export class Source extends UINode implements Serializable<SerializedSource> {
       hitColor: this.hitColor.serialize(),
       type: this.type,
       childs: [],
-      file
+      file,
     });
   }
   static async deSerialize(node: Node, data: SerializedSource, receive?: DataFetchProvider): Promise<Source> {
@@ -210,55 +210,57 @@ export class Source extends UINode implements Serializable<SerializedSource> {
       file = new File([blob], data.file.name);
     }
 
-    return Promise.resolve(new Source(node, {
-      accept: data.accept,
-      propName: data.propName,
-      input: data.input,
-      output: data.output,
-      height: data.height,
-      style: data.style,
-      id: data.id,
-      hitColor: Color.deSerialize(data.hitColor),
-      file
-    }));
+    return Promise.resolve(
+      new Source(node, {
+        accept: data.accept,
+        propName: data.propName,
+        input: data.input,
+        output: data.output,
+        height: data.height,
+        style: data.style,
+        id: data.id,
+        hitColor: Color.create(data.hitColor),
+        file,
+      })
+    );
   }
 }
 
 export interface SourceStyle extends UINodeStyle {
-  borderColor?: string,
-  font?: string,
-  fontSize?: string,
-  color?: string
+  borderColor?: string;
+  font?: string;
+  fontSize?: string;
+  color?: string;
 }
 let DefaultSourceStyle = () => {
   return {
-    borderColor: '#000',
-    visible: true
+    borderColor: "#000",
+    visible: true,
   };
 };
 
 export interface SerializedSource extends SerializedUINode {
-  accept: string,
-  height: number,
+  accept: string;
+  height: number;
   file: {
-    id: string,
-    name: string
-  }
+    id: string;
+    name: string;
+  };
 }
 
 interface SourceOptions {
-  accept?: string,
-  propName?: string,
-  input?: boolean | SerializedTerminal,
-  output?: boolean | SerializedTerminal,
-  height?: number,
-  style?: SourceStyle,
-  id?: string,
-  hitColor?: Color,
-  file?: File
+  accept?: string;
+  propName?: string;
+  input?: boolean | SerializedTerminal;
+  output?: boolean | SerializedTerminal;
+  height?: number;
+  style?: SourceStyle;
+  id?: string;
+  hitColor?: Color;
+  file?: File;
 }
 let DefaultSourceOptions = (node: Node): SourceOptions => {
   return {
-    height: node.style.rowHeight * 1.5
-  }
+    height: node.style.rowHeight * 1.5,
+  };
 };

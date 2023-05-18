@@ -1,4 +1,4 @@
-import { FlowConnect } from "../flow-connect.js";
+import { Color, FlowConnect } from "../flow-connect.js";
 import { Vector } from "./vector.js";
 import { Node, NodeButton, NodeButtonRenderParams, NodeRenderParams, NodeStyle, SerializedNode } from "./node.js";
 import { Hooks } from "./hooks.js";
@@ -266,9 +266,17 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       flow.sortedNodes.add(node);
     }
     data.groups.forEach((serializedGroup) => {
-      let group = Group.deSerialize(flow, serializedGroup);
+      let group = Group.create(serializedGroup.name, {
+        width: serializedGroup.width,
+        height: serializedGroup.height,
+        style: serializedGroup.style,
+        id: serializedGroup.id,
+        hitColor: Color.create(serializedGroup.hitColor),
+      }).build(flow, Vector.create(serializedGroup.position));
+
+      serializedGroup.nodes.forEach((nodeId) => group.add(flow.nodes.get(nodeId)));
+
       flow.groups.push(group);
-      group.nodes.forEach((node) => (node.group = group));
     });
     for (let serializedInput of data.inputs) {
       let input = await TunnelNode.deSerialize(flow, serializedInput, receive);

@@ -195,7 +195,7 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
           new Terminal(this, TerminalType.IN, input.dataType, input.name, {
             style: input.style ? input.style : { ...options.terminalStyle },
             id: input.id ? input.id : null,
-            hitColor: input.hitColor ? Color.deSerialize(input.hitColor) : null,
+            hitColor: input.hitColor ? Color.create(input.hitColor) : null,
           })
       )
     );
@@ -205,7 +205,7 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
           new Terminal(this, TerminalType.OUT, output.dataType, output.name, {
             style: output.style ? output.style : { ...options.terminalStyle },
             id: output.id ? output.id : null,
-            hitColor: output.hitColor ? Color.deSerialize(output.hitColor) : null,
+            hitColor: output.hitColor ? Color.create(output.hitColor) : null,
           })
       )
     );
@@ -802,12 +802,12 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     });
   }
   static async deSerialize(flow: Flow, data: SerializedNode, receive?: DataFetchProvider): Promise<Node> {
-    const node = new Node(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
+    const node = new Node(flow, data.name, Vector.create(data.position), data.width, data.inputs, data.outputs, {
       style: data.style,
       terminalStyle: data.terminalStyle,
       state: data.state,
       id: data.id,
-      hitColor: Color.deSerialize(data.hitColor),
+      hitColor: Color.create(data.hitColor),
       ui: data.ui,
       focused: data.focused,
       renderState: data.renderState,

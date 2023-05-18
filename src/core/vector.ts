@@ -1,15 +1,13 @@
-import { Serializable } from '../common/interfaces.js';
-import { normalize, clamp } from '../utils/utils.js';
+import { Serializable } from "../common/interfaces.js";
+import { normalize, clamp } from "../utils/utils.js";
 
 export class Vector implements Serializable<SerializedVector> {
   x: number;
   y: number;
 
   constructor(xOrDOMPoint: number | DOMPoint, y?: number) {
-    if (xOrDOMPoint instanceof DOMPoint)
-      [this.x, this.y] = [xOrDOMPoint.x, xOrDOMPoint.y];
-    else
-      [this.x, this.y] = [xOrDOMPoint || 0, y || 0];
+    if (xOrDOMPoint instanceof DOMPoint) [this.x, this.y] = [xOrDOMPoint.x, xOrDOMPoint.y];
+    else [this.x, this.y] = [xOrDOMPoint || 0, y || 0];
   }
 
   addInPlace(vector: Vector): Vector;
@@ -19,7 +17,7 @@ export class Vector implements Serializable<SerializedVector> {
     if (arg1 instanceof Vector) {
       this.x += arg1.x;
       this.y += arg1.y;
-    } else if (typeof arg2 === 'undefined') {
+    } else if (typeof arg2 === "undefined") {
       this.x += arg1;
       this.y += arg1;
     } else {
@@ -35,7 +33,7 @@ export class Vector implements Serializable<SerializedVector> {
     if (arg1 instanceof Vector) {
       this.x *= arg1.x;
       this.y *= arg1.y;
-    } else if (typeof arg2 === 'undefined') {
+    } else if (typeof arg2 === "undefined") {
       this.x *= arg1;
       this.y *= arg1;
     } else {
@@ -51,7 +49,7 @@ export class Vector implements Serializable<SerializedVector> {
     if (arg1 instanceof Vector) {
       this.x -= arg1.x;
       this.y -= arg1.y;
-    } else if (typeof arg2 === 'undefined') {
+    } else if (typeof arg2 === "undefined") {
       this.x -= arg1;
       this.y -= arg1;
     } else {
@@ -63,7 +61,7 @@ export class Vector implements Serializable<SerializedVector> {
   normalizeInPlace(min: number, max: number): Vector;
   normalizeInPlace(minX: number, maxX: number, minY: number, maxY: number): Vector;
   normalizeInPlace(min: number, max: number, minY?: number, maxY?: number): Vector {
-    if (typeof minY !== 'undefined' && typeof maxY !== 'undefined') {
+    if (typeof minY !== "undefined" && typeof maxY !== "undefined") {
       this.x = normalize(this.x, min, max);
       this.y = normalize(this.y, minY, maxY);
     } else {
@@ -76,7 +74,7 @@ export class Vector implements Serializable<SerializedVector> {
   clampInPlace(min: number, max: number): Vector;
   clampInPlace(minX: number, maxX: number, minY: number, maxY: number): Vector;
   clampInPlace(min: number, max: number, minY?: number, maxY?: number): Vector {
-    if (typeof minY !== 'undefined' && typeof maxY !== 'undefined') {
+    if (typeof minY !== "undefined" && typeof maxY !== "undefined") {
       this.x = clamp(this.x, min, max);
       this.y = clamp(this.y, minY, maxY);
     } else {
@@ -145,7 +143,7 @@ export class Vector implements Serializable<SerializedVector> {
     if (arg1 instanceof Vector) {
       this.x = arg1.x;
       this.y = arg1.y;
-    } else if (typeof arg2 === 'undefined') {
+    } else if (typeof arg2 === "undefined") {
       this.x = arg1;
       this.y = arg1;
     } else {
@@ -161,7 +159,7 @@ export class Vector implements Serializable<SerializedVector> {
     return new Vector(this.x, this.y).absInPlace();
   }
   toString() {
-    return '[' + this.x.toFixed(3) + ', ' + this.y.toFixed(3) + ']';
+    return "[" + this.x.toFixed(3) + ", " + this.y.toFixed(3) + "]";
   }
   clone(): Vector {
     return new Vector(this.x, this.y);
@@ -170,7 +168,7 @@ export class Vector implements Serializable<SerializedVector> {
     return Math.max(this.x, this.y);
   }
   isEqual(vector: Vector, threshold?: number): boolean {
-    if (typeof threshold !== 'undefined') {
+    if (typeof threshold !== "undefined") {
       return Vector.Distance(this, vector) <= threshold;
     }
 
@@ -180,7 +178,7 @@ export class Vector implements Serializable<SerializedVector> {
   static Distance(vector1OrX1: Vector | number, vector2OrY1: Vector | number, x2?: number, y2?: number): number {
     if (vector1OrX1 instanceof Vector && vector2OrY1 instanceof Vector) {
       return Math.sqrt(Math.pow(vector2OrY1.x - vector1OrX1.x, 2) + Math.pow(vector2OrY1.y - vector1OrX1.y, 2));
-    } else if (typeof vector1OrX1 === 'number' && typeof vector2OrY1 === 'number') {
+    } else if (typeof vector1OrX1 === "number" && typeof vector2OrY1 === "number") {
       return Math.sqrt(Math.pow(x2 - vector1OrX1, 2) + Math.pow(y2 - vector2OrY1, 2));
     }
   }
@@ -191,20 +189,18 @@ export class Vector implements Serializable<SerializedVector> {
     return new Vector(0, 0);
   }
   static Random(minX: number, maxX: number, minY: number, maxY: number): Vector {
-    return new Vector(
-      Math.random() * (maxX - minX) + minX,
-      Math.random() * (maxY - minY) + minY
-    );
+    return new Vector(Math.random() * (maxX - minX) + minX, Math.random() * (maxY - minY) + minY);
   }
 
   serialize(): SerializedVector {
     return { x: this.x, y: this.y };
   }
-  static deSerialize(data: SerializedVector): Vector {
+  static create(data: SerializedVector): Vector {
     return new Vector(data.x, data.y);
   }
 }
 
 export interface SerializedVector {
-  x: number, y: number
+  x: number;
+  y: number;
 }

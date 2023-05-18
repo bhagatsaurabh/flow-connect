@@ -333,15 +333,16 @@ export class FlowConnect extends Hooks {
       this.fill();
     };
   }
+  private handleKeyDown(ev: KeyboardEvent) {
+    !this.keymap[ev.key] && (this.keymap[ev.key] = true);
+  }
   private registerEvents(): void {
     let dragDelta: Vector;
     let prevPanPosition: Vector = Vector.Zero();
     let prevPinchDistance: number = -1;
 
-    window.onkeydown = (ev: KeyboardEvent) => {
-      !this.keymap[ev.key] && (this.keymap[ev.key] = true);
-    };
-    window.onkeyup = (ev: KeyboardEvent) => {
+    document.onkeydown = (ev: KeyboardEvent) => this.handleKeyDown(ev);
+    document.onkeyup = (ev: KeyboardEvent) => {
       this.keymap[ev.key] = false;
     };
 
@@ -370,9 +371,10 @@ export class FlowConnect extends Hooks {
             this.currHitGroup && (dragDelta = this.currHitGroup.position.subtract(this.pointers[0].realPosition));
           } else if (this.keymap["Control"] || this.touchControls["CreateGroup"]) {
             this.groupStartPoint = this.pointers[0].realPosition.clone();
-            this.currGroup = new Group(this.currFlow, this.groupStartPoint.clone(), {
-              name: "New Group",
-            });
+            this.currGroup = Group.create("New Group", { width: 0, height: 0 }).build(
+              this.currFlow,
+              this.groupStartPoint.clone()
+            );
           }
         }
       } else {
@@ -401,12 +403,7 @@ export class FlowConnect extends Hooks {
       hitNode && hitNode.onUp(screenPosition.clone(), realPosition.clone());
 
       if (this.currGroup) {
-        let newGroup = this.currGroup;
-        this.currGroup = null;
-        if (newGroup.width > 10 && newGroup.height > 10) {
-          this.currFlow.groups.push(newGroup);
-          newGroup.setContainedNodes();
-        }
+        this.addCurrAsNewGroup();
       }
       if (this.currFlow.floatingConnector) this.handleConnection(hitNode, screenPosition, realPosition);
     };
@@ -424,12 +421,7 @@ export class FlowConnect extends Hooks {
       }
 
       if (this.currGroup) {
-        let newGroup = this.currGroup;
-        this.currGroup = null;
-        if (newGroup.width > 10 && newGroup.height > 10) {
-          this.currFlow.groups.push(newGroup);
-          newGroup.setContainedNodes();
-        }
+        this.addCurrAsNewGroup();
       }
 
       if (this.currFlow.floatingConnector) this.currFlow.removeFloatingConnector();
@@ -575,6 +567,17 @@ export class FlowConnect extends Hooks {
       }
     };
   }
+  private addCurrAsNewGroup() {
+    let newGroup = this.currGroup;
+    this.currGroup = null;
+    if (newGroup.width > 10 && newGroup.height > 10) {
+      this.currFlow.groups.push(newGroup);
+
+      [...this.currFlow.nodes.values()]
+        .filter((node) => !node.group && node.renderState.viewport === ViewPort.INSIDE)
+        .forEach((node) => newGroup.add(node));
+    }
+  }
   private setGenericInput() {
     this.genericInput.className = "flow-connect-input";
     this.genericInput.style.visibility = "hidden";
@@ -662,32 +665,15 @@ export class FlowConnect extends Hooks {
         nodeRealPos.x,
         nodeRealPos.y,
         nodeRealPos.x + this.currHitNode.width * this.scale,
-        nodeRealPos.y + this.currHitNode.ui.height * this.scale
+        nodeRealPos.y + this.currHitNode.height * this.scale
       );
     }
 
-    if (this.currHitNode.group) {
-      if (this.currHitNode.group !== hitGroup) {
-        let nodeIndex = this.currHitNode.group.nodes.findIndex((node) => node.id === this.currHitNode.id);
-        this.currHitNode.group.nodes.splice(nodeIndex, 1);
-        this.currHitNode.group.nodeDeltas.splice(nodeIndex, 1);
-        this.currHitNode.group = null;
-      } else {
-        if (intersection !== ViewPort.INSIDE) {
-          let nodeIndex = this.currHitNode.group.nodes.findIndex((node) => node.id === this.currHitNode.id);
-          this.currHitNode.group.nodes.splice(nodeIndex, 1);
-          this.currHitNode.group.nodeDeltas.splice(nodeIndex, 1);
-          this.currHitNode.group = null;
-        }
-      }
+    if (this.currHitNode.group && (this.currHitNode.group !== hitGroup || intersection !== ViewPort.INSIDE)) {
+      this.currHitNode.group.remove(this.currHitNode);
     }
-
-    if (hitGroup) {
-      if (intersection === ViewPort.INSIDE) {
-        this.currHitNode.group = hitGroup;
-        hitGroup.nodes.push(this.currHitNode);
-        hitGroup.nodeDeltas.push(this.currHitNode.position.subtract(hitGroup.position));
-      }
+    if (hitGroup && intersection === ViewPort.INSIDE) {
+      hitGroup.add(this.currHitNode);
     }
   }
   private handleConnection(hitNode: Node, screenPosition: Vector, realPosition: Vector) {

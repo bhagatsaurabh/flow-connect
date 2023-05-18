@@ -309,7 +309,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       propName: data.propName,
       style: data.style,
       id: data.id,
-      hitColor: Color.deSerialize(data.hitColor),
+      hitColor: Color.create(data.hitColor),
     });
   }
 }

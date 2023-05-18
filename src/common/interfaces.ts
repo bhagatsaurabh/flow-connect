@@ -1,5 +1,5 @@
 import { Vector } from "../core/vector.js";
-import { LOD, ViewPort } from './enums.js';
+import { LOD, ViewPort } from "./enums.js";
 import { NodeState, NodeStyle } from "../core/node.js";
 import { TerminalStyle } from "../core/terminal.js";
 
@@ -7,19 +7,19 @@ import { TerminalStyle } from "../core/terminal.js";
  *  To track canvas position and dimension when scrolling or resizing
  */
 export interface Dimension {
-  left: number,
-  top: number,
-  width: number,
-  height: number
+  left: number;
+  top: number;
+  width: number;
+  height: number;
 }
 
 /** @hidden
  *  A mouse or touch pointer
  */
 export interface Pointer {
-  id: number,
-  screenPosition: Vector,
-  realPosition: Vector
+  id: number;
+  screenPosition: Vector;
+  realPosition: Vector;
 }
 
 /** @hidden
@@ -62,13 +62,13 @@ export interface Rules {
 }
 
 export interface NodeCreatorOptions {
-  name?: string,
-  position?: Vector,
-  width?: number,
-  state?: {},
-  style?: NodeStyle,
-  terminalStyle?: TerminalStyle
+  name?: string;
+  position?: Vector;
+  width?: number;
+  state?: {};
+  style?: NodeStyle;
+  terminalStyle?: TerminalStyle;
 }
 
-export type DataPersistenceProvider = (id: string, ref: Blob) => Promise<void>
-export type DataFetchProvider = (id: string) => Promise<Blob>
+export type DataPersistenceProvider = (id: string, ref: Blob) => Promise<void>;
+export type DataFetchProvider = (id: string) => Promise<Blob>;
