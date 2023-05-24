@@ -1,105 +1,62 @@
-import { Vector } from "./vector.js";
-import { Color } from "./color.js";
-import { Flow } from "./flow.js";
-import { Node, NodeStyle, SerializedNode } from "./node.js";
-import { Terminal, TerminalStyle } from "./terminal.js";
-import { Container, DataFetchProvider, DataPersistenceProvider } from "../flow-connect.js";
+import { DataPersistenceProvider, Flow } from "../flow-connect.js";
+import { Node, NodeOptions, SerializedNode } from "./node.js";
+import { Terminal, TerminalType } from "./terminal.js";
 
 export class TunnelNode extends Node {
+  private tunnelType: "input" | "output";
   private _proxyTerminal: Terminal;
 
-  get proxyTerminal(): Terminal { return this._proxyTerminal; }
+  get proxyTerminal(): Terminal {
+    return this._proxyTerminal;
+  }
   set proxyTerminal(terminal: Terminal) {
     this._proxyTerminal = terminal;
-    this._proxyTerminal.on('data', (_, data) => this.outputs[0].setData(data));
+    this._proxyTerminal.on("data", (_, data) => this.outputs[0].setData(data));
   }
 
-  constructor(
-    flow: Flow,
-    name: string,
-    position: Vector,
-    width: number,
-    inputs: any[],
-    outputs: any[],
-    options: TunnelNodeOptions = DefaultTunnelNodeOptions()
-  ) {
+  constructor(_flow: Flow, options: TunnelNodeOptions) {
+    super();
 
-    super(flow, name, position, width, inputs, outputs, {
-      style: options.style,
-      terminalStyle: options.terminalStyle,
-      state: options.state,
-      id: options.id,
-      hitColor: options.hitColor
+    this.tunnelType = options.tunnelType;
+  }
+
+  setupIO(options: TunnelNodeOptions): void {
+    this.addTerminal({
+      type: options.tunnelType === "input" ? TerminalType.OUT : TerminalType.IN,
+      name: options.tunnelName,
+      dataType: options.tunnelDataType,
     });
+  }
 
-    if (this.inputs.length > 0) {
-      this.inputs[0].on('data', (_, data) => this.proxyTerminal.setData(data));
-    } else {
-      this.outputs[0].on('connect', (_, connector) => {
+  created(): void {
+    if (this.tunnelType === "input") {
+      this.outputs[0].on("connect", (_, connector) => {
         if (this.proxyTerminal.connectors.length > 0) {
           connector.data = this.proxyTerminal.connectors[0].data;
         }
       });
+    } else {
+      this.inputs[0].on("data", (_, data) => this.proxyTerminal.setData(data));
     }
+  }
 
-    this.on('process', () => {
-      this.outputs[0].setData(this.proxyTerminal.getData());
-    });
+  process(): void {
+    this.outputs[0].setData(this.proxyTerminal.getData());
   }
 
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedTunnelNode> {
-    const ui = await this.ui.serialize(persist);
+    const serializedNode = await super.serialize(persist);
 
-    return Promise.resolve<SerializedTunnelNode>({
-      id: this.id,
-      name: this.name,
-      position: this.position.serialize(),
-      width: this.width,
-      state: this.state,
-      inputs: this.inputs.map(terminal => terminal.serialize()),
-      outputs: this.outputs.map(terminal => terminal.serialize()),
-      style: this.style,
-      terminalStyle: this.terminalStyle,
-      hitColor: this.hitColor.serialize(),
-      zIndex: this.zIndex,
-      focused: this.focused,
-      renderState: this.renderState,
-      ui,
-      proxyTerminalId: this.proxyTerminal.id
-    });
-  }
-  static async deSerialize(flow: Flow, data: SerializedTunnelNode, receive?: DataFetchProvider): Promise<TunnelNode> {
-    const tunnelNode = new TunnelNode(flow, data.name, Vector.create(data.position), data.width, data.inputs, data.outputs, {
-      style: data.style,
-      terminalStyle: data.terminalStyle,
-      state: data.state,
-      id: data.id,
-      hitColor: Color.create(data.hitColor)
-    });
-
-    const ui = await Container.deSerialize(tunnelNode, data.ui, receive);
-    tunnelNode.ui = ui;
-    tunnelNode.ui.update();
-
-    return Promise.resolve<TunnelNode>(tunnelNode);
+    return { ...serializedNode, tunnelType: this.tunnelType };
   }
 }
 
 export interface SerializedTunnelNode extends SerializedNode {
-  proxyTerminalId: string
+  tunnelType: "input" | "output";
 }
 
-export interface TunnelNodeOptions {
-  style?: NodeStyle,
-  terminalStyle?: TerminalStyle,
-  state?: Object,
-  id?: string,
-  hitColor?: Color,
-}
-let DefaultTunnelNodeOptions = (): TunnelNodeOptions => {
-  return {
-    style: {},
-    terminalStyle: {},
-    state: {}
-  }
+export interface TunnelNodeOptions extends NodeOptions {
+  tunnelType: "input" | "output";
+  tunnelName?: string;
+  tunnelDataType?: string;
 }

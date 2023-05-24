@@ -46,7 +46,6 @@ import { Group } from "./group.js";
 import { Terminal, TerminalType, TerminalStyle, SerializedTerminal, TerminalRenderParams } from "./terminal.js";
 import { Hooks } from "./hooks.js";
 import {
-  DataFetchProvider,
   DataPersistenceProvider,
   Events,
   Renderable,
@@ -57,8 +56,9 @@ import {
 } from "../common/interfaces.js";
 import { Connector } from "./connector.js";
 import { Log } from "../utils/logger.js";
+import { FlowConnect } from "../flow-connect.js";
 
-export class Node extends Hooks implements Events, Serializable<SerializedNode>, Renderable {
+export abstract class Node extends Hooks implements Events, Serializable<SerializedNode>, Renderable {
   //#region Properties
   renderResolver: {
     node?: RenderResolver<Node, NodeRenderParams>;
@@ -66,31 +66,35 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     terminal?: RenderResolver<Terminal, TerminalRenderParams>;
     uiContainer?: RenderResolver<Container, ContainerRenderParams>;
   } = {};
-  hitColor: Color;
-  private _width: number;
 
-  uiNodes: Map<string, UINode>;
-  terminals: Map<string, Terminal>;
-  nodeButtons: Map<string, NodeButton>;
+  private _width: number;
   private _zIndex: number;
   private _position: Vector;
-  private stateObserver = new Hooks();
-
-  renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeState.MAXIMIZED, lod: LOD.LOD2 };
+  private stateObserver;
 
   currHitTerminal: Terminal;
   prevHitTerminal: Terminal;
   currHitUINode: UINode;
   prevHitUINode: UINode;
 
+  flow: Flow;
+  name: string;
+  id: string;
+  type: string;
+  hitColor: Color;
+  style: NodeStyle;
   focused: boolean = false;
+  ui: Container;
+  uiNodes: Map<string, UINode>;
+  terminals: Map<string, Terminal>;
   inputs: Terminal[] = [];
   outputs: Terminal[] = [];
   inputsUI: Terminal[] = [];
   outputsUI: Terminal[] = [];
-  ui: Container;
   state: Record<string, any>;
   group: Group = null;
+  nodeButtons: Map<string, NodeButton>;
+  renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeState.MAXIMIZED, lod: LOD.LOD2 };
   //#endregion
 
   //#region Accessors
@@ -136,79 +140,76 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
   }
   //#endregion
 
-  style: NodeStyle;
-  terminalStyle: TerminalStyle;
-  id: string;
-
-  constructor(
-    public flow: Flow,
-    public name: string,
-    position: Vector,
-    width: number,
-    inputs: SerializedTerminal[],
-    outputs: SerializedTerminal[],
-    options: NodeConstructorOptions = DefaultNodeConstructorOptions()
-  ) {
+  protected constructor() {
     super();
 
-    this.style = get(options.style, {});
-    this.terminalStyle = get(options.terminalStyle, {});
-    this.id = get(options.id, uuid());
-    options.state = get(options.state, {});
+    this._zIndex = 0;
 
-    this.hitColor = options.hitColor;
-    this._width = width;
-    this.style = { ...DefaultNodeStyle(), ...options.style };
-    this._position = position;
-    this.setupState(options.state);
+    this.stateObserver = new Hooks();
     this.uiNodes = new Map();
     this.terminals = new Map();
     this.nodeButtons = new Map();
-    this._zIndex = 0;
-    this.setHitColor(options.hitColor);
-
-    this.setupTerminals(options, inputs, outputs);
-
-    if (options.ui instanceof Container) {
-      this.ui = options.ui;
-    } else {
-      this.ui = new Container(this, width);
-    }
-
-    this.addNodeButton(() => this.toggleNodeState(), this._renderNodeButton, Align.Left);
-
-    this.reflow();
-    this.ui.update();
-
-    this.flow.on("transform", () => this.updateRenderState());
-
-    this.flow.nodes.set(this.id, this);
-    this.flow.sortedNodes.add(this);
-    this.flow.executionGraph.add(this);
   }
 
+  static create<T extends Node = Node>(
+    type: string,
+    flow: Flow,
+    position: Vector,
+    options: NodeOptions = DefaultNodeOptions(),
+    isDeserialized: boolean = false
+  ): T {
+    const construct = flow.flowConnect.getRegistered(type);
+    const node = new construct(flow, options);
+
+    node.flow = flow;
+    node.type = type;
+    options = get(options, DefaultNodeOptions());
+    node.name = get(options.name, "New Node");
+    node._width = get(options.width, 100);
+    node.style = { ...DefaultNodeStyle(), ...get(options.style, {}) };
+    node.id = get(options.id, uuid());
+    node.state = get(options.state, {});
+    node._position = position;
+    node.ui = new Container(node, node.width);
+
+    node.setHitColor(options.hitColor);
+    node.setupTerminals(options.inputs, options.outputs);
+    node.reflow();
+    node.ui.update();
+    node.addNodeButton((n) => n.toggle(), Node.renderControlButton, Align.Left);
+    node.on("transform", (n) => n.updateRenderState());
+
+    !isDeserialized && node.setupIO(options);
+    node.setupState(node.state);
+    node.created();
+
+    return node as T;
+  }
+
+  protected abstract setupIO(options: NodeOptions): void;
+  protected abstract created(): void;
+  protected abstract process(inputs: any[]): void;
+
   //#region Methods
-  setupTerminals(options: NodeConstructorOptions, inputs: SerializedTerminal[], outputs: SerializedTerminal[]) {
-    this.inputs.push(
-      ...inputs.map(
-        (input) =>
-          new Terminal(this, TerminalType.IN, input.dataType, input.name, {
-            style: input.style ? input.style : { ...options.terminalStyle },
+  setupTerminals(inputs: SerializedTerminal[], outputs: SerializedTerminal[]) {
+    inputs &&
+      this.inputs.push(
+        ...inputs.map((input) =>
+          Terminal.create(input.name, TerminalType.IN, input.dataType, {
             id: input.id ? input.id : null,
             hitColor: input.hitColor ? Color.create(input.hitColor) : null,
-          })
-      )
-    );
-    this.outputs.push(
-      ...outputs.map(
-        (output) =>
-          new Terminal(this, TerminalType.OUT, output.dataType, output.name, {
-            style: output.style ? output.style : { ...options.terminalStyle },
+          }).build(this)
+        )
+      );
+    outputs &&
+      this.outputs.push(
+        ...outputs.map((output) =>
+          Terminal.create(output.name, TerminalType.OUT, output.dataType, {
             id: output.id ? output.id : null,
             hitColor: output.hitColor ? Color.create(output.hitColor) : null,
-          })
-      )
-    );
+          }).build(this)
+        )
+      );
   }
   private setupState(state: any) {
     this.state = new Proxy<any>(
@@ -239,7 +240,7 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
       Log.error(`Cannot unwatch prop '${propName}', prop not found`);
     }
   }
-  private setHitColor(hitColor: Color) {
+  private setHitColor(hitColor?: Color) {
     if (!hitColor) {
       hitColor = Color.Random();
       while (this.flow.nodeHitColors.get(hitColor.rgbaString)) hitColor = Color.Random();
@@ -248,11 +249,11 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     this.flow.nodeHitColors.set(this.hitColor.rgbaString, this);
   }
   addNodeButton(
-    callback: () => void,
+    onClick: (node: Node) => void,
     render: RenderFunction<NodeButton, NodeButtonRenderParams>,
     align: Align
   ): NodeButton {
-    let newNodeButton = new NodeButton(this, callback, render, align);
+    let newNodeButton = new NodeButton(this, onClick, render, align);
 
     let noOfButtons =
       [...this.nodeButtons.values()].filter((nodeButton) => nodeButton.align === newNodeButton.align).length - 1;
@@ -359,11 +360,7 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
   run() {
     if (this.flow.state === FlowState.Stopped) return;
 
-    this.call(
-      "process",
-      this,
-      this.inputs.map((terminal) => (terminal.connectors.length > 0 ? terminal.connectors[0].data : null))
-    );
+    this.process(this.inputs.map((terminal) => (terminal.connectors.length > 0 ? terminal.connectors[0].data : null)));
   }
 
   render(): void {
@@ -510,7 +507,11 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
       this.renderState.nodeState === NodeState.MAXIMIZED ? this.ui.height : this.style.titleHeight
     );
   }
-  private _renderNodeButton(context: CanvasRenderingContext2D, params: NodeButtonRenderParams, nodeButton: NodeButton) {
+  private static renderControlButton(
+    context: CanvasRenderingContext2D,
+    params: NodeButtonRenderParams,
+    nodeButton: NodeButton
+  ) {
     let style = nodeButton.node.style;
     context.fillStyle = style.maximizeButtonColor;
     context.fillRect(params.position.x, params.position.y, style.nodeButtonSize, style.nodeButtonSize);
@@ -525,10 +526,15 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
   }
   addTerminal(terminal: Terminal | SerializedTerminal) {
     if (!(terminal instanceof Terminal)) {
-      terminal = Terminal.deSerialize(this, terminal);
+      terminal = Terminal.create(terminal.name, terminal.type, terminal.dataType, {
+        propName: terminal.propName,
+        style: terminal.style,
+        id: terminal.id,
+        hitColor: Color.create(terminal.hitColor),
+      }).build(this);
     }
-    if (terminal.type === TerminalType.IN) this.inputs.push(terminal);
-    else this.outputs.push(terminal);
+
+    (terminal.type === TerminalType.IN ? this.inputs : this.outputs).push(terminal);
     this.ui.update();
     this.reflow();
   }
@@ -598,7 +604,7 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
       this.flow.executionGraph.start();
     }
   }
-  toggleNodeState() {
+  toggle() {
     this.renderState.nodeState =
       this.renderState.nodeState === NodeState.MAXIMIZED ? NodeState.MINIMIZED : NodeState.MAXIMIZED;
   }
@@ -688,7 +694,7 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     );
     if (realPosition.y < this.position.y + this.style.titleHeight * this.flow.flowConnect.scale) {
       let hitNodeButton = this.getHitNodeButton(hitColor);
-      hitNodeButton && hitNodeButton.callback();
+      hitNodeButton && hitNodeButton.onClick(this);
     } else {
       this.currHitTerminal && this.currHitTerminal.onClick(screenPosition, realPosition);
 
@@ -787,37 +793,19 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     return Promise.resolve<SerializedNode>({
       id: this.id,
       name: this.name,
+      type: this.type,
       position: this.position.serialize(),
       width: this.width,
       state: this.state,
       inputs: this.inputs.map((terminal) => terminal.serialize()),
       outputs: this.outputs.map((terminal) => terminal.serialize()),
       style: this.style,
-      terminalStyle: this.terminalStyle,
       hitColor: this.hitColor.serialize(),
       zIndex: this.zIndex,
       focused: this.focused,
       renderState: this.renderState,
       ui,
     });
-  }
-  static async deSerialize(flow: Flow, data: SerializedNode, receive?: DataFetchProvider): Promise<Node> {
-    const node = new Node(flow, data.name, Vector.create(data.position), data.width, data.inputs, data.outputs, {
-      style: data.style,
-      terminalStyle: data.terminalStyle,
-      state: data.state,
-      id: data.id,
-      hitColor: Color.create(data.hitColor),
-      ui: data.ui,
-      focused: data.focused,
-      renderState: data.renderState,
-    });
-
-    const ui = await Container.deSerialize(node, data.ui, receive);
-    node.ui = ui;
-    node.ui.update();
-
-    return Promise.resolve<Node>(node);
   }
 }
 
@@ -886,27 +874,27 @@ export interface SerializedNode {
   inputs: SerializedTerminal[];
   outputs: SerializedTerminal[];
   name: string;
+  type: string;
   style: NodeStyle;
-  terminalStyle: TerminalStyle;
   ui: SerializedContainer;
   width: number;
-  subFlow?: SerializedFlow;
 }
 
-export interface NodeConstructorOptions {
+export interface NodeOptions extends Record<string, any> {
+  name: string;
+  width?: number;
   style?: NodeStyle;
-  terminalStyle?: TerminalStyle;
   state?: Object;
   id?: string;
   hitColor?: Color;
-  ui?: Container | SerializedContainer;
-  focused?: boolean;
-  renderState?: RenderState;
+  inputs?: SerializedTerminal[];
+  outputs?: SerializedTerminal[];
 }
-let DefaultNodeConstructorOptions = (): NodeConstructorOptions => {
+const DefaultNodeOptions = (): NodeOptions => {
   return {
+    name: "New Node",
+    width: 100,
     style: {},
-    terminalStyle: {},
     state: {},
     id: uuid(),
   };
@@ -1017,7 +1005,7 @@ interface EnvelopeCreatorOptions {
 }
 
 export class NodeButton extends Hooks implements Renderable {
-  renderResolver: RenderResolver<NodeButton, NodeButtonRenderParams> = () => null;
+  renderer: RenderResolver<NodeButton, NodeButtonRenderParams> = () => null;
   defaultRenderFn: RenderFunction<NodeButton, NodeButtonRenderParams>;
   style: Record<string, any> = {};
 
@@ -1026,8 +1014,8 @@ export class NodeButton extends Hooks implements Renderable {
 
   constructor(
     public node: Node,
-    public callback: () => void,
-    render: RenderFunction<NodeButton, NodeButtonRenderParams>,
+    public onClick: (n: Node) => void,
+    renderer: RenderFunction<NodeButton, NodeButtonRenderParams>,
     public align: Align,
     style?: Record<string, any>
   ) {
@@ -1035,7 +1023,7 @@ export class NodeButton extends Hooks implements Renderable {
 
     this.style = get(style, {});
     this.setHitColor();
-    this.defaultRenderFn = render;
+    this.defaultRenderFn = renderer;
   }
 
   private setHitColor() {
@@ -1046,16 +1034,16 @@ export class NodeButton extends Hooks implements Renderable {
   }
   render() {
     this.node.context.save();
-    let nodeRenderResolver = this.node.renderResolver.nodeButton;
-    let flowRenderResolver = this.node.flow.renderResolver.nodeButton;
-    let flowConnectRenderResolver = this.node.flow.flowConnect.renderResolver.nodeButton;
-    (
-      (this.renderResolver && this.renderResolver(this)) ||
-      (nodeRenderResolver && nodeRenderResolver(this)) ||
-      (flowRenderResolver && flowRenderResolver(this)) ||
-      (flowConnectRenderResolver && flowConnectRenderResolver(this)) ||
-      this.defaultRenderFn
-    )(this.node.context, this.getRenderParams(), this);
+    const scopeFlowConnect = this.node.flow.flowConnect.renderResolver.nodeButton;
+    const scopeFlow = this.node.flow.renderResolver.nodeButton;
+    const scopeNode = this.node.renderResolver.nodeButton;
+    const renderFn =
+      (this.renderer && this.renderer(this)) ||
+      (scopeNode && scopeNode(this)) ||
+      (scopeFlow && scopeFlow(this)) ||
+      (scopeFlowConnect && scopeFlowConnect(this)) ||
+      this.defaultRenderFn;
+    renderFn(this.node.context, this.getRenderParams(), this);
     this.node.context.restore();
 
     this.node.offUIContext.save();

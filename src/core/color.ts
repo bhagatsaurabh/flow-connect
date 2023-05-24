@@ -8,7 +8,7 @@ export class Color implements Serializable<SerializedColor> {
   rgbaString: string;
   rgbaCSSString: string;
 
-  constructor(rgba: Uint8ClampedArray | number[]) {
+  private constructor(rgba: Uint8ClampedArray | number[]) {
     this.rgbaValue = rgba;
     this.hexValue = Color.rgbaToHex(this.rgbaValue);
     this.rgbaString = Color.rgbaToString(this.rgbaValue);

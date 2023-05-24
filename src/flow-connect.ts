@@ -10,12 +10,17 @@ import {
   GroupRenderParams,
   NodeButton,
   NodeButtonRenderParams,
+  SubFlowNode,
+  TunnelNode,
 } from "./core/index.js";
 import { Vector } from "./core/vector.js";
 import {
   DataFetchProvider,
   DataPersistenceProvider,
   Dimension,
+  NodeConstructor,
+  NodePlugins,
+  PluginMetadata,
   Pointer,
   RenderResolver,
   Rules,
@@ -28,6 +33,7 @@ import { ViewPort } from "./common/enums.js";
 import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
 import { Container, ContainerRenderParams } from "./ui/container.js";
 import { TunaInitializer } from "./lib/tuna.js";
+import { EmptyNode } from "./core/empty-node.js";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -50,6 +56,24 @@ export class FlowConnect extends Hooks {
     if (!(window as any).__tuna__)
       (window as any).__tuna__ = new (TunaInitializer.initialize() as any)(flowConnect.audioContext);
     return flowConnect;
+  }
+
+  private plugins: NodePlugins = {
+    "core/empty": EmptyNode,
+    "core/subflow": SubFlowNode,
+    "core/tunnel": TunnelNode,
+  };
+
+  register(metadata: PluginMetadata, executor: NodeConstructor): boolean {
+    if (!metadata.name) return false;
+    if (this.plugins[metadata.name]) return false;
+
+    this.plugins[metadata.name] = executor;
+
+    return true;
+  }
+  getRegistered(name: string): NodeConstructor {
+    return this.plugins[name];
   }
 
   //#region Properties and Accessors
@@ -752,6 +776,8 @@ export class FlowConnect extends Hooks {
     this._offContext.setTransform(this._transform);
     this._offUIContext.setTransform(this._transform);
     this._offGroupContext.setTransform(this._transform);
+
+    this.currFlow?.transform();
 
     this.call("transform", this);
   }

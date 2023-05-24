@@ -1,7 +1,7 @@
 import { Vector, SerializedVector } from "./vector.js";
 import { uuid, canConnect, get, exists } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
-import { Connector, ConnectorOptions, ConnectorStyle } from "./connector.js";
+import { Connector, ConnectorOptions } from "./connector.js";
 import { Hooks } from "./hooks.js";
 import { Node } from "./node.js";
 import { Events, Renderable, RenderResolver, Serializable } from "../common/interfaces.js";
@@ -16,6 +16,10 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
    * This can be ignored for other applications where such pattern is not useful or relevant.
    **/
   ref: any;
+  node: Node;
+  type: TerminalType;
+  dataType: string;
+  name: string;
   connectors: Connector[];
   focus: boolean;
   position: Vector;
@@ -34,6 +38,50 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       return;
     }
 
+    this.bindToProp(propName);
+  }
+
+  renderResolver: RenderResolver<Terminal, TerminalRenderParams> = () => null;
+
+  constructor() {
+    super();
+  }
+
+  static create(
+    name: string,
+    type: TerminalType,
+    dataType: string,
+    options: TerminalOptions = DefaultTerminalOptions()
+  ): Terminal {
+    const terminal = new Terminal();
+    terminal.name = name;
+    terminal.type = type;
+    terminal.dataType = dataType;
+    terminal.hitColor = options.hitColor;
+    if (options.propName) terminal._propName = options.propName;
+    terminal.style = options.style ? { ...DefaultTerminalStyle(), ...options.style } : DefaultTerminalStyle();
+    terminal.id = get(options.id, uuid());
+
+    return terminal;
+  }
+  build(node: Node): Terminal {
+    this.node = node;
+    this.setHitColor();
+    this.connectors = [];
+    this.position = Vector.Zero();
+    this.focus = false;
+
+    if (this._propName) this.bindToProp(this._propName);
+    if (this.type === TerminalType.IN) {
+      this.on("data", (_inst, data) => {
+        if (this.propName) this.node.state[this.propName] = data;
+      });
+    }
+
+    return this;
+  }
+
+  private bindToProp(propName: string) {
     let oldPropName = this._propName;
     let newPropName = propName;
     if (exists(this.watcherId)) {
@@ -44,33 +92,6 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       if (this.type === TerminalType.OUT) this.setData(newVal);
     });
   }
-
-  renderResolver: RenderResolver<Terminal, TerminalRenderParams> = () => null;
-
-  constructor(
-    public node: Node,
-    public type: TerminalType,
-    public dataType: string,
-    public name: string,
-    public options = DefaultTerminalOptions()
-  ) {
-    super();
-    this.hitColor = options.hitColor;
-    if (options.propName) this.propName = options.propName;
-    this.style = options.style ? { ...DefaultTerminalStyle(), ...options.style } : DefaultTerminalStyle();
-    this.id = get(options.id, uuid());
-    this.setHitColor(this.hitColor);
-    this.connectors = [];
-    this.position = Vector.Zero();
-    this.focus = false;
-
-    if (this.type === TerminalType.IN) {
-      this.on("data", (_inst, data) => {
-        if (this.propName) this.node.state[this.propName] = data;
-      });
-    }
-  }
-
   getData(): any {
     if (this.type === TerminalType.OUT) {
       Log.error("Cannot call 'getData' on output terminal");
@@ -86,7 +107,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     }
     this.connectors.forEach((connector) => (connector.data = data));
   }
-  private setHitColor(hitColor: Color) {
+  private setHitColor(hitColor?: Color) {
     if (!hitColor) {
       hitColor = Color.Random();
       while (this.node.terminals.get(hitColor.rgbaString) || this.node.uiNodes.get(hitColor.rgbaString))
@@ -98,16 +119,17 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
   render() {
     let context = this.node.context;
     context.save();
-    let nodeRenderResolver = this.node.renderResolver.terminal;
-    let flowRenderResolver = this.node.flow.renderResolver.terminal;
-    let flowConnectRenderResolver = this.node.flow.flowConnect.renderResolver.terminal;
-    (
-      (this.renderResolver && this.renderResolver(this)) ||
-      (nodeRenderResolver && nodeRenderResolver(this)) ||
-      (flowRenderResolver && flowRenderResolver(this)) ||
-      (flowConnectRenderResolver && flowConnectRenderResolver(this)) ||
-      this._render
-    )(context, this.getRenderParams(), this);
+    let scopeNode = this.node.renderResolver.terminal;
+    let scopeFlow = this.node.flow.renderResolver.terminal;
+    let scopeFlowConnect = this.node.flow.flowConnect.renderResolver.terminal;
+    const scopeTerminal = this.renderResolver;
+    const renderFn =
+      (scopeTerminal && scopeTerminal(this)) ||
+      (scopeNode && scopeNode(this)) ||
+      (scopeFlow && scopeFlow(this)) ||
+      (scopeFlowConnect && scopeFlowConnect(this)) ||
+      this._render;
+    renderFn(context, this.getRenderParams(), this);
     context.restore();
 
     this.offUIRender();
@@ -168,7 +190,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
 
     // Check if these terminals can be connected
     if (canConnect(source, destination, this.node.flow.rules, this.node.flow.executionGraph)) {
-      let connector = Connector.create(options).build(this.node.flow, source, destination);
+      let connector = Connector.create(this.node.flow, source, destination, options);
       this.node.flow.connectors.set(connector.id, connector);
 
       return true;
@@ -304,14 +326,6 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       hitColor: this.hitColor.serialize(),
     };
   }
-  static deSerialize(node: Node, data: SerializedTerminal): Terminal {
-    return new Terminal(node, data.type, data.dataType, data.name, {
-      propName: data.propName,
-      style: data.style,
-      id: data.id,
-      hitColor: Color.create(data.hitColor),
-    });
-  }
 }
 
 export enum TerminalType {
@@ -322,7 +336,7 @@ export enum TerminalType {
 export interface SerializedTerminal {
   name: string;
   dataType: string;
-  type?: TerminalType;
+  type: TerminalType;
   propName?: string;
   id?: string;
   hitColor?: SerializedColor;

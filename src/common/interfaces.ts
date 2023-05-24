@@ -1,7 +1,7 @@
 import { Vector } from "../core/vector.js";
 import { LOD, ViewPort } from "./enums.js";
-import { NodeState, NodeStyle } from "../core/node.js";
-import { TerminalStyle } from "../core/terminal.js";
+import { Node, NodeOptions, NodeState } from "../core/node.js";
+import { Flow } from "../flow-connect.js";
 
 /**
  *  To track canvas position and dimension when scrolling or resizing
@@ -61,14 +61,14 @@ export interface Rules {
   [dataType: string]: string[];
 }
 
-export interface NodeCreatorOptions {
-  name?: string;
-  position?: Vector;
-  width?: number;
-  state?: {};
-  style?: NodeStyle;
-  terminalStyle?: TerminalStyle;
-}
-
 export type DataPersistenceProvider = (id: string, ref: Blob) => Promise<void>;
 export type DataFetchProvider = (id: string) => Promise<Blob>;
+
+export type NodeConstructor<T extends Node = Node, O extends NodeOptions = NodeOptions> = {
+  new (flow: Flow, options: O): T;
+};
+
+export type NodePlugins = Record<string, NodeConstructor>;
+export interface PluginMetadata {
+  name: string;
+}

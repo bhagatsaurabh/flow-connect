@@ -7,7 +7,7 @@ import { Node, NodeState } from "./node.js";
 import { Hooks } from "./hooks.js";
 
 export class Connector extends Hooks implements Serializable<SerializedConnector>, Renderable {
-  renderResolver: RenderResolver<Connector, ConnectorRenderParams> = () => null;
+  renderer: RenderResolver<Connector, ConnectorRenderParams> = () => null;
 
   flow: Flow;
   id: string;
@@ -31,39 +31,46 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
     }
   }
 
-  constructor() {
+  private constructor() {
     super();
   }
 
-  static create(options: ConnectorOptions = DefaultConnectorOptions()): Connector {
+  static create(
+    flow: Flow,
+    start: Terminal,
+    end: Terminal,
+    options: ConnectorOptions = DefaultConnectorOptions()
+  ): Connector {
     const connector = new Connector();
-    connector.style = options.style ? { ...DefaultConnectorStyle(), ...options.style } : DefaultConnectorStyle();
-    connector.id = get(options.id, uuid());
-    connector.floatingTip = options.floatingTip;
 
-    return connector;
-  }
-  build(flow: Flow, start: Terminal, end: Terminal): Connector {
-    this.flow = flow;
-    this.start = start;
-    this.end = end;
-    if (this.start) this.startNode = this.start.node;
-    if (this.end) this.endNode = this.end.node;
+    const { style, id = uuid(), floatingTip } = options;
+
+    connector.flow = flow;
+    connector.style = { ...DefaultConnectorStyle(), ...get(style, {}) };
+    connector.id = id;
+    connector.floatingTip = floatingTip;
+    connector.start = start;
+    connector.end = end;
+    connector.startNode = connector.start?.node;
+    connector.endNode = connector.end?.node;
+
     if (start && end) {
-      this.floatingTip = null;
+      connector.floatingTip = null;
 
-      this.start.connectors.push(this);
-      if (this.end.connectors.length > 0) {
-        this.end.connectors[0].disconnect();
-        this.end.connectors[0] = this;
-      } else this.end.connectors.push(this);
+      start.connectors.push(connector);
+      if (end.connectors.length > 0) {
+        end.connectors[0].disconnect();
+        end.connectors[0] = connector;
+      } else {
+        end.connectors.push(connector);
+      }
 
-      this.flow.executionGraph.connect(this.startNode, this.endNode);
-      this.start.onConnect(this);
-      this.end.onConnect(this);
+      flow.executionGraph.connect(connector.startNode, connector.endNode);
+      start.onConnect(connector);
+      end.onConnect(connector);
     }
 
-    return this;
+    return connector;
   }
 
   disconnect(): void {
@@ -101,7 +108,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
     context.save();
     const scopeFlowConnect = this.flow.flowConnect.renderResolver.connector;
     const scopeFlow = this.flow.renderResolver.connector;
-    const scopeConnector = this.renderResolver;
+    const scopeConnector = this.renderer;
     const renderFn =
       (scopeConnector && scopeConnector(this)) ||
       (scopeFlow && scopeFlow(this)) ||

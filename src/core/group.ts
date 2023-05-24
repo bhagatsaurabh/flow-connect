@@ -65,7 +65,7 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
   }
   build(flow: Flow, position: Vector): Group {
     this.flow = flow;
-    !this.hitColor && this.setHitColor();
+    this.setHitColor();
     this.position = position;
     this.computeTextMetrics();
 

@@ -1,6 +1,6 @@
 import { Color, FlowConnect } from "../flow-connect.js";
 import { Vector } from "./vector.js";
-import { Node, NodeButton, NodeButtonRenderParams, NodeRenderParams, NodeStyle, SerializedNode } from "./node.js";
+import { Node, NodeButton, NodeButtonRenderParams, NodeOptions, NodeRenderParams, SerializedNode } from "./node.js";
 import { Hooks } from "./hooks.js";
 import { Group, GroupRenderParams, SerializedGroup } from "./group.js";
 import { Connector, ConnectorRenderParams, SerializedConnector } from "./connector.js";
@@ -12,11 +12,11 @@ import {
   DataPersistenceProvider,
   DataFetchProvider,
 } from "../common/interfaces.js";
-import { SubFlowNode } from "./subflow-node.js";
-import { TunnelNode, SerializedTunnelNode } from "./tunnel-node.js";
-import { uuid } from "../utils/utils.js";
+import { SubFlowNode, SubFlowNodeOptions } from "./subflow-node.js";
+import { TunnelNode, SerializedTunnelNode, TunnelNodeOptions } from "./tunnel-node.js";
+import { capitalize, uuid } from "../utils/utils.js";
 import { Graph, SerializedGraph } from "./graph.js";
-import { Terminal, TerminalRenderParams, TerminalStyle } from "./terminal.js";
+import { Terminal, TerminalRenderParams } from "./terminal.js";
 import { Log } from "../utils/logger.js";
 import { Container, ContainerRenderParams } from "../ui/container.js";
 
@@ -80,6 +80,10 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     });
   }
 
+  transform(): void {
+    [...this.nodes.values()].forEach((node) => node.call("transform", node));
+    [...this.groups.values()].forEach((group) => group.call("transform", group));
+  }
   private registerListeners() {
     let id = this.flowConnect.on("transform", () => this.call("transform", this));
     this.listeners["transform"] = id;
@@ -99,65 +103,80 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     return false;
   }
   addInput(name: string, dataType: string, position: Vector): TunnelNode {
-    let flowInput = new TunnelNode(this, "Input", position, 100, [], [{ name: name, dataType: dataType }]);
-
-    this.inputs.push(flowInput);
-    this.nodes.set(flowInput.id, flowInput);
-    this.sortedNodes.add(flowInput);
-    this.executionGraph.add(flowInput);
-
-    this.call("add-input", this, flowInput);
-    return flowInput;
+    return this._addIO("input", name, position, dataType);
   }
   addOutput(name: string, dataType: string, position: Vector): TunnelNode {
-    let flowOutput = new TunnelNode(this, "Output", position, 100, [{ name: name, dataType: dataType }], []);
-
-    this.outputs.push(flowOutput);
-    this.nodes.set(flowOutput.id, flowOutput);
-    this.sortedNodes.add(flowOutput);
-    this.executionGraph.add(flowOutput);
-
-    this.call("add-output", this, flowOutput);
-    return flowOutput;
+    return this._addIO("output", name, position, dataType);
   }
-  addSubFlow(flow: Flow, position: Vector = Vector.Zero()): SubFlowNode {
-    if (flow.parentFlow) {
+  private _addIO(type: "input" | "output", name: string, position: Vector, dataType: string): TunnelNode {
+    const ioNode = this.createNode<TunnelNode, TunnelNodeOptions>("core/tunnel", position, {
+      tunnelType: type,
+      name: capitalize(type),
+      tunnelName: name,
+      tunnelDataType: dataType,
+    });
+
+    this.inputs.push(ioNode);
+    this.call(`add-${type}`, this, ioNode);
+    return ioNode;
+  }
+  addSubFlow(subFlow: Flow, position: Vector = Vector.Zero()): SubFlowNode {
+    if (subFlow.parentFlow) {
       Log.error("Provided flow is already a sub-flow, a sub-flow cannot have multiple parent flows");
       return null;
     }
-    let subFlowNode = new SubFlowNode(
-      this,
-      flow,
-      position,
-      150,
-      flow.inputs.map((inputNode) => {
-        return { name: inputNode.outputs[0].name, dataType: inputNode.outputs[0].dataType };
-      }),
-      flow.outputs.map((outputNode) => {
-        return { name: outputNode.inputs[0].name, dataType: outputNode.inputs[0].dataType };
-      }),
-      { name: flow.name }
-    );
-    flow.parentFlow = this;
 
-    return subFlowNode;
-  }
-  createNode(name: string, position: Vector, width: number, options?: NodeOptions): Node {
-    options = options ? { ...DefaultNodeOptions(), ...options } : DefaultNodeOptions();
-
-    let inTerminals: any[] = [],
-      outTerminals: any[] = [];
-    if (typeof options.inputs !== "undefined") inTerminals = options.inputs;
-    if (typeof options.outputs !== "undefined") outTerminals = options.outputs;
-
-    return new Node(this, name, position, width, inTerminals, outTerminals, {
-      style: options.style,
-      terminalStyle: options.terminalStyle,
-      state: options.state,
+    const node = this.createNode<SubFlowNode, SubFlowNodeOptions>("core/subflow", position, {
+      name: subFlow.name,
+      width: 150,
+      subFlow: subFlow,
     });
+
+    return node;
+  }
+  removeSubFlow(subFlow: Flow): void;
+  removeSubFlow(subFlowNode: SubFlowNode): void;
+  removeSubFlow(arg1: Flow | SubFlowNode): void {
+    let subFlowNode: SubFlowNode = null;
+    if (arg1 instanceof Flow) {
+      subFlowNode = [...this.nodes.values()]
+        .filter((node) => node.type === "core/subflow")
+        .find((node) => (node as SubFlowNode).subFlow === arg1) as SubFlowNode;
+      this.removeNode(subFlowNode);
+    } else if (arg1 instanceof SubFlowNode) {
+      subFlowNode = arg1;
+    }
+
+    this.removeNode(subFlowNode);
+  }
+
+  createNode<T extends Node = Node, O extends NodeOptions = NodeOptions>(
+    type: string,
+    position: Vector,
+    options: O
+  ): T {
+    const node = Node.create<T>(type, this, position, options);
+    this.addNode(node);
+    return node;
+  }
+  private _createNode<T extends Node = Node, O extends NodeOptions = NodeOptions>(
+    type: string,
+    position: Vector,
+    options: O
+  ): T {
+    const node = Node.create<T>(type, this, position, options, true);
+    this.addNode(node);
+    return node;
+  }
+  private addNode(node: Node): void {
+    this.nodes.set(node.id, node);
+    this.sortedNodes.add(node);
+    this.executionGraph.add(node);
   }
   removeNode(nodeOrID: Node | string) {
     let node = typeof nodeOrID === "string" ? this.nodes.get(nodeOrID) : nodeOrID;
+
+    if (!node) return;
 
     [...node.inputs, ...node.outputs, ...node.inputsUI, ...node.outputsUI]
       .filter((terminal) => terminal.isConnected())
@@ -213,7 +232,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     const start = type === "left" ? fixedEnd : null;
     const end = type === "left" ? null : fixedEnd;
 
-    let connector = Connector.create({ floatingTip: floatingPos }).build(this, start, end);
+    let connector = Connector.create(this, start, end, { floatingTip: floatingPos });
     this.connectors.set(connector.id, connector);
     this.floatingConnector = connector;
   }
@@ -248,22 +267,23 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       connectors: [...this.connectors.values()].map((connector) => connector.serialize()),
       inputs,
       outputs,
-      executionGraph: this.executionGraph.serialize(),
     });
   }
   static async deSerialize(flowConnect: FlowConnect, data: SerializedFlow, receive?: DataFetchProvider): Promise<Flow> {
     let flow = new Flow(flowConnect, data.name, data.rules, data.terminalColors, data.id);
 
     for (let serializedNode of data.nodes) {
-      let node;
-      if (serializedNode.subFlow) {
-        node = await SubFlowNode.deSerialize(flow, serializedNode, receive);
-        node.subFlow.parentFlow = flow;
-      } else {
-        node = await Node.deSerialize(flow, serializedNode, receive);
-      }
-      flow.nodes.set(node.id, node);
-      flow.sortedNodes.add(node);
+      flow._createNode(serializedNode.type, Vector.create(serializedNode.position), {
+        name: serializedNode.name,
+        type: serializedNode.type,
+        width: serializedNode.width,
+        style: serializedNode.style,
+        state: serializedNode.state,
+        id: serializedNode.id,
+        hitColor: Color.create(serializedNode.hitColor),
+        inputs: serializedNode.inputs,
+        outputs: serializedNode.outputs,
+      });
     }
     data.groups.forEach((serializedGroup) => {
       let group = Group.create(serializedGroup.name, {
@@ -278,17 +298,18 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
 
       flow.groups.push(group);
     });
-    for (let serializedInput of data.inputs) {
-      let input = await TunnelNode.deSerialize(flow, serializedInput, receive);
-      flow.inputs.push(input);
-      flow.nodes.set(input.id, input);
-      flow.sortedNodes.add(input);
-    }
-    for (let serializedOutput of data.outputs) {
-      let output = await TunnelNode.deSerialize(flow, serializedOutput, receive);
-      flow.outputs.push(output);
-      flow.nodes.set(output.id, output);
-      flow.sortedNodes.add(output);
+    for (let serializedInput of [...data.inputs, ...data.outputs]) {
+      flow._createNode<TunnelNode, TunnelNodeOptions>(serializedInput.type, Vector.create(serializedInput.position), {
+        name: serializedInput.name,
+        tunnelType: serializedInput.tunnelType,
+        width: serializedInput.width,
+        style: serializedInput.style,
+        state: serializedInput.state,
+        id: serializedInput.id,
+        hitColor: Color.create(serializedInput.hitColor),
+        inputs: serializedInput.inputs,
+        outputs: serializedInput.outputs,
+      });
     }
 
     data.connectors.forEach((serializedConnector) => {
@@ -301,18 +322,14 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
         .concat(endNode.inputsUI)
         .find((terminal) => terminal.id === serializedConnector.endId);
 
-      let connector = Connector.create({ id: serializedConnector.id, style: serializedConnector.style }).build(
-        flow,
-        startTerminal,
-        endTerminal
-      );
+      let connector = Connector.create(flow, startTerminal, endTerminal, {
+        id: serializedConnector.id,
+        style: serializedConnector.style,
+      });
       flow.connectors.set(serializedConnector.id, connector);
     });
 
     // flow.executionGraph = Graph.deSerialize(flow, data.executionGraph);
-
-    console.log(flow.executionGraph.serialize());
-    console.log(data.executionGraph);
 
     return Promise.resolve<Flow>(flow);
   }
@@ -340,19 +357,4 @@ export interface SerializedFlow {
   connectors: SerializedConnector[];
   inputs: SerializedTunnelNode[];
   outputs: SerializedTunnelNode[];
-  executionGraph: SerializedGraph;
 }
-
-export interface NodeOptions {
-  inputs?: any[];
-  outputs?: any[];
-  style: NodeStyle;
-  terminalStyle: TerminalStyle;
-  state?: Record<string, any>;
-}
-let DefaultNodeOptions = (): NodeOptions => {
-  return {
-    style: {},
-    terminalStyle: {},
-  };
-};
