@@ -42,13 +42,13 @@ export class FlowConnect extends Hooks {
     return flowConnect;
   }
 
-  private plugins: NodePlugins = {
+  private static plugins: NodePlugins = {
     "core/empty": EmptyNode,
     "core/subflow": SubFlowNode,
     "core/tunnel": TunnelNode,
   };
 
-  register(metadata: PluginMetadata, executor: NodeConstructor): boolean {
+  static register(metadata: PluginMetadata, executor: NodeConstructor): boolean {
     if (!metadata.name) return false;
     if (this.plugins[metadata.name]) return false;
 
@@ -56,9 +56,11 @@ export class FlowConnect extends Hooks {
 
     return true;
   }
-  getRegistered(name: string): NodeConstructor {
+  static getRegistered(name: string): NodeConstructor {
     return this.plugins[name];
   }
+
+  version = process.env.FLOWCONNECT_VERSION;
 
   //#region Properties and Accessors
   /** Reference to the canvas element on which the flows will be rendered by FlowConnect instance */

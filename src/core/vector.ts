@@ -5,6 +5,8 @@ export class Vector implements Serializable<SerializedVector> {
   x: number;
   y: number;
 
+  constructor(domPoint: DOMPoint);
+  constructor(x: number, y: number);
   constructor(xOrDOMPoint: number | DOMPoint, y?: number) {
     if (xOrDOMPoint instanceof DOMPoint) [this.x, this.y] = [xOrDOMPoint.x, xOrDOMPoint.y];
     else [this.x, this.y] = [xOrDOMPoint || 0, y || 0];
@@ -129,9 +131,11 @@ export class Vector implements Serializable<SerializedVector> {
     if (arg1 instanceof Vector && arg2 instanceof Vector) {
       if (this.x < arg1.x || this.x > arg2.x) return false;
       if (this.y < arg1.y || this.y > arg2.y) return false;
-    } else {
+    } else if (typeof arg1 === "number" && typeof arg2 === "number") {
       if (this.x < arg1 || this.x > arg3) return false;
       if (this.y < arg2 || this.y > arg4) return false;
+    } else {
+      return false;
     }
 
     return true;
@@ -175,12 +179,16 @@ export class Vector implements Serializable<SerializedVector> {
     return this.x === vector.x && this.y === vector.y;
   }
 
+  static Distance(vector1: Vector, vector2: Vector): number;
+  static Distance(x1: number, y1: number, x2: number, y2: number): number;
   static Distance(vector1OrX1: Vector | number, vector2OrY1: Vector | number, x2?: number, y2?: number): number {
     if (vector1OrX1 instanceof Vector && vector2OrY1 instanceof Vector) {
       return Math.sqrt(Math.pow(vector2OrY1.x - vector1OrX1.x, 2) + Math.pow(vector2OrY1.y - vector1OrX1.y, 2));
     } else if (typeof vector1OrX1 === "number" && typeof vector2OrY1 === "number") {
       return Math.sqrt(Math.pow(x2 - vector1OrX1, 2) + Math.pow(y2 - vector2OrY1, 2));
     }
+
+    return -1;
   }
   static Midpoint(vector1: Vector, vector2: Vector): Vector {
     return new Vector((vector1.x + vector2.x) / 2, (vector1.y + vector2.y) / 2);

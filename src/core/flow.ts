@@ -255,6 +255,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     Object.keys(this.ruleColors).forEach((key) => (ruleColors[key] = this.ruleColors[key].serialize()));
 
     return Promise.resolve<SerializedFlow>({
+      version: this.flowConnect.version,
       id: this.id,
       name: this.name,
       rules: this.rules,
@@ -279,24 +280,20 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
 
     for (let serializedNode of data.nodes) {
       flow._createNode(serializedNode.type, Vector.create(serializedNode.position), {
-        name: serializedNode.name,
-        type: serializedNode.type,
-        width: serializedNode.width,
-        style: serializedNode.style,
-        state: serializedNode.state,
-        id: serializedNode.id,
+        ...serializedNode,
         hitColor: Color.create(serializedNode.hitColor),
-        inputs: serializedNode.inputs,
-        outputs: serializedNode.outputs,
       });
     }
+    for (let sTunnelNode of [...data.inputs, ...data.outputs]) {
+      flow._createNode<TunnelNode, TunnelNodeOptions>(sTunnelNode.type, Vector.create(sTunnelNode.position), {
+        ...sTunnelNode,
+        hitColor: Color.create(sTunnelNode.hitColor),
+      });
+    }
+
     data.groups.forEach((serializedGroup) => {
       let group = Group.create(flow, Vector.create(serializedGroup.position), {
-        name: serializedGroup.name,
-        width: serializedGroup.width,
-        height: serializedGroup.height,
-        style: serializedGroup.style,
-        id: serializedGroup.id,
+        ...serializedGroup,
         hitColor: Color.create(serializedGroup.hitColor),
       });
 
@@ -304,19 +301,6 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
 
       flow.groups.push(group);
     });
-    for (let serializedInput of [...data.inputs, ...data.outputs]) {
-      flow._createNode<TunnelNode, TunnelNodeOptions>(serializedInput.type, Vector.create(serializedInput.position), {
-        name: serializedInput.name,
-        tunnelType: serializedInput.tunnelType,
-        width: serializedInput.width,
-        style: serializedInput.style,
-        state: serializedInput.state,
-        id: serializedInput.id,
-        hitColor: Color.create(serializedInput.hitColor),
-        inputs: serializedInput.inputs,
-        outputs: serializedInput.outputs,
-      });
-    }
 
     data.connectors.forEach((serializedConnector) => {
       let startNode = flow.nodes.get(serializedConnector.startNodeId);
@@ -402,6 +386,7 @@ const DefaultRuleColors: () => RuleColors = () => ({
 });
 
 export interface SerializedFlow {
+  version: string;
   id: string;
   name: string;
   rules: Rules;

@@ -56,6 +56,7 @@ import {
 } from "../common/interfaces.js";
 import { Connector } from "./connector.js";
 import { Log } from "../utils/logger.js";
+import { FlowConnect } from "../flow-connect.js";
 
 export abstract class Node extends Hooks implements Events, Serializable<SerializedNode>, Renderable {
   //#region Properties
@@ -152,7 +153,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     options: NodeOptions = DefaultNodeOptions(),
     isDeserialized: boolean = false
   ): T {
-    const construct = flow.flowConnect.getRegistered(type);
+    const construct = FlowConnect.getRegistered(type);
     const node = new construct(flow, options);
 
     node.flow = flow;
