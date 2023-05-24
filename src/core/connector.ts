@@ -2,12 +2,12 @@ import { Vector, SerializedVector } from "./vector.js";
 import { canConnect, get, uuid } from "../utils/utils.js";
 import { Flow, FlowState } from "./flow.js";
 import { Terminal, TerminalType } from "./terminal.js";
-import { Renderable, RenderResolver, Serializable } from "../common/interfaces.js";
+import { Renderable, Renderer, Serializable } from "../common/interfaces.js";
 import { Node, NodeState } from "./node.js";
 import { Hooks } from "./hooks.js";
 
 export class Connector extends Hooks implements Serializable<SerializedConnector>, Renderable {
-  renderer: RenderResolver<Connector, ConnectorRenderParams> = () => null;
+  renderer: Renderer<Connector, ConnectorRenderParams> = () => null;
 
   flow: Flow;
   id: string;
@@ -106,8 +106,8 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
   render() {
     let context = this.flow.flowConnect.context;
     context.save();
-    const scopeFlowConnect = this.flow.flowConnect.renderResolver.connector;
-    const scopeFlow = this.flow.renderResolver.connector;
+    const scopeFlowConnect = this.flow.flowConnect.renderers.connector;
+    const scopeFlow = this.flow.renderers.connector;
     const scopeConnector = this.renderer;
     const renderFn =
       (scopeConnector && scopeConnector(this)) ||

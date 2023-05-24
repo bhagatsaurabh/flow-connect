@@ -12,7 +12,6 @@ import {
   Dial,
   DialStyle,
   Container,
-  ContainerRenderParams,
   SerializedContainer,
   Label,
   LabelStyle,
@@ -41,31 +40,26 @@ import {
 } from "../ui/index.js";
 import { get, uuid, intersects } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
-import { Flow, FlowState, SerializedFlow } from "./flow.js";
+import { Flow, FlowState } from "./flow.js";
 import { Group } from "./group.js";
-import { Terminal, TerminalType, TerminalStyle, SerializedTerminal, TerminalRenderParams } from "./terminal.js";
+import { Terminal, TerminalType, SerializedTerminal } from "./terminal.js";
 import { Hooks } from "./hooks.js";
 import {
   DataPersistenceProvider,
   Events,
+  NodeRenderers,
   Renderable,
-  RenderFunction,
-  RenderResolver,
+  Renderer,
+  RenderFn,
   RenderState,
   Serializable,
 } from "../common/interfaces.js";
 import { Connector } from "./connector.js";
 import { Log } from "../utils/logger.js";
-import { FlowConnect } from "../flow-connect.js";
 
 export abstract class Node extends Hooks implements Events, Serializable<SerializedNode>, Renderable {
   //#region Properties
-  renderResolver: {
-    node?: RenderResolver<Node, NodeRenderParams>;
-    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>;
-    terminal?: RenderResolver<Terminal, TerminalRenderParams>;
-    uiContainer?: RenderResolver<Container, ContainerRenderParams>;
-  } = {};
+  renderers: NodeRenderers = {};
 
   private _width: number;
   private _zIndex: number;
@@ -250,7 +244,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   }
   addNodeButton(
     onClick: (node: Node) => void,
-    render: RenderFunction<NodeButton, NodeButtonRenderParams>,
+    render: RenderFn<NodeButton, NodeButtonRenderParams>,
     align: Align
   ): NodeButton {
     let newNodeButton = new NodeButton(this, onClick, render, align);
@@ -372,14 +366,16 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     this.renderTerminals(context);
     this.renderName(context);
     this.renderFocused(context);
-    let flowRenderResolver = this.flow.renderResolver.node;
-    let flowConnectRenderResolver = this.flow.flowConnect.renderResolver.node;
-    (
-      (this.renderResolver.node && this.renderResolver.node(this)) ||
-      (flowRenderResolver && flowRenderResolver(this)) ||
-      (flowConnectRenderResolver && flowConnectRenderResolver(this)) ||
-      this._render
-    )(context, this.getRenderParams(), this);
+
+    let scopeFlowConnect = this.flow.flowConnect.renderers.node;
+    let scopeFlow = this.flow.renderers.node;
+    let scopeNode = this.renderers.node;
+    const renderFn =
+      (scopeNode && scopeNode(this)) ||
+      (scopeFlow && scopeFlow(this)) ||
+      (scopeFlowConnect && scopeFlowConnect(this)) ||
+      this._render;
+    renderFn(context, this.getRenderParams(), this);
     context.restore();
 
     this.nodeButtons.forEach((nodeButton) => nodeButton.render());
@@ -1005,8 +1001,7 @@ interface EnvelopeCreatorOptions {
 }
 
 export class NodeButton extends Hooks implements Renderable {
-  renderer: RenderResolver<NodeButton, NodeButtonRenderParams> = () => null;
-  defaultRenderFn: RenderFunction<NodeButton, NodeButtonRenderParams>;
+  renderer: RenderFn<NodeButton, NodeButtonRenderParams>;
   style: Record<string, any> = {};
 
   hitColor: Color;
@@ -1015,7 +1010,7 @@ export class NodeButton extends Hooks implements Renderable {
   constructor(
     public node: Node,
     public onClick: (n: Node) => void,
-    renderer: RenderFunction<NodeButton, NodeButtonRenderParams>,
+    renderer: RenderFn<NodeButton, NodeButtonRenderParams>,
     public align: Align,
     style?: Record<string, any>
   ) {
@@ -1023,7 +1018,7 @@ export class NodeButton extends Hooks implements Renderable {
 
     this.style = get(style, {});
     this.setHitColor();
-    this.defaultRenderFn = renderer;
+    this.renderer = renderer;
   }
 
   private setHitColor() {
@@ -1034,16 +1029,7 @@ export class NodeButton extends Hooks implements Renderable {
   }
   render() {
     this.node.context.save();
-    const scopeFlowConnect = this.node.flow.flowConnect.renderResolver.nodeButton;
-    const scopeFlow = this.node.flow.renderResolver.nodeButton;
-    const scopeNode = this.node.renderResolver.nodeButton;
-    const renderFn =
-      (this.renderer && this.renderer(this)) ||
-      (scopeNode && scopeNode(this)) ||
-      (scopeFlow && scopeFlow(this)) ||
-      (scopeFlowConnect && scopeFlowConnect(this)) ||
-      this.defaultRenderFn;
-    renderFn(this.node.context, this.getRenderParams(), this);
+    this.renderer(this.node.context, this.getRenderParams(), this);
     this.node.context.restore();
 
     this.node.offUIContext.save();

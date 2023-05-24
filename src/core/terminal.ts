@@ -4,7 +4,7 @@ import { Color, SerializedColor } from "./color.js";
 import { Connector, ConnectorOptions } from "./connector.js";
 import { Hooks } from "./hooks.js";
 import { Node } from "./node.js";
-import { Events, Renderable, RenderResolver, Serializable } from "../common/interfaces.js";
+import { Events, Renderable, Renderer, Serializable } from "../common/interfaces.js";
 import { Log } from "../utils/logger.js";
 import { Constant } from "../resource/constants.js";
 
@@ -41,7 +41,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     this.bindToProp(propName);
   }
 
-  renderResolver: RenderResolver<Terminal, TerminalRenderParams> = () => null;
+  renderer: Renderer<Terminal, TerminalRenderParams> = () => null;
 
   constructor() {
     super();
@@ -119,10 +119,10 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
   render() {
     let context = this.node.context;
     context.save();
-    let scopeNode = this.node.renderResolver.terminal;
-    let scopeFlow = this.node.flow.renderResolver.terminal;
-    let scopeFlowConnect = this.node.flow.flowConnect.renderResolver.terminal;
-    const scopeTerminal = this.renderResolver;
+    let scopeNode = this.node.renderers.terminal;
+    let scopeFlow = this.node.flow.renderers.terminal;
+    let scopeFlowConnect = this.node.flow.flowConnect.renderers.terminal;
+    const scopeTerminal = this.renderer;
     const renderFn =
       (scopeTerminal && scopeTerminal(this)) ||
       (scopeNode && scopeNode(this)) ||
@@ -158,7 +158,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     }
     context.fillStyle = params.focus
       ? terminal.style.focusColor
-      : terminal.node.flow.terminalColors[terminal.dataType] || terminal.style.color;
+      : terminal.node.flow.ruleColors[terminal.dataType].hexValue || terminal.style.color;
     context.strokeStyle = terminal.style.borderColor;
     context.shadowBlur = terminal.style.shadowBlur;
     context.shadowColor = terminal.style.shadowColor;

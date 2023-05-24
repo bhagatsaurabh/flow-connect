@@ -1,37 +1,21 @@
-import {
-  Connector,
-  Flow,
-  Group,
-  Node,
-  Color,
-  Hooks,
-  ConnectorRenderParams,
-  NodeRenderParams,
-  GroupRenderParams,
-  NodeButton,
-  NodeButtonRenderParams,
-  SubFlowNode,
-  TunnelNode,
-} from "./core/index.js";
+import { Flow, Group, Node, Color, Hooks, SubFlowNode, TunnelNode } from "./core/index.js";
 import { Vector } from "./core/vector.js";
 import {
   DataFetchProvider,
   DataPersistenceProvider,
   Dimension,
+  FlowConnectRenderers,
   NodeConstructor,
   NodePlugins,
   PluginMetadata,
   Pointer,
-  RenderResolver,
-  Rules,
 } from "./common/interfaces.js";
 import { intersects, noop } from "./utils/utils.js";
 import { Log } from "./utils/logger.js";
-import { Terminal, TerminalRenderParams, TerminalType } from "./core/terminal.js";
+import { TerminalType } from "./core/terminal.js";
 import { FlowState, FlowOptions, SerializedFlow } from "./core/flow.js";
 import { ViewPort } from "./common/enums.js";
 import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
-import { Container, ContainerRenderParams } from "./ui/container.js";
 import { TunaInitializer } from "./lib/tuna.js";
 import { EmptyNode } from "./core/empty-node.js";
 
@@ -184,14 +168,7 @@ export class FlowConnect extends Hooks {
     return this.startTime < 0 ? this.startTime : performance.now() - this.startTime;
   }
 
-  readonly renderResolver: {
-    connector?: RenderResolver<Connector, ConnectorRenderParams>;
-    node?: RenderResolver<Node, NodeRenderParams>;
-    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>;
-    uiContainer?: RenderResolver<Container, ContainerRenderParams>;
-    group?: RenderResolver<Group, GroupRenderParams>;
-    terminal?: RenderResolver<Terminal, TerminalRenderParams>;
-  } = {};
+  readonly renderers: FlowConnectRenderers = {};
   //#endregion
 
   /**
@@ -395,10 +372,11 @@ export class FlowConnect extends Hooks {
             this.currHitGroup && (dragDelta = this.currHitGroup.position.subtract(this.pointers[0].realPosition));
           } else if (this.keymap["Control"] || this.touchControls["CreateGroup"]) {
             this.groupStartPoint = this.pointers[0].realPosition.clone();
-            this.currGroup = Group.create("New Group", { width: 0, height: 0 }).build(
-              this.currFlow,
-              this.groupStartPoint.clone()
-            );
+            this.currGroup = Group.create(this.currFlow, this.groupStartPoint.clone(), {
+              name: "New Group",
+              width: 0,
+              height: 0,
+            });
           }
         }
       } else {
@@ -869,12 +847,9 @@ export class FlowConnect extends Hooks {
     this.frameId = window.requestAnimationFrame(this._render.bind(this));
   }
 
-  createFlow(options: FlowOptions = { name: "New Flow", rules: {}, terminalColors: {} }): Flow {
-    if (!options.rules) options.rules = {};
-    if (!options.terminalColors) options.terminalColors = {};
+  createFlow(options: FlowOptions): Flow {
+    let flow = Flow.create(this, options);
 
-    options.rules = { ...options.rules, ...DefaultRules() };
-    let flow = new Flow(this, options.name, options.rules, options.terminalColors);
     this.flows.push(flow);
 
     flow.on("start", () => this.startGlobalTime());
@@ -886,7 +861,6 @@ export class FlowConnect extends Hooks {
     if (flow === this.currFlow) return;
     if (this.currFlow) {
       window.cancelAnimationFrame(this.frameId);
-      this.currFlow.deregisterListeners();
     }
     if (!this.rootFlow || !this.rootFlow.existsInFlow(flow)) {
       this.rootFlow = flow;
@@ -931,32 +905,6 @@ export enum FlowConnectState {
   Stopped = "Stopped",
   Running = "Running",
 }
-
-/** Default rules every Flow will have, for e.g. a string output can only be connected to string inputs.
- *  ```javascript
- *  {
- *    'string': ['string'],
- *    'number': ['number'],
- *    'boolean': ['boolean'],
- *    'file': ['file'],
- *    'event': ['event'], ...
- *  }
- *  ```
- */
-let DefaultRules: () => Rules = () => ({
-  string: ["string", "any"],
-  number: ["number", "audioparam", "any"],
-  boolean: ["boolean", "any"],
-  array: ["array", "any"],
-  file: ["file", "any"],
-  event: ["event", "any"],
-  vector: ["vector", "any"],
-  "array-buffer": ["array-buffer", "any"],
-  audio: ["audio", "audioparam"],
-  audioparam: ["audioparam"],
-  "audio-buffer": ["audio-buffer", "any"],
-  any: ["any"],
-});
 
 export * from "./common/index.js";
 export * from "./core/index.js";

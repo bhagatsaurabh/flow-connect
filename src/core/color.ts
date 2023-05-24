@@ -8,9 +8,15 @@ export class Color implements Serializable<SerializedColor> {
   rgbaString: string;
   rgbaCSSString: string;
 
-  private constructor(rgba: Uint8ClampedArray | number[]) {
-    this.rgbaValue = rgba;
-    this.hexValue = Color.rgbaToHex(this.rgbaValue);
+  private constructor(color: Uint8ClampedArray | number[] | string) {
+    let hex;
+    if (typeof color === "string") {
+      hex = color;
+      color = Color.hexToRGBA(color);
+    }
+
+    this.rgbaValue = color;
+    this.hexValue = hex ?? Color.rgbaToHex(this.rgbaValue);
     this.rgbaString = Color.rgbaToString(this.rgbaValue);
     this.rgbaCSSString = Color.rgbaToCSSString(this.rgbaValue);
   }
@@ -104,15 +110,11 @@ export class Color implements Serializable<SerializedColor> {
   }
 
   serialize(): SerializedColor {
-    return {
-      rgba: [this.rgbaValue[0], this.rgbaValue[1], this.rgbaValue[2], this.rgbaValue[3]],
-    };
+    return [this.rgbaValue[0], this.rgbaValue[1], this.rgbaValue[2], this.rgbaValue[3]];
   }
   static create(data: SerializedColor) {
-    return new Color(data.rgba);
+    return new Color(data);
   }
 }
 
-export interface SerializedColor {
-  rgba: number[];
-}
+export type SerializedColor = number[] | string;

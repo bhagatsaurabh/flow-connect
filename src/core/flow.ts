@@ -1,29 +1,34 @@
 import { Color, FlowConnect } from "../flow-connect.js";
 import { Vector } from "./vector.js";
-import { Node, NodeButton, NodeButtonRenderParams, NodeOptions, NodeRenderParams, SerializedNode } from "./node.js";
+import { Node, NodeOptions, SerializedNode } from "./node.js";
 import { Hooks } from "./hooks.js";
-import { Group, GroupRenderParams, SerializedGroup } from "./group.js";
-import { Connector, ConnectorRenderParams, SerializedConnector } from "./connector.js";
+import { Group, SerializedGroup } from "./group.js";
+import { Connector, SerializedConnector } from "./connector.js";
 import { AVLTree } from "../utils/avl-tree.js";
 import {
   Serializable,
   Rules,
-  RenderResolver,
   DataPersistenceProvider,
   DataFetchProvider,
+  RuleColors,
+  SerializedRuleColors,
+  FlowRenderers,
 } from "../common/interfaces.js";
 import { SubFlowNode, SubFlowNodeOptions } from "./subflow-node.js";
 import { TunnelNode, SerializedTunnelNode, TunnelNodeOptions } from "./tunnel-node.js";
 import { capitalize, uuid } from "../utils/utils.js";
-import { Graph, SerializedGraph } from "./graph.js";
-import { Terminal, TerminalRenderParams } from "./terminal.js";
+import { Graph } from "./graph.js";
+import { Terminal } from "./terminal.js";
 import { Log } from "../utils/logger.js";
-import { Container, ContainerRenderParams } from "../ui/container.js";
 
 /** A Flow is a set of Nodes, Connectors and Groups, it can also contain SubFlowNodes thereby creating a tree of Flows.
  *  ![](media://example.png)
  */
 export class Flow extends Hooks implements Serializable<SerializedFlow> {
+  name: string;
+  id: string;
+  rules: Rules;
+  ruleColors: RuleColors;
   sortedNodes: AVLTree<Node>;
   nodes: Map<string, Node>;
   groups: Group[];
@@ -43,23 +48,11 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
 
   executionGraph: Graph;
 
-  readonly renderResolver: {
-    connector?: RenderResolver<Connector, ConnectorRenderParams>;
-    node?: RenderResolver<Node, NodeRenderParams>;
-    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>;
-    uiContainer?: RenderResolver<Container, ContainerRenderParams>;
-    group?: RenderResolver<Group, GroupRenderParams>;
-    terminal?: RenderResolver<Terminal, TerminalRenderParams>;
-  } = {};
+  readonly renderers: FlowRenderers = {};
 
-  constructor(
-    public flowConnect: FlowConnect,
-    public name: string,
-    public rules: Rules,
-    public terminalColors: Record<string, string>,
-    public id: string = uuid()
-  ) {
+  private constructor(public flowConnect: FlowConnect) {
     super();
+
     this.nodes = new Map();
     this.groups = [];
     this.connectors = new Map();
@@ -73,26 +66,28 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     this.outputs = [];
     this.executionGraph = new Graph();
 
-    this.registerListeners();
-
-    this.flowConnect.on("tick", () => {
+    flowConnect.on("tick", () => {
       if (this.state === FlowState.Running) this.call("tick", this);
     });
+  }
+
+  static create(flowConnect: FlowConnect, options: FlowOptions = DefaultFlowOptions()): Flow {
+    const flow = new Flow(flowConnect);
+
+    const { name = "New Flow", rules = DefaultRules(), ruleColors = DefaultRuleColors(), id = uuid() } = options;
+
+    flow.name = name;
+    flow.rules = rules;
+    flow.ruleColors = ruleColors;
+    flow.id = id;
+
+    return flow;
   }
 
   transform(): void {
     [...this.nodes.values()].forEach((node) => node.call("transform", node));
     [...this.groups.values()].forEach((group) => group.call("transform", group));
   }
-  private registerListeners() {
-    let id = this.flowConnect.on("transform", () => this.call("transform", this));
-    this.listeners["transform"] = id;
-  }
-  deregisterListeners() {
-    this.flowConnect.off("transform", this.listeners["transform"]);
-    delete this.listeners["transform"];
-  }
-
   existsInFlow(flow: Flow): boolean {
     for (let node of [...this.nodes.values()]) {
       if ((node as SubFlowNode).subFlow === flow) return true;
@@ -256,12 +251,14 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     const nodes = await Promise.all([...this.nodes.values()].map((node) => node.serialize(persist)));
     const inputs = await Promise.all(this.inputs.map((input) => input.serialize()));
     const outputs = await Promise.all(this.outputs.map((output) => output.serialize()));
+    const ruleColors: SerializedRuleColors = {};
+    Object.keys(this.ruleColors).forEach((key) => (ruleColors[key] = this.ruleColors[key].serialize()));
 
     return Promise.resolve<SerializedFlow>({
       id: this.id,
       name: this.name,
       rules: this.rules,
-      terminalColors: this.terminalColors,
+      ruleColors,
       nodes,
       groups: this.groups.map((group) => group.serialize()),
       connectors: [...this.connectors.values()].map((connector) => connector.serialize()),
@@ -270,7 +267,15 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     });
   }
   static async deSerialize(flowConnect: FlowConnect, data: SerializedFlow, receive?: DataFetchProvider): Promise<Flow> {
-    let flow = new Flow(flowConnect, data.name, data.rules, data.terminalColors, data.id);
+    const ruleColors: RuleColors = {};
+    Object.keys(data.ruleColors).forEach((key) => (ruleColors[key] = Color.create(data.ruleColors[key])));
+
+    let flow = Flow.create(flowConnect, {
+      name: data.name,
+      rules: data.rules,
+      ruleColors,
+      id: data.id,
+    });
 
     for (let serializedNode of data.nodes) {
       flow._createNode(serializedNode.type, Vector.create(serializedNode.position), {
@@ -286,13 +291,14 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       });
     }
     data.groups.forEach((serializedGroup) => {
-      let group = Group.create(serializedGroup.name, {
+      let group = Group.create(flow, Vector.create(serializedGroup.position), {
+        name: serializedGroup.name,
         width: serializedGroup.width,
         height: serializedGroup.height,
         style: serializedGroup.style,
         id: serializedGroup.id,
         hitColor: Color.create(serializedGroup.hitColor),
-      }).build(flow, Vector.create(serializedGroup.position));
+      });
 
       serializedGroup.nodes.forEach((nodeId) => group.add(flow.nodes.get(nodeId)));
 
@@ -344,14 +350,62 @@ export enum FlowState {
 export interface FlowOptions {
   name: string;
   rules: Rules;
-  terminalColors: Record<string, string>;
+  ruleColors?: RuleColors;
+  id?: string;
 }
+
+const DefaultFlowOptions = (): FlowOptions => ({
+  name: "New Flow",
+  rules: DefaultRules(),
+  ruleColors: {},
+});
+
+/** Default rules every Flow will have, for e.g. a string output can only be connected to string inputs.
+ *  ```javascript
+ *  {
+ *    string: ['string'],
+ *    number: ['number'],
+ *    boolean: ['boolean'],
+ *    file: ['file'],
+ *    event: ['event'], ...
+ *  }
+ *  ```
+ */
+const DefaultRules: () => Rules = () => ({
+  string: ["string", "any"],
+  number: ["number", "audioparam", "any"],
+  boolean: ["boolean", "any"],
+  array: ["array", "any"],
+  file: ["file", "any"],
+  event: ["event", "any"],
+  vector: ["vector", "any"],
+  "array-buffer": ["array-buffer", "any"],
+  audio: ["audio", "audioparam"],
+  audioparam: ["audioparam"],
+  "audio-buffer": ["audio-buffer", "any"],
+  any: ["any"],
+});
+
+const DefaultRuleColors: () => RuleColors = () => ({
+  string: Color.create("#B2F77D"),
+  number: Color.create("#C9A185"),
+  boolean: Color.create("#EADFC7"),
+  array: Color.create("#3484F0"),
+  file: Color.create("#EEEFF7"),
+  event: Color.create("#9E64E8"),
+  vector: Color.create("#DCC68D"),
+  "array-buffer": Color.create("#FF6BCE"),
+  audio: Color.create("#FFD154"),
+  audioparam: Color.create("#FF0F50"),
+  "audio-buffer": Color.create("#C3D4C2"),
+  any: Color.create("#FFFBF9"),
+});
 
 export interface SerializedFlow {
   id: string;
   name: string;
   rules: Rules;
-  terminalColors: Record<string, string>;
+  ruleColors: SerializedRuleColors;
   nodes: SerializedNode[];
   groups: SerializedGroup[];
   connectors: SerializedConnector[];

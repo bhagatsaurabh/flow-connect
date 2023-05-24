@@ -1,5 +1,5 @@
 import { Color } from "../core/color.js";
-import { DataFetchProvider, DataPersistenceProvider, RenderResolver, Serializable } from "../common/interfaces.js";
+import { DataFetchProvider, DataPersistenceProvider, Renderer, Serializable } from "../common/interfaces.js";
 import { Node } from "../core/node.js";
 import { Vector } from "../core/vector.js";
 import {
@@ -40,7 +40,7 @@ import { SerializedUINode, UINode, UINodeStyle, UIType, UINodeRenderParams } fro
 import { Align } from "../common/enums.js";
 
 export class Container extends UINode implements Serializable<SerializedContainer> {
-  renderResolver: RenderResolver<Container, ContainerRenderParams> = () => null;
+  renderer: Renderer<Container, ContainerRenderParams> = () => null;
   contentWidth: number;
 
   constructor(node: Node, width: number, options: ContainerOptions = DefaultContainerOptions()) {
@@ -56,17 +56,19 @@ export class Container extends UINode implements Serializable<SerializedContaine
   }
 
   paint(): void {
-    let context = this.context;
-    let nodeRenderResolver = this.node.renderResolver.uiContainer;
-    let flowRenderResolver = this.node.flow.renderResolver.uiContainer;
-    let flowConnectRenderResolver = this.node.flow.flowConnect.renderResolver.uiContainer;
-    (
-      (this.renderResolver && this.renderResolver(this)) ||
-      (nodeRenderResolver && nodeRenderResolver(this)) ||
-      (flowRenderResolver && flowRenderResolver(this)) ||
-      (flowConnectRenderResolver && flowConnectRenderResolver(this)) ||
-      this._paint
-    )(context, this.getRenderParams(), this);
+    const context = this.context;
+
+    const scopeFlowConnect = this.node.flow.flowConnect.renderers.background;
+    const scopeFlow = this.node.flow.renderers.background;
+    const scopeNode = this.node.renderers.background;
+    const scopeContainer = this.renderer;
+    const renderFn =
+      (scopeContainer && scopeContainer(this)) ||
+      (scopeNode && scopeNode(this)) ||
+      (scopeFlow && scopeFlow(this)) ||
+      (scopeFlowConnect && scopeFlowConnect(this)) ||
+      this._paint;
+    renderFn(context, this.getRenderParams(), this);
   }
   private _paint(context: CanvasRenderingContext2D, params: ContainerRenderParams, container: Container) {
     context.shadowColor = container.style.shadowColor;

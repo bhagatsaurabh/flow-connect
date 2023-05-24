@@ -1,7 +1,19 @@
 import { Vector } from "../core/vector.js";
 import { LOD, ViewPort } from "./enums.js";
-import { Node, NodeOptions, NodeState } from "../core/node.js";
-import { Flow } from "../flow-connect.js";
+import { Node, NodeOptions, NodeRenderParams, NodeState } from "../core/node.js";
+import {
+  Color,
+  Connector,
+  ConnectorRenderParams,
+  Container,
+  ContainerRenderParams,
+  Flow,
+  Group,
+  GroupRenderParams,
+  SerializedColor,
+  Terminal,
+  TerminalRenderParams,
+} from "../flow-connect.js";
 
 /**
  *  To track canvas position and dimension when scrolling or resizing
@@ -49,8 +61,22 @@ export interface RenderState {
 export interface Serializable<T> {
   serialize(persist?: DataPersistenceProvider): Promise<T> | T;
 }
-export type RenderFunction<T, P> = (context: CanvasRenderingContext2D, params: P, target: T) => void;
-export type RenderResolver<T, P> = (instance: T) => RenderFunction<T, P>;
+export type RenderFn<T, P> = (context: CanvasRenderingContext2D, params: P, target: T) => void;
+export type Renderer<T, P> = (instance: T) => RenderFn<T, P>;
+
+export interface NodeRenderers {
+  node?: Renderer<Node, NodeRenderParams>;
+  background?: Renderer<Container, ContainerRenderParams>;
+  terminal?: Renderer<Terminal, TerminalRenderParams>;
+}
+export interface FlowConnectRenderers extends NodeRenderers {
+  group?: Renderer<Group, GroupRenderParams>;
+  connector?: Renderer<Connector, ConnectorRenderParams>;
+}
+export interface FlowRenderers extends NodeRenderers {
+  group?: Renderer<Group, GroupRenderParams>;
+  connector?: Renderer<Connector, ConnectorRenderParams>;
+}
 
 export interface Renderable {
   render: () => void;
@@ -59,6 +85,12 @@ export interface Renderable {
 /** A set of connection rules among different data types */
 export interface Rules {
   [dataType: string]: string[];
+}
+export interface RuleColors {
+  [dataType: string]: Color;
+}
+export interface SerializedRuleColors {
+  [dataType: string]: SerializedColor;
 }
 
 export type DataPersistenceProvider = (id: string, ref: Blob) => Promise<void>;
