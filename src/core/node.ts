@@ -12,10 +12,7 @@ import {
   Dial,
   DialStyle,
   Container,
-  SerializedContainer,
-  Label,
   LabelStyle,
-  Button,
   ButtonStyle,
   Image,
   ImageStyle,
@@ -37,6 +34,9 @@ import {
   Slider,
   SliderStyle,
   UINode,
+  UINodeOptions,
+  UIWheelEvent,
+  ContainerOptions,
 } from "../ui/index.js";
 import { get, uuid, intersects } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
@@ -49,7 +49,6 @@ import {
   Events,
   NodeRenderers,
   Renderable,
-  Renderer,
   RenderFn,
   RenderState,
   Serializable,
@@ -153,22 +152,23 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     options: NodeOptions = DefaultNodeOptions(),
     isDeserialized: boolean = false
   ): T {
-    const construct = FlowConnect.getRegistered(type);
+    const construct = FlowConnect.getRegistered("node", type);
     const node = new construct(flow, options);
+
+    const { name = "New Node", width = 100, style = {}, id = uuid(), state = {}, hitColor, inputs, outputs } = options;
 
     node.flow = flow;
     node.type = type;
-    options = get(options, DefaultNodeOptions());
-    node.name = get(options.name, "New Node");
-    node._width = get(options.width, 100);
-    node.style = { ...DefaultNodeStyle(), ...get(options.style, {}) };
-    node.id = get(options.id, uuid());
-    node.state = get(options.state, {});
+    node.name = name;
+    node._width = width;
+    node.style = { ...DefaultNodeStyle(), ...style };
+    node.id = id;
+    node.state = state;
     node._position = position;
-    node.ui = new Container(node, node.width);
+    node.ui = node.createUI<Container, ContainerOptions>("core/container", { width: node.width });
 
-    node.setHitColor(options.hitColor);
-    node.setupTerminals(options.inputs, options.outputs);
+    node.setHitColor(hitColor);
+    node.setupTerminals(inputs, outputs);
     node.reflow();
     node.ui.update();
     node.addNodeButton((n) => n.toggle(), Node.renderControlButton, Align.Left);
@@ -190,19 +190,21 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     inputs &&
       this.inputs.push(
         ...inputs.map((input) =>
-          Terminal.create(input.name, TerminalType.IN, input.dataType, {
+          Terminal.create(this, TerminalType.IN, input.dataType, {
+            name: input.name,
             id: input.id ? input.id : null,
             hitColor: input.hitColor ? Color.create(input.hitColor) : null,
-          }).build(this)
+          })
         )
       );
     outputs &&
       this.outputs.push(
         ...outputs.map((output) =>
-          Terminal.create(output.name, TerminalType.OUT, output.dataType, {
+          Terminal.create(this, TerminalType.OUT, output.dataType, {
+            name: output.name,
             id: output.id ? output.id : null,
             hitColor: output.hitColor ? Color.create(output.hitColor) : null,
-          }).build(this)
+          })
         )
       );
   }
@@ -523,12 +525,13 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   }
   addTerminal(terminal: Terminal | SerializedTerminal) {
     if (!(terminal instanceof Terminal)) {
-      terminal = Terminal.create(terminal.name, terminal.type, terminal.dataType, {
+      terminal = Terminal.create(this, terminal.type, terminal.dataType, {
+        name: terminal.name,
         propName: terminal.propName,
         style: terminal.style,
         id: terminal.id,
         hitColor: Color.create(terminal.hitColor),
-      }).build(this);
+      });
     }
 
     (terminal.type === TerminalType.IN ? this.inputs : this.outputs).push(terminal);
@@ -611,45 +614,45 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   //#endregion
 
   //#region Events
-  onDown(screenPosition: Vector, realPosition: Vector): void {
-    this.call("down", this, screenPosition, realPosition);
+  onDown(screenPos: Vector, realPos: Vector): void {
+    this.call("down", this, screenPos, realPos);
 
     let hitColor = Color.rgbaToString(
-      this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
     );
 
     this.currHitUINode = this.getHitUINode(hitColor);
-    this.currHitUINode && this.currHitUINode.onDown(screenPosition, realPosition);
+    this.currHitUINode && this.currHitUINode.sendEvent("down", { screenPos, realPos, target: this.currHitUINode });
 
-    let hitTerminal = this.getHitTerminal(hitColor, screenPosition, realPosition);
+    let hitTerminal = this.getHitTerminal(hitColor, screenPos, realPos);
     if (hitTerminal) {
       this.currHitTerminal = hitTerminal;
-      this.currHitTerminal.onDown(screenPosition, realPosition);
+      this.currHitTerminal.onDown(screenPos, realPos);
     }
   }
-  onOver(screenPosition: Vector, realPosition: Vector): void {
-    this.call("over", this, screenPosition, realPosition);
+  onOver(screenPos: Vector, realPos: Vector): void {
+    this.call("over", this, screenPos, realPos);
 
     let hitColor = Color.rgbaToString(
-      this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
     );
 
-    let hitTerminal = this.getHitTerminal(hitColor, screenPosition, realPosition);
+    let hitTerminal = this.getHitTerminal(hitColor, screenPos, realPos);
 
     if (hitTerminal !== this.prevHitTerminal) {
-      this.prevHitTerminal && this.prevHitTerminal.onExit(screenPosition, realPosition);
-      hitTerminal && hitTerminal.onEnter(screenPosition, realPosition);
+      this.prevHitTerminal && this.prevHitTerminal.onExit(screenPos, realPos);
+      hitTerminal && hitTerminal.onEnter(screenPos, realPos);
     } else {
-      hitTerminal && !this.currHitTerminal && hitTerminal.onOver(screenPosition, realPosition);
+      hitTerminal && !this.currHitTerminal && hitTerminal.onOver(screenPos, realPos);
     }
     this.prevHitTerminal = hitTerminal;
 
     let hitUINode = this.getHitUINode(hitColor);
     if (hitUINode !== this.prevHitUINode) {
-      this.prevHitUINode && this.prevHitUINode.onExit(screenPosition, realPosition);
-      hitUINode && hitUINode.onEnter(screenPosition, realPosition);
+      this.prevHitUINode && this.prevHitUINode.sendEvent("exit", { screenPos, realPos, target: this.prevHitUINode });
+      hitUINode && hitUINode.sendEvent("enter", { screenPos, realPos, target: hitUINode });
     } else {
-      hitUINode && !this.currHitUINode && hitUINode.onOver(screenPosition, realPosition);
+      hitUINode && !this.currHitUINode && hitUINode.sendEvent("over", { screenPos, realPos, target: hitUINode });
     }
     this.prevHitUINode = hitUINode;
   }
@@ -669,73 +672,81 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     this.prevHitTerminal = null;
     this.currHitTerminal && this.currHitTerminal.onExit(screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector, realPosition: Vector): void {
-    this.call("up", this, screenPosition, realPosition);
+  onUp(screenPos: Vector, realPos: Vector): void {
+    this.call("up", this, screenPos, realPos);
 
     let hitColor = Color.rgbaToString(
-      this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
     );
 
     this.currHitUINode = null;
     let hitUINode = this.getHitUINode(hitColor);
-    hitUINode && hitUINode.onUp(screenPosition.clone(), realPosition.clone());
+    hitUINode &&
+      hitUINode.sendEvent("up", { screenPos: screenPos.clone(), realPos: realPos.clone(), target: hitUINode });
 
-    let hitTerminal = this.getHitTerminal(hitColor, screenPosition, realPosition);
-    hitTerminal && hitTerminal.onUp(screenPosition, realPosition);
+    let hitTerminal = this.getHitTerminal(hitColor, screenPos, realPos);
+    hitTerminal && hitTerminal.onUp(screenPos, realPos);
   }
-  onClick(screenPosition: Vector, realPosition: Vector): void {
-    this.call("click", this, screenPosition, realPosition);
+  onClick(screenPos: Vector, realPos: Vector): void {
+    this.call("click", this, screenPos, realPos);
 
     let hitColor = Color.rgbaToString(
-      this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
     );
-    if (realPosition.y < this.position.y + this.style.titleHeight * this.flow.flowConnect.scale) {
+    if (realPos.y < this.position.y + this.style.titleHeight * this.flow.flowConnect.scale) {
       let hitNodeButton = this.getHitNodeButton(hitColor);
       hitNodeButton && hitNodeButton.onClick(this);
     } else {
-      this.currHitTerminal && this.currHitTerminal.onClick(screenPosition, realPosition);
+      this.currHitTerminal && this.currHitTerminal.onClick(screenPos, realPos);
 
       let hitUINode = this.getHitUINode(hitColor);
-      hitUINode && hitUINode.onClick(screenPosition.clone(), realPosition.clone());
+      hitUINode &&
+        hitUINode.sendEvent("click", { screenPos: screenPos.clone(), realPos: realPos.clone(), target: hitUINode });
     }
   }
-  onDrag(screenPosition: Vector, realPosition: Vector): void {
-    this.call("drag", this, screenPosition, realPosition);
+  onDrag(screenPos: Vector, realPos: Vector): void {
+    this.call("drag", this, screenPos, realPos);
 
     let hitColor = Color.rgbaToString(
-      this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
     );
     let hitUINodeWhileDragging = this.getHitUINode(hitColor);
 
     if (this.currHitUINode && this.currHitUINode.draggable) {
       if (hitUINodeWhileDragging === this.currHitUINode) {
-        this.currHitUINode.onDrag(screenPosition, realPosition);
+        this.currHitUINode.sendEvent("drag", { screenPos, realPos, target: this.currHitUINode });
       } else {
-        this.currHitUINode.onExit(screenPosition, realPosition);
+        this.currHitUINode.sendEvent("exit", { screenPos, realPos, target: this.currHitUINode });
         this.currHitUINode = null;
         this.flow.flowConnect.currHitNode = null;
         this.flow.flowConnect.pointers = [];
       }
     }
   }
-  onContextMenu(): void {
+  onContextMenu(screenPos: Vector, realPos: Vector): void {
     this.call("rightclick", this);
+
+    if (this.currHitUINode)
+      this.currHitUINode.sendEvent("context-menu", { screenPos, realPos, target: this.currHitUINode });
   }
-  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector): void {
-    this.call("wheel", this, direction, screenPosition, realPosition);
+  onWheel(direction: boolean, screenPos: Vector, realPos: Vector): void {
+    this.call("wheel", this, direction, screenPos, realPos);
 
     let hitColor = Color.rgbaToString(
-      this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
     );
     let hitUINode = this.getHitUINode(hitColor);
 
-    hitUINode && hitUINode.zoomable && hitUINode.onWheel(direction, screenPosition, realPosition);
+    hitUINode &&
+      hitUINode.zoomable &&
+      hitUINode.sendEvent<UIWheelEvent>("wheel", { screenPos, realPos, target: hitUINode, direction });
   }
   //#endregion
 
   //#region UICreators
-  createLabel(text: string | number, options?: LabelCreatorOptions): Label {
-    return new Label(this, text, options);
+  createUI<T extends UINode, O extends UINodeOptions>(type: string, options: O): T {
+    const uiNode = UINode.create<T>(type, this, options);
+    return uiNode;
   }
   createImage(source: string, options?: ImageCreatorOptions): Image {
     return new Image(this, source, options);
@@ -757,9 +768,6 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   }
   createStack(options?: StackCreatorOptions) {
     return new Stack(this, options);
-  }
-  createButton(text: string, options?: ButtonCreatorOptions) {
-    return new Button(this, text, options);
   }
   createToggle(options?: ToggleCreatorOptions) {
     return new Toggle(this, options);
@@ -785,8 +793,6 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   //#endregion
 
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedNode> {
-    const ui = await this.ui.serialize(persist);
-
     return Promise.resolve<SerializedNode>({
       id: this.id,
       name: this.name,
@@ -801,7 +807,6 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       zIndex: this.zIndex,
       focused: this.focused,
       renderState: this.renderState,
-      ui,
     });
   }
 }
@@ -873,7 +878,6 @@ export interface SerializedNode {
   name: string;
   type: string;
   style: NodeStyle;
-  ui: SerializedContainer;
   width: number;
 }
 

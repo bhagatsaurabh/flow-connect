@@ -29,16 +29,16 @@ export class SubFlowNode extends Node {
 
   created(): void {
     this.subFlow.on("add-input", (_, tunnel: TunnelNode) => {
-      let proxyTerminal = Terminal.create(tunnel.outputs[0].name, TerminalType.IN, tunnel.outputs[0].dataType).build(
-        this
-      );
+      let proxyTerminal = Terminal.create(this, TerminalType.IN, tunnel.outputs[0].dataType, {
+        name: tunnel.outputs[0].name,
+      });
       tunnel.proxyTerminal = proxyTerminal;
       this.addTerminal(proxyTerminal);
     });
     this.subFlow.on("add-output", (_, tunnel: TunnelNode) => {
-      let proxyTerminal = Terminal.create(tunnel.inputs[0].name, TerminalType.OUT, tunnel.inputs[0].dataType).build(
-        this
-      );
+      let proxyTerminal = Terminal.create(this, TerminalType.OUT, tunnel.inputs[0].dataType, {
+        name: tunnel.inputs[0].name,
+      });
       tunnel.proxyTerminal = proxyTerminal;
       this.addTerminal(proxyTerminal);
     });

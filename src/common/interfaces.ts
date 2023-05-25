@@ -13,6 +13,9 @@ import {
   SerializedColor,
   Terminal,
   TerminalRenderParams,
+  UINode,
+  UINodeOptions,
+  UINodeStyle,
 } from "../flow-connect.js";
 
 /**
@@ -45,7 +48,7 @@ export interface Events {
   onUp(screenPosition: Vector, realPosition: Vector): void;
   onClick(screenPosition: Vector, realPosition: Vector): void;
   onDrag(screenPosition: Vector, realPosition: Vector): void;
-  onContextMenu(): void;
+  onContextMenu(screenPosition: Vector, realPosition: Vector): void;
 }
 
 /** @hidden
@@ -99,8 +102,17 @@ export type DataFetchProvider = (id: string) => Promise<Blob>;
 export type NodeConstructor<T extends Node = Node, O extends NodeOptions = NodeOptions> = {
   new (flow: Flow, options: O): T;
 };
-
-export type NodePlugins = Record<string, NodeConstructor>;
+export type UIConstructor<T extends UINode = UINode, O extends UINodeOptions = UINodeOptions> = {
+  new (node: Node, options: O): T;
+};
+export interface PluginType {
+  node: NodeConstructor;
+  ui: UIConstructor;
+}
+export type Plugins = {
+  [key in keyof PluginType]: Record<string, PluginType[key]>;
+};
 export interface PluginMetadata {
   name: string;
+  type: keyof PluginType;
 }

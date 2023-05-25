@@ -6,8 +6,9 @@ import {
   Dimension,
   FlowConnectRenderers,
   NodeConstructor,
-  NodePlugins,
   PluginMetadata,
+  PluginType,
+  Plugins,
   Pointer,
 } from "./common/interfaces.js";
 import { intersects, noop } from "./utils/utils.js";
@@ -18,6 +19,8 @@ import { ViewPort } from "./common/enums.js";
 import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
 import { TunaInitializer } from "./lib/tuna.js";
 import { EmptyNode } from "./core/empty-node.js";
+import { Button } from "./flow-connect.js";
+import { Label } from "./flow-connect.js";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -42,22 +45,27 @@ export class FlowConnect extends Hooks {
     return flowConnect;
   }
 
-  private static plugins: NodePlugins = {
-    "core/empty": EmptyNode,
-    "core/subflow": SubFlowNode,
-    "core/tunnel": TunnelNode,
+  private static plugins: Plugins = {
+    node: {
+      "core/empty": EmptyNode,
+      "core/subflow": SubFlowNode,
+      "core/tunnel": TunnelNode,
+    },
+    ui: {
+      "core/button": Button,
+      "core/label": Label,
+    },
   };
-
-  static register(metadata: PluginMetadata, executor: NodeConstructor): boolean {
+  static register<K extends keyof PluginType>(metadata: PluginMetadata, executor: PluginType[K]): boolean {
     if (!metadata.name) return false;
-    if (this.plugins[metadata.name]) return false;
+    if (this.plugins[metadata.type][metadata.name]) return false;
 
-    this.plugins[metadata.name] = executor;
+    this.plugins[metadata.type][metadata.name] = executor;
 
     return true;
   }
-  static getRegistered(name: string): NodeConstructor {
-    return this.plugins[name];
+  static getRegistered<K extends keyof PluginType>(type: K, name: string): PluginType[K] {
+    return this.plugins[type][name];
   }
 
   version = process.env.FLOWCONNECT_VERSION;

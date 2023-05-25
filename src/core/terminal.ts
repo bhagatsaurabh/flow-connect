@@ -43,42 +43,42 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
 
   renderer: Renderer<Terminal, TerminalRenderParams> = () => null;
 
-  constructor() {
+  private constructor() {
     super();
+
+    this.connectors = [];
+    this.focus = false;
+    this.position = Vector.Zero();
   }
 
   static create(
-    name: string,
+    node: Node,
     type: TerminalType,
     dataType: string,
     options: TerminalOptions = DefaultTerminalOptions()
   ): Terminal {
     const terminal = new Terminal();
-    terminal.name = name;
+
+    const { name = "", hitColor, propName, style = {}, id = uuid() } = options;
+
+    terminal.node = node;
     terminal.type = type;
     terminal.dataType = dataType;
-    terminal.hitColor = options.hitColor;
-    if (options.propName) terminal._propName = options.propName;
-    terminal.style = options.style ? { ...DefaultTerminalStyle(), ...options.style } : DefaultTerminalStyle();
-    terminal.id = get(options.id, uuid());
+    terminal.name = name;
+    if (propName) terminal._propName = propName;
+    terminal.style = { ...DefaultTerminalStyle(), ...style };
+    terminal.id = id;
 
-    return terminal;
-  }
-  build(node: Node): Terminal {
-    this.node = node;
-    this.setHitColor();
-    this.connectors = [];
-    this.position = Vector.Zero();
-    this.focus = false;
+    terminal.setHitColor(hitColor);
 
-    if (this._propName) this.bindToProp(this._propName);
-    if (this.type === TerminalType.IN) {
-      this.on("data", (_inst, data) => {
-        if (this.propName) this.node.state[this.propName] = data;
+    if (terminal._propName) terminal.bindToProp(terminal._propName);
+    if (terminal.type === TerminalType.IN) {
+      terminal.on("data", (t, data) => {
+        if (t.propName) t.node.state[t.propName] = data;
       });
     }
 
-    return this;
+    return terminal;
   }
 
   private bindToProp(propName: string) {
@@ -370,6 +370,7 @@ export interface TerminalRenderParams {
 }
 
 export interface TerminalOptions {
+  name: string;
   propName?: string;
   style?: TerminalStyle;
   id?: string;
@@ -377,6 +378,7 @@ export interface TerminalOptions {
 }
 const DefaultTerminalOptions = (): TerminalOptions => {
   return {
+    name: "",
     style: {},
   };
 };
