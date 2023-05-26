@@ -710,8 +710,28 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   }
   //#endregion
 
+  private async serializeState(
+    state: Record<string, any>,
+    persist?: DataPersistenceProvider
+  ): Promise<Record<string, any>> {
+    for (let key in state) {
+      if (state[key] instanceof File) {
+        if (persist) {
+          const id = uuid();
+          await persist(id, state[key]);
+          state[key] = `raw##${id}`;
+        } else {
+          state[key] = null;
+        }
+      } else if (typeof state[key] === "object") {
+        state[key] = await this.serializeState(state[key]);
+      }
+    }
+    return state;
+  }
+
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedNode> {
-    const serializedState = {};
+    const serializedState = await this.serializeState({ ...this.state }, persist);
 
     return Promise.resolve<SerializedNode>({
       id: this.id,

@@ -247,6 +247,22 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     return terminal;
   }
 
+  private static async deSerializeState(
+    state: Record<string, any>,
+    receive?: DataFetchProvider
+  ): Promise<Record<string, any>> {
+    for (let key in state) {
+      if (typeof state[key] === "string" && (state[key] as string).startsWith("file##")) {
+        if (receive) {
+          state[key] = await receive((state[key] as string).replace("file##", ""));
+        } else {
+          state[key] = null;
+        }
+      }
+    }
+    return state;
+  }
+
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedFlow> {
     const nodes = await Promise.all([...this.nodes.values()].map((node) => node.serialize(persist)));
     const inputs = await Promise.all(this.inputs.map((input) => input.serialize()));
@@ -279,8 +295,10 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     });
 
     for (let serializedNode of data.nodes) {
+      const state = await this.deSerializeState(serializedNode.state, receive);
       flow._createNode(serializedNode.type, Vector.create(serializedNode.position), {
         ...serializedNode,
+        state,
         hitColor: Color.create(serializedNode.hitColor),
       });
     }
