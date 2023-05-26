@@ -65,14 +65,13 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
     const construct = FlowConnect.getRegistered("ui", type);
     const uiNode = new construct(node, options);
 
-    const { hitColor, id = uuid(), visible = true, style = {}, propName, position = Vector.Zero() } = options;
+    const { hitColor, id = uuid(), visible = true, propName, position = Vector.Zero() } = options;
 
     uiNode.type = type;
     uiNode.node = node;
     uiNode.setHitColor(hitColor);
     uiNode.id = id;
     uiNode._visible = visible;
-    uiNode.style = style;
     uiNode.position = position;
     uiNode.propName = propName;
 
@@ -226,7 +225,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
   onDrag(_: UIEvent): void {}
   onContextMenu(_: UIEvent): void {}
 
-  protected abstract created(options: UINodeOptions): void;
+  protected abstract created(options: UINodeOptions<T>): void;
   protected abstract reflow(): void;
   protected abstract paint(): void;
   protected abstract paintLOD1(): void;

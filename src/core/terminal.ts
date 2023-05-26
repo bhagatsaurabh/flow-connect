@@ -1,5 +1,5 @@
 import { Vector, SerializedVector } from "./vector.js";
-import { uuid, canConnect, get, exists } from "../utils/utils.js";
+import { uuid, canConnect } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
 import { Connector, ConnectorOptions } from "./connector.js";
 import { Hooks } from "./hooks.js";
@@ -84,9 +84,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
   private bindToProp(propName: string) {
     let oldPropName = this._propName;
     let newPropName = propName;
-    if (exists(this.watcherId)) {
-      this.node.unwatch(oldPropName, this.watcherId);
-    }
+    this.watcherId ?? this.node.unwatch(oldPropName, this.watcherId);
     this._propName = newPropName;
     this.watcherId = this.node.watch(newPropName, (_oldVal: any, newVal: any) => {
       if (this.type === TerminalType.OUT) this.setData(newVal);

@@ -1,44 +1,7 @@
 import { SerializedVector, Vector } from "./vector.js";
 import { ViewPort, LOD, Align } from "../common/enums.js";
-import {
-  VSlider,
-  VSliderStyle,
-  Slider2D,
-  Slider2DStyle,
-  RadioGroup,
-  RadioGroupStyle,
-  Envelope,
-  EnvelopeStyle,
-  Dial,
-  DialStyle,
-  Container,
-  LabelStyle,
-  ButtonStyle,
-  Image,
-  ImageStyle,
-  HorizontalLayout,
-  HorizontalLayoutStyle,
-  Toggle,
-  ToggleStyle,
-  Select,
-  SelectStyle,
-  Source,
-  SourceStyle,
-  Display,
-  DisplayStyle,
-  CustomRendererConfig,
-  Input,
-  InputStyle,
-  Stack,
-  StackStyle,
-  Slider,
-  SliderStyle,
-  UINode,
-  UINodeOptions,
-  UIWheelEvent,
-  ContainerOptions,
-} from "../ui/index.js";
-import { get, uuid, intersects } from "../utils/utils.js";
+import { Container, UINode, UINodeOptions, UIWheelEvent, ContainerOptions } from "../ui/index.js";
+import { uuid, intersects } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
 import { Flow, FlowState } from "./flow.js";
 import { Group } from "./group.js";
@@ -611,6 +574,10 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   dispose(): void {
     this.flow.removeNode(this.id);
   }
+  createUI<T extends UINode, O extends UINodeOptions>(type: string, options: O): T {
+    const uiNode = UINode.create<T>(type, this, options);
+    return uiNode;
+  }
   //#endregion
 
   //#region Events
@@ -743,63 +710,16 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   }
   //#endregion
 
-  //#region UICreators
-  createUI<T extends UINode, O extends UINodeOptions>(type: string, options: O): T {
-    const uiNode = UINode.create<T>(type, this, options);
-    return uiNode;
-  }
-  createImage(source: string, options?: ImageCreatorOptions): Image {
-    return new Image(this, source, options);
-  }
-  createSlider(min: number, max: number, options?: SliderCreatorOptions) {
-    return new Slider(this, min, max, options);
-  }
-  createSlider2D(options?: Slider2DCreatorOptions) {
-    return new Slider2D(this, options);
-  }
-  createVSlider(min: number, max: number, options?: VSliderCreatorOptions) {
-    return new VSlider(this, min, max, options);
-  }
-  createDial(min: number, max: number, size: number, options?: DialCreatorOptions) {
-    return new Dial(this, min, max, size, options);
-  }
-  createHozLayout(childs: UINode[] = [], options?: HorizontalLayoutCreatorOptions) {
-    return new HorizontalLayout(this, childs, options);
-  }
-  createStack(options?: StackCreatorOptions) {
-    return new Stack(this, options);
-  }
-  createToggle(options?: ToggleCreatorOptions) {
-    return new Toggle(this, options);
-  }
-  createRadioGroup(values?: string[], selected?: string, options?: RadioGroupCreatorOptions) {
-    return new RadioGroup(this, values, selected, options);
-  }
-  createSelect(values: string[], options?: SelectCreatorOptions) {
-    return new Select(this, values, options);
-  }
-  createSource(options?: SourceCreatorOptions) {
-    return new Source(this, options);
-  }
-  createDisplay(height: number, renderers: CustomRendererConfig[], options?: DisplayCreatorOptions) {
-    return new Display(this, height, renderers, options);
-  }
-  createInput(options?: InputCreatorOptions) {
-    return new Input(this, options);
-  }
-  createEnvelope(height: number, values?: Vector[], options?: EnvelopeCreatorOptions): Envelope {
-    return new Envelope(this, height, values, options);
-  }
-  //#endregion
-
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedNode> {
+    const serializedState = {};
+
     return Promise.resolve<SerializedNode>({
       id: this.id,
       name: this.name,
       type: this.type,
       position: this.position.serialize(),
       width: this.width,
-      state: this.state,
+      state: serializedState,
       inputs: this.inputs.map((terminal) => terminal.serialize()),
       outputs: this.outputs.map((terminal) => terminal.serialize()),
       style: this.style,
@@ -842,28 +762,26 @@ export interface NodeStyle {
   nodeButtonSpacing?: number;
   outlineColor?: string;
 }
-let DefaultNodeStyle = () => {
-  return {
-    font: "arial",
-    fontSize: ".75rem",
-    titleFont: "arial",
-    titleFontSize: ".85rem",
-    color: "#000",
-    titleColor: "#000",
-    maximizeButtonColor: "darkgrey",
-    nodeButtonSize: 10,
-    nodeButtonSpacing: 5,
-    expandButtonColor: "#000",
-    minimizedTerminalColor: "green",
-    outlineColor: "#000",
-    padding: 10,
-    spacing: 10,
-    rowHeight: 20,
-    titleHeight: 29,
-    terminalRowHeight: 24,
-    terminalStripMargin: 8,
-  };
-};
+const DefaultNodeStyle = (): NodeStyle => ({
+  font: "arial",
+  fontSize: ".75rem",
+  titleFont: "arial",
+  titleFontSize: ".85rem",
+  color: "#000",
+  titleColor: "#000",
+  maximizeButtonColor: "darkgrey",
+  nodeButtonSize: 10,
+  nodeButtonSpacing: 5,
+  expandButtonColor: "#000",
+  minimizedTerminalColor: "green",
+  outlineColor: "#000",
+  padding: 10,
+  spacing: 10,
+  rowHeight: 20,
+  titleHeight: 29,
+  terminalRowHeight: 24,
+  terminalStripMargin: 8,
+});
 
 export interface SerializedNode {
   hitColor: SerializedColor;
@@ -881,7 +799,7 @@ export interface SerializedNode {
   width: number;
 }
 
-export interface NodeOptions extends Record<string, any> {
+export interface NodeOptions {
   name: string;
   width?: number;
   style?: NodeStyle;
@@ -891,119 +809,13 @@ export interface NodeOptions extends Record<string, any> {
   inputs?: SerializedTerminal[];
   outputs?: SerializedTerminal[];
 }
-const DefaultNodeOptions = (): NodeOptions => {
-  return {
-    name: "New Node",
-    width: 100,
-    style: {},
-    state: {},
-    id: uuid(),
-  };
-};
-
-interface ToggleCreatorOptions {
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  height?: number;
-  style?: ToggleStyle;
-}
-interface StackCreatorOptions {
-  childs?: UINode[];
-  style?: StackStyle;
-}
-interface SourceCreatorOptions {
-  accept?: string;
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  height?: number;
-  style?: SourceStyle;
-}
-interface SliderCreatorOptions {
-  value?: number;
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  height?: number;
-  style?: SliderStyle;
-}
-interface VSliderCreatorOptions {
-  value?: number;
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  height?: number;
-  width?: number;
-  style?: VSliderStyle;
-}
-interface Slider2DCreatorOptions {
-  value?: Vector;
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  height?: number;
-  style?: Slider2DStyle;
-}
-interface SelectCreatorOptions {
-  height?: number;
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  style?: SelectStyle;
-}
-interface RadioGroupCreatorOptions {
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  height?: number;
-  style?: RadioGroupStyle;
-}
-interface LabelCreatorOptions {
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  style?: LabelStyle;
-  height?: number;
-}
-interface InputCreatorOptions {
-  value?: string | number;
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  height?: number;
-  style?: InputStyle;
-}
-interface ImageCreatorOptions {
-  propName?: string;
-  style?: ImageStyle;
-}
-interface HorizontalLayoutCreatorOptions {
-  style?: HorizontalLayoutStyle;
-  input?: boolean;
-  output?: boolean;
-}
-interface ButtonCreatorOptions {
-  input?: boolean;
-  output?: boolean;
-  height?: number;
-  style?: ButtonStyle;
-}
-interface DialCreatorOptions {
-  value?: number;
-  propName?: string;
-  input?: boolean;
-  output?: boolean;
-  style?: DialStyle;
-}
-interface DisplayCreatorOptions {
-  style?: DisplayStyle;
-}
-interface EnvelopeCreatorOptions {
-  input?: boolean;
-  output?: boolean;
-  style?: EnvelopeStyle;
-}
+const DefaultNodeOptions = (): NodeOptions => ({
+  name: "New Node",
+  width: 100,
+  style: {},
+  state: {},
+  id: uuid(),
+});
 
 export class NodeButton extends Hooks implements Renderable {
   renderer: RenderFn<NodeButton, NodeButtonRenderParams>;
@@ -1021,7 +833,7 @@ export class NodeButton extends Hooks implements Renderable {
   ) {
     super();
 
-    this.style = get(style, {});
+    this.style = style ?? {};
     this.setHitColor();
     this.renderer = renderer;
   }

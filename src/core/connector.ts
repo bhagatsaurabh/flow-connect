@@ -1,5 +1,5 @@
 import { Vector, SerializedVector } from "./vector.js";
-import { canConnect, get, uuid } from "../utils/utils.js";
+import { canConnect, uuid } from "../utils/utils.js";
 import { Flow, FlowState } from "./flow.js";
 import { Terminal, TerminalType } from "./terminal.js";
 import { Renderable, Renderer, Serializable } from "../common/interfaces.js";
@@ -46,7 +46,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
     const { style, id = uuid(), floatingTip } = options;
 
     connector.flow = flow;
-    connector.style = { ...DefaultConnectorStyle(), ...get(style, {}) };
+    connector.style = { ...DefaultConnectorStyle(), ...(style ?? {}) };
     connector.id = id;
     connector.floatingTip = floatingTip;
     connector.start = start;

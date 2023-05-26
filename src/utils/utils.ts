@@ -31,12 +31,10 @@ export const intersects = (
     else return ViewPort.INTERSECT;
   } else return ViewPort.OUTSIDE;
 };
-export const clamp = (value: number, min: number, max: number): number => {
-  return Math.min(Math.max(value, min), max);
-};
-export const lerp = (a: number, b: number, t: number): number => {
-  return (1 - t) * a + t * b;
-};
+export const clampMin = (value: number, min: number): number => Math.max(value, min);
+export const clampMax = (value: number, max: number): number => Math.min(value, max);
+export const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
+export const lerp = (a: number, b: number, t: number): number => (1 - t) * a + t * b;
 export const canConnect = (source: Terminal, destination: Terminal, rules: Rules, executionGraph: Graph) => {
   if (!destination) return false;
   if (source === destination) return false;
@@ -53,13 +51,7 @@ export const isEmpty = (obj: any): boolean => {
 export const isInRange = (value: number, min: number, max: number): boolean => {
   return Math.min(value, min) >= min && Math.max(value, max) <= max;
 };
-export const exists = (value: any): boolean => {
-  return typeof value !== "undefined" && value !== null;
-};
-export const get = <T>(value: T, defaultVal: T): T => {
-  if (!exists(value)) return defaultVal;
-  return value;
-};
+export const exists = (value: any): boolean => typeof value !== "undefined" && value !== null;
 export const binarySearch = ({ max, getValue, match }: { max: number; getValue: Function; match: number }) => {
   let min = 0;
   while (min <= max) {

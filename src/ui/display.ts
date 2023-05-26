@@ -1,32 +1,37 @@
-import { Color } from "../core/color.js";
-import { Serializable } from "../common/interfaces.js";
 import { Node } from "../core/node.js";
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
-import { Vector } from "../core/vector.js";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 
-export class Display extends UINode implements Serializable<SerializedDisplay> {
+export class Display extends UINode<DisplayStyle> {
+  style: DisplayStyle;
   displayConfigs: CustomOffCanvasConfig[] = [];
 
-  constructor(
-    node: Node,
-    height: number,
-    customRenderers: CustomRendererConfig[],
-    options: DisplayOptions = DefaultDisplayOptions()
-  ) {
-    super(node, Vector.Zero(), UIType.Display, {
-      draggable: true,
-      zoomable: true,
-      style: options.style ? { ...DefaultDisplayStyle(), ...options.style } : DefaultDisplayStyle(),
-      input:
-        options.clear && typeof options.clear !== "boolean"
-          ? Terminal.deSerialize(node, options.clear)
-          : new Terminal(node, TerminalType.IN, "event", "", {}),
-      id: options.id,
-      hitColor: options.hitColor,
-    });
+  constructor(_node: Node, options: DisplayOptions = DefaultDisplayOptions()) {
+    super();
+
+    options = { ...DefaultDisplayOptions(), ...options };
+    const { height, style = {} } = options;
 
     this.height = height;
+    this.draggable = true;
+    this.zoomable = true;
+    this.style = { ...DefaultDisplayStyle(), ...style };
+  }
+
+  protected created(options: DisplayOptions): void {
+    options = { ...DefaultDisplayOptions(), ...options };
+    const { clear, customRenderers } = options;
+
+    if (clear) {
+      const terminal = this.createTerminal(TerminalType.IN, "event");
+      terminal.on("event", () => {
+        this.displayConfigs
+          .filter((config) => !config.rendererConfig.auto)
+          .forEach((config) => {
+            config.context.clearRect(0, 0, config.canvas.width, config.canvas.height);
+          });
+      });
+    }
 
     if (typeof OffscreenCanvas !== "undefined") {
       customRenderers.forEach((rendererConfig) => {
@@ -38,28 +43,22 @@ export class Display extends UINode implements Serializable<SerializedDisplay> {
         } else {
           offCanvas = new OffscreenCanvas(this.node.width - 2 * this.node.style.padding, this.height);
         }
+
         offContext = offCanvas.getContext("2d");
         newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true };
         this.displayConfigs.push(newOffCanvasConfig);
       });
     } else {
       customRenderers.forEach((rendererConfig) => {
-        let offCanvas = document.createElement("canvas");
+        const offCanvas = document.createElement("canvas");
         offCanvas.width = this.node.width - 2 * this.node.style.padding;
         offCanvas.height = this.height;
-        let offContext = offCanvas.getContext("2d");
-        let newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true };
+
+        const offContext = offCanvas.getContext("2d");
+        const newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true };
         this.displayConfigs.push(newOffCanvasConfig);
       });
     }
-
-    this.input.on("event", () => {
-      this.displayConfigs
-        .filter((config) => !config.rendererConfig.auto)
-        .forEach((config) => {
-          config.context.clearRect(0, 0, config.canvas.width, config.canvas.height);
-        });
-    });
 
     this.node.flow.flowConnect.on("scale", () => this.reflow());
   }
@@ -144,124 +143,42 @@ export class Display extends UINode implements Serializable<SerializedDisplay> {
     );
   }
 
-  onPropChange() {
-    /**/
-  }
-  onOver(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("over", this, screenPosition, realPosition);
-  }
-  onDown(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("down", this, screenPosition, realPosition);
-  }
-  onUp(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("up", this, screenPosition, realPosition);
-  }
-  onClick(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("click", this, screenPosition, realPosition);
-  }
-  onDrag(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("drag", this, screenPosition, realPosition);
-  }
-  onEnter(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("enter", this, screenPosition, realPosition);
-  }
-  onExit(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("exit", this, screenPosition, realPosition);
-  }
-  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("wheel", this, direction, screenPosition, realPosition);
-  }
-  onContextMenu(): void {
-    if (this.disabled) return;
-
-    this.call("rightclick", this);
-  }
-
-  async serialize(): Promise<SerializedDisplay> {
-    return Promise.resolve<SerializedDisplay>({
-      height: this.height,
-      propName: this.propName,
-      input: this.input ? this.input.serialize() : null,
-      output: this.output ? this.output.serialize() : null,
-      id: this.id,
-      hitColor: this.hitColor.serialize(),
-      style: this.style,
-      type: this.type,
-      childs: [],
-    });
-  }
-  static async deSerialize(node: Node, data: SerializedDisplay): Promise<Display> {
-    return Promise.resolve<Display>(
-      new Display(node, data.height, null, {
-        style: data.style,
-        id: data.id,
-        hitColor: Color.create(data.hitColor),
-        clear: data.input,
-      })
-    );
-  }
+  onPropChange() {}
 }
 
 export enum CanvasType {
   OffscreenCanvas = "OffscreenCanvas",
   HTMLCanvasElement = "HTMLCanvasElement",
 }
-
 export interface CustomOffCanvasConfig {
   canvas: OffscreenCanvas | HTMLCanvasElement;
   context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   rendererConfig: CustomRendererConfig;
   shouldRender: boolean;
 }
-
+export type CustomRenderer = (
+  context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  width: number,
+  height: number
+) => boolean;
 export interface CustomRendererConfig {
   auto?: boolean;
   clear?: boolean;
   canvasType?: CanvasType;
-  renderer?: (
-    context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-    width: number,
-    height: number
-  ) => boolean;
+  renderer?: CustomRenderer;
 }
 
 export interface DisplayStyle extends UINodeStyle {
   borderColor?: string;
   backgroundColor?: string;
 }
-let DefaultDisplayStyle = () => {
-  return {
-    borderColor: "#000",
-    visible: true,
-  };
-};
+const DefaultDisplayStyle = (): DisplayStyle => ({
+  borderColor: "#000",
+});
 
-export interface SerializedDisplay extends SerializedUINode {
+export interface DisplayOptions extends UINodeOptions<DisplayStyle> {
   height: number;
-}
-
-interface DisplayOptions {
-  style?: DisplayStyle;
-  id?: string;
-  hitColor?: Color;
+  customRenderers: CustomRendererConfig[];
   clear?: boolean | SerializedTerminal;
 }
-let DefaultDisplayOptions = () => {
-  return {};
-};
+const DefaultDisplayOptions = (): DisplayOptions => ({ height: 70, customRenderers: [] });

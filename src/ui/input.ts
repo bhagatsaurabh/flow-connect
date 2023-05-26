@@ -1,15 +1,14 @@
-import { Vector } from "../core/vector.js";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
+import { UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 import { Node } from "../core/node.js";
-import { Label } from "./label.js";
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
-import { Serializable } from "../common/interfaces.js";
-import { Color } from "../core/color.js";
+import { Label, LabelOptions } from "./label.js";
+import { TerminalType } from "../core/terminal.js";
 import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
-import { exists, get } from "../utils/utils.js";
+import { exists } from "../utils/utils.js";
 
-export class Input extends UINode implements Serializable<SerializedInput> {
+export class Input extends UINode<InputStyle> {
+  style: InputStyle;
+
   label: Label;
   inputEl: HTMLInputElement;
   private _value: string | number;
@@ -35,63 +34,63 @@ export class Input extends UINode implements Serializable<SerializedInput> {
     if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, newVal, oldVal);
   }
 
-  constructor(node: Node, options: InputOptions = DefaultInputOptions(node)) {
-    super(node, Vector.Zero(), UIType.Input, {
-      style: options.style ? { ...DefaultInputStyle(), ...options.style } : DefaultInputStyle(),
-      propName: options.propName,
-      input:
-        options.input &&
-        (typeof options.input === "boolean"
-          ? new Terminal(node, TerminalType.IN, options.style.type, "", {})
-          : Terminal.deSerialize(node, options.input)),
-      output:
-        options.output &&
-        (typeof options.output === "boolean"
-          ? new Terminal(node, TerminalType.OUT, options.style.type, "", {})
-          : Terminal.deSerialize(node, options.output)),
-      id: options.id,
-      hitColor: options.hitColor,
-    });
+  constructor(node: Node, _options: InputOptions = DefaultInputOptions(node)) {
+    super();
+  }
 
-    this.height = get(options.height, this.node.style.rowHeight);
+  protected created(options: InputOptions): void {
+    options = { ...DefaultInputOptions(this.node), ...options };
+    const { style = {}, height, input, output } = options;
 
-    if (this.style.type === InputType.Number && typeof options.value === "string")
+    this.height = height ?? this.node.style.rowHeight;
+    this.style = { ...DefaultInputStyle(), ...style };
+
+    if (this.style.type === InputType.Number && typeof options.value === "string") {
       options.value = parseFloat(options.value);
+    }
     this._value = options.value;
 
     this.setupLabel();
     this.setupInputElement();
 
-    if (this.input) {
-      this.input.on("connect", (_, connector) => {
+    if (input) {
+      const terminal = this.createTerminal(TerminalType.IN, options.style.type);
+      terminal.on("connect", (_, connector) => {
         if (connector.data) this.value = connector.data;
       });
-      this.input.on("data", (_, data) => {
+      terminal.on("data", (_, data) => {
         if (data) this.value = data;
       });
     }
-    if (this.output) this.output.on("connect", (_, connector) => (connector.data = this.value));
+    if (output) {
+      const terminal = this.createTerminal(TerminalType.OUT, options.style.type);
+      terminal.on("connect", (_, connector) => (connector.data = this.value));
+    }
 
     this.node.on("process", () => {
-      if (this.output) this.output.setData(this.value);
+      this.output?.setData(this.value);
     });
+
+    this.on("blur", () => document.body.removeChild(this.inputEl));
   }
 
   setupLabel() {
-    this.label = new Label(this.node, this.value.toString(), {
+    this.label = this.node.createUI<Label, LabelOptions>("core/label", {
+      text: this.value.toString(),
       style: {
         fontSize: this.style.fontSize,
         font: this.style.font,
         align: this.style.align,
         color: this.style.color,
         padding: 5,
-        precision: this.style.precision || null,
+        precision: this.style.precision ?? null,
       },
       height: this.height,
     });
+
     this.label.on("click", () => {
       if (document.activeElement !== this.inputEl) {
-        let realPosition = this.position.transform(this.node.flow.flowConnect.transform);
+        const realPosition = this.position.transform(this.node.flow.flowConnect.transform);
         Object.assign(this.inputEl.style, {
           visibility: "visible",
           "pointer-events": "all",
@@ -109,18 +108,20 @@ export class Input extends UINode implements Serializable<SerializedInput> {
         this.inputEl.focus();
       }
     });
+
     this.children.push(this.label);
   }
   setupInputElement() {
     this.inputEl = document.createElement("input");
     this.inputEl.className = "flow-connect-input";
     this.inputEl.spellcheck = false;
-    let inputType = this.style.type === "string" ? "text" : this.style.type;
+    const inputType = this.style.type === "string" ? "text" : this.style.type;
     this.inputEl.type = this.style.pattern ? "text" : inputType;
     this.inputEl.value = this.value.toString();
-    if (this.style.pattern) this.inputEl.pattern = this.style.pattern;
+
+    this.style.pattern ?? (this.inputEl.pattern = this.style.pattern);
     if (this.style.type === InputType.Number && this.style.step) this.inputEl.step = this.style.step;
-    if (this.style.maxLength) this.inputEl.maxLength = this.style.maxLength;
+    this.style.maxLength ?? (this.inputEl.maxLength = this.style.maxLength);
 
     this.inputEl.addEventListener("blur", () => {
       this.inputEl.style.visibility = "hidden";
@@ -189,77 +190,7 @@ export class Input extends UINode implements Serializable<SerializedInput> {
     this.setLabelText(this._value);
     this.inputEl.value = this._value.toString();
 
-    this.output && this.output.setData(this._value);
-  }
-  onOver(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("over", this, screenPosition, realPosition);
-  }
-  onDown(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("down", this, screenPosition, realPosition);
-  }
-  onUp(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("up", this, screenPosition, realPosition);
-  }
-  onClick(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("click", this, screenPosition, realPosition);
-  }
-  onDrag(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("drag", this, screenPosition, realPosition);
-  }
-  onEnter(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("enter", this, screenPosition, realPosition);
-  }
-  onExit(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("exit", this, screenPosition, realPosition);
-  }
-  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("wheel", this, direction, screenPosition, realPosition);
-  }
-  onContextMenu(): void {
-    if (this.disabled) return;
-  }
-
-  serialize(): SerializedInput {
-    return {
-      value: this.value,
-      propName: this.propName,
-      input: this.input ? this.input.serialize() : null,
-      output: this.output ? this.output.serialize() : null,
-      height: this.height,
-      style: this.style,
-      id: this.id,
-      hitColor: this.hitColor.serialize(),
-      type: this.type,
-      childs: [],
-    };
-  }
-  static deSerialize(node: Node, data: SerializedInput): Input {
-    return new Input(node, {
-      value: data.value,
-      propName: data.propName,
-      input: data.input,
-      output: data.output,
-      height: data.height,
-      style: data.style,
-      id: data.id,
-      hitColor: Color.create(data.hitColor),
-    });
+    this.output?.setData(this._value);
   }
 }
 
@@ -275,41 +206,24 @@ export interface InputStyle extends UINodeStyle {
   font?: string;
   border?: string;
   type?: InputType;
-  align?: Align;
   precision?: number;
   pattern?: string;
   step?: string;
   maxLength?: number;
 }
-let DefaultInputStyle = (): InputStyle => {
-  return {
-    backgroundColor: "#eee",
-    color: "#000",
-    fontSize: "11px",
-    font: "arial",
-    border: "1px solid black",
-    align: Align.Left,
-    type: InputType.Text,
-  };
-};
+const DefaultInputStyle = (): InputStyle => ({
+  backgroundColor: "#eee",
+  color: "#000",
+  fontSize: "11px",
+  font: "arial",
+  border: "1px solid black",
+  align: Align.Left,
+  type: InputType.Text,
+});
 
-export interface SerializedInput extends SerializedUINode {
-  value: string | number;
-  height: number;
-}
-
-interface InputOptions {
+export interface InputOptions extends UINodeOptions<InputStyle> {
   value?: string | number;
-  propName?: string;
-  input?: boolean | SerializedTerminal;
-  output?: boolean | SerializedTerminal;
-  height?: number;
-  style?: InputStyle;
-  id?: string;
-  hitColor?: Color;
 }
-let DefaultInputOptions = (node: Node): InputOptions => {
-  return {
-    height: node.style.rowHeight * 1.5,
-  };
-};
+const DefaultInputOptions = (node: Node): InputOptions => ({
+  height: node.style.rowHeight * 1.5,
+});

@@ -1,5 +1,5 @@
 import { SerializedVector, Vector } from "./vector.js";
-import { get, uuid, intersects } from "../utils/utils.js";
+import { uuid, intersects } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
 import { Flow } from "./flow.js";
 import { Hooks } from "./hooks.js";
@@ -57,7 +57,7 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
     group.width = width;
     group.height = height;
     group.id = id;
-    group.style = { ...DefaultGroupStyle(), ...get(style, {}) };
+    group.style = { ...DefaultGroupStyle(), ...(style ?? {}) };
 
     if (!group.style.color || !group.style.borderColor) {
       let colors = DefaultGroupColors.Random();

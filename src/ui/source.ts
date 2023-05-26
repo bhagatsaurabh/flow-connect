@@ -1,17 +1,15 @@
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { TerminalType } from "../core/terminal.js";
 import { Node } from "../core/node.js";
-import { Vector } from "../core/vector.js";
 import { fileIcon } from "../resource/icons.js";
-import { Image } from "./image.js";
-import { Label } from "./label.js";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
-import { DataFetchProvider, DataPersistenceProvider, Serializable } from "../common/interfaces.js";
-import { Color } from "../core/color.js";
+import { Image, ImageOptions } from "./image.js";
+import { Label, LabelOptions } from "./label.js";
+import { UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
-import { get, uuid } from "../utils/utils.js";
 
-export class Source extends UINode implements Serializable<SerializedSource> {
+export class Source extends UINode<SourceStyle> {
+  style: SourceStyle;
+
   private htmlInput: HTMLInputElement;
   private fileIcon: Image;
   private _file: File;
@@ -36,49 +34,50 @@ export class Source extends UINode implements Serializable<SerializedSource> {
     if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
-  constructor(node: Node, options: SourceOptions = DefaultSourceOptions(node)) {
-    super(node, Vector.Zero(), UIType.Source, {
-      style: options.style ? { ...DefaultSourceStyle(), ...options.style } : DefaultSourceStyle(),
-      propName: options.propName,
-      input:
-        options.input &&
-        (typeof options.input === "boolean"
-          ? new Terminal(node, TerminalType.IN, "file", "", {})
-          : Terminal.deSerialize(node, options.input)),
-      output:
-        options.output &&
-        (typeof options.output === "boolean"
-          ? new Terminal(node, TerminalType.OUT, "file", "", {})
-          : Terminal.deSerialize(node, options.output)),
-      id: options.id,
-      hitColor: options.hitColor,
-    });
+  constructor(node: Node, _options: SourceOptions = DefaultSourceOptions(node)) {
+    super();
+  }
 
-    this.accept = options.accept;
-    this.height = get(options.height, this.node.style.rowHeight);
+  protected created(options: SourceOptions): void {
+    options = { ...DefaultSourceOptions(this.node), ...options };
+    const { style = {}, height, accept, input, output, file } = options;
+
+    this.style = { ...DefaultSourceStyle(), ...style };
+    this.accept = accept;
+    this.height = height ?? this.node.style.rowHeight;
 
     this.setupInputElement(options);
 
-    this.label = new Label(this.node, "Select", { style: { align: Align.Center, ...this.style }, height: this.height });
-    this.fileIcon = new Image(this.node, fileIcon);
+    this.label = this.node.createUI<Label, LabelOptions>("core/label", {
+      text: "Select",
+      style: { align: Align.Center, ...this.style },
+      height: this.height,
+    });
+    this.fileIcon = this.node.createUI<Image, ImageOptions>("core/image", {
+      src: fileIcon,
+    });
     this.label.on("click", () => this.htmlInput.click());
     this.children.push(this.label, this.fileIcon);
 
-    if (this.input) {
-      this.input.on("connect", (_, connector) => {
+    if (input) {
+      const terminal = this.createTerminal(TerminalType.IN, "file");
+      terminal.on("connect", (_, connector) => {
         if (connector.data) this.file = connector.data;
       });
-      this.input.on("data", (_, data) => {
+      terminal.on("data", (_, data) => {
         if (data) this.file = data;
       });
     }
-    if (this.output) this.output.on("connect", (_, connector) => (connector.data = this.file));
+    if (output) {
+      const terminal = this.createTerminal(TerminalType.OUT, "file");
+      terminal.on("connect", (_, connector) => (connector.data = this.file));
+    }
 
     this.node.on("process", () => {
-      if (this.output) this.output.setData(this.file);
+      this.output?.setData(this.file);
     });
 
-    if (options.file) this.file = options.file;
+    if (file) this.file = options.file;
   }
 
   setupInputElement(options: SourceOptions) {
@@ -136,93 +135,7 @@ export class Source extends UINode implements Serializable<SerializedSource> {
     this._file = newVal;
     this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf("."));
 
-    this.output && this.output.setData(this._file);
-  }
-  onOver(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("over", this, screenPosition, realPosition);
-  }
-  onDown(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("down", this, screenPosition, realPosition);
-  }
-  onUp(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("up", this, screenPosition, realPosition);
-  }
-  onClick(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("click", this, screenPosition, realPosition);
-  }
-  onDrag(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call("drag", this, screenPosition, realPosition);
-  }
-  onEnter(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("enter", this, screenPosition, realPosition);
-  }
-  onExit(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("exit", this, screenPosition, realPosition);
-  }
-  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call("wheel", this, direction, screenPosition, realPosition);
-  }
-  onContextMenu(): void {
-    if (this.disabled) return;
-  }
-
-  async serialize(persist?: DataPersistenceProvider): Promise<SerializedSource> {
-    let file = null;
-    if (persist && this.file) {
-      file = { id: uuid(), name: this.file.name };
-      await persist(file.id, this.file);
-    }
-
-    return Promise.resolve<SerializedSource>({
-      accept: this.accept,
-      propName: this.propName,
-      input: this.input ? this.input.serialize() : null,
-      output: this.output ? this.output.serialize() : null,
-      height: this.height,
-      style: this.style,
-      id: this.id,
-      hitColor: this.hitColor.serialize(),
-      type: this.type,
-      childs: [],
-      file,
-    });
-  }
-  static async deSerialize(node: Node, data: SerializedSource, receive?: DataFetchProvider): Promise<Source> {
-    let file = null;
-    if (data.file) {
-      const blob = await receive(data.file.id);
-      file = new File([blob], data.file.name);
-    }
-
-    return Promise.resolve(
-      new Source(node, {
-        accept: data.accept,
-        propName: data.propName,
-        input: data.input,
-        output: data.output,
-        height: data.height,
-        style: data.style,
-        id: data.id,
-        hitColor: Color.create(data.hitColor),
-        file,
-      })
-    );
+    this.output?.setData(this._file);
   }
 }
 
@@ -232,35 +145,15 @@ export interface SourceStyle extends UINodeStyle {
   fontSize?: string;
   color?: string;
 }
-let DefaultSourceStyle = () => {
-  return {
-    borderColor: "#000",
-    visible: true,
-  };
-};
+const DefaultSourceStyle = (): SourceStyle => ({
+  borderColor: "#000",
+});
 
-export interface SerializedSource extends SerializedUINode {
-  accept: string;
-  height: number;
-  file: {
-    id: string;
-    name: string;
-  };
-}
-
-interface SourceOptions {
+export interface SourceOptions extends UINodeOptions<SourceStyle> {
   accept?: string;
-  propName?: string;
-  input?: boolean | SerializedTerminal;
-  output?: boolean | SerializedTerminal;
-  height?: number;
-  style?: SourceStyle;
-  id?: string;
-  hitColor?: Color;
   file?: File;
 }
-let DefaultSourceOptions = (node: Node): SourceOptions => {
-  return {
-    height: node.style.rowHeight * 1.5,
-  };
-};
+const DefaultSourceOptions = (node: Node): SourceOptions => ({
+  accept: "image/png",
+  height: node.style.rowHeight * 1.5,
+});

@@ -203,8 +203,14 @@ export class Vector implements Serializable<SerializedVector> {
   serialize(): SerializedVector {
     return { x: this.x, y: this.y };
   }
-  static create(data: SerializedVector): Vector {
-    return new Vector(data.x, data.y);
+  static create(x: number, y: number): Vector;
+  static create(domPoint: DOMPoint): Vector;
+  static create(vector: SerializedVector): Vector;
+  static create(arg1: SerializedVector | number | DOMPoint, arg2?: number): Vector {
+    if (typeof arg1 === "object") {
+      return new Vector(arg1.x, arg1.y);
+    }
+    return new Vector(arg1, arg2);
   }
 }
 

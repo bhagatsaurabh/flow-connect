@@ -550,8 +550,10 @@ export class FlowConnect extends Hooks {
       ev.preventDefault();
 
       let screenPosition = this.getRelativePosition(ev);
+      let realPosition = screenPosition.transform(this.inverseTransform);
+
       let hitNode = this.getHitNode(screenPosition);
-      hitNode && hitNode.onContextMenu();
+      hitNode && hitNode.onContextMenu(screenPosition, realPosition);
       if (!this.keymap["Control"]) this.currFlow.removeAllFocus();
       hitNode && (hitNode.focused = true);
     };

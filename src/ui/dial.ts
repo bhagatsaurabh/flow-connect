@@ -36,25 +36,9 @@ export class Dial extends UINode<DialStyle> {
 
   constructor(node: Node, options: DialOptions) {
     super();
-    /* super(
-      style: options.style ? { ...DefaultDialStyle(height), ...options.style } : DefaultDialStyle(height),
-      propName: options.propName,
-      input:
-        options.input &&
-        (typeof options.input === "boolean"
-          ? new Terminal(node, TerminalType.IN, "number", "", {})
-          : Terminal.deSerialize(node, options.input)),
-      output:
-        options.output &&
-        (typeof options.output === "boolean"
-          ? new Terminal(node, TerminalType.OUT, "number", "", {})
-          : Terminal.deSerialize(node, options.output)),
-      id: options.id,
-      hitColor: options.hitColor,
-    }); */
 
-    options = { ...DefaultDialOptions(), ...options };
-    const { min = 0, max = 100, height = node.style.padding * 2, style = {}, value = min } = options;
+    options = { ...DefaultDialOptions(node), ...options };
+    const { min = 0, max = 100, height = 50 + node.style.padding * 2, style = {}, value = min } = options;
 
     this.draggable = true;
     this.height = height;
@@ -62,26 +46,27 @@ export class Dial extends UINode<DialStyle> {
     this.max = max;
     this._value = value;
     this.temp = normalize(this._value, min, max);
-    this.style = { ...DefaultDialStyle(height), ...style };
+    this.style = { ...DefaultDialStyle(), ...style };
+  }
 
-    if (this.input) {
+  protected created(options: DialOptions): void {
+    if (options.input) {
+      const terminal = this.createTerminal(TerminalType.IN, "number");
+      terminal.on("connect", (_, connector) => {
+        if (connector.data) this.value = connector.data;
+      });
+      terminal.on("data", (_, data) => {
+        if (data) this.value = data;
+      });
     }
-    if (this.output) this.output.on("connect", (_, connector) => (connector.data = this.value));
+    if (options.output) {
+      const terminal = this.createTerminal(TerminalType.OUT, "number");
+      terminal.on("connect", (_, connector) => (connector.data = this.value));
+    }
 
     this.node.on("process", () => {
       if (this.output) this.output.setData(this.value);
     });
-  }
-
-  protected created(options: UINodeOptions<UINodeStyle>): void {
-    if (options.input) {
-      this.input.on("connect", (_, connector) => {
-        if (connector.data) this.value = connector.data;
-      });
-      this.input.on("data", (_, data) => {
-        if (data) this.value = data;
-      });
-    }
   }
 
   paint(): void {
@@ -215,12 +200,14 @@ const DefaultDialStyle = (): DialStyle => ({
   thumbShadowBlur: 5,
 });
 
-interface DialOptions extends UINodeOptions<DialStyle> {
+export interface DialOptions extends UINodeOptions<DialStyle> {
+  height: number;
   min: number;
   max: number;
   value?: number;
 }
-let DefaultDialOptions = (): DialOptions => ({
+const DefaultDialOptions = (node: Node): DialOptions => ({
+  height: 50 + node.style.padding * 2,
   min: 0,
   max: 100,
 });
