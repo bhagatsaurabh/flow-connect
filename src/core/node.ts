@@ -138,14 +138,14 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     node.on("transform", (n) => n.updateRenderState());
 
     !isDeserialized && node.setupIO(options);
+    node.created(options);
     node.setupState(node.state);
-    node.created();
 
     return node as T;
   }
 
   protected abstract setupIO(options: NodeOptions): void;
-  protected abstract created(): void;
+  protected abstract created(options: NodeOptions): void;
   protected abstract process(inputs: any[]): void;
 
   //#region Methods
@@ -489,7 +489,10 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       focus: this.focused,
     };
   }
-  addTerminal(terminal: Terminal | SerializedTerminal) {
+  addTerminals(terminals: Terminal[] | SerializedTerminal[]) {
+    terminals?.forEach((terminal) => this.addTerminal(terminal));
+  }
+  addTerminal(terminal: Terminal | SerializedTerminal): Terminal {
     let t: Terminal = null;
     if (!(terminal instanceof Terminal)) {
       t = Terminal.create(this, terminal.type, terminal.dataType, {
@@ -499,11 +502,15 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
         id: terminal.id,
         hitColor: terminal.hitColor ? Color.create(terminal.hitColor) : null,
       });
+    } else {
+      t = terminal;
     }
 
     (terminal.type === TerminalType.IN ? this.inputs : this.outputs).push(t);
     this.ui.update();
     this.reflow();
+
+    return t;
   }
   removeTerminal(terminal: Terminal) {
     let type = terminal.type;
@@ -578,7 +585,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   dispose(): void {
     this.flow.removeNode(this.id);
   }
-  createUI<T extends UINode, O extends UINodeOptions>(type: string, options: O): T {
+  createUI<T extends UINode = UINode, O extends UINodeOptions = UINodeOptions>(type: string, options: O): T {
     const uiNode = UINode.create<T>(type, this, options);
     return uiNode;
   }
