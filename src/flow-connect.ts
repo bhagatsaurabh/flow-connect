@@ -36,6 +36,7 @@ import {
   Toggle,
   VSlider,
 } from "./flow-connect.js";
+import { Container } from "./flow-connect.js";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -67,6 +68,7 @@ export class FlowConnect extends Hooks {
       "core/tunnel": TunnelNode,
     },
     ui: {
+      "core/container": Container,
       "core/button": Button,
       "core/dial": Dial,
       "core/display": Display,
@@ -775,7 +777,7 @@ export class FlowConnect extends Hooks {
     }
   }
   private getRelativePosition(ev: PointerEvent | WheelEvent | MouseEvent) {
-    return new Vector(ev.clientX - this.canvasDimensions.left, ev.clientY - this.canvasDimensions.top);
+    return Vector.create(ev.clientX - this.canvasDimensions.left, ev.clientY - this.canvasDimensions.top);
   }
   private updateTransform(scale?: number, scaleOrigin?: Vector, translate?: Vector) {
     if (scale) {

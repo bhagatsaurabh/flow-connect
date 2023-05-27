@@ -5,9 +5,9 @@ export class Vector implements Serializable<SerializedVector> {
   x: number;
   y: number;
 
-  constructor(domPoint: DOMPoint);
-  constructor(x: number, y: number);
-  constructor(xOrDOMPoint: number | DOMPoint, y?: number) {
+  private constructor(domPoint: DOMPoint);
+  private constructor(x: number, y: number);
+  private constructor(xOrDOMPoint: number | DOMPoint, y?: number) {
     if (xOrDOMPoint instanceof DOMPoint) [this.x, this.y] = [xOrDOMPoint.x, xOrDOMPoint.y];
     else [this.x, this.y] = [xOrDOMPoint || 0, y || 0];
   }

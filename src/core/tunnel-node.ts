@@ -41,7 +41,7 @@ export class TunnelNode extends Node {
   }
 
   process(): void {
-    this.outputs[0].setData(this.proxyTerminal.getData());
+    this.outputs[0]?.setData(this.proxyTerminal.getData());
   }
 
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedTunnelNode> {

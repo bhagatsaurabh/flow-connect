@@ -46,7 +46,7 @@ export class Toggle extends UINode<ToggleStyle> {
       });
     }
     if (output) {
-      const terminal = this.createTerminal(TerminalType.IN, "boolean");
+      const terminal = this.createTerminal(TerminalType.OUT, "boolean");
       terminal.on("connect", (_, connector) => (connector.data = this.checked));
     }
 

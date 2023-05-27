@@ -51,10 +51,10 @@ export class Label extends UINode<LabelStyle> {
     if (input) {
       const terminal = this.createTerminal(TerminalType.IN, "any");
       terminal.on("connect", (_, connector) => {
-        connector.data ?? (this.text = connector.data);
+        if (connector.data) this.text = connector.data;
       });
       terminal.on("data", (_, data) => {
-        data ?? (this.text = data);
+        if (data) this.text = data;
       });
     }
     if (output) {

@@ -35,7 +35,7 @@ export class Image extends UINode<ImageStyle> {
 
   protected created(options: ImageOptions): void {
     options = { ...DefaultImageOptions(), ...options };
-    const { style, input, src } = options;
+    const { style, src } = options;
 
     this.style = { ...DefaultImageStyle(), ...style };
 
@@ -73,10 +73,10 @@ export class Image extends UINode<ImageStyle> {
   paint(): void {
     if (this.imageCanvas && this.imageCanvas.width > 0 && this.imageCanvas.height > 0) {
       let x = this.position.x;
-      if (this.source.width < this.node.ui.contentWidth) {
+      /* if (this.source.width < this.node.ui.contentWidth) {
         if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
-        else if (this.style.align === Align.Right) x += +(this.node.ui.contentWidth - this.source.width);
-      }
+        else if (this.style.align === Align.Right) x += this.node.ui.contentWidth - this.source.width;
+      } */
       this.context.drawImage(
         this.imageCanvas,
         0,
@@ -118,10 +118,10 @@ export class Image extends UINode<ImageStyle> {
     this.offUIContext.fillStyle = this.hitColor.hexValue;
 
     let x = this.position.x;
-    if (this.source.width < this.node.ui.contentWidth) {
+    /* if (this.source.width < this.node.ui.contentWidth) {
       if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
       else if (this.style.align === Align.Right) x += +(this.node.ui.contentWidth - this.source.width);
-    }
+    } */
     this.offUIContext.fillRect(
       x,
       this.position.y,

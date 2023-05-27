@@ -156,7 +156,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     }
     context.fillStyle = params.focus
       ? terminal.style.focusColor
-      : terminal.node.flow.ruleColors[terminal.dataType].hexValue || terminal.style.color;
+      : terminal.node.flow.ruleColors[terminal.dataType]?.hexValue || terminal.style.color;
     context.strokeStyle = terminal.style.borderColor;
     context.shadowBlur = terminal.style.shadowBlur;
     context.shadowColor = terminal.style.shadowColor;

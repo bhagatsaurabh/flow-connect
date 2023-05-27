@@ -60,7 +60,7 @@ export class Slider extends UINode<SliderStyle> {
       });
     }
     if (output) {
-      const terminal = this.createTerminal(TerminalType.IN, "number");
+      const terminal = this.createTerminal(TerminalType.OUT, "number");
       terminal.on("connect", (_, connector) => (connector.data = this.value));
     }
 

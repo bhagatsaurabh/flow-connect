@@ -320,7 +320,10 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   run() {
     if (this.flow.state === FlowState.Stopped) return;
 
-    this.process(this.inputs.map((terminal) => (terminal.connectors.length > 0 ? terminal.connectors[0].data : null)));
+    const inputs = this.inputs.map((terminal) => (terminal.connectors.length > 0 ? terminal.connectors[0].data : null));
+
+    this.process(inputs);
+    this.call("process", this, inputs);
   }
 
   render(): void {
@@ -487,17 +490,18 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     };
   }
   addTerminal(terminal: Terminal | SerializedTerminal) {
+    let t: Terminal = null;
     if (!(terminal instanceof Terminal)) {
-      terminal = Terminal.create(this, terminal.type, terminal.dataType, {
+      t = Terminal.create(this, terminal.type, terminal.dataType, {
         name: terminal.name,
         propName: terminal.propName,
         style: terminal.style,
         id: terminal.id,
-        hitColor: Color.create(terminal.hitColor),
+        hitColor: terminal.hitColor ? Color.create(terminal.hitColor) : null,
       });
     }
 
-    (terminal.type === TerminalType.IN ? this.inputs : this.outputs).push(terminal);
+    (terminal.type === TerminalType.IN ? this.inputs : this.outputs).push(t);
     this.ui.update();
     this.reflow();
   }

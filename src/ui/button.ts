@@ -10,34 +10,34 @@ export class Button extends UINode<ButtonStyle> {
   label: Label;
   text: string;
 
-  constructor(node: Node, options: ButtonOptions) {
+  constructor(_node: Node, _options: ButtonOptions) {
     super();
-
-    options = { ...DefaultButtonOptions(), ...options };
-    const { height, style = {} } = options;
-
-    this.style = { ...DefaultButtonStyle(), ...style };
-    this.height = height ?? node.style.rowHeight + 2 * style.padding;
   }
 
   protected created(options: ButtonOptions): void {
-    const { input, output } = options;
+    options = { ...DefaultButtonOptions(this.node), ...options };
+    const { height, style = {}, input, output, text = "Button" } = options;
+
+    this.style = { ...DefaultButtonStyle(), ...style };
+    this.height = (height ?? this.node.style.rowHeight) + 2 * this.style.padding;
 
     if (input) {
       const terminal = this.createTerminal(TerminalType.IN, "event");
       terminal.on("event", () => this.call("click", this));
     }
-    if (output) this.createTerminal(TerminalType.OUT, "event");
+    if (output) {
+      this.createTerminal(TerminalType.OUT, "event");
+    }
 
     this.label = this.node.createUI<Label, LabelOptions>("core/label", {
-      text: options.text,
+      text,
       style: {
         fontSize: this.style.fontSize,
         font: this.style.font,
         align: Align.Center,
         color: this.style.color,
       },
-      height: this.height,
+      height,
     });
 
     this.label.on("click", (_: Node, position: Vector) => this.call("click", this, position));
@@ -99,7 +99,7 @@ export interface ButtonStyle extends UINodeStyle {
   shadowBlur?: number;
   shadowOffset?: Vector;
 }
-let DefaultButtonStyle = (): ButtonStyle => ({
+const DefaultButtonStyle = (): ButtonStyle => ({
   backgroundColor: "#666",
   padding: 5,
   color: "#fff",
@@ -107,12 +107,13 @@ let DefaultButtonStyle = (): ButtonStyle => ({
   fontSize: "11px",
   shadowColor: "#555",
   shadowBlur: 3,
-  shadowOffset: new Vector(3, 3),
+  shadowOffset: Vector.create(3, 3),
 });
 
-interface ButtonOptions extends UINodeOptions<ButtonStyle> {
+export interface ButtonOptions extends UINodeOptions<ButtonStyle> {
   text: number | string;
 }
-let DefaultButtonOptions = (): ButtonOptions => ({
+const DefaultButtonOptions = (node: Node): ButtonOptions => ({
   text: "Button",
+  height: node.style.rowHeight,
 });

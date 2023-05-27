@@ -82,7 +82,9 @@ export class Envelope extends UINode<EnvelopeStyle> {
     this.offPointsContext.clearRect(0, 0, width, height);
 
     this._value.forEach((node) => {
-      let coord = new Vector(node.data.x, 1 - node.data.y).multiply(width, height).add(this.style.pointDiameter / 2);
+      let coord = Vector.create(node.data.x, 1 - node.data.y)
+        .multiply(width, height)
+        .add(this.style.pointDiameter / 2);
       this.offPointsContext.fillStyle = this.pointHitColorPoint.get(node) as string;
       this.offPointsContext.beginPath();
       this.offPointsContext.arc(coord.x, coord.y, this.style.pointDiameter / 2, 0, Constant.TAU);
@@ -101,7 +103,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
 
     let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
     let points: Vector[] = this._value.map((node) =>
-      new Vector(node.data.x, 1 - node.data.y)
+      Vector.create(node.data.x, 1 - node.data.y)
         .multiplyInPlace(width, height)
         .addInPlace(this.position)
         .addInPlace(this.style.pointDiameter / 2)
@@ -179,7 +181,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
       .clampInPlace(0, width, 0, height)
       .normalizeInPlace(0, width, 0, height)
       .clampInPlace(this.currHitPoint.prev?.data.x || 0, this.currHitPoint.next?.data.x || 1, -Infinity, Infinity);
-    this.currHitPoint.data = new Vector(this.currHitPoint.data.x, 1 - this.currHitPoint.data.y);
+    this.currHitPoint.data = Vector.create(this.currHitPoint.data.x, 1 - this.currHitPoint.data.y);
 
     this.renderOffPoints();
   }
@@ -189,7 +191,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
     let newPoint = realPosition
       .subtract(this.position.add(this.style.pointDiameter / 2))
       .normalizeInPlace(0, width, 0, height);
-    newPoint = new Vector(newPoint.x, 1 - newPoint.y);
+    newPoint = Vector.create(newPoint.x, 1 - newPoint.y);
 
     let newPointNode;
     let anchor = this._value.searchTail((node) => node.data.x <= newPoint.x);

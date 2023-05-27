@@ -84,7 +84,9 @@ export class Slider2D extends UINode<Slider2DStyle> {
     let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
     this.offThumbContext.clearRect(0, 0, width, height);
 
-    let coord = new Vector(this.value.x, 1 - this.value.y).multiply(width, height).add(this.style.pointDiameter / 2);
+    let coord = Vector.create(this.value.x, 1 - this.value.y)
+      .multiply(width, height)
+      .add(this.style.pointDiameter / 2);
     this.offThumbContext.fillStyle = this.thumbHitColor;
     this.offThumbContext.beginPath();
     this.offThumbContext.arc(coord.x, coord.y, this.style.pointDiameter / 2, 0, Constant.TAU);
@@ -101,7 +103,7 @@ export class Slider2D extends UINode<Slider2DStyle> {
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
     let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
-    let point = new Vector(this.value.x, 1 - this.value.y)
+    let point = Vector.create(this.value.x, 1 - this.value.y)
       .multiplyInPlace(width, height)
       .addInPlace(this.position)
       .addInPlace(this.style.pointDiameter / 2);
@@ -167,7 +169,7 @@ export class Slider2D extends UINode<Slider2DStyle> {
       .clampInPlace(0, width, 0, height)
       .normalizeInPlace(0, width, 0, height);
 
-    this.value = new Vector(this._value.x, 1 - this._value.y);
+    this.value = Vector.create(this._value.x, 1 - this._value.y);
   }
 
   onPropChange(_oldVal: any, newVal: any) {

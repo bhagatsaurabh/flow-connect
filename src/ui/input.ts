@@ -70,8 +70,6 @@ export class Input extends UINode<InputStyle> {
     this.node.on("process", () => {
       this.output?.setData(this.value);
     });
-
-    this.on("blur", () => document.body.removeChild(this.inputEl));
   }
 
   setupLabel() {
@@ -119,9 +117,9 @@ export class Input extends UINode<InputStyle> {
     this.inputEl.type = this.style.pattern ? "text" : inputType;
     this.inputEl.value = this.value.toString();
 
-    this.style.pattern ?? (this.inputEl.pattern = this.style.pattern);
+    if (this.style.pattern) this.inputEl.pattern = this.style.pattern;
     if (this.style.type === InputType.Number && this.style.step) this.inputEl.step = this.style.step;
-    this.style.maxLength ?? (this.inputEl.maxLength = this.style.maxLength);
+    if (exists(this.style.maxLength)) this.inputEl.maxLength = this.style.maxLength;
 
     this.inputEl.addEventListener("blur", () => {
       this.inputEl.style.visibility = "hidden";

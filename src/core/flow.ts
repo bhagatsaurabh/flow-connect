@@ -74,10 +74,10 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
   static create(flowConnect: FlowConnect, options: FlowOptions = DefaultFlowOptions()): Flow {
     const flow = new Flow(flowConnect);
 
-    const { name = "New Flow", rules = DefaultRules(), ruleColors = DefaultRuleColors(), id = uuid() } = options;
+    const { name = "New Flow", rules = {}, ruleColors = DefaultRuleColors(), id = uuid() } = options;
 
     flow.name = name;
-    flow.rules = rules;
+    flow.rules = { ...DefaultRules(), ...rules };
     flow.ruleColors = ruleColors;
     flow.id = id;
 
@@ -97,7 +97,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     }
     return false;
   }
-  addInput(name: string, dataType: string, position: Vector): TunnelNode {
+  addInput(name: string, dataType: string, position: Vector = Vector.Zero()): TunnelNode {
     return this._addIO("input", name, position, dataType);
   }
   addOutput(name: string, dataType: string, position: Vector): TunnelNode {
@@ -111,7 +111,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       tunnelDataType: dataType,
     });
 
-    this.inputs.push(ioNode);
+    (type === "input" ? this.inputs : this.outputs).push(ioNode);
     this.call(`add-${type}`, this, ioNode);
     return ioNode;
   }

@@ -206,13 +206,14 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
   sendEvent<T extends UIEvent>(type: string, event: T): void {
     if (this.disabled) return;
 
+    const orgType = type;
     type = `on${type
       .split("-")
       .map((part) => capitalize(part))
       .reduce((prev, curr) => prev + curr, "")}`;
 
     (this as any)[type](event);
-    this.call(type, event);
+    this.call(orgType, event);
   }
 
   onWheel(_: UIWheelEvent): void {}

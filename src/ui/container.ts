@@ -10,19 +10,19 @@ export class Container extends UINode<ContainerStyle> {
   renderer: Renderer<Container, ContainerRenderParams> = () => null;
   contentWidth: number;
 
-  constructor(node: Node, options: ContainerOptions) {
+  constructor(_node: Node, _options: ContainerOptions) {
     super();
-
-    options = { ...DefaultContainerOptions(node), ...options };
-    const { width, height = node.style.padding * 2, style = {} } = options;
-
-    this.width = width;
-    this.height = height;
-    this.contentWidth = width - 2 * node.style.padding;
-    this.style = { ...DefaultContainerStyle(), ...style };
   }
 
-  protected created(): void {
+  protected created(options: ContainerOptions): void {
+    options = { ...DefaultContainerOptions(this.node), ...options };
+    const { width, height, style = {} } = options;
+
+    this.width = width;
+    this.height = height ?? this.node.style.padding * 2;
+    this.contentWidth = width - 2 * this.node.style.padding;
+    this.style = { ...DefaultContainerStyle(), ...style };
+
     this.position = this.node.position;
   }
 
@@ -106,9 +106,9 @@ export class Container extends UINode<ContainerStyle> {
           } else {
             childX = x;
           }
-          child.position = new Vector(childX, y);
+          child.position = Vector.create(childX, y);
         } else {
-          child.position = new Vector(x, y);
+          child.position = Vector.create(x, y);
         }
         y += child.height;
       });
@@ -129,7 +129,7 @@ const DefaultContainerStyle = (): ContainerStyle => ({
   backgroundColor: "#ddd",
   shadowColor: "#666",
   shadowBlur: 3,
-  shadowOffset: new Vector(3, 3),
+  shadowOffset: Vector.create(3, 3),
   borderWidth: 1,
   borderColor: "#444",
 });
