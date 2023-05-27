@@ -2,7 +2,7 @@ import { Node } from "../core/node.js";
 import { TerminalType } from "../core/terminal.js";
 import { Vector } from "../core/vector.js";
 import { Label, LabelOptions } from "./label.js";
-import { UINode, UINodeStyle, UINodeOptions, UIEvent } from "./ui-node.js";
+import { UINode, UINodeStyle, UINodeOptions } from "./ui-node.js";
 import { Align } from "../common/enums.js";
 
 export class Button extends UINode<ButtonStyle> {

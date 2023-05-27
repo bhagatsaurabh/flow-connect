@@ -5,7 +5,6 @@ import {
   DataPersistenceProvider,
   Dimension,
   FlowConnectRenderers,
-  NodeConstructor,
   PluginMetadata,
   PluginType,
   Plugins,
@@ -19,8 +18,24 @@ import { ViewPort } from "./common/enums.js";
 import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
 import { TunaInitializer } from "./lib/tuna.js";
 import { EmptyNode } from "./core/empty-node.js";
-import { Button } from "./flow-connect.js";
-import { Label } from "./flow-connect.js";
+import {
+  Button,
+  Label,
+  Dial,
+  Display,
+  Envelope,
+  HorizontalLayout,
+  Image,
+  Input,
+  RadioGroup,
+  Select,
+  Slider2D,
+  Slider,
+  Source,
+  Stack,
+  Toggle,
+  VSlider,
+} from "./flow-connect.js";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -53,7 +68,21 @@ export class FlowConnect extends Hooks {
     },
     ui: {
       "core/button": Button,
+      "core/dial": Dial,
+      "core/display": Display,
+      "core/envelope": Envelope,
+      "core/x-layout": HorizontalLayout,
+      "core/image": Image,
+      "core/input": Input,
       "core/label": Label,
+      "core/radio-group": RadioGroup,
+      "core/select": Select,
+      "core/slider-2d": Slider2D,
+      "core/slider": Slider,
+      "core/source": Source,
+      "core/stack": Stack,
+      "core/toggle": Toggle,
+      "core/v-slider": VSlider,
     },
   };
   static register<K extends keyof PluginType>(metadata: PluginMetadata, executor: PluginType[K]): boolean {

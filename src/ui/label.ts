@@ -1,8 +1,7 @@
-import { Terminal, TerminalType } from "../core/terminal.js";
+import { TerminalType } from "../core/terminal.js";
 import { Node } from "../core/node.js";
-import { Vector } from "../core/vector.js";
 import { UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
-import { binarySearch, exists, get } from "../utils/utils.js";
+import { binarySearch, exists } from "../utils/utils.js";
 import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
 

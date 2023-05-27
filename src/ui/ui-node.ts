@@ -5,7 +5,7 @@ import { Terminal, TerminalType } from "../core/terminal.js";
 import { SerializedVector, Vector } from "../core/vector.js";
 import { Align, LOD, ViewPort } from "../common/enums.js";
 import { uuid, intersects, capitalize } from "../utils/utils.js";
-import { Events, Renderable } from "../common/interfaces.js";
+import { Renderable } from "../common/interfaces.js";
 import { FlowConnect, Log } from "../flow-connect.js";
 
 export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks implements Renderable {

@@ -15,7 +15,6 @@ import {
   TerminalRenderParams,
   UINode,
   UINodeOptions,
-  UINodeStyle,
 } from "../flow-connect.js";
 
 /**

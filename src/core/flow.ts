@@ -252,9 +252,9 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     receive?: DataFetchProvider
   ): Promise<Record<string, any>> {
     for (let key in state) {
-      if (typeof state[key] === "string" && (state[key] as string).startsWith("file##")) {
+      if (typeof state[key] === "string" && (state[key] as string).startsWith("raw##")) {
         if (receive) {
-          state[key] = await receive((state[key] as string).replace("file##", ""));
+          state[key] = await receive((state[key] as string).replace("raw##", ""));
         } else {
           state[key] = null;
         }

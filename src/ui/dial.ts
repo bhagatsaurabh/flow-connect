@@ -1,4 +1,4 @@
-import { Terminal, TerminalType } from "../core/terminal.js";
+import { TerminalType } from "../core/terminal.js";
 import { Node } from "../core/node.js";
 import { Vector } from "../core/vector.js";
 import { clamp, denormalize, normalize } from "../utils/utils.js";
