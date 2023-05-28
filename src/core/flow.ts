@@ -258,6 +258,12 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
         } else {
           state[key] = null;
         }
+      } else if (
+        typeof state[key] === "object" &&
+        state[key] &&
+        Object.keys(state[key]).every((k) => ["x", "y"].includes(k) && typeof state[key][k] === "number")
+      ) {
+        state[key] = Vector.create(state[key].x, state[key].y);
       }
     }
     return state;

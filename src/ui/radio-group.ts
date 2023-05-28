@@ -1,6 +1,6 @@
 import { TerminalType } from "../core/terminal.js";
 import { Node } from "../core/node.js";
-import { UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
+import { UIEvent, UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 import { FlowState } from "../core/flow.js";
 import { Label, LabelOptions } from "./label.js";
 import { Align } from "../common/enums.js";
@@ -70,18 +70,18 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
           style: { align: Align.Center, backgroundColor: this.style.backgroundColor, color: this.style.color },
         });
 
-        label.on("click", (selectedLabel: Label) => {
-          if (selectedLabel.text === this.selected) return;
+        label.on("click", (event: UIEvent<Label>) => {
+          if (event.target.text === this.selected) return;
           const lastSelectedLabel = this.children[this._values.indexOf(this.selected)];
           Object.assign(lastSelectedLabel.style, {
             backgroundColor: this.style.backgroundColor,
             color: this.style.color,
           });
-          Object.assign(selectedLabel.style, {
+          Object.assign(event.target.style, {
             backgroundColor: this.style.selectedBackgroundColor,
             color: this.style.selectedColor,
           });
-          this.selected = selectedLabel.text;
+          this.selected = event.target.text;
         });
 
         return label;

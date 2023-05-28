@@ -40,7 +40,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   id: string;
   type: string;
   hitColor: Color;
-  style: NodeStyle;
+  private _style: NodeStyle;
   focused: boolean = false;
   ui: Container;
   uiNodes: Map<string, UINode>;
@@ -56,6 +56,12 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   //#endregion
 
   //#region Accessors
+  get style(): NodeStyle {
+    return this._style;
+  }
+  set style(style: NodeStyle) {
+    this._style = { ...this._style, ...style };
+  }
   get height(): number {
     return this.ui.height;
   }
@@ -141,6 +147,9 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     !isDeserialized && node.setupIO(options);
     node.created(options);
     node.setupState(node.state);
+
+    node.ui.update();
+    node.reflow();
 
     return node as T;
   }
@@ -735,6 +744,10 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
         } else {
           state[key] = null;
         }
+      } else if (state[key] instanceof Vector) {
+        state[key] = state[key].serialize();
+      } else if (state[key] instanceof AudioBuffer) {
+        state[key] = null;
       } else if (typeof state[key] === "object") {
         state[key] = await this.serializeState(state[key]);
       }

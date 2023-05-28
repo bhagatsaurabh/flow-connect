@@ -83,7 +83,7 @@
     "@babel/core": "^7.17.8",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@flow-connect/audio": "^1.0.5",
+    "@flow-connect/audio": "file:flow-connect-audio-1.0.5.tgz",
     "@flow-connect/common": "^1.0.3",
     "@types/jest": "^27.4.1",
     "@types/node": "^14.18.3",

@@ -133,7 +133,7 @@ export class Source extends UINode<SourceStyle> {
 
   onPropChange(_oldVal: any, newVal: any) {
     this._file = newVal;
-    this.label.text = this._file.name.substring(0, this._file.name.toString().lastIndexOf("."));
+    this.label.text = this._file ? this._file.name.substring(0, this._file.name.toString().lastIndexOf(".")) : "Select";
 
     this.output?.setData(this._file);
   }
@@ -154,6 +154,5 @@ export interface SourceOptions extends UINodeOptions<SourceStyle> {
   file?: File;
 }
 const DefaultSourceOptions = (node: Node): SourceOptions => ({
-  accept: "image/png",
   height: node.style.rowHeight * 1.5,
 });

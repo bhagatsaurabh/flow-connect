@@ -34,7 +34,7 @@ export class TunaInitializer {
               this.input.disconnect();
               this.input.connect(this.output);
             }
-          }
+          },
         },
         bypass: {
           get: function () {
@@ -47,17 +47,17 @@ export class TunaInitializer {
             this._bypass = value;
             this.activate(!value);
             this._lastBypassValue = value;
-          }
+          },
         },
         connect: {
           value: function (target: any) {
             this.output.connect(target);
-          }
+          },
         },
         disconnect: {
           value: function (target: any) {
             this.output.disconnect(target);
-          }
+          },
         },
         connectInOrder: {
           value: function (nodeArray: any) {
@@ -72,7 +72,7 @@ export class TunaInitializer {
                 nodeArray[i].connect(nodeArray[i + 1]);
               }
             }
-          }
+          },
         },
         getDefaults: {
           value: function () {
@@ -81,7 +81,7 @@ export class TunaInitializer {
               (result as any)[key] = this.defaults[key].value;
             }
             return result;
-          }
+          },
         },
         automate: {
           value: function (property: any, value: any, duration: any, startTime: any) {
@@ -107,8 +107,8 @@ export class TunaInitializer {
             } else {
               console.error("Invalid Property for " + this.name);
             }
-          }
-        }
+          },
+        },
       }),
       FLOAT = "float",
       BOOLEAN = "boolean",
@@ -128,7 +128,7 @@ export class TunaInitializer {
       }
       if (!context) {
         console.log("tuna.js: Missing audio context! Creating a new context for you.");
-        context = _window.AudioContext && (new _window.AudioContext());
+        context = _window.AudioContext && new _window.AudioContext();
       }
       if (!context) {
         throw new Error("Tuna cannot initialize because this environment does not support web audio.");
@@ -150,7 +150,7 @@ export class TunaInitializer {
 
       function shimConnect() {
         var node = arguments[0];
-        arguments[0] = Super.isPrototypeOf ? (Super.isPrototypeOf(node) ? node.input : node) : (node.input || node);
+        arguments[0] = Super.isPrototypeOf ? (Super.isPrototypeOf(node) ? node.input : node) : node.input || node;
         oconnect.apply(this, arguments);
         return node;
       }
@@ -164,7 +164,9 @@ export class TunaInitializer {
       // http://kevin.vanzonneveld.net
       // *     example 1: fmod(5.7, 1.3);
       // *     returns 1: 0.5
-      var tmp, tmp2, p = 0,
+      var tmp,
+        tmp2,
+        p = 0,
         pY = 0,
         l = 0.0,
         l2 = 0.0;
@@ -178,7 +180,7 @@ export class TunaInitializer {
         p = pY;
       }
 
-      tmp2 = (x % y);
+      tmp2 = x % y;
 
       if (p < -100 || p > 20) {
         // toFixed will give an out of bound error so we fix it like this:
@@ -221,16 +223,16 @@ export class TunaInitializer {
       this.feedbackGainNodeRL = userContext.createGain();
       this.merger = userContext.createChannelMerger(2);
       this.output = userContext.createGain();
-      this.delayL.delayTime = 0;
-      this.delayR.delayTime = 0;
+      this.delayL.delayTime.value = 0;
+      this.delayR.delayTime.value = 0;
 
       this.lfoL = new userInstance.LFO({
         target: this.delayL.delayTime,
-        callback: pipe
+        callback: pipe,
       });
       this.lfoR = new userInstance.LFO({
         target: this.delayR.delayTime,
-        callback: pipe
+        callback: pipe,
       });
 
       this.input.connect(this.attenuator);
@@ -258,7 +260,7 @@ export class TunaInitializer {
     };
     Tuna.prototype.Chorus.prototype = Object.create(Super, {
       name: {
-        value: "Chorus"
+        value: "Chorus",
       },
       defaults: {
         writable: true,
@@ -268,35 +270,35 @@ export class TunaInitializer {
             min: 0,
             max: 0.95,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           delay: {
             value: 0.0045,
             min: 0,
             max: 1,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           depth: {
             value: 0.7,
             min: 0,
             max: 1,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           rate: {
             value: 1.5,
             min: 0,
             max: 8,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           bypass: {
             value: false,
             automatable: false,
-            type: BOOLEAN
-          }
-        }
+            type: BOOLEAN,
+          },
+        },
       },
       delay: {
         enumerable: true,
@@ -308,7 +310,7 @@ export class TunaInitializer {
           this.lfoL.offset = this._delay;
           this.lfoR.offset = this._delay;
           this._depth = this._depth;
-        }
+        },
       },
       depth: {
         enumerable: true,
@@ -319,7 +321,7 @@ export class TunaInitializer {
           this._depth = value;
           this.lfoL.oscillation = this._depth * this._delay;
           this.lfoR.oscillation = this._depth * this._delay;
-        }
+        },
       },
       feedback: {
         enumerable: true,
@@ -330,7 +332,7 @@ export class TunaInitializer {
           this._feedback = value;
           this.feedbackGainNodeLR.gain.setTargetAtTime(this._feedback, userContext.currentTime, 0.01);
           this.feedbackGainNodeRL.gain.setTargetAtTime(this._feedback, userContext.currentTime, 0.01);
-        }
+        },
       },
       rate: {
         enumerable: true,
@@ -341,8 +343,8 @@ export class TunaInitializer {
           this._rate = value;
           this.lfoL.frequency = this._rate;
           this.lfoR.frequency = this._rate;
-        }
-      }
+        },
+      },
     });
 
     Tuna.prototype.Overdrive = function (properties: any) {
@@ -370,7 +372,7 @@ export class TunaInitializer {
     };
     Tuna.prototype.Overdrive.prototype = Object.create(Super, {
       name: {
-        value: "Overdrive"
+        value: "Overdrive",
       },
       defaults: {
         writable: true,
@@ -381,7 +383,7 @@ export class TunaInitializer {
             max: 1,
             automatable: true,
             type: FLOAT,
-            scaled: true
+            scaled: true,
           },
           outputGain: {
             value: -9.154,
@@ -389,31 +391,31 @@ export class TunaInitializer {
             max: 0,
             automatable: true,
             type: FLOAT,
-            scaled: true
+            scaled: true,
           },
           curveAmount: {
             value: 0.979,
             min: 0,
             max: 1,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           algorithmIndex: {
             value: 0,
             min: 0,
             max: 5,
             automatable: false,
-            type: INT
+            type: INT,
           },
           bypass: {
             value: false,
             automatable: false,
-            type: BOOLEAN
-          }
-        }
+            type: BOOLEAN,
+          },
+        },
       },
       k_nSamples: {
-        value: 8192
+        value: 8192,
       },
       drive: {
         get: function () {
@@ -421,7 +423,7 @@ export class TunaInitializer {
         },
         set: function (value) {
           this.inputDrive.gain.value = value;
-        }
+        },
       },
       curveAmount: {
         get: function () {
@@ -434,7 +436,7 @@ export class TunaInitializer {
           }
           this.waveshaperAlgorithms[this._algorithmIndex](this._curveAmount, this.k_nSamples, this.ws_table);
           this.waveshaper.curve = this.ws_table;
-        }
+        },
       },
       outputGain: {
         get: function () {
@@ -443,7 +445,7 @@ export class TunaInitializer {
         set: function (value) {
           this._outputGain = dbToWAVolume(value);
           this.outputDrive.gain.setValueAtTime(this._outputGain, userContext.currentTime, 0.01);
-        }
+        },
       },
       algorithmIndex: {
         get: function () {
@@ -452,39 +454,47 @@ export class TunaInitializer {
         set: function (value) {
           this._algorithmIndex = value;
           this.curveAmount = this._curveAmount;
-        }
+        },
       },
       waveshaperAlgorithms: {
         value: [
           function (amount: any, n_samples: any, ws_table: any) {
             amount = Math.min(amount, 0.9999);
-            var k = 2 * amount / (1 - amount),
-              i, x;
+            var k = (2 * amount) / (1 - amount),
+              i,
+              x;
             for (i = 0; i < n_samples; i++) {
-              x = i * 2 / n_samples - 1;
-              ws_table[i] = (1 + k) * x / (1 + k * Math.abs(x));
+              x = (i * 2) / n_samples - 1;
+              ws_table[i] = ((1 + k) * x) / (1 + k * Math.abs(x));
             }
           },
           function (amount: any, n_samples: any, ws_table: any) {
             var i, x, y;
             for (i = 0; i < n_samples; i++) {
-              x = i * 2 / n_samples - 1;
-              y = ((0.5 * Math.pow((x + 1.4), 2)) - 1) * (y as any >= 0 ? 5.8 : 1.2);
+              x = (i * 2) / n_samples - 1;
+              y = (0.5 * Math.pow(x + 1.4, 2) - 1) * ((y as any) >= 0 ? 5.8 : 1.2);
               ws_table[i] = tanh(y);
             }
           },
           function (amount: any, n_samples: any, ws_table: any) {
-            var i, x, y, a = 1 - amount;
+            var i,
+              x,
+              y,
+              a = 1 - amount;
             for (i = 0; i < n_samples; i++) {
-              x = i * 2 / n_samples - 1;
+              x = (i * 2) / n_samples - 1;
               y = x < 0 ? -Math.pow(Math.abs(x), a + 0.04) : Math.pow(x, a);
               ws_table[i] = tanh(y * 2);
             }
           },
           function (amount: any, n_samples: any, ws_table: any) {
-            var i, x, y, abx, a = 1 - amount > 0.99 ? 0.99 : 1 - amount;
+            var i,
+              x,
+              y,
+              abx,
+              a = 1 - amount > 0.99 ? 0.99 : 1 - amount;
             for (i = 0; i < n_samples; i++) {
-              x = i * 2 / n_samples - 1;
+              x = (i * 2) / n_samples - 1;
               abx = Math.abs(x);
               if (abx < a) {
                 y = abx;
@@ -496,14 +506,17 @@ export class TunaInitializer {
               ws_table[i] = sign(x) * y * (1 / ((a + 1) / 2));
             }
           },
-          function (amount: any, n_samples: any, ws_table: any) { // fixed curve, amount doesn't do anything, the distortion is just from the drive
+          function (amount: any, n_samples: any, ws_table: any) {
+            // fixed curve, amount doesn't do anything, the distortion is just from the drive
             var i, x;
             for (i = 0; i < n_samples; i++) {
-              x = i * 2 / n_samples - 1;
+              x = (i * 2) / n_samples - 1;
               if (x < -0.08905) {
-                ws_table[i] = (-3 / 4) * (1 - (Math.pow((1 - (Math.abs(x) - 0.032857)), 12)) + (1 / 3) * (Math.abs(x) - 0.032847)) + 0.01;
+                ws_table[i] =
+                  (-3 / 4) * (1 - Math.pow(1 - (Math.abs(x) - 0.032857), 12) + (1 / 3) * (Math.abs(x) - 0.032847)) +
+                  0.01;
               } else if (x >= -0.08905 && x < 0.320018) {
-                ws_table[i] = (-6.153 * (x * x)) + 3.9375 * x;
+                ws_table[i] = -6.153 * (x * x) + 3.9375 * x;
               } else {
                 ws_table[i] = 0.630035;
               }
@@ -514,14 +527,15 @@ export class TunaInitializer {
               // we go from 2 to 16 bits, keep in mind for the UI
               bits = Math.round(Math.pow(2, a - 1)),
               // real number of quantization steps divided by 2
-              i, x;
+              i,
+              x;
             for (i = 0; i < n_samples; i++) {
-              x = i * 2 / n_samples - 1;
+              x = (i * 2) / n_samples - 1;
               ws_table[i] = Math.round(x * bits) / bits;
             }
-          }
-        ]
-      }
+          },
+        ],
+      },
     });
 
     Tuna.prototype.PingPongDelay = function (properties: any) {
@@ -543,7 +557,7 @@ export class TunaInitializer {
       this.activateNode.connect(this.splitter);
       this.splitter.connect(this.stereoToMonoMix, 0, 0);
       this.splitter.connect(this.stereoToMonoMix, 1, 0);
-      this.stereoToMonoMix.gain.value = .5;
+      this.stereoToMonoMix.gain.value = 0.5;
       this.stereoToMonoMix.connect(this.wet);
       this.wet.connect(this.delayLeft);
       this.feedbackLevel.connect(this.wet);
@@ -554,15 +568,18 @@ export class TunaInitializer {
       this.merger.connect(this.output);
       this.activateNode.connect(this.output);
 
-      this.delayTimeLeft = properties.delayTimeLeft !== undefined ? properties.delayTimeLeft : this.defaults.delayTimeLeft.value;
-      this.delayTimeRight = properties.delayTimeRight !== undefined ? properties.delayTimeRight : this.defaults.delayTimeRight.value;
-      this.feedbackLevel.gain.value = properties.feedback !== undefined ? properties.feedback : this.defaults.feedback.value;
+      this.delayTimeLeft =
+        properties.delayTimeLeft !== undefined ? properties.delayTimeLeft : this.defaults.delayTimeLeft.value;
+      this.delayTimeRight =
+        properties.delayTimeRight !== undefined ? properties.delayTimeRight : this.defaults.delayTimeRight.value;
+      this.feedbackLevel.gain.value =
+        properties.feedback !== undefined ? properties.feedback : this.defaults.feedback.value;
       this.wet.gain.value = properties.wetLevel !== undefined ? properties.wetLevel : this.defaults.wetLevel.value;
       this.bypass = properties.bypass || this.defaults.bypass.value;
     };
     Tuna.prototype.PingPongDelay.prototype = Object.create(Super, {
       name: {
-        value: "PingPongDelay"
+        value: "PingPongDelay",
       },
       delayTimeLeft: {
         enumerable: true,
@@ -572,7 +589,7 @@ export class TunaInitializer {
         set: function (value) {
           this._delayTimeLeft = value;
           this.delayLeft.delayTime.value = value / 1000;
-        }
+        },
       },
       delayTimeRight: {
         enumerable: true,
@@ -582,7 +599,7 @@ export class TunaInitializer {
         set: function (value) {
           this._delayTimeRight = value;
           this.delayRight.delayTime.value = value / 1000;
-        }
+        },
       },
       wetLevel: {
         enumerable: true,
@@ -591,7 +608,7 @@ export class TunaInitializer {
         },
         set: function (value) {
           this.wet.gain.setTargetAtTime(value, userContext.currentTime, 0.01);
-        }
+        },
       },
       feedback: {
         enumerable: true,
@@ -600,7 +617,7 @@ export class TunaInitializer {
         },
         set: function (value) {
           this.feedbackLevel.gain.setTargetAtTime(value, userContext.currentTime, 0.01);
-        }
+        },
       },
       defaults: {
         writable: true,
@@ -610,36 +627,36 @@ export class TunaInitializer {
             min: 1,
             max: 10000,
             automatable: false,
-            type: INT
+            type: INT,
           },
           delayTimeRight: {
             value: 400,
             min: 1,
             max: 10000,
             automatable: false,
-            type: INT
+            type: INT,
           },
           feedback: {
             value: 0.3,
             min: 0,
             max: 1,
             automatable: true,
-            type: FLOAT
+            type: FLOAT,
           },
           wetLevel: {
             value: 0.5,
             min: 0,
             max: 1,
             automatable: true,
-            type: FLOAT
+            type: FLOAT,
           },
           bypass: {
             value: false,
             automatable: false,
-            type: BOOLEAN
-          }
-        }
-      }
+            type: BOOLEAN,
+          },
+        },
+      },
     });
 
     Tuna.prototype.Tremolo = function (properties: any) {
@@ -654,11 +671,11 @@ export class TunaInitializer {
       this.output = userContext.createGain();
       this.lfoL = new userInstance.LFO({
         target: this.amplitudeL.gain,
-        callback: pipe
+        callback: pipe,
       });
       this.lfoR = new userInstance.LFO({
         target: this.amplitudeR.gain,
-        callback: pipe
+        callback: pipe,
       });
 
       this.input.connect(this.splitter);
@@ -672,9 +689,9 @@ export class TunaInitializer {
       this.intensity = initValue(properties.intensity, this.defaults.intensity.value);
       this.stereoPhase = initValue(properties.stereoPhase, this.defaults.stereoPhase.value);
 
-      this.lfoL.offset = 1 - (this.intensity / 2);
-      this.lfoR.offset = 1 - (this.intensity / 2);
-      this.lfoL.phase = this.stereoPhase * Math.PI / 180;
+      this.lfoL.offset = 1 - this.intensity / 2;
+      this.lfoR.offset = 1 - this.intensity / 2;
+      this.lfoL.phase = (this.stereoPhase * Math.PI) / 180;
 
       this.lfoL.activate(true);
       this.lfoR.activate(true);
@@ -682,7 +699,7 @@ export class TunaInitializer {
     };
     Tuna.prototype.Tremolo.prototype = Object.create(Super, {
       name: {
-        value: "Tremolo"
+        value: "Tremolo",
       },
       defaults: {
         writable: true,
@@ -692,28 +709,28 @@ export class TunaInitializer {
             min: 0,
             max: 1,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           stereoPhase: {
             value: 0,
             min: 0,
             max: 180,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           rate: {
             value: 5,
             min: 0.1,
             max: 11,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           bypass: {
             value: false,
             automatable: false,
-            type: BOOLEAN
-          }
-        }
+            type: BOOLEAN,
+          },
+        },
       },
       intensity: {
         enumerable: true,
@@ -726,7 +743,7 @@ export class TunaInitializer {
           this.lfoR.offset = 1 - this._intensity / 2;
           this.lfoL.oscillation = this._intensity;
           this.lfoR.oscillation = this._intensity;
-        }
+        },
       },
       rate: {
         enumerable: true,
@@ -737,7 +754,7 @@ export class TunaInitializer {
           this._rate = value;
           this.lfoL.frequency = this._rate;
           this.lfoR.frequency = this._rate;
-        }
+        },
       },
       stereoPhase: {
         enumerable: true,
@@ -746,11 +763,11 @@ export class TunaInitializer {
         },
         set: function (value) {
           this._stereoPhase = value;
-          var newPhase = this.lfoL._phase + this._stereoPhase * Math.PI / 180;
+          var newPhase = this.lfoL._phase + (this._stereoPhase * Math.PI) / 180;
           newPhase = fmod(newPhase, 2 * Math.PI);
           this.lfoR.phase = newPhase;
-        }
-      }
+        },
+      },
     });
 
     Tuna.prototype.LFO = function (properties: any) {
@@ -760,8 +777,11 @@ export class TunaInitializer {
 
       //Instantiate AudioNode
       this.input = userContext.createGain();
-      this.output = new AudioWorkletNode(userContext, 'lfo', {
-        processorOptions: { sampleRate: userContext.sampleRate }, channelCount: 1, channelCountMode: 'explicit', outputChannelCount: [1]
+      this.output = new AudioWorkletNode(userContext, "lfo", {
+        processorOptions: { sampleRate: userContext.sampleRate },
+        channelCount: 1,
+        channelCountMode: "explicit",
+        outputChannelCount: [1],
       });
 
       this.output.connect(properties.target);
@@ -776,19 +796,19 @@ export class TunaInitializer {
       this.bypass = properties.bypass || this.defaults.bypass.value;
 
       this.output.port.postMessage({
-        type: 'set-all',
-        value: { oscillation: this.oscillation, offset: this.offset, frequency: this.frequency, phase: this.phase }
+        type: "set-all",
+        value: { oscillation: this.oscillation, offset: this.offset, frequency: this.frequency, phase: this.phase },
       });
     };
     Tuna.prototype.LFO.prototype = Object.create(Super, {
       name: {
-        value: "LFO"
+        value: "LFO",
       },
       bufferSize: {
-        value: 128
+        value: 128,
       },
       sampleRate: {
-        value: 44100
+        value: 44100,
       },
       defaults: {
         value: {
@@ -797,35 +817,35 @@ export class TunaInitializer {
             min: 0,
             max: 20,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           offset: {
             value: 0.85,
             min: 0,
             max: 22049,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           oscillation: {
             value: 0.3,
             min: -22050,
             max: 22050,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           phase: {
             value: 0,
             min: 0,
             max: 2 * Math.PI,
             automatable: false,
-            type: FLOAT
+            type: FLOAT,
           },
           bypass: {
             value: false,
             automatable: false,
-            type: BOOLEAN
-          }
-        }
+            type: BOOLEAN,
+          },
+        },
       },
       frequency: {
         get: function () {
@@ -833,12 +853,12 @@ export class TunaInitializer {
         },
         set: function (value) {
           this._frequency = value;
-          this._phaseInc = 2 * Math.PI * this._frequency * this.bufferSize / this.sampleRate;
+          this._phaseInc = (2 * Math.PI * this._frequency * this.bufferSize) / this.sampleRate;
           this.output.port.postMessage({
-            type: 'set-frequency',
-            value: this.frequency
+            type: "set-frequency",
+            value: this.frequency,
           });
-        }
+        },
       },
       offset: {
         get: function () {
@@ -847,10 +867,10 @@ export class TunaInitializer {
         set: function (value) {
           this._offset = value;
           this.output.port.postMessage({
-            type: 'set-offset',
-            value: this.offset
+            type: "set-offset",
+            value: this.offset,
           });
-        }
+        },
       },
       oscillation: {
         get: function () {
@@ -859,10 +879,10 @@ export class TunaInitializer {
         set: function (value) {
           this._oscillation = value;
           this.output.port.postMessage({
-            type: 'set-oscillation',
-            value: this.oscillation
+            type: "set-oscillation",
+            value: this.oscillation,
           });
-        }
+        },
       },
       phase: {
         get: function () {
@@ -871,10 +891,10 @@ export class TunaInitializer {
         set: function (value) {
           this._phase = value;
           this.output.port.postMessage({
-            type: 'set-phase',
-            value: this.phase
+            type: "set-phase",
+            value: this.phase,
           });
-        }
+        },
       },
       activate: {
         value: function (doActivate: any) {
@@ -886,8 +906,8 @@ export class TunaInitializer {
           } else {
             // this.output.disconnect();
           }
-        }
-      }
+        },
+      },
     });
 
     return Tuna;

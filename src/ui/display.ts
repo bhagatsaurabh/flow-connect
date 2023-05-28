@@ -137,7 +137,7 @@ export class Display extends UINode<DisplayStyle> {
       }
     });
 
-    this.input.position.assign(
+    this.input?.position.assign(
       this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
       this.position.y + this.height / 2
     );

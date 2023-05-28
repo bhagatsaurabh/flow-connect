@@ -8,6 +8,7 @@ import {
   DataFetchProvider,
   DataPersistenceProvider,
   Dimension,
+  FlowConnectGlobals,
   FlowConnectRenderers,
   PluginMetadata,
   PluginType,
@@ -85,7 +86,7 @@ export class FlowConnect extends Hooks {
       "core/label": Label,
       "core/radio-group": RadioGroup,
       "core/select": Select,
-      "core/slider-2d": Slider2D,
+      "core/2d-slider": Slider2D,
       "core/slider": Slider,
       "core/source": Source,
       "core/stack": Stack,
@@ -279,7 +280,7 @@ export class FlowConnect extends Hooks {
     } else if (mount instanceof HTMLCanvasElement) {
       this.canvas = mount;
     } else {
-      Log.error("mount provided is not of type HTMLDivElement or HTMLCanvasElement");
+      Log.error("'mount' provided is not of type HTMLDivElement or HTMLCanvasElement");
     }
 
     Object.assign(this.canvas.style, {
@@ -896,14 +897,15 @@ export class FlowConnect extends Hooks {
     this.frameId = window.requestAnimationFrame(this._render.bind(this));
   }
 
-  createFlow(options: FlowOptions): Flow {
-    let flow = Flow.create(this, options);
-
+  private addFlow(flow: Flow): void {
     this.flows.push(flow);
 
     flow.on("start", () => this.startGlobalTime());
     flow.on("stop", () => this.stopGlobalTime());
-
+  }
+  createFlow(options: FlowOptions): Flow {
+    const flow = Flow.create(this, options);
+    this.addFlow(flow);
     return flow;
   }
   render(flow: Flow) {
@@ -942,6 +944,7 @@ export class FlowConnect extends Hooks {
     try {
       data = JSON.parse(json);
       flow = await Flow.deSerialize(this, data, receive);
+      this.addFlow(flow);
     } catch (error) {
       Log.error(error);
     }

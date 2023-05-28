@@ -115,3 +115,7 @@ export interface PluginMetadata {
   name: string;
   type: keyof PluginType;
 }
+
+export interface FlowConnectGlobals {
+  broadcastError: boolean;
+}

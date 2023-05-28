@@ -13,7 +13,7 @@ export default merge(common, {
       { directory: path.join(dirname(fileURLToPath(import.meta.url)), "dev") },
       { directory: path.join(dirname(fileURLToPath(import.meta.url)), "dist") },
       {
-        directory: path.join(dirname(fileURLToPath(import.meta.url)), "node_modules/@flow-connect/audio/dist/audio.js"),
+        directory: path.join(dirname(fileURLToPath(import.meta.url)), "node_modules/@flow-connect/audio/dist"),
       },
     ],
     onBeforeSetupMiddleware: (devServer) => {
