@@ -1,4 +1,8 @@
-import { Flow, Group, Node, Color, Hooks, SubFlowNode, TunnelNode } from "./core/index.js";
+import { Flow } from "./core/flow.js";
+import { Group } from "./core/group.js";
+import { Node } from "./core/node.js";
+import { Color } from "./core/color.js";
+import { Hooks } from "./core/hooks.js";
 import { Vector } from "./core/vector.js";
 import {
   DataFetchProvider,
@@ -18,6 +22,8 @@ import { ViewPort } from "./common/enums.js";
 import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
 import { TunaInitializer } from "./lib/tuna.js";
 import { EmptyNode } from "./core/empty-node.js";
+import { SubFlowNode } from "./core/subflow-node.js";
+import { TunnelNode } from "./core/tunnel-node.js";
 import {
   Button,
   Label,
@@ -35,8 +41,8 @@ import {
   Stack,
   Toggle,
   VSlider,
+  Container,
 } from "./flow-connect.js";
-import { Container } from "./flow-connect.js";
 
 declare global {
   interface CanvasRenderingContext2D {

@@ -1,6 +1,7 @@
 import { SerializedVector, Vector } from "./vector.js";
 import { ViewPort, LOD, Align } from "../common/enums.js";
-import { Container, UINode, UINodeOptions, UIWheelEvent, ContainerOptions } from "../ui/index.js";
+import { UINode, UINodeOptions, UIWheelEvent } from "../ui/ui-node.js";
+import { Container, ContainerOptions } from "../ui/container.js";
 import { uuid, intersects } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
 import { Flow, FlowState } from "./flow.js";
