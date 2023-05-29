@@ -92,9 +92,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
       return;
     }
 
-    const terminal = name
-      ? Terminal.create(this.node, type, dataType, { name })
-      : Terminal.create(this.node, type, dataType);
+    const terminal = Terminal.create(this.node, type, dataType, { name: name ?? "", ui: true });
 
     if (type === TerminalType.IN) {
       this.input = terminal;

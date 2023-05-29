@@ -39,7 +39,7 @@ const destination = flow.createNode("audio/destination", Vector.create(200, 50),
 // const microphone = flow.createNode("audio/microphone", Vector.create(100, 200), {});
 // const distorter = flow.createNode("audio/distorter", Vector.create(100, 200), {});
 // const equalizer = flow.createNode("audio/equalizer", Vector.create(100, 200), {});
-// const frequencyAnalyser = flow.createNode("audio/frequency", Vector.create(100, 200), {});
+const frequencyAnalyser = flow.createNode("audio/frequency", Vector.create(100, 200), {});
 // const waveformAnalyser = flow.createNode("audio/waveform", Vector.create(100, 200), {});
 // const spectrogramAnalyser = flow.createNode("audio/spectrogram", Vector.create(100, 200), {});
 

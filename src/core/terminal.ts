@@ -28,7 +28,14 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
   id: string;
   private _propName: string;
   private watcherId: number;
+  private _ui: boolean;
 
+  get ui(): boolean {
+    return this._ui;
+  }
+  private set ui(val: boolean) {
+    this._ui = val;
+  }
   get propName(): string {
     return this._propName;
   }
@@ -59,7 +66,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
   ): Terminal {
     const terminal = new Terminal();
 
-    const { name = "", hitColor, propName, style = {}, id = uuid() } = options;
+    const { name = "", hitColor, propName, style = {}, id = uuid(), ui = false } = options;
 
     terminal.node = node;
     terminal.type = type;
@@ -68,6 +75,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     if (propName) terminal._propName = propName;
     terminal.style = { ...DefaultTerminalStyle(), ...style };
     terminal.id = id;
+    terminal.ui = ui;
 
     terminal.setHitColor(hitColor);
 
@@ -322,6 +330,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       id: this.id,
       style: this.style,
       hitColor: this.hitColor.serialize(),
+      ui: this.ui,
     };
   }
 }
@@ -335,6 +344,7 @@ export interface SerializedTerminal {
   name: string;
   dataType: string;
   type: TerminalType;
+  ui?: boolean;
   propName?: string;
   id?: string;
   hitColor?: SerializedColor;
@@ -373,6 +383,7 @@ export interface TerminalOptions {
   style?: TerminalStyle;
   id?: string;
   hitColor?: Color;
+  ui?: boolean;
 }
 const DefaultTerminalOptions = (): TerminalOptions => {
   return {

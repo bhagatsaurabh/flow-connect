@@ -14,7 +14,7 @@ import {
   SerializedRuleColors,
   FlowRenderers,
 } from "../common/interfaces.js";
-import { SubFlowNode, SubFlowNodeOptions } from "./subflow-node.js";
+import { SerializedSubFlowNode, SubFlowNode, SubFlowNodeOptions } from "./subflow-node.js";
 import { TunnelNode, SerializedTunnelNode, TunnelNodeOptions } from "./tunnel-node.js";
 import { capitalize, uuid } from "../utils/utils.js";
 import { Graph } from "./graph.js";
@@ -74,11 +74,11 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
   static create(flowConnect: FlowConnect, options: FlowOptions = DefaultFlowOptions()): Flow {
     const flow = new Flow(flowConnect);
 
-    const { name = "New Flow", rules = {}, ruleColors = DefaultRuleColors(), id = uuid() } = options;
+    const { name = "New Flow", rules = {}, ruleColors = {}, id = uuid() } = options;
 
     flow.name = name;
     flow.rules = { ...DefaultRules(), ...rules };
-    flow.ruleColors = ruleColors;
+    flow.ruleColors = { ...DefaultRuleColors(), ...ruleColors };
     flow.id = id;
 
     return flow;
@@ -274,7 +274,9 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     const inputs = await Promise.all(this.inputs.map((input) => input.serialize()));
     const outputs = await Promise.all(this.outputs.map((output) => output.serialize()));
     const ruleColors: SerializedRuleColors = {};
-    Object.keys(this.ruleColors).forEach((key) => (ruleColors[key] = this.ruleColors[key].serialize()));
+    Object.keys(this.ruleColors).forEach(
+      (key) => (ruleColors[key] = (this.ruleColors[key] ?? Color.Random()).serialize())
+    );
 
     return Promise.resolve<SerializedFlow>({
       version: this.flowConnect.version,
@@ -302,6 +304,10 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
 
     for (let serializedNode of data.nodes) {
       const state = await this.deSerializeState(serializedNode.state, receive);
+      if (serializedNode.type === "core/subflow") {
+        const subFlow = await Flow.deSerialize(flowConnect, (serializedNode as SerializedSubFlowNode).subFlow, receive);
+        (serializedNode as any).subFlow = subFlow;
+      }
       flow._createNode(serializedNode.type, Vector.create(serializedNode.position), {
         ...serializedNode,
         state,
@@ -328,15 +334,22 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
 
     data.connectors.forEach((serializedConnector) => {
       let startNode = flow.nodes.get(serializedConnector.startNodeId);
-      let startTerminal = startNode.outputs
-        .concat(startNode.outputsUI)
-        .find((terminal) => terminal.id === serializedConnector.startId);
-      let endNode = flow.nodes.get(serializedConnector.endNodeId);
-      let endTerminal = endNode.inputs
-        .concat(endNode.inputsUI)
-        .find((terminal) => terminal.id === serializedConnector.endId);
+      let startTerminal;
+      if (typeof serializedConnector.startId === "string") {
+        startTerminal = startNode.outputs.find((terminal) => terminal.id === serializedConnector.startId);
+      } else {
+        startTerminal = startNode.outputsUI[serializedConnector.startId];
+      }
 
-      let connector = Connector.create(flow, startTerminal, endTerminal, {
+      let endNode = flow.nodes.get(serializedConnector.endNodeId);
+      let endTerminal;
+      if (typeof serializedConnector.endId === "string") {
+        endTerminal = endNode.inputs.find((terminal) => terminal.id === serializedConnector.endId);
+      } else {
+        endTerminal = endNode.inputsUI[serializedConnector.endId];
+      }
+
+      const connector = Connector.create(flow, startTerminal, endTerminal, {
         id: serializedConnector.id,
         style: serializedConnector.style,
       });

@@ -44,7 +44,7 @@ export class Color implements Serializable<SerializedColor> {
       parseInt(hex.slice(1, 3), 16),
       parseInt(hex.slice(3, 5), 16),
       parseInt(hex.slice(5, 7), 16),
-      parseInt(hex.slice(7, 9), 16),
+      parseInt(hex.length > 7 ? hex.slice(7, 9) : "FF", 16),
     ]);
   }
   private static _componentToHex(c: number) {

@@ -185,8 +185,8 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
   serialize(): SerializedConnector {
     return {
       id: this.id,
-      startId: this.start.id,
-      endId: this.end.id,
+      startId: this.start.ui ? this.startNode.outputsUI.findIndex((term) => this.start === term) : this.start.id,
+      endId: this.end.ui ? this.endNode.inputsUI.findIndex((term) => this.end === term) : this.end.id,
       startNodeId: this.startNode.id,
       endNodeId: this.endNode.id,
       style: this.style,
@@ -197,8 +197,8 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
 export interface SerializedConnector {
   startNodeId: string;
   endNodeId: string;
-  startId: string;
-  endId: string;
+  startId: string | number;
+  endId: string | number;
   id: string;
   style: ConnectorStyle;
 }
