@@ -8,14 +8,16 @@ import {
   DataFetchProvider,
   DataPersistenceProvider,
   Dimension,
-  FlowConnectGlobals,
+  FlowConnectCacheKeys,
+  FlowConnectCacheValues,
+  FlowConnectCaches,
   FlowConnectRenderers,
   PluginMetadata,
   PluginType,
   Plugins,
   Pointer,
 } from "./common/interfaces.js";
-import { intersects, noop } from "./utils/utils.js";
+import { cloneAudioBuffer, intersects, noop } from "./utils/utils.js";
 import { Log } from "./utils/logger.js";
 import { TerminalType } from "./core/terminal.js";
 import { FlowState, FlowOptions, SerializedFlow } from "./core/flow.js";
@@ -122,10 +124,35 @@ export class FlowConnect extends Hooks {
     return this._audioContext;
   }
 
-  /** @hidden Only used for audio stuff */
-  audioBufferCache: Map<ArrayBuffer, AudioBuffer> = new Map();
-  /** @hidden Only used for audio stuff */
-  arrayBufferCache: Map<string, ArrayBuffer> = new Map();
+  /** @hidden Cached buffers */
+  private caches: FlowConnectCaches = {
+    array: new Map(),
+    audio: new Map(),
+  };
+  setCache<K extends keyof FlowConnectCacheKeys>(
+    type: K,
+    key: FlowConnectCacheKeys[K],
+    cache: FlowConnectCacheValues[K]
+  ) {
+    if (type === "array") {
+      this.caches[type].set(key, (cache as ArrayBuffer).slice(0) as FlowConnectCacheValues[K]);
+    } else if (type === "audio") {
+      this.caches[type].set(key, cloneAudioBuffer(cache as AudioBuffer) as FlowConnectCacheValues[K]);
+    } else {
+      this.caches[type].set(key, cache);
+    }
+  }
+  getCache<K extends keyof FlowConnectCacheKeys>(type: K, key: FlowConnectCacheKeys[K]): FlowConnectCacheValues[K] {
+    const cache = this.caches[type].get(key);
+    if (!cache) return null;
+
+    if (type === "array") {
+      return (cache as ArrayBuffer).slice(0) as FlowConnectCacheValues[K];
+    } else if (type === "audio") {
+      return cloneAudioBuffer(cache as AudioBuffer) as FlowConnectCacheValues[K];
+    }
+    return cache;
+  }
 
   /** For rendering color hit-maps for Nodes */
   offCanvas: OffscreenCanvas | HTMLCanvasElement;

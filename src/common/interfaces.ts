@@ -119,3 +119,15 @@ export interface PluginMetadata {
 export interface FlowConnectGlobals {
   broadcastError: boolean;
 }
+
+export interface FlowConnectCacheKeys {
+  array: string;
+  audio: ArrayBuffer;
+}
+export interface FlowConnectCacheValues {
+  array: ArrayBuffer;
+  audio: AudioBuffer;
+}
+export type FlowConnectCaches = {
+  [K in keyof FlowConnectCacheKeys]: Map<FlowConnectCacheKeys[K], FlowConnectCacheValues[K]>;
+};

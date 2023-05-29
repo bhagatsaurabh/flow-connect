@@ -68,3 +68,14 @@ export const noop = () => {
   /**/
 };
 export const capitalize = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
+export const cloneAudioBuffer = (from: AudioBuffer): AudioBuffer => {
+  const cloned = new AudioBuffer({
+    length: from.length,
+    numberOfChannels: from.numberOfChannels,
+    sampleRate: from.sampleRate,
+  });
+  for (let i = 0; i < cloned.numberOfChannels; ++i) {
+    cloned.copyToChannel(from.getChannelData(i), i);
+  }
+  return cloned;
+};
