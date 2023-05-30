@@ -308,17 +308,14 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
         const subFlow = await Flow.deSerialize(flowConnect, (serializedNode as SerializedSubFlowNode).subFlow, receive);
         (serializedNode as any).subFlow = subFlow;
       }
-      flow._createNode(serializedNode.type, Vector.create(serializedNode.position), {
+      const node = flow._createNode(serializedNode.type, Vector.create(serializedNode.position), {
         ...serializedNode,
         state,
         hitColor: Color.create(serializedNode.hitColor),
       });
-    }
-    for (let sTunnelNode of [...data.inputs, ...data.outputs]) {
-      flow._createNode<TunnelNode, TunnelNodeOptions>(sTunnelNode.type, Vector.create(sTunnelNode.position), {
-        ...sTunnelNode,
-        hitColor: Color.create(sTunnelNode.hitColor),
-      });
+      if (serializedNode.type === "core/tunnel") {
+        ((serializedNode as any).tunnelType === "input" ? flow.inputs : flow.outputs).push(node as TunnelNode);
+      }
     }
 
     data.groups.forEach((serializedGroup) => {

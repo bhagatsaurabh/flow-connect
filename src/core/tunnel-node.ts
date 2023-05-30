@@ -31,7 +31,7 @@ export class TunnelNode extends Node {
   created(): void {
     if (this.tunnelType === "input") {
       this.outputs[0].on("connect", (_, connector) => {
-        if (this.proxyTerminal.connectors.length > 0) {
+        if (this.proxyTerminal && this.proxyTerminal.connectors.length > 0) {
           connector.data = this.proxyTerminal.connectors[0].data;
         }
       });
