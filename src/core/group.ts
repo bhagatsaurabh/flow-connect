@@ -57,7 +57,7 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
     group.width = width;
     group.height = height;
     group.id = id;
-    group.style = { ...DefaultGroupStyle(), ...(style ?? {}) };
+    group.style = { ...DefaultGroupStyle(), ...(flow.flowConnect.getDefaultStyle("group") || {}), ...(style ?? {}) };
 
     if (!group.style.color || !group.style.borderColor) {
       let colors = DefaultGroupColors.Random();
@@ -161,7 +161,7 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
 
     let context = this.flow.flowConnect.context;
     context.save();
-    let scopeFlowConnect = this.flow.flowConnect.renderers.group;
+    let scopeFlowConnect = this.flow.flowConnect.getRegisteredRenderer("group");
     let scopeFlow = this.flow.renderers.group;
     let scopeGroup = this.renderer;
     const renderFn =

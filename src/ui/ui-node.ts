@@ -62,6 +62,8 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
     node: Node,
     options: UINodeOptions = DefaultUINodeOptions(node)
   ): T {
+    options.style = { ...(node.flow.flowConnect.getDefaultStyle("ui", type) || {}), ...(options.style || {}) };
+
     const construct = FlowConnect.getRegistered("ui", type);
     const uiNode = new construct(node, options);
 

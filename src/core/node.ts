@@ -131,7 +131,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     node.type = type;
     node.name = name;
     node._width = width;
-    node.style = { ...DefaultNodeStyle(), ...style };
+    node.style = { ...DefaultNodeStyle(), ...(flow.flowConnect.getDefaultStyle("node", type) || {}), ...style };
     node.id = id;
     node.state = state;
     node._position = position;
@@ -346,7 +346,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     this.renderName(context);
     this.renderFocused(context);
 
-    let scopeFlowConnect = this.flow.flowConnect.renderers.node;
+    let scopeFlowConnect = this.flow.flowConnect.getRegisteredRenderer("node");
     let scopeFlow = this.flow.renderers.node;
     let scopeNode = this.renderers.node;
     const renderFn =

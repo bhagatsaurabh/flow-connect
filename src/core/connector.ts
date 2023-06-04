@@ -43,10 +43,14 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
   ): Connector {
     const connector = new Connector();
 
-    const { style, id = uuid(), floatingTip } = options;
+    const { style = {}, id = uuid(), floatingTip } = options;
 
     connector.flow = flow;
-    connector.style = { ...DefaultConnectorStyle(), ...(style ?? {}) };
+    connector.style = {
+      ...DefaultConnectorStyle(),
+      ...(flow.flowConnect.getDefaultStyle("connector") || {}),
+      ...style,
+    };
     connector.id = id;
     connector.floatingTip = floatingTip;
     connector.start = start;
@@ -106,7 +110,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
   render() {
     let context = this.flow.flowConnect.context;
     context.save();
-    const scopeFlowConnect = this.flow.flowConnect.renderers.connector;
+    const scopeFlowConnect = this.flow.flowConnect.getRegisteredRenderer("connector");
     const scopeFlow = this.flow.renderers.connector;
     const scopeConnector = this.renderer;
     const renderFn =

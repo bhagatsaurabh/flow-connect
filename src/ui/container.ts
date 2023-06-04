@@ -29,7 +29,7 @@ export class Container extends UINode<ContainerStyle> {
   paint(): void {
     const context = this.context;
 
-    const scopeFlowConnect = this.node.flow.flowConnect.renderers.background;
+    const scopeFlowConnect = this.node.flow.flowConnect.getRegisteredRenderer("background");
     const scopeFlow = this.node.flow.renderers.background;
     const scopeNode = this.node.renderers.background;
     const scopeContainer = this.renderer;

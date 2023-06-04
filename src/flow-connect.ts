@@ -7,6 +7,7 @@ import { Vector } from "./core/vector.js";
 import {
   DataFetchProvider,
   DataPersistenceProvider,
+  DefaultStyles,
   Dimension,
   FlowConnectCacheKeys,
   FlowConnectCacheValues,
@@ -243,7 +244,50 @@ export class FlowConnect extends Hooks {
     return this.startTime < 0 ? this.startTime : performance.now() - this.startTime;
   }
 
-  readonly renderers: FlowConnectRenderers = {};
+  private readonly renderers: FlowConnectRenderers = {};
+  registerRenderer<K extends keyof FlowConnectRenderers>(type: K, renderer: FlowConnectRenderers[K]): boolean {
+    if (!type || !renderer) return false;
+
+    this.renderers[type] = renderer;
+    return true;
+  }
+  getRegisteredRenderer<K extends keyof FlowConnectRenderers>(type: K): FlowConnectRenderers[K] {
+    return this.renderers[type];
+  }
+
+  private readonly defaultStyles: DefaultStyles = {
+    global: {
+      node: {},
+      ui: {},
+    },
+    node: {},
+    ui: {},
+    connector: {},
+    terminal: {},
+    group: {},
+  };
+  setDefaultStyle<T>(type: "node" | "ui" | "connector" | "group" | "terminal", style: T): void;
+  setDefaultStyle<T>(type: "node" | "ui" | "connector" | "group" | "terminal", name: string, style: T): void;
+  setDefaultStyle<T>(
+    type: "node" | "ui" | "connector" | "group" | "terminal",
+    nameOrStyle: string | T,
+    style?: T
+  ): void {
+    if ((type === "node" || type === "ui") && typeof nameOrStyle === "string") {
+      this.defaultStyles[type][nameOrStyle] = style;
+    } else if ((type === "node" || type === "ui") && typeof nameOrStyle === "object") {
+      this.defaultStyles.global[type] = nameOrStyle as T;
+    } else if (type !== "node" && type !== "ui") {
+      this.defaultStyles[type] = nameOrStyle as T;
+    }
+  }
+  getDefaultStyle<T>(type: "node" | "ui" | "connector" | "group" | "terminal", name?: string): T {
+    if (type === "node" || type === "ui") {
+      return (this.defaultStyles[type][name] ?? this.defaultStyles.global[type]) as T;
+    } else {
+      return this.defaultStyles[type] as T;
+    }
+  }
   //#endregion
 
   /**

@@ -73,7 +73,11 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     terminal.dataType = dataType;
     terminal.name = name;
     if (propName) terminal._propName = propName;
-    terminal.style = { ...DefaultTerminalStyle(), ...style };
+    terminal.style = {
+      ...DefaultTerminalStyle(),
+      ...(node.flow.flowConnect.getDefaultStyle("terminal") || {}),
+      ...style,
+    };
     terminal.id = id;
     terminal.ui = ui;
 
@@ -127,7 +131,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     context.save();
     let scopeNode = this.node.renderers.terminal;
     let scopeFlow = this.node.flow.renderers.terminal;
-    let scopeFlowConnect = this.node.flow.flowConnect.renderers.terminal;
+    let scopeFlowConnect = this.node.flow.flowConnect.getRegisteredRenderer("terminal");
     const scopeTerminal = this.renderer;
     const renderFn =
       (scopeTerminal && scopeTerminal(this)) ||

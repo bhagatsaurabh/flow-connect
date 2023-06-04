@@ -1,20 +1,24 @@
 import { Vector } from "../core/vector.js";
 import { LOD, ViewPort } from "./enums.js";
-import { Node, NodeOptions, NodeRenderParams, NodeState } from "../core/node.js";
+import { Node, NodeOptions, NodeRenderParams, NodeState, NodeStyle } from "../core/node.js";
 import {
   Color,
   Connector,
   ConnectorRenderParams,
+  ConnectorStyle,
   Container,
   ContainerRenderParams,
   Flow,
   Group,
   GroupRenderParams,
+  GroupStyle,
   SerializedColor,
   Terminal,
   TerminalRenderParams,
+  TerminalStyle,
   UINode,
   UINodeOptions,
+  UINodeStyle,
 } from "../flow-connect.js";
 
 /**
@@ -130,4 +134,22 @@ export interface FlowConnectCacheValues {
 }
 export type FlowConnectCaches = {
   [K in keyof FlowConnectCacheKeys]: Map<FlowConnectCacheKeys[K], FlowConnectCacheValues[K]>;
+};
+
+type ExtendedNodeStyle<T extends NodeStyle = NodeStyle> = T;
+type ExtendedUIStyle<T extends UINodeStyle = UINodeStyle> = T;
+type ExtendedConnectorStyle<T extends ConnectorStyle = ConnectorStyle> = T;
+type ExtendedTerminalStyle<T extends TerminalStyle = TerminalStyle> = T;
+type ExtendedGroupStyle<T extends GroupStyle = GroupStyle> = T;
+
+export type DefaultStyles = {
+  global: {
+    node: ExtendedNodeStyle;
+    ui: ExtendedUIStyle;
+  };
+  node: Record<string, ExtendedNodeStyle>;
+  ui: Record<string, ExtendedUIStyle>;
+  connector: ExtendedConnectorStyle;
+  terminal: ExtendedTerminalStyle;
+  group: ExtendedGroupStyle;
 };

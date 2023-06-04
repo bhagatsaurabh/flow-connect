@@ -1,3 +1,19 @@
+flowConnect.setDefaultStyle("ui", "core/label", { color: "#fff" });
+flowConnect.setDefaultStyle("ui", "core/input", { color: "#fff", border: "#fff" });
+flowConnect.setDefaultStyle("ui", "core/toggle", { color: "#fff", backgroundColor: "#777" });
+flowConnect.setDefaultStyle("node", { color: "#fff" });
+flowConnect.setDefaultStyle("connector", { width: 2, border: false, color: "#000" });
+flowConnect.registerRenderer("background", () => {
+  return (context, params, _) => {
+    context.fillStyle = "#292929";
+    context.shadowColor = "#000";
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 0;
+    context.shadowBlur = 15;
+    context.fillRect(params.position.x, params.position.y, params.width, params.height);
+  };
+});
+
 let flow = flowConnect.createFlow({ name: "StandardNodes Test", rules: {} });
 
 // let log = new StandardNodes.Common.Log(flow);
