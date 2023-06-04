@@ -82,7 +82,7 @@ export class Lexer {
     if (!isNaN(literal)) { this.result.push(new Token(TokenType.Literal, literal)); }
   }
   private processLetterBuffer() {
-    for (var i = 0; i < this.letterBuffer.length; i++) {
+    for (let i = 0; i < this.letterBuffer.length; i++) {
       this.result.push(new Token(TokenType.Variable, this.letterBuffer[i]));
       if (i < this.letterBuffer.length - 1) this.result.push(new Token(TokenType.Operator, '*'));
     }

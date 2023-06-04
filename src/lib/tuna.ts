@@ -15,7 +15,7 @@
 
 export class TunaInitializer {
   static initialize() {
-    var userContext: any,
+    let userContext: any,
       userInstance: any,
       pipe = function (param: any, val: any) {
         param.value = val;
@@ -61,7 +61,7 @@ export class TunaInitializer {
         },
         connectInOrder: {
           value: function (nodeArray: any) {
-            var i = nodeArray.length - 1;
+            let i = nodeArray.length - 1;
             while (i--) {
               if (!nodeArray[i].connect) {
                 return console.error("AudioNode.connectInOrder: TypeError: Not an AudioNode.", nodeArray[i]);
@@ -76,8 +76,8 @@ export class TunaInitializer {
         },
         getDefaults: {
           value: function () {
-            var result = {};
-            for (var key in this.defaults) {
+            let result = {};
+            for (let key in this.defaults) {
               (result as any)[key] = this.defaults[key].value;
             }
             return result;
@@ -85,7 +85,7 @@ export class TunaInitializer {
         },
         automate: {
           value: function (property: any, value: any, duration: any, startTime: any) {
-            var start = startTime ? ~~(startTime / 1000) : userContext.currentTime,
+            let start = startTime ? ~~(startTime / 1000) : userContext.currentTime,
               dur = duration ? ~~(duration / 1000) : 0,
               _is = this.defaults[property],
               param = this[property],
@@ -121,7 +121,7 @@ export class TunaInitializer {
         return new Tuna(context);
       }
 
-      var _window: any = typeof window === "undefined" ? {} : window;
+      let _window: any = typeof window === "undefined" ? {} : window;
 
       if (!_window.AudioContext) {
         _window.AudioContext = _window.webkitAudioContext;
@@ -141,7 +141,7 @@ export class TunaInitializer {
     function connectify(context: any) {
       if (context.__connectified__ === true) return;
 
-      var gain = context.createGain(),
+      let gain = context.createGain(),
         proto = Object.getPrototypeOf(Object.getPrototypeOf(gain)),
         oconnect = proto.connect;
 
@@ -149,7 +149,7 @@ export class TunaInitializer {
       context.__connectified__ = true; // Prevent overriding connect more than once
 
       function shimConnect() {
-        var node = arguments[0];
+        let node = arguments[0];
         arguments[0] = Super.isPrototypeOf ? (Super.isPrototypeOf(node) ? node.input : node) : node.input || node;
         oconnect.apply(this, arguments);
         return node;
@@ -164,7 +164,7 @@ export class TunaInitializer {
       // http://kevin.vanzonneveld.net
       // *     example 1: fmod(5.7, 1.3);
       // *     returns 1: 0.5
-      var tmp,
+      let tmp,
         tmp2,
         p = 0,
         pY = 0,
@@ -460,7 +460,7 @@ export class TunaInitializer {
         value: [
           function (amount: any, n_samples: any, ws_table: any) {
             amount = Math.min(amount, 0.9999);
-            var k = (2 * amount) / (1 - amount),
+            let k = (2 * amount) / (1 - amount),
               i,
               x;
             for (i = 0; i < n_samples; i++) {
@@ -469,7 +469,7 @@ export class TunaInitializer {
             }
           },
           function (amount: any, n_samples: any, ws_table: any) {
-            var i, x, y;
+            let i, x, y;
             for (i = 0; i < n_samples; i++) {
               x = (i * 2) / n_samples - 1;
               y = (0.5 * Math.pow(x + 1.4, 2) - 1) * ((y as any) >= 0 ? 5.8 : 1.2);
@@ -477,7 +477,7 @@ export class TunaInitializer {
             }
           },
           function (amount: any, n_samples: any, ws_table: any) {
-            var i,
+            let i,
               x,
               y,
               a = 1 - amount;
@@ -488,7 +488,7 @@ export class TunaInitializer {
             }
           },
           function (amount: any, n_samples: any, ws_table: any) {
-            var i,
+            let i,
               x,
               y,
               abx,
@@ -508,7 +508,7 @@ export class TunaInitializer {
           },
           function (amount: any, n_samples: any, ws_table: any) {
             // fixed curve, amount doesn't do anything, the distortion is just from the drive
-            var i, x;
+            let i, x;
             for (i = 0; i < n_samples; i++) {
               x = (i * 2) / n_samples - 1;
               if (x < -0.08905) {
@@ -523,7 +523,7 @@ export class TunaInitializer {
             }
           },
           function (amount: any, n_samples: any, ws_table: any) {
-            var a = 2 + Math.round(amount * 14),
+            let a = 2 + Math.round(amount * 14),
               // we go from 2 to 16 bits, keep in mind for the UI
               bits = Math.round(Math.pow(2, a - 1)),
               // real number of quantization steps divided by 2
@@ -763,7 +763,7 @@ export class TunaInitializer {
         },
         set: function (value) {
           this._stereoPhase = value;
-          var newPhase = this.lfoL._phase + (this._stereoPhase * Math.PI) / 180;
+          let newPhase = this.lfoL._phase + (this._stereoPhase * Math.PI) / 180;
           newPhase = fmod(newPhase, 2 * Math.PI);
           this.lfoR.phase = newPhase;
         },
