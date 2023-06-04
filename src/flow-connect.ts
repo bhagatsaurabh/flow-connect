@@ -726,6 +726,7 @@ export class FlowConnect extends Hooks {
   private handleZoom(zoomIn: boolean, origin: Vector, scaleDelta: number) {
     if ((this._transform.a >= this.maxScale && zoomIn) || (this._transform.a <= this.minScale && !zoomIn)) return;
     this.updateTransform(zoomIn ? scaleDelta : 1 / scaleDelta, origin, null);
+    this.currFlow?.call("scale", this.scale);
     this.call("scale", this.scale);
   }
   private handleGrouping(screenPosition: Vector) {
@@ -895,6 +896,7 @@ export class FlowConnect extends Hooks {
   }
   private _startGlobalTime() {
     this.call("tick", this);
+    this.currFlow?.call("tick");
     this.timerId = window.requestAnimationFrame(this._startGlobalTime.bind(this));
   }
 
@@ -904,6 +906,7 @@ export class FlowConnect extends Hooks {
       this.startTime = -1;
       this.state = FlowConnectState.Stopped;
       this.call("tickreset", this);
+      this.currFlow?.call("tickreset");
       this.call("stop", this);
     }
   }
