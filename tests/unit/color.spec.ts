@@ -1,29 +1,31 @@
-import { Color } from '../../src/core/color';
+import { Color } from "../../src/core/color";
 
-describe('Color', () => {
+describe("Color", () => {
   let toHex = (value: number) => {
     let hex = value.toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  }
+    return hex.length === 1 ? "0" + hex : hex;
+  };
 
-  describe('Instantiation', () => {
-    it('should create a Color instance with correct representations', () => {
+  describe("Instantiation", () => {
+    it("should create a Color instance with correct representations", () => {
       let rgba = [
         Math.round(Math.random() * 255),
         Math.round(Math.random() * 255),
         Math.round(Math.random() * 255),
-        Math.round(Math.random() * 255)
+        Math.round(Math.random() * 255),
       ];
-      let color = new Color(rgba);
+      let color = Color.create(rgba);
 
       expect(color).toBeInstanceOf(Color);
       expect(color.rgbaString).toStrictEqual(`${rgba[0]}:${rgba[1]}:${rgba[2]}:${rgba[3]}`);
-      expect(color.rgbaCSSString).toStrictEqual(`rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${(rgba[3] / 255).toFixed(3)})`);
+      expect(color.rgbaCSSString).toStrictEqual(
+        `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${(rgba[3] / 255).toFixed(3)})`
+      );
       expect(color.hexValue).toStrictEqual(`#${toHex(rgba[0]) + toHex(rgba[1]) + toHex(rgba[2]) + toHex(rgba[3])}`);
     });
   });
-  describe('Conversion', () => {
-    it('should convert Hex to RGBA and vice-versa', () => {
+  describe("Conversion", () => {
+    it("should convert Hex to RGBA and vice-versa", () => {
       let rgba1 = [217, 238, 83, 255];
       let hex = Color.rgbaToHex(rgba1);
       let rgba2 = Color.hexToRGBA(hex);
@@ -42,21 +44,19 @@ describe('Color', () => {
       expect(hex1).toStrictEqual(hex2);
     });
   });
-  describe('Serialization and De-serialization', () => {
-    it('should serialize', () => {
+  describe("Serialization and De-serialization", () => {
+    it("should serialize", () => {
       let rgba = [247, 73, 137, 120];
-      let color = new Color(rgba);
+      let color = Color.create(rgba);
       let serializedColor = color.serialize();
 
-      expect(serializedColor).toStrictEqual({
-        rgba: [rgba[0], rgba[1], rgba[2], rgba[3]]
-      });
+      expect(serializedColor).toStrictEqual([rgba[0], rgba[1], rgba[2], rgba[3]]);
     });
 
-    it('should de-serialize', () => {
+    it("should de-serialize", () => {
       let rgba = [247, 73, 137, 120];
-      let color = new Color(rgba);
-      let deSerializedColor = Color.deSerialize(color.serialize());
+      let color = Color.create(rgba);
+      let deSerializedColor = Color.create(color.serialize());
 
       expect(deSerializedColor).not.toBe(color);
       expect(deSerializedColor.rgbaValue).toEqual(color.rgbaValue);
