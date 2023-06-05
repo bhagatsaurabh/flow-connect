@@ -33,6 +33,7 @@ FlowConnect is a highly-customizable library for creating node-based editors, gr
 ```bash
 npm i flow-connect
 ```
+
 ```bash
 yarn add flow-connect
 ```
@@ -40,7 +41,7 @@ yarn add flow-connect
 #### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/flow-connect@1.0.13/dist/flow-connect.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flow-connect@latest/dist/flow-connect.js"></script>
 ```
 
 <br/>
@@ -49,13 +50,12 @@ yarn add flow-connect
 
 ESM
 
-#### Note: Seperate dependency required for '@flow-connect/*' packages, check [flow-connect-standard-nodes](https://github.com/saurabh-prosoft/flow-connect-standard-nodes) monorepo for further details.
+#### Note: Seperate dependency required for '@flow-connect/\*' packages, check [flow-connect-standard-nodes](https://github.com/saurabh-prosoft/flow-connect-standard-nodes) monorepo for further details.
 
 <br/>
 
 ```js
 import { FlowConnect, Vector } from "flow-connect";
-import { Timer, Log } from "@flow-connect/common";
 ```
 
 Example
@@ -63,17 +63,16 @@ Example
 ```js
 const flowConnect = new FlowConnect(canvasElement);
 
-const flow = flowConnect.createFlow({ name: "New Flow" });
+const flow = flowConnect.createFlow({ name: "New Flow" }, rules: {});
 
-const timer = new Timer(flow, {
+const timer = flow.createNode('common/timer', Vector.create(50, 50), {
   state: { delay: 500 },
-  position: new Vector(50, 50),
 });
-const log = new Log(flow, { position: new Vector(250, 100) });
+const log = flow.createNode('common/log', Vector.create(250, 100), {});
 
 timer.outputs[0].connect(log.inputs[0]);
 
-this.flowConnect.render(flow);
+flowConnect.render(flow);
 flow.start();
 ```
 
@@ -81,7 +80,7 @@ flow.start();
 
 ## Testing
 
-Testing is done using [Jest](https://jestjs.io/docs/getting-started)
+Run unit tests using [Jest](https://jestjs.io/docs/getting-started)
 
 ```bash
 npm run test
@@ -96,13 +95,17 @@ Build UMD, ESM and CommonJS modules
 ```bash
 npm run build
 ```
+
 or
+
 ```bash
 npm run build:cjs
 ```
+
 ```bash
 npm run build:esm
 ```
+
 ```bash
 npm run build:umd
 ```
@@ -111,7 +114,7 @@ npm run build:umd
 
 ## Docs
 
-Docs are built using [VuePress](https://v2.vuepress.vuejs.org/)
+Develop & Build docs using [VuePress](https://v2.vuepress.vuejs.org/)
 
 ### Develop Docs
 
@@ -124,29 +127,30 @@ npm run docs:dev
 ```bash
 npm run docs:build
 ```
+
 <br/>
 
 ## Local development
 
-Local development setup is under /dev with prebuilt tools that provides different views.
+All the local development setup is pre-configured under `/dev` with tools that provides seamless development experience.
 
 <img width="600" alt="FlowConnect logo" src="./media/dev.png" />
 
 <br/>
 
-- Create a new script that you want to test in dev/scripts/examples
+- Create a new script that you want to test in `dev/scripts/examples`
 
 - Run local developement setup
 
 ```bash
 npm run dev
 ```
+
 - All the scripts defined in above directory will be available to test
 
 ## Feedback
 
 Feel free to send any feedback on <saurabhbhagat98die@gmail.com>
-
 
 <br/>
 
