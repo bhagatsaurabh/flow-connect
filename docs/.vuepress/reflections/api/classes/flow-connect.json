@@ -7,6 +7,10 @@
   ],
   "properties": [
     {
+      "name": "version",
+      "type": "property"
+    },
+    {
       "name": "canvas",
       "type": "property"
     },
@@ -48,10 +52,6 @@
     },
     {
       "name": "pointers",
-      "type": "property"
-    },
-    {
-      "name": "renderResolver",
       "type": "property"
     },
     {
@@ -106,6 +106,38 @@
     }
   ],
   "methods": [
+    {
+      "name": "register",
+      "type": "method-static"
+    },
+    {
+      "name": "getRegistered",
+      "type": "method-static"
+    },
+    {
+      "name": "setCache",
+      "type": "method"
+    },
+    {
+      "name": "getCache",
+      "type": "method"
+    },
+    {
+      "name": "registerRenderer",
+      "type": "method"
+    },
+    {
+      "name": "getRegisteredRenderer",
+      "type": "method"
+    },
+    {
+      "name": "setDefaultStyle",
+      "type": "method"
+    },
+    {
+      "name": "getDefaultStyle",
+      "type": "method"
+    },
     {
       "name": "call",
       "type": "method-inherited"

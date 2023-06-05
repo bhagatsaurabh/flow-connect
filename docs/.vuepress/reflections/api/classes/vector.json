@@ -117,7 +117,7 @@
       "type": "method-static"
     },
     {
-      "name": "deSerialize",
+      "name": "create",
       "type": "method-static"
     }
   ]

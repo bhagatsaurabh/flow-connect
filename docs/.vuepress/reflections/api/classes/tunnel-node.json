@@ -14,11 +14,7 @@
   "methods": [
     {
       "name": "serialize",
-      "type": "method"
-    },
-    {
-      "name": "deSerialize",
-      "type": "method-static"
+      "type": "method-async"
     }
   ]
 }

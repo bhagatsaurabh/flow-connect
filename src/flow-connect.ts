@@ -109,7 +109,7 @@ export class FlowConnect extends Hooks {
     return this.plugins[type][name];
   }
 
-  version = process.env.FLOWCONNECT_VERSION;
+  readonly version = process.env.FLOWCONNECT_VERSION;
 
   //#region Properties and Accessors
   /** Reference to the canvas element on which the flows will be rendered by FlowConnect instance */

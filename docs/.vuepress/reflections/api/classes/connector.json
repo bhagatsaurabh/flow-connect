@@ -23,7 +23,7 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
+      "name": "renderer",
       "type": "property"
     },
     {
@@ -67,8 +67,16 @@
       "type": "method"
     },
     {
-      "name": "deSerialize",
+      "name": "create",
       "type": "method-static"
+    },
+    {
+      "name": "disconnect",
+      "type": "method"
+    },
+    {
+      "name": "setData",
+      "type": "method"
     }
   ],
   "events": [

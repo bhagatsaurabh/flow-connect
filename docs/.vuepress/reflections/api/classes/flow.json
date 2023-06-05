@@ -51,7 +51,7 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
+      "name": "renderers",
       "type": "property"
     },
     {
@@ -59,7 +59,7 @@
       "type": "property"
     },
     {
-      "name": "terminalColors",
+      "name": "ruleColors",
       "type": "property"
     }
   ],
@@ -107,8 +107,20 @@
       "type": "method"
     },
     {
-      "name": "serialize",
+      "name": "removeSubFlow",
       "type": "method"
+    },
+    {
+      "name": "removeConnector",
+      "type": "method"
+    },
+    {
+      "name": "serialize",
+      "type": "method-async"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static-async"
     },
     {
       "name": "start",
@@ -119,7 +131,7 @@
       "type": "method"
     },
     {
-      "name": "deSerialize",
+      "name": "create",
       "type": "method-static"
     }
   ],

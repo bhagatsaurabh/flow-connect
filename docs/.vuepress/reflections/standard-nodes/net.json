@@ -1,5 +1,3 @@
 {
-  "classes": [
-    { "name": "API", "link": "/reference/standard-nodes/net/api" }
-  ]
+  "classes": [{ "name": "API", "link": "/reference/standard-nodes/net/api" }]
 }

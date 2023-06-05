@@ -19,7 +19,7 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
+      "name": "renderer",
       "type": "property"
     },
     {

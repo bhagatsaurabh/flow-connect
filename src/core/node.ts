@@ -159,7 +159,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   protected abstract process(inputs: any[]): void;
 
   //#region Methods
-  setupTerminals(inputs: SerializedTerminal[], outputs: SerializedTerminal[]) {
+  private setupTerminals(inputs: SerializedTerminal[], outputs: SerializedTerminal[]) {
     inputs &&
       this.inputs.push(
         ...inputs.map((input) =>

@@ -29,7 +29,7 @@
       "type": "method"
     },
     {
-      "name": "deSerialize",
+      "name": "create",
       "type": "method-static"
     },
     {

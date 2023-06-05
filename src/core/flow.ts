@@ -353,8 +353,6 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       flow.connectors.set(serializedConnector.id, connector);
     });
 
-    // flow.executionGraph = Graph.deSerialize(flow, data.executionGraph);
-
     return Promise.resolve<Flow>(flow);
   }
 }

@@ -47,7 +47,7 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
+      "name": "renderers",
       "type": "property"
     },
     {
@@ -59,11 +59,7 @@
       "type": "property"
     },
     {
-      "name": "style",
-      "type": "property"
-    },
-    {
-      "name": "terminalStyle",
+      "name": "type",
       "type": "property"
     },
     {
@@ -95,9 +91,29 @@
     {
       "name": "zIndex",
       "type": "accessor"
+    },
+    {
+      "name": "style",
+      "type": "accessor"
     }
   ],
   "methods": [
+    {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
+      "name": "setupIO",
+      "type": "method"
+    },
+    {
+      "name": "created",
+      "type": "method"
+    },
+    {
+      "name": "process",
+      "type": "method"
+    },
     {
       "name": "addNodeButton",
       "type": "method"
@@ -107,75 +123,23 @@
       "type": "method"
     },
     {
+      "name": "addTerminals",
+      "type": "method"
+    },
+    {
       "name": "call",
       "type": "method-inherited"
     },
     {
-      "name": "createButton",
-      "type": "method"
-    },
-    {
-      "name": "createDial",
-      "type": "method"
-    },
-    {
-      "name": "createDisplay",
-      "type": "method"
-    },
-    {
-      "name": "createEnvelope",
-      "type": "method"
-    },
-    {
-      "name": "createHozLayout",
-      "type": "method"
-    },
-    {
-      "name": "createImage",
-      "type": "method"
-    },
-    {
-      "name": "createInput",
-      "type": "method"
-    },
-    {
-      "name": "createLabel",
-      "type": "method"
-    },
-    {
-      "name": "createRadioGroup",
-      "type": "method"
-    },
-    {
-      "name": "createSelect",
-      "type": "method"
-    },
-    {
-      "name": "createSlider",
-      "type": "method"
-    },
-    {
-      "name": "createSlider2D",
-      "type": "method"
-    },
-    {
-      "name": "createSource",
-      "type": "method"
-    },
-    {
-      "name": "createStack",
-      "type": "method"
-    },
-    {
-      "name": "createToggle",
-      "type": "method"
-    },
-    {
-      "name": "createVSlider",
+      "name": "createUI",
       "type": "method"
     },
     {
       "name": "dispose",
+      "type": "method"
+    },
+    {
+      "name": "toggle",
       "type": "method"
     },
     {
@@ -204,14 +168,10 @@
     },
     {
       "name": "serialize",
-      "type": "method"
+      "type": "method-async"
     },
     {
       "name": "setOutputs",
-      "type": "method"
-    },
-    {
-      "name": "toggleNodeState",
       "type": "method"
     },
     {
@@ -223,7 +183,7 @@
       "type": "method"
     },
     {
-      "name": "deSerialize",
+      "name": "create",
       "type": "method-static"
     }
   ],

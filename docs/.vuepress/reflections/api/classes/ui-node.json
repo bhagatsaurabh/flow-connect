@@ -75,6 +75,14 @@
   ],
   "methods": [
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
+      "name": "createTerminal",
+      "type": "method"
+    },
+    {
       "name": "append",
       "type": "method"
     },

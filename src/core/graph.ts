@@ -1,12 +1,11 @@
 import { Log } from "../utils/logger.js";
 import { uuid } from "../utils/utils.js";
 import { Flow, FlowState } from "./flow.js";
-import { Serializable } from "../common/interfaces.js";
 import { Node } from "./node.js";
 import { List } from "../utils/linked-list.js";
 
 // A directed acyclic graph
-export class Graph implements Serializable<SerializedGraph> {
+export class Graph {
   state: FlowState = FlowState.Stopped;
   nodes: GraphNode[][];
   graphNodes: Map<string, GraphNode>;
@@ -173,49 +172,13 @@ export class Graph implements Serializable<SerializedGraph> {
       this.debugNode(graphNode, "");
     });
   }
-
-  serialize(): SerializedGraph {
-    let nodeToGraphNodeIds: Record<string, string> = {};
-    this.graphNodes.forEach((_graphNode, id) => (nodeToGraphNodeIds[id] = this.graphNodes.get(id).id));
-
-    return {
-      nodes: this.nodes.map((groupedNodes) => groupedNodes.map((graphNode) => graphNode.serialize())),
-      nodeToGraphNode: nodeToGraphNodeIds,
-    };
-  }
-  static deSerialize(flow: Flow, data: SerializedGraph): Graph {
-    let graph = new Graph();
-
-    let serializedGraphNodes: Record<string, SerializedGraphNode> = {};
-    let deSerializedGraphNodes: Record<string, GraphNode> = {};
-
-    data.nodes.forEach((serializedGroupedNodes, index) => {
-      graph.nodes[index] = serializedGroupedNodes.map((serializedGraphNode) => {
-        let graphNode = GraphNode.deSerialize(flow.nodes.get(serializedGraphNode.nodeId), serializedGraphNode);
-        deSerializedGraphNodes[graphNode.id] = graphNode;
-        serializedGraphNodes[graphNode.id] = serializedGraphNode;
-        return graphNode;
-      });
-    });
-
-    Object.keys(deSerializedGraphNodes).forEach((key) => {
-      deSerializedGraphNodes[key].childs = serializedGraphNodes[key].childs.map(
-        (childId) => deSerializedGraphNodes[childId]
-      );
-    });
-    Object.keys(data.nodeToGraphNode).forEach((nodeId) => {
-      graph.graphNodes.set(nodeId, deSerializedGraphNodes[data.nodeToGraphNode[nodeId]]);
-    });
-
-    return graph;
-  }
 }
 export interface SerializedGraph {
   nodes: SerializedGraphNode[][];
   nodeToGraphNode: Record<string, string>;
 }
 
-export class GraphNode implements Serializable<SerializedGraphNode> {
+export class GraphNode {
   id: string;
   childs: GraphNode[] = [];
   order: number;
@@ -223,18 +186,6 @@ export class GraphNode implements Serializable<SerializedGraphNode> {
   constructor(public flowNode: Node, order?: number, id?: string) {
     this.order = order ? order : 0;
     this.id = id ? id : uuid();
-  }
-
-  serialize(): SerializedGraphNode {
-    return {
-      id: this.id,
-      nodeId: this.flowNode.id,
-      order: this.order,
-      childs: this.childs.map((child) => child.id),
-    };
-  }
-  static deSerialize(node: Node, data: SerializedGraphNode): GraphNode {
-    return new GraphNode(node, data.order, data.id);
   }
 }
 export interface SerializedGraphNode {

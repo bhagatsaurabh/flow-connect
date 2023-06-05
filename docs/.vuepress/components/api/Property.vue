@@ -2,12 +2,7 @@
   <article class="mt-1 mb-1">
     <section class="mb-1">
       <Icon :type="type" />
-      <Badge
-        v-for="item in extras"
-        :key="item"
-        class="mr-1"
-        type="warning"
-        vertical="middle"
+      <Badge v-for="item in extras" :key="item" class="mr-1" type="warning" vertical="middle"
         ><strong>{{ item }}</strong></Badge
       >
       <code
@@ -34,5 +29,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
