@@ -1,20 +1,6 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
-  "properties": [
-    {
-      "name": "min",
-      "type": "property"
-    },
-    {
-      "name": "max",
-      "type": "property"
-    }
-  ],
+  "constructors": [],
+  "properties": [],
   "accessors": [
     {
       "name": "value",

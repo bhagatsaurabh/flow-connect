@@ -75,20 +75,20 @@
   ],
   "methods": [
     {
-      "name": "create",
-      "type": "method-static"
-    },
-    {
-      "name": "createTerminal",
-      "type": "method"
-    },
-    {
       "name": "append",
       "type": "method"
     },
     {
       "name": "call",
       "type": "method-inherited"
+    },
+    {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
+      "name": "createTerminal",
+      "type": "method"
     },
     {
       "name": "getProp",

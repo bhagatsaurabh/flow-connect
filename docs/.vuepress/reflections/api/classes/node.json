@@ -99,22 +99,6 @@
   ],
   "methods": [
     {
-      "name": "create",
-      "type": "method-static"
-    },
-    {
-      "name": "setupIO",
-      "type": "method"
-    },
-    {
-      "name": "created",
-      "type": "method"
-    },
-    {
-      "name": "process",
-      "type": "method"
-    },
-    {
       "name": "addNodeButton",
       "type": "method"
     },
@@ -131,15 +115,19 @@
       "type": "method-inherited"
     },
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
+      "name": "created",
+      "type": "method"
+    },
+    {
       "name": "createUI",
       "type": "method"
     },
     {
       "name": "dispose",
-      "type": "method"
-    },
-    {
-      "name": "toggle",
       "type": "method"
     },
     {
@@ -163,6 +151,10 @@
       "type": "method-inherited"
     },
     {
+      "name": "process",
+      "type": "method"
+    },
+    {
       "name": "removeTerminal",
       "type": "method"
     },
@@ -175,16 +167,20 @@
       "type": "method"
     },
     {
+      "name": "setupIO",
+      "type": "method"
+    },
+    {
+      "name": "toggle",
+      "type": "method"
+    },
+    {
       "name": "unwatch",
       "type": "method"
     },
     {
       "name": "watch",
       "type": "method"
-    },
-    {
-      "name": "create",
-      "type": "method-static"
     }
   ],
   "events": [

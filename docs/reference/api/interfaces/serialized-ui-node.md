@@ -3,7 +3,7 @@
 <pre>
 {
   id: string,
-  type: <Ref to="../enums/ui-type">UIType</Ref>,
+  type: <Ref to="../enums/ui-type">string</Ref>,
   hitColor: <Ref to="./serialized-color">SerializedColor</Ref>,
   style: any,
   propName: string,

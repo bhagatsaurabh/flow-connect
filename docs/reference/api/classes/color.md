@@ -10,18 +10,6 @@ A general purpose RGBA color class with a few utility functions.
 
 <Overview :data="data" />
 
-## Constructor
-
-<Method type="constructor">
-  <template v-slot:signature>
-    new Color(<strong>rgba: </strong><em>Uint8ClampedArray</em> | <em>number[]</em>):
-    <em><Ref to="#class-color">Color</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="rgba"><em>Uint8ClampedArray</em> | <em>number[]</em></Param>
-  </template>
-</Method>
-
 ## Properties
 
 ### hexValue
@@ -62,15 +50,28 @@ A general purpose RGBA color class with a few utility functions.
 
 ## Methods
 
+### create
+
+<Method type="method-static">
+  <template v-slot:signature>
+    create(<strong>data: </strong><em><Ref to="../interfaces/serialized-color">SerializedColor</Ref></em>):
+    <em><Ref to="./color">Color</Ref></em>
+  </template>
+  <template v-slot:params>
+    <Param name="data"><em><Ref to="../interfaces/serialized-color">SerializedColor</Ref></em></Param>
+  </template>
+  <template v-slot:return><em><Ref to="./color">Color</Ref></em></template>
+</Method>
+
 ### isEqual
 
 <Method type="method">
   <template v-slot:signature>
-    isEqual(<strong>color: </strong><em><Ref to="./class-color">Color</Ref></em>):
+    isEqual(<strong>color: </strong><em><Ref to="./color">Color</Ref></em>):
     <em>boolean</em>
   </template>
   <template v-slot:params>
-    <Param name="color"><em><Ref to="./class-color">Color</Ref></em></Param>
+    <Param name="color"><em><Ref to="./color">Color</Ref></em></Param>
   </template>
   <template v-slot:return><em>boolean</em></template>
   <template v-slot:example>

@@ -12,15 +12,16 @@ if (!window.TimerNode) {
       this.width = 100;
       this.state = { interval };
 
-      flow.on("start", () => {
+      this.flow.on("start", () => {
         this.outputs[0].emit();
 
         this.timerId = setInterval(() => {
           this.outputs[0].emit();
         }, this.state.interval);
       });
-      flow.on("stop", () => clearInterval(this.timerId));
+      this.flow.on("stop", () => clearInterval(this.timerId));
     }
+    process() {}
   };
 
   FlowConnect.register({ type: "node", name: "custom/timer-node" }, window.TimerNode);

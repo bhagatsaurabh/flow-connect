@@ -47,7 +47,7 @@ export default {
       borderColor: "#0062ff",
       borderWidth: 8,
     };
-    let label = timerNode1.ui.query("input")[0].children[0];
+    let label = timerNode1.ui.query("core/input")[0].children[0];
     label.style.backgroundColor = "#fff";
     label.style.color = "#000";
 
@@ -71,8 +71,8 @@ export default {
       color: "#547053",
       font: "courier",
     };
-    randomNode.ui.query("label").forEach((lbl) => Object.assign(lbl.style, labelStyle));
-    randomNode.ui.query("input").forEach((input) => (input.children[0].style.backgroundColor = "#abff45"));
+    randomNode.ui.query("core/label").forEach((lbl) => Object.assign(lbl.style, labelStyle));
+    randomNode.ui.query("core/input").forEach((input) => (input.children[0].style.backgroundColor = "#abff45"));
 
     let customNode = flow.createNode("core/empty", Vector.create(615.3, 79.8), {
       name: "Custom",
@@ -94,8 +94,8 @@ export default {
       }),
       button,
     ]);
-    let labels = customNode.ui.query("label");
-    let selects = customNode.ui.query("select");
+    let labels = customNode.ui.query("core/label");
+    let selects = customNode.ui.query("core/select");
     let lightStyle = () => {
       labels.forEach((label) => (label.style.color = "#000"));
       selects.forEach((select) => (select.style.arrowColor = "#000"));

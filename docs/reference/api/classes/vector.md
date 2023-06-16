@@ -14,24 +14,6 @@ A 2D vector.
 
 <Overview :data="data" />
 
-## Constructor
-
-<Method type="constructor">
-  <template v-slot:signature>
-    new Vector(<strong>xOrDOMPoint: </strong><em>number | <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMPoint">DOMPoint</a><ExternalLinkIcon /></em>,
-    <strong>y?: </strong><em>number</em>):
-    <em><Ref to="#class-vector">Vector</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="xOrDOMPoint">
-      <em>number | <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMPoint">DOMPoint</a><ExternalLinkIcon /></em>
-    </Param>
-    <Param name="y?">
-      <em>number</em>
-    </Param>
-  </template>
-</Method>
-
 ## Properties
 
 ### x
@@ -145,6 +127,24 @@ A 2D vector.
   <template v-slot:signature>
     clone():
     <em><Ref to="#class-vector">Vector</Ref></em>
+  </template>
+</Method>
+
+### create
+
+<Method type="method-static">
+  <template v-slot:signature>
+    new Vector(<strong>xOrDOMPoint: </strong><em>number | <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMPoint">DOMPoint</a><ExternalLinkIcon /></em>,
+    <strong>y?: </strong><em>number</em>):
+    <em><Ref to="#class-vector">Vector</Ref></em>
+  </template>
+  <template v-slot:params>
+    <Param name="xOrDOMPoint">
+      <em>number | <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMPoint">DOMPoint</a><ExternalLinkIcon /></em>
+    </Param>
+    <Param name="y?">
+      <em>number</em>
+    </Param>
   </template>
 </Method>
 

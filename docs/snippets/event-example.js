@@ -1,51 +1,47 @@
 import { FlowConnect } from 'flow-connect';
 import { Vector } from 'flow-connect/core';
-import { Timer, SyncEvent } from '@flow-connect/common';
 
 let flowConnect = new FlowConnect(document.getElementById('canvas'));
 let flow = flowConnect.createFlow({ name: "Events Example" });
 
-let timer1 = new Timer(flow, {
-  position: new Vector(39.6, 5.1),
+let timer1 = flow.createNode('common/timer', Vector.create(39.6, 5.1), {
   state: {
     delay: 500, lastBlink: 0, isBlinking: false, blinkDuration: 20,
     emitValue: "Event from Timer1"
   }
 });
-let timer2 = new Timer(flow, {
-  position: new Vector(39.6, 126.8),
+let timer2 = flow.createNode('common/timer', Vector.create(39.6, 126.8), {
   state: {
     delay: 1000, lastBlink: 0, isBlinking: false, blinkDuration: 20,
     emitValue: "Event from Timer2"
   }
 });
-let timer3 = new Timer(flow, {
-  position: new Vector(304.3, 194),
+let timer3 = flow.createNode('common/timer', Vector.create(304.3, 194), {
   state: {
     delay: 200, lastBlink: 0, isBlinking: false, blinkDuration: 20,
     emitValue: "Event from Timer3"
   }
 });
-let sync1 = new SyncEvent(flow, {
-  position: new Vector(262.8, 57.8),
+let sync1 = flow.createNode('common/sync-event', Vector.create(262.8, 57.8), {
   state: { lastBlink: 0, isBlinking: false, blinkDuration: 20 }
 });
-let sync2 = new SyncEvent(flow, {
-  position: new Vector(526.7, 118.8),
+let sync2 = flow.createNode('common/sync-event', Vector.create(526.7, 118.8), {
   state: { lastBlink: 0, isBlinking: false, blinkDuration: 20 }
 });
 
-let outputNode = flow.createNode("Output", new Vector(746.7, 82.8), 110, {
+let outputNode = flow.createNode("core/empty", Vector.create(746.7, 82.8), {
+  name: 'Output',
+  width: 110,
   state: { isLogEnabled: false },
   inputs: [{ name: "out", dataType: "event" }],
 });
-outputNode.ui.append(outputNode.createHozLayout(
-  [
-    outputNode.createLabel("Log output ?"),
-    outputNode.createToggle({ height: 10, propName: "isLogEnabled", style: { grow: 1 } }),
+outputNode.ui.append(outputNode.createUI('core/x-layout', {
+  childs: [
+    outputNode.createUI('core/label', { text: "Log output ?" }),
+    outputNode.createUI('core/toggle', { height: 10, propName: "isLogEnabled", style: { grow: 1 } }),
   ],
-  { style: { spacing: 5 } }
-));
+  style: { spacing: 5 }
+}));
 // Listening to terminals 'event' event
 outputNode.inputs[0].on("event", (_terminal, data) => {
   if (outputNode.state.isLogEnabled) console.log(data);

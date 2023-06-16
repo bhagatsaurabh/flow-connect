@@ -11,7 +11,28 @@ export default {
     window.basicExampleFC = this.flowConnect;
     let flow = this.flowConnect.createFlow({ name: "Basic Example", rules: {} });
 
-    let timerNode = flow.createNode("custom/timer", Vector.create(45, 7), { width: 500 });
+    class CustomTimerNode extends Node {
+      timerId = -1;
+
+      setupIO() {
+        this.addTerminals([{ type: TerminalType.OUT, name: "trigger", dataType: "event" }]);
+      }
+      created(options) {
+        const { interval = 1000 } = options;
+        this.state = { interval };
+        this.width = 100;
+
+        this.flow.on("start", () => {
+          this.outputs[0].emit();
+          this.timerId = setInterval(() => this.outputs[0].emit(), this.state.interval);
+        });
+        this.flow.on("stop", () => clearInterval(this.timerId));
+      }
+      process() {}
+    }
+    FlowConnect.register({ type: "node", name: "custom/timer-node" }, CustomTimerNode);
+
+    let timerNode = flow.createNode("custom/timer-node", Vector.create(45, 7), { width: 500 });
 
     let randomNode = flow.createNode("core/empty", Vector.create(285, 50), {
       name: "Random",
@@ -44,7 +65,7 @@ export default {
       state: { value: 100 },
     });
 
-    let labelNode = flow.createNode("core/label", Vector.create(755, 119), { name: "Label", width: 120 });
+    let labelNode = flow.createNode("core/empty", Vector.create(755, 119), { name: "Label", width: 120 });
     labelNode.ui.append(
       labelNode.createUI("core/label", { text: "", input: true, style: { precision: 2, fontSize: "14px" } })
     );

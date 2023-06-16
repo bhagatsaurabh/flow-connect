@@ -16,58 +16,6 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 
 <Overview :data="data" />
 
-## Constructor
-
-::: tip
-Also see <Ref to="./flow#addsubflow">Flow.addSubFlow</Ref>.
-:::
-
-<Method type="constructor">
-  <template v-slot:signature>
-    new SubFlowNode(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>subFlow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>position: </strong><em><Ref to="./vector">Vector</Ref></em>,
-    <strong>width: </strong><em>number</em>,
-    <strong>inputs: </strong><em>any[]</em>,
-    <strong>outputs: </strong><em>any[]</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/sub-flow-options">SubFlowOptions</Ref></em>):
-    <em><Ref to="#class-subflownode">SubFlowNode</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="subFlow">
-      <em><Ref to="./flow">Flow</Ref></em>
-    </Param>
-    <Param name="position">
-      <em><Ref to="./vector">Vector</Ref></em>
-    </Param>
-    <Param name="width">
-      <em>number</em>
-    </Param>
-    <Param name="inputs">
-      <em>any[]</em><br/>
-      Array of <Ref to="../interfaces/serialized-terminal">SerializedTerminals</Ref> specifying the inputs of new SubFlowNode and also the input <Ref to="./tunnel-node">TunnelNodes</Ref> of the <Ref to="#subflow">subFlow</Ref>.
-    </Param>
-    <Param name="outputs">
-      <em>any[]</em><br/>
-      Array of <Ref to="../interfaces/serialized-terminal">SerializedTerminals</Ref> specifying the outputs of new SubFlowNode and also the output <Ref to="./tunnel-node">TunnelNodes</Ref> of the <Ref to="#subflow">subFlow</Ref>.
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/sub-flow-options">SubFlowOptions</Ref></em>
-  <template v-slot:default-value>
-
-  ```js
-  {
-    style: {},
-    terminalStyle: {},
-    state: {}
-  }
-  ```
-  </template>
-    </Param>
-  </template>
-</Method>
-
 ## Properties
 
 ### subFlow
@@ -137,30 +85,15 @@ Also see <Ref to="./flow#addsubflow">Flow.addSubFlow</Ref>.
 
 ### serialize
 
-<Method type="method-implementation">
+<Method type="method-async">
   <template v-slot:signature>
-    serialize():
-    <em><Ref to="../interfaces/serialized-node">SerializedNode</Ref></em>
+    serialize(<strong>persist?: </strong><em><Ref to="../interfaces/data-persistence-provider">DataPersistenceProvider</Ref></em>):
+    <em>Promise&lt;<Ref to="../interfaces/serialized-subflow-node">SerializedSubFlowNode</Ref>&gt;</em>
   </template>
   <template v-slot:inherit>
     <Icon valign="bottom" type="implementation" /> of <Ref to="../interfaces/serializable">Serializable</Ref>.<Ref to="../interfaces/serializable#serialize">serialize</Ref>
   </template>
-  <template v-slot:return><em><Ref to="../interfaces/serialized-node">SerializedNode</Ref></em></template>
-</Method>
-
-### deSerialize
-
-<Method type="method-static">
-  <template v-slot:signature>
-    deSerialize(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>data: </strong><em><Ref to="../interfaces/serialized-node">SerializedNode</Ref></em>):
-    <em><Ref to="#class-subflownode">SubFlowNode</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="data"><em><Ref to="../interfaces/serialized-node">SerializedNode</Ref></em></Param>
-  </template>
-  <template v-slot:return><em><Ref to="#class-subflownode">SubFlowNode</Ref></em></template>
+  <template v-slot:return>Promise&lt;<em><Ref to="../interfaces/serialized-subflow-node">SerializedSubFlowNode</Ref></em>&gt;</template>
 </Method>
 
 <script setup>

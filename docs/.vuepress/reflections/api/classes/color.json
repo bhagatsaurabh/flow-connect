@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "properties": [
     {
       "name": "hexValue",
@@ -25,12 +20,12 @@
   ],
   "methods": [
     {
-      "name": "isEqual",
-      "type": "method"
-    },
-    {
       "name": "create",
       "type": "method-static"
+    },
+    {
+      "name": "isEqual",
+      "type": "method"
     },
     {
       "name": "rgbaToHex",

@@ -106,14 +106,14 @@ If a new NodeButton needs to be added to the Node, but you don't want to use thi
   </template>
 </Property>
 
-### renderResolver
+### renderer
 
-<Property type="property" name="renderResolver">
+<Property type="property" name="renderer">
   <template v-slot:type>
-    <em><Ref to="../interfaces/render-resolver">RenderResolver</Ref>&lt;<Ref to="class-nodebutton">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>
+    <em><Ref to="../interfaces/render-fn">RenderFn</Ref>&lt;<Ref to="class-nodebutton">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>
   </template>
   <template v-slot:desc>
-  A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> which is scoped to the Node-button instance.
+  A <Ref to="../interfaces/render-fn">RenderFn</Ref> which is scoped to the Node-button instance.
 
   Any custom render function specified using this resolver will only affect this NodeButton instance.
   </template>

@@ -33,7 +33,7 @@ export default {
     customNode.ui.append([
       customNode.createUI("core/x-layout", {
         childs: [
-          customNode.createUI("core/lable", { text: "String", style: { grow: 0.4 } }),
+          customNode.createUI("core/label", { text: "String", style: { grow: 0.4 } }),
           customNode.createUI("core/label", {
             text: customNode.state.stringValue,
             propName: "stringValue",

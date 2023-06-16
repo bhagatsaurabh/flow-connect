@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "properties": [
     {
       "name": "flow",
@@ -51,6 +46,10 @@
       "type": "method-inherited"
     },
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
       "name": "off",
       "type": "method-inherited"
     },
@@ -65,10 +64,6 @@
     {
       "name": "serialize",
       "type": "method"
-    },
-    {
-      "name": "create",
-      "type": "method-static"
     },
     {
       "name": "add",

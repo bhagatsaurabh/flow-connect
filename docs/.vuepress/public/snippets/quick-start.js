@@ -9,17 +9,22 @@ let flow = flowConnect.createFlow({ name: "Basic Example", rules: {} });
 /* Create a custom node */
 class CustomTimerNode extends Node {
   timerId = -1;
-  constructor(flowInstance, position, interval) {
-    super(flowInstance, "Timer", position, 100, [], [{ name: "trigger", dataType: "event" }], {
-      state: { interval },
-    });
 
-    flowInstance.on("start", () => {
+  setupIO() {
+    this.addTerminals([{ type: TerminalType.OUT, name: "trigger", dataType: "event" }]);
+  }
+  created(options) {
+    const { interval = 1000 } = options;
+    this.state = { interval };
+    this.width = 100;
+
+    this.flow.on("start", () => {
       this.outputs[0].emit();
       this.timerId = setInterval(() => this.outputs[0].emit(), this.state.interval);
     });
-    flowInstance.on("stop", () => clearInterval(this.timerId));
+    this.flow.on("stop", () => clearInterval(this.timerId));
   }
+  process() {}
 }
 
 /* Register this new custom node with a unique name */

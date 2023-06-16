@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "properties": [
     {
       "name": "connectors",
@@ -75,6 +70,10 @@
       "type": "method"
     },
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
       "name": "disconnect",
       "type": "method"
     },
@@ -109,10 +108,6 @@
     {
       "name": "setData",
       "type": "method"
-    },
-    {
-      "name": "create",
-      "type": "method-static"
     }
   ],
   "events": [

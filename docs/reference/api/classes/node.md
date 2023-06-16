@@ -25,46 +25,8 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
 
 <Method type="constructor">
   <template v-slot:signature>
-    new Node(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>name: </strong><em>string</em>,
-    <strong>position: </strong><em><Ref to="./vector">Vector</Ref></em>,
-    <strong>width: </strong><em>number</em>,
-    <strong>inputs: </strong><em><Ref to="../interfaces/serialized-terminal">SerializedTerminal</Ref>[]</em>,
-    <strong>outputs: </strong><em><Ref to="../interfaces/serialized-terminal">SerializedTerminal</Ref>[]</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/node-constructor-options">NodeConstructorOptions</Ref></em>):
+    new Node():
     <em><Ref to="#class-node">Node</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="name">
-      <em>string</em>
-    </Param>
-    <Param name="position">
-      <em><Ref to="./vector">Vector</Ref></em>
-    </Param>
-    <Param name="width">
-      <em>number</em>
-    </Param>
-    <Param name="inputs">
-      <em><Ref to="../interfaces/serialized-terminal">SerializedTerminal</Ref>[]</em>
-    </Param>
-    <Param name="outputs">
-      <em><Ref to="../interfaces/serialized-terminal">SerializedTerminal</Ref>[]</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/node-constructor-options">NodeConstructorOptions</Ref></em>
-  <template v-slot:default-value>
-
-  ```js
-  {
-    style: {},
-    terminalStyle: {},
-    state: {},
-    id: getNewUUID() // dynamic
-  }
-  ```
-  </template>
-    </Param>
   </template>
 </Method>
 
@@ -186,43 +148,18 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   </template>
 </Property>
 
-### renderResolver
+### renderers
 
-<Property type="property" name="renderResolver">
+<Property type="property" name="renderers">
   <template v-slot:type>
-    {<br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>node?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="#class-node">Node</Ref>,
-        <Ref to="../interfaces/node-renderparams">NodeRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>nodeButton?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./node-button">NodeButton</Ref>,
-        <Ref to="../interfaces/node-button-renderparams">NodeButtonRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>terminal?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./terminal">Terminal</Ref>,
-        <Ref to="../interfaces/terminal-renderparams">TerminalRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>uiContainer?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="../nodeui/container">Container</Ref>,
-        <Ref to="../interfaces/container-renderparams">ContainerRenderParams</Ref>&gt;
-      </span>
-    <br/>}
+    <em><Ref to="../interfaces/node-renderers">NodeRenderers</Ref></em>
   </template>
   <template v-slot:desc>
-  A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> which is scoped to the Node instance.
+  A <Ref to="../interfaces/renderer">Renderer</Ref> which is scoped to the Node instance.
 
-  Any custom render functions specified using this resolver will only affect everything inside this node instance.
-  </template>
-  <template v-slot:default>{}</template>
+Any custom render functions specified using this resolver will affect everything only inside this node instance.
+</template>
+<template v-slot:default>{}</template>
 </Property>
 
 ### renderState
@@ -253,18 +190,15 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   <template v-slot:desc>
     A local reactive state of the node, properties defined within this state is two-way bindable with any <Ref to="./ui-node">UINode</Ref>.
 
-  ```js
-  let customNode = flow.createNode(
-    "Custom Node",
-    new Vector(50, 50), 170,
-    {
-      state: {
-        name: "John Doe",
-        age: 24
-      }
-    }
-  );
-  ```
+```js
+let customNode = flow.createNode("Custom Node", new Vector(50, 50), 170, {
+  state: {
+    name: "John Doe",
+    age: 24,
+  },
+});
+```
+
   </template>
 </Property>
 
@@ -276,28 +210,29 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   </template>
   <template v-slot:default>
 
-  ```js
-  {
-    font: 'arial',
-    fontSize: '.75rem',
-    titleFont: 'arial',
-    titleFontSize: '.85rem',
-    color: '#000',
-    titleColor: '#000',
-    maximizeButtonColor: 'darkgrey',
-    nodeButtonSize: 10,
-    nodeButtonSpacing: 5,
-    expandButtonColor: '#000',
-    minimizedTerminalColor: 'green',
-    outlineColor: '#000',
-    padding: 10,
-    spacing: 10,
-    rowHeight: 20,
-    titleHeight: 29,
-    terminalRowHeight: 24,
-    terminalStripMargin: 8
-  }
-  ```
+```js
+{
+  font: 'arial',
+  fontSize: '.75rem',
+  titleFont: 'arial',
+  titleFontSize: '.85rem',
+  color: '#000',
+  titleColor: '#000',
+  maximizeButtonColor: 'darkgrey',
+  nodeButtonSize: 10,
+  nodeButtonSpacing: 5,
+  expandButtonColor: '#000',
+  minimizedTerminalColor: 'green',
+  outlineColor: '#000',
+  padding: 10,
+  spacing: 10,
+  rowHeight: 20,
+  titleHeight: 29,
+  terminalRowHeight: 24,
+  terminalStripMargin: 8
+}
+```
+
   </template>
 </Property>
 
@@ -396,26 +331,23 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   </template>
   <template v-slot:example>
 
-  ```js
-  node.addNodeButton(
-    () => doSomething(),
-    (
-      context: CanvasRenderingContext2D,
-      params: NodeButtonRenderParams,
-      nodeButton: NodeButton
-    ) => {
-      let style = nodeButton.node.style;
+```js
+node.addNodeButton(
+  () => doSomething(),
+  (context: CanvasRenderingContext2D, params: NodeButtonRenderParams, nodeButton: NodeButton) => {
+    let style = nodeButton.node.style;
 
-      context.strokeStyle = style.color;
-      context.beginPath();
-      context.arc(params.position.x, params.position.y, 10, 0, 2 * Math.PI);
-      context.closePath();
+    context.strokeStyle = style.color;
+    context.beginPath();
+    context.arc(params.position.x, params.position.y, 10, 0, 2 * Math.PI);
+    context.closePath();
 
-      context.stroke();
-    },
-    Align.Right
-  );
-  ```
+    context.stroke();
+  },
+  Align.Right
+);
+```
+
   </template>
 </Method>
 
@@ -433,16 +365,24 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   </template>
   <template v-slot:example>
 
-  ```js
-  node.addTerminal(
-    new Terminal(
-      node,
-      TerminalType.IN,
-      "string",
-      "first-name"
-    )
-  );
-  ```
+```js
+node.addTerminal(new Terminal(node, TerminalType.IN, "string", "first-name"));
+```
+
+  </template>
+</Method>
+
+### addTerminals
+
+<Method type="method">
+  <template v-slot:signature>
+    addTerminals(<strong>terminals: </strong><em><Ref to="./terminal">Terminal</Ref>[] | <Ref to="../interfaces/serialized-terminal">SerializedTerminal</Ref>[]</em>):
+    <em>void</em>
+  </template>
+  <template v-slot:params>
+    <Param name="terminal">
+      <em><Ref to="./terminal">Terminal</Ref>[] | <Ref to="../interfaces/serialized-terminal">SerializedTerminal</Ref>[]</em>
+    </Param>
   </template>
 </Method>
 
@@ -458,634 +398,359 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   </template>
 </Method>
 
-### createButton
+### create
+
+::: warning Not Recommended
+Using the `create` method can lead to unexpected results, use the <Ref to="./flow">Flow</Ref>.<Ref to="./flow#createnode">createNode</Ref> method instead
+:::
+
+<Method type="method-static">
+  <template v-slot:signature>
+    create&lt;T extends <Ref to="./node">Node</Ref>&gt;(
+      <strong>type: </strong><em>string</em>,
+      <strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
+      <strong>position: </strong><em><Ref to="./vector">Vector</Ref></em>,
+      <strong>options: </strong><em><Ref to="../interfaces/node-options">NodeOptions</Ref></em>,
+      <strong>isDeserialized: </strong><em>boolean</em>
+    ):
+    <em>T</em>
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em>string</em></Param>
+    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
+    <Param name="position"><em><Ref to="./vector">Vector</Ref></em></Param>
+    <Param name="options"><em><Ref to="../interfaces/node-options">NodeOptions</Ref></em></Param>
+    <Param name="isDeserialized"><em>boolean</em></Param>
+  </template>
+  <template v-slot:return>
+    <em>T</em>
+  </template>
+</Method>
+
+### created
 
 <Method type="method">
   <template v-slot:signature>
-    createButton(<strong>text: </strong><em>string</em>, <strong>options?: </strong><em><Ref to="../interfaces/button-creator-options">ButtonCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/button">Button</Ref></em>
+    created&lt;T extends <Ref to="../interfaces/node-options">NodeOptions</Ref>&gt;(
+      <strong>options: </strong><em>T</em>
+    ):
+    <em>void</em>
   </template>
   <template v-slot:params>
-    <Param name="text">
-      <em>string</em><br/>
-      Text to display on button.
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/button-creator-options">ButtonCreatorOptions</Ref></em>
-    </Param>
+    <Param name="options"><em>T</em></Param>
   </template>
-  <template v-slot:desc>
-    Creates a new button.
+  <template v-slot:return>
+    <em>void</em>
+  </template>
+</Method>
+
+### createUI
+
+<Method type="method">
+  <template v-slot:signature>
+    creatUI&lt;T extends <Ref to="./ui-node">UINode</Ref>, O extends <Ref to="../interfaces/ui-node-options">UINodeOptions</Ref>&gt;(
+      <strong>type: </strong><em>string</em>,
+      <strong>options: </strong><em>O</em>
+    ):
+    <em>T</em>
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em>string</em></Param>
+    <Param name="options"><em>O</em></Param>
+  </template>
+  <template v-slot:return>
+    <em>void</em>
   </template>
   <template v-slot:example>
 
-  ```js
-  let button = node.createButton('Click me');
-  node.ui.append(button);
-  ```
+```js
+let button = node.createUI("core/button", { text: "Click me" });
+node.ui.append(button);
+```
+
   <img class="zoomable" alt="Node UI Button example" src="/images/node-ui-button-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/button">Button</Ref></em>
-  </template>
-</Method>
 
-### createDial
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 150,
+  state: { dialValue: 65 },
+});
 
-<Method type="method">
-  <template v-slot:signature>
-    createDial(<strong>min: </strong><em>number</em>,
-    <strong>max: </strong><em>number</em>,
-    <strong>size: </strong><em>number</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/dial-creator-options">DialCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/dial">Dial</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="min">
-      <em>number</em>
-    </Param>
-    <Param name="max">
-      <em>number</em>
-    </Param>
-    <Param name="size">
-      <em>number</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/dial-creator-options">DialCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a new radial dial.
-  </template>
-  <template v-slot:example>
+let dial = node.createUI("core/dial", {
+  min: 0,
+  max: 100,
+  height: 100,
+  propName: "dialValue",
+});
+let label = node.createUI("core/label", {
+  text: node.state.dialValue,
+  propName: "dialValue",
+  style: { align: Align.Center, fontSize: "14px", precision: 0 },
+});
 
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 150, {
-    state: { dialValue: 65 }
-  });
+node.ui.append([dial, label]);
+```
 
-  let dial = node.createDial(0, 100, 100, { propName: 'dialValue'});
-  let label = node.createLabel(
-    node.state.dialValue, {
-      propName: 'dialValue',
-      style: { align: Align.Center, fontSize: '14px', precision: 0 }
-    }
-  );
-
-  node.ui.append([dial, label]);
-  ```
   <img class="zoomable" alt="Node UI Dial example" src="/images/node-ui-dial-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/dial">Dial</Ref></em>
-  </template>
-</Method>
 
-### createDisplay
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+});
 
-<Method type="method">
-  <template v-slot:signature>
-    createDisplay(<strong>height: </strong><em>number</em>,
-    <strong>renderers: </strong><em><Ref to="../interfaces/custom-renderer-config">CustomRendererConfig</Ref>[]</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/display-creator-options">DisplayCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/display">Display</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="height">
-      <em>number</em>
-    </Param>
-    <Param name="renderers">
-      <em><Ref to="../interfaces/custom-renderer-config">CustomRendererConfig</Ref>[]</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/display-creator-options">DisplayCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a new fully-customized rendering display.
-  </template>
-  <template v-slot:example>
+let display = node.createUI("core/display", {
+  height: 150,
+  customRenderers: [
+    {
+      auto: true,
+      clear: true,
+      renderer: (context, width, height) => {
+        for (let i = 0; i < 100; i++) {
+          context.fillStyle = Color.Random().hexValue;
+          context.fillRect(Math.random() * width, Math.random() * height, 5, 5);
+        }
+        return true;
+      },
+    },
+  ],
+});
 
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230);
+node.ui.append(display);
+```
 
-  let display = node.createDisplay(150, [{
-    auto: true,
-    clear: true,
-    renderer: (context, width, height) => {
-      for (let i = 0 ; i < 100 ; i++) {
-        context.fillStyle = Color.Random().hexValue;
-        context.fillRect(Math.random() * width, Math.random() * height, 5, 5);
-      }
-      return true;
-    }
-  }]);
-
-  node.ui.append(display);
-  ```
   <img class="zoomable" alt="Node UI Display example" src="/images/node-ui-display-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/display">Display</Ref></em>
-  </template>
-</Method>
 
-### createEnvelope
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+});
 
-<Method type="method">
-  <template v-slot:signature>
-    createEnvelope(<strong>height: </strong><em>number</em>,
-    <strong>values?: </strong><em><Ref to="./vector">Vector</Ref>[]</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/envelope-creator-options">EnvelopeCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/envelope">Envelope</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="height">
-      <em>number</em>
-    </Param>
-    <Param name="values?">
-      <em><Ref to="./vector">Vector</Ref>[]</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/envelope-creator-options">EnvelopeCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates an interactive linear envelope.
-  </template>
-  <template v-slot:example>
+let envelope = node.createUI("core/envelope", {
+  height: 150,
+  values: [Vector.create(0.1, 0.1), Vector.create(0.3, 0.8), Vector.create(0.75, 0.3), Vector.create(0.9, 0.7)],
+});
 
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230);
+node.ui.append(envelope);
+```
 
-  let envelope = node.createEnvelope(150, [
-    new Vector(.1, .1),
-    new Vector(.3, .8),
-    new Vector(.75, .3),
-    new Vector(.9, .7)
-  ]);
-
-  node.ui.append(envelope);
-  ```
   <img class="zoomable" alt="Node UI Envelope example" src="/images/node-ui-envelope-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/envelope">Envelope</Ref></em>
-  </template>
-</Method>
 
-### createHozLayout
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+});
 
-<Method type="method">
-  <template v-slot:signature>
-    createHozLayout(<strong>childs?: </strong><em><Ref to="./ui-node">UINode</Ref>[]</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/horizontal-layout-creator-options">HorizontalLayoutCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/horizontal-layout">HorizontalLayout</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="childs?">
-      <em><Ref to="./ui-node">UINode</Ref>[]</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/horizontal-layout-creator-options">HorizontalLayoutCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a horizontal layout.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230);
-
-  let hozLayout = node.createHozLayout([
-    node.createLabel('W: 0.2', {
-      style: { grow: .2, backgroundColor: '#0f0', align: Align.Center }
+let hozLayout = node.createUI("core/x-layout", {
+  childs: [
+    node.createUI("core/label", {
+      text: "W: 0.2",
+      style: { grow: 0.2, backgroundColor: "#0f0", align: Align.Center },
     }),
-    node.createLabel('W: 0.5', {
-      style: { grow: .5, backgroundColor: '#e0e', align: Align.Center }
+    node.createUI("core/label", {
+      text: "W: 0.5",
+      style: { grow: 0.5, backgroundColor: "#e0e", align: Align.Center },
     }),
-    node.createLabel('W: 0.3', {
-      style: { grow: .3, backgroundColor: '#0ff', align: Align.Center }
+    node.createUI("core/label", {
+      text: "W: 0.3",
+      style: { grow: 0.3, backgroundColor: "#0ff", align: Align.Center },
     }),
-  ]);
+  ],
+});
 
-  node.ui.append(hozLayout);
-  ```
+node.ui.append(hozLayout);
+```
+
   <img class="zoomable" alt="Node UI Horizontal Layout example" src="/images/node-ui-hoz-layout-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/horizontal-layout">HorizontalLayout</Ref></em>
-  </template>
-</Method>
 
-### createImage
+```js
+let node = flow.createNode("cpre/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+});
+let image = node.createUI("core/image", {
+  src: "/assets/hero.png",
+  style: { align: Align.Center },
+});
+node.ui.append(image);
+```
 
-<Method type="method">
-  <template v-slot:signature>
-    createImage(<strong>source: </strong><em>string</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/image-creator-options">ImageCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/image">Image</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="source">
-      <em>string</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/image-creator-options">ImageCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates an Image.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230);
-  let image = node.createImage('/assets/hero.png', {
-    style: { align: Align.Center }
-  });
-  node.ui.append(image);
-  ```
   <img class="zoomable" alt="Node UI Image example" src="/images/node-ui-image-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/image">Image</Ref></em>
-  </template>
-</Method>
 
-### createInput
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+});
+let input = node.createUI("core/input", { value: "Sample Text" });
+node.ui.append(input);
+```
 
-<Method type="method">
-  <template v-slot:signature>
-    createInput(<strong>options?: </strong><em><Ref to="../interfaces/input-creator-options">InputCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/input">Input</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="options?">
-      <em><Ref to="../interfaces/input-creator-options">InputCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a text input.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230);
-  let input = node.createInput({ value: 'Sample Text'});
-  node.ui.append(input);
-  ```
   <img class="zoomable" alt="Node UI Input example" src="/images/node-ui-input-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/input">Input</Ref></em>
-  </template>
-</Method>
 
-### createLabel
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+});
+let label = node.createUI("core/label", { text: "Sample Label" });
+node.ui.append(label);
+```
 
-<Method type="method">
-  <template v-slot:signature>
-    createLabel(<strong>text: </strong><em>string | number</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/label-creator-options">LabelCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/label">Label</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="text">
-      <em>string | number</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/label-creator-options">LabelCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a label.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230);
-  let label = node.createLabel('Sample Label');
-  node.ui.append(label);
-  ```
   <img class="zoomable" alt="Node UI Label example" src="/images/node-ui-label-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/label">Label</Ref></em>
-  </template>
-</Method>
 
-### createRadioGroup
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+});
+let radioGroup = node.createUI("core/radio-group", {
+  values: ["Sample A", "Sample B", "Sample C"],
+  selected: "Sample B",
+});
+node.ui.append(radioGroup);
+```
 
-<Method type="method">
-  <template v-slot:signature>
-    createRadioGroup(<strong>values?: </strong><em>string[]</em>,
-    <strong>selected?: </strong><em>string</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/radio-group-creator-options">RadioGroupCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/radio-group">RadioGroup</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="values?">
-      <em>string[]</em>
-    </Param>
-    <Param name="selected?">
-      <em>string</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/radio-group-creator-options">RadioGroupCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a radio-group.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230);
-  let radioGroup = node.createRadioGroup(
-    ['Sample A', 'Sample B', 'Sample C'],
-    'Sample B'
-  );
-  node.ui.append(radioGroup);
-  ```
   <img class="zoomable" alt="Node UI Radio-group example" src="/images/node-ui-radio-group-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/radio-group">RadioGroup</Ref></em>
-  </template>
-</Method>
 
-### createSelect
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+  style: { rowHeight: 10 },
+});
+let select = node.createUI("core/select", { values: ["Sample A", "Sample B", "Sample C"] });
+node.ui.append(select);
+```
 
-<Method type="method">
-  <template v-slot:signature>
-    createSelect(<strong>values?: </strong><em>string[]</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/select-creator-options">SelectCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/select">Select</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="values?">
-      <em>string[]</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/select-creator-options">SelectCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a select.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230, {
-    style: { rowHeight: 10}
-  });
-  let select = node.createSelect(['Sample A', 'Sample B', 'Sample C']);
-  node.ui.append(select);
-  ```
   <img class="zoomable" alt="Node UI Select example" src="/images/node-ui-select-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/select">Select</Ref></em>
-  </template>
-</Method>
 
-### createSlider
-
-<Method type="method">
-  <template v-slot:signature>
-    createSlider(<strong>min: </strong><em>number</em>,
-    <strong>max: </strong><em>number</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/slider-creator-options">SliderCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/slider">Slider</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="min">
-      <em>number</em>
-    </Param>
-    <Param name="max">
-      <em>number</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/slider-creator-options">SliderCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a Horizontal Slider.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230, {
-    style: { rowHeight: 10 },
-    state: { sliderValue: -18 }
-  });
-  let hozLayout = node.createHozLayout([
-    node.createSlider(-100, 100, {
-      propName: 'sliderValue',
-      style: { grow: .8 }
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+  style: { rowHeight: 10 },
+  state: { sliderValue: -18 },
+});
+let hozLayout = node.createUI("core/x-layout", {
+  childs: [
+    node.createUI("core/slider", {
+      min: -100,
+      max: 100,
+      propName: "sliderValue",
+      style: { grow: 0.8 },
     }),
-    node.createLabel(node.state.sliderValue, {
-      propName: 'sliderValue',
-      style: { grow: .2, align: Align.Center, precision: 0 }
-    })
-  ]);
-  node.ui.append(hozLayout);
-  ```
+    node.createUI("core/label", {
+      text: node.state.sliderValue,
+      propName: "sliderValue",
+      style: { grow: 0.2, align: Align.Center, precision: 0 },
+    }),
+  ],
+});
+node.ui.append(hozLayout);
+```
+
   <img class="zoomable" alt="Node UI Horizontal Slider example" src="/images/node-ui-h-slider-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/slider">Slider</Ref></em>
-  </template>
-</Method>
 
-### createSlider2D
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+  style: { rowHeight: 10 },
+});
+let slider2D = node.createUI("core/2d-slider", {
+  height: 100,
+  value: Vector.create(0.2, 0.8),
+});
+node.ui.append(slider2D);
+```
 
-<Method type="method">
-  <template v-slot:signature>
-    createSlider2D(<strong>options?: </strong><em><Ref to="../interfaces/slider2d-creator-options">Slider2DCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/slider2d">Slider2D</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="options?">
-      <em><Ref to="../interfaces/slider2d-creator-options">Slider2DCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates an XY 2D Slider.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230, {
-    style: { rowHeight: 10 },
-  });
-  let slider2D = node.createSlider2D({
-    height: 100,
-    value: new Vector(.2, .8)
-  });
-  node.ui.append(slider2D);
-  ```
   <img class="zoomable" alt="Node UI 2D Slider example" src="/images/node-ui-2d-slider-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/slider2d">Slider2D</Ref></em>
-  </template>
-</Method>
 
-### createSource
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+  style: { rowHeight: 20 },
+});
+let source = node.createUI("core/source");
+node.ui.append(source);
+```
 
-<Method type="method">
-  <template v-slot:signature>
-    createSource(<strong>options?: </strong><em><Ref to="../interfaces/source-creator-options">SourceCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/source">Source</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="options?">
-      <em><Ref to="../interfaces/source-creator-options">SourceCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a file input.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230, {
-    style: { rowHeight: 20 },
-  });
-  let source = node.createSource();
-  node.ui.append(source);
-  ```
   <img class="zoomable" alt="Node UI Source example" src="/images/node-ui-source-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/source">Source</Ref></em>
-  </template>
-</Method>
 
-### createStack
-
-<Method type="method">
-  <template v-slot:signature>
-    createStack(<strong>options?: </strong><em><Ref to="../interfaces/stack-creator-options">StackCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/source">Source</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="options?">
-      <em><Ref to="../interfaces/stack-creator-options">StackCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a vertical layout.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230);
-  let stack = node.createStack({
-    childs: [
-      node.createLabel('A', {
-        height: 20,
-        style: { backgroundColor: '#0f0', align: Align.Center }
-      }),
-      node.createLabel('B', {
-        height: 60,
-        style: { backgroundColor: '#e0e', align: Align.Center }
-      }),
-      node.createLabel('C', {
-        height: 30,
-        style: { backgroundColor: '#0ff', align: Align.Center }
-      })
-    ],
-    spacing: 5
-  });
-  node.ui.append(stack);
-  ```
-  <img class="zoomable" alt="Node UI Stack example" src="/images/node-ui-stack-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/stack">Stack</Ref></em>
-  </template>
-</Method>
-
-### createToggle
-
-<Method type="method">
-  <template v-slot:signature>
-    createToggle(<strong>options?: </strong><em><Ref to="../interfaces/toggle-creator-options">ToggleCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/toggle">Toggle</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="options?">
-      <em><Ref to="../interfaces/toggle-creator-options">ToggleCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a Toggle.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230, {
-    style: { rowHeight: 10 }
-  });
-  let toggle = node.createToggle();
-  node.ui.append(toggle);
-  ```
-  <img class="zoomable" alt="Node UI Toggle example" src="/images/node-ui-toggle-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/toggle">Toggle</Ref></em>
-  </template>
-</Method>
-
-### createVSlider
-
-<Method type="method">
-  <template v-slot:signature>
-    createVSlider(<strong>min: </strong><em>number</em>,
-    <strong>max: </strong><em>number</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/v-slider-creator-options">VSliderCreatorOptions</Ref></em>):
-    <em><Ref to="../nodeui/v-slider">VSlider</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="min">
-      <em>number</em>
-    </Param>
-    <Param name="max">
-      <em>number</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/v-slider-creator-options">VSliderCreatorOptions</Ref></em>
-    </Param>
-  </template>
-  <template v-slot:desc>
-    Creates a Vertical Slider.
-  </template>
-  <template v-slot:example>
-
-  ```js
-  let node = flow.createNode('Node', new Vector(50, 50), 230, {
-    state: { vSliderValue: -22}
-  });
-  let stack = node.createStack({ childs: [
-    node.createVSlider(-50, 50, {
-      height: 150,
-      propName: 'vSliderValue'
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+});
+let stack = node.createUI("core/stack", {
+  childs: [
+    node.createUI("core/label", {
+      text: "A",
+      height: 20,
+      style: { backgroundColor: "#0f0", align: Align.Center },
     }),
-    node.createLabel(node.state.vSliderValue, {
-      propName: 'vSliderValue',
-      style: { align: Align.Center, fontSize: '16px' }
-    })
-  ], style: { spacing: 20 } });
-  node.ui.append(stack);
-  ```
+    node.createUI("core/label", {
+      text: "B",
+      height: 60,
+      style: { backgroundColor: "#e0e", align: Align.Center },
+    }),
+    node.createLabel("core/label", {
+      text: "C",
+      height: 30,
+      style: { backgroundColor: "#0ff", align: Align.Center },
+    }),
+  ],
+  spacing: 5,
+});
+node.ui.append(stack);
+```
+
+  <img class="zoomable" alt="Node UI Stack example" src="/images/node-ui-stack-example.png" />
+
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+  style: { rowHeight: 10 },
+});
+let toggle = node.createUI("core/toggle");
+node.ui.append(toggle);
+```
+
+  <img class="zoomable" alt="Node UI Toggle example" src="/images/node-ui-toggle-example.png" />
+
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Node",
+  width: 230,
+  state: { vSliderValue: -22 },
+});
+let stack = node.createUI("core/stack", {
+  childs: [
+    node.createUI("core/v-slider", {
+      min: -50,
+      max: 50,
+      height: 150,
+      propName: "vSliderValue",
+    }),
+    node.createUI("core/label", {
+      text: node.state.vSliderValue,
+      propName: "vSliderValue",
+      style: { align: Align.Center, fontSize: "16px" },
+    }),
+  ],
+  style: { spacing: 20 },
+});
+node.ui.append(stack);
+```
+
   <img class="zoomable" alt="Node UI VSlider example" src="/images/node-ui-v-slider-example.png" />
-  </template>
-  <template v-slot:return>
-    <em><Ref to="../nodeui/v-slider">VSlider</Ref></em>
+
   </template>
 </Method>
 
@@ -1165,6 +830,20 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   </template>
 </Method>
 
+### process
+
+<Method type="method">
+  <template v-slot:signature>
+    process(<strong>inputs: </strong><em>any[]</em>):
+    <em>void</em>
+  </template>
+  <template v-slot:params>
+    <Param name="inputs">
+      <em>any[]</em>
+    </Param>
+  </template>
+</Method>
+
 ### removeTerminal
 
 <Method type="method">
@@ -1184,15 +863,17 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
 
 ### serialize
 
-<Method type="method-implementation">
+<Method type="method-static">
   <template v-slot:signature>
-    serialize():
-    <em><Ref to="../interfaces/serialized-node">SerializedNode</Ref></em>
+    serialize(
+      <strong>persist?: </strong><em><Ref to="../interfaces/data-persistence-provider">DataPersistenceProvider</Ref></em>
+    ):
+    <em>Promise&lt;<Ref to="../interfaces/serialized-node">SerializedNode</Ref>&gt;</em>
   </template>
   <template v-slot:inherit>
     <Icon valign="bottom" type="implementation" /> of <Ref to="../interfaces/serializable">Serializable</Ref>.<Ref to="../interfaces/serializable#serialize">serialize</Ref>
   </template>
-  <template v-slot:return><em><Ref to="../interfaces/serialized-node">SerializedNode</Ref></em></template>
+  <template v-slot:return><em>Promise&lt;<Ref to="../interfaces/serialized-node">SerializedNode</Ref>&gt;</em></template>
 </Method>
 
 ### setOutputs
@@ -1217,31 +898,60 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   <template v-slot:example>
   Setting output on single terminal using it's name:
 
-  ```js
-  node.setOutputs('first-name', 'John');
-  ```
+```js
+node.setOutputs("first-name", "John");
+```
 
-  Setting output on single terminal using it's index:
+Setting output on single terminal using it's index:
 
-  ```js
-  node.setOutputs(2, 'John');
-  ```
+```js
+node.setOutputs(2, "John");
+```
 
-  Setting output on mulitple terminals at once:
+Setting output on mulitple terminals at once:
 
-  ```js
-  node.setOutputs({
-    'first-name': 'John',
-    'last-name': 'Doe',
-    age: 24
-  });
-  ```
+```js
+node.setOutputs({
+  "first-name": "John",
+  "last-name": "Doe",
+  age: 24,
+});
+```
+
   </template>
   <template v-slot:return>
     void
   </template>
 </Method>
 
+### setupIO
+
+<Method type="method">
+  <template v-slot:signature>
+    setupIO(<strong>options: </strong><em><Ref to="../interfaces/node-options">NodeOptions</Ref></em>):
+    <em>void</em>
+  </template>
+  <template v-slot:params>
+    <Param name="options">
+      <em><Ref to="../interfaces/node-options">NodeOptions</Ref></em>
+    </Param>
+  </template>
+  <template v-slot:return>
+    void
+  </template>
+</Method>
+
+### toggle
+
+<Method type="method">
+  <template v-slot:signature>
+    toggle():
+    <em>void</em>
+  </template>
+  <template v-slot:return>
+    void
+  </template>
+</Method>
 
 ### toggleNodeState
 
@@ -1308,21 +1018,6 @@ A node can also have interactive UI inside it, using <Ref to="./ui-node">UINodes
   <template v-slot:return>
     void
   </template>
-</Method>
-
-### deSerialize
-
-<Method type="method-static">
-  <template v-slot:signature>
-    deSerialize(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>data: </strong><em><Ref to="../interfaces/serialized-node">SerializedNode</Ref></em>):
-    <em><Ref to="#class-node">Node</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="data"><em><Ref to="../interfaces/serialized-node">SerializedNode</Ref></em></Param>
-  </template>
-  <template v-slot:return><em><Ref to="#class-node">Node</Ref></em></template>
 </Method>
 
 ## Events

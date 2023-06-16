@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "properties": [
     {
       "name": "connectors",
@@ -87,6 +82,10 @@
       "type": "method-inherited"
     },
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
       "name": "createNode",
       "type": "method"
     },
@@ -129,10 +128,6 @@
     {
       "name": "stop",
       "type": "method"
-    },
-    {
-      "name": "create",
-      "type": "method-static"
     }
   ],
   "events": [

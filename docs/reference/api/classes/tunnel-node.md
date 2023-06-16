@@ -21,52 +21,8 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 ## Constructor
 
 ::: tip
-Also see, <Ref to="./flow#addinput">Flow.addInput</Ref> and <Ref to="./flow#addoutput">Flow.addOutput</Ref>.
+See, <Ref to="./flow#addinput">Flow.addInput</Ref> and <Ref to="./flow#addoutput">Flow.addOutput</Ref>.
 :::
-
-<Method type="constructor">
-  <template v-slot:signature>
-    new TunnelNode(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>name: </strong><em>string</em>,
-    <strong>position: </strong><em><Ref to="./vector">Vector</Ref></em>,
-    <strong>width: </strong><em>number</em>,
-    <strong>inputs: </strong><em>any[]</em>,
-    <strong>outputs: </strong><em>any[]</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/tunnel-node-options">TunnelNodeOptions</Ref></em>):
-    <em><Ref to="#class-tunnelnode">TunnelNode</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="name">
-      <em>string</em>
-    </Param>
-    <Param name="position">
-      <em><Ref to="./vector">Vector</Ref></em>
-    </Param>
-    <Param name="width">
-      <em>number</em>
-    </Param>
-    <Param name="inputs">
-      <em>any[]</em>
-    </Param>
-    <Param name="outputs">
-      <em>any[]</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/tunnel-node-options">TunnelNodeOptions</Ref></em>
-  <template v-slot:default-value>
-
-  ```js
-  {
-    style: {},
-    terminalStyle: {},
-    state: {}
-  }
-  ```
-  </template>
-    </Param>
-  </template>
-</Method>
 
 ## Accessors
 
@@ -89,30 +45,15 @@ Avoid creating TunnelNodes manually and thereby setting/modifying this accessor,
 
 ### serialize
 
-<Method type="method-implementation">
+<Method type="method-async">
   <template v-slot:signature>
-    serialize():
-    <em><Ref to="../interfaces/serialized-tunnel-node">SerializedTunnelNode</Ref></em>
-  </template>
-  <template v-slot:inherit>
-    <Icon valign="bottom" type="implementation" /> of <Ref to="../interfaces/serializable">Serializable</Ref>.<Ref to="../interfaces/serializable#serialize">serialize</Ref>
-  </template>
-  <template v-slot:return><em><Ref to="../interfaces/serialized-tunnel-node">SerializedTunnelNode</Ref></em></template>
-</Method>
-
-### deSerialize
-
-<Method type="method-static">
-  <template v-slot:signature>
-    deSerialize(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>data: </strong><em><Ref to="../interfaces/serialized-tunnel-node">SerializedTunnelNode</Ref></em>):
-    <em><Ref to="#class-terminal">Terminal</Ref></em>
+    serialize(<strong>persist?: </strong><em><Ref to="../interfaces/data-persistence-provider">DataPersistenceProvider</Ref></em>):
+    <em>Promise&lt;<Ref to="../interfaces/serialized-tunnel-node">SerializedTunnelNode</Ref>&gt;</em>
   </template>
   <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="data"><em><Ref to="../interfaces/serialized-tunnel-node">SerializedTunnelNode</Ref></em></Param>
+    <Param name="persist"><em><Ref to="../interfaces/data-persistence-provider">DataPersistenceProvider</Ref></em></Param>
   </template>
-  <template v-slot:return><em><Ref to="#class-tunnelnode">TunnelNode</Ref></em></template>
+  <template v-slot:return><em>Promise&lt;<Ref to="../interfaces/serialized-tunnel-node">SerializedTunnelNode</Ref>&gt;</em></template>
 </Method>
 
 <script setup>
