@@ -6,7 +6,7 @@
 <br/>
 
 ```js
-let file = new StandardNodes.Common.FileSource(flow);
+let file = flow.createNode("common/file-source", {});
 ```
 
 <br/>
@@ -14,26 +14,7 @@ let file = new StandardNodes.Common.FileSource(flow);
 ### Default State
 
 ```js
-{ file: null }
+{
+  file: null;
+}
 ```
-
-## Constructor
-
-<Method type="method">
-  <template v-slot:signature>
-    new FileSource(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-filesource">FileSource</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>

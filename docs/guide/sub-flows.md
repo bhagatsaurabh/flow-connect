@@ -10,5 +10,5 @@ A <Ref to="/reference/api/classes/subflow-node">SubFlowNode</Ref> is a special t
 <Ref to="/reference/api/classes/flow#addsubflow">Flow.addSubFlow</Ref>
 
 ```js
-let subFlowNode = flow1.addSubFlow(flow2, new Vector(200, 200));
+let subFlowNode = flow1.addSubFlow(flow2, Vector.create(200, 200));
 ```

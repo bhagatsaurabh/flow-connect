@@ -1,9 +1,15 @@
 # Interface: TunnelNodeOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'NodeOptions', link: './node-options'}"
+/>
+
 <pre>
 {
-  style?: <Ref to="./node-style">NodeStyle</Ref>,
-  terminalStyle?: <Ref to="./terminal-style">TerminalStyle</Ref>,
-  state?: Object,
+  tunnelType: string (input | output),
+  tunnelName?: string,
+  tunnelDataType?: string
 }
 </pre>

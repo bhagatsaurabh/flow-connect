@@ -9,11 +9,34 @@ export default {
   mounted() {
     this.flowConnect = new FlowConnect(this.$refs["example-basic-canvas"]);
     window.basicExampleFC = this.flowConnect;
-    let flow = this.flowConnect.createFlow({ name: "Basic Example" });
+    let flow = this.flowConnect.createFlow({ name: "Basic Example", rules: {} });
 
-    let timerNode = new TimerNode(flow, new Vector(45, 7), 500);
+    class CustomTimerNode extends Node {
+      timerId = -1;
 
-    let randomNode = flow.createNode("Random", new Vector(285, 50), 120, {
+      setupIO() {
+        this.addTerminals([{ type: TerminalType.OUT, name: "trigger", dataType: "event" }]);
+      }
+      created(options) {
+        const { interval = 1000 } = options;
+        this.state = { interval };
+        this.width = 100;
+
+        this.flow.on("start", () => {
+          this.outputs[0].emit();
+          this.timerId = setInterval(() => this.outputs[0].emit(), this.state.interval);
+        });
+        this.flow.on("stop", () => clearInterval(this.timerId));
+      }
+      process() {}
+    }
+    FlowConnect.register({ type: "node", name: "custom/timer-node" }, CustomTimerNode);
+
+    let timerNode = flow.createNode("custom/timer-node", Vector.create(45, 7), { width: 500 });
+
+    let randomNode = flow.createNode("core/empty", Vector.create(285, 50), {
+      name: "Random",
+      width: 120,
       inputs: [{ name: "trigger", dataType: "event" }],
       outputs: [{ name: "random", dataType: "number" }],
     });
@@ -21,17 +44,15 @@ export default {
       randomNode.setOutputs({ random: Math.random() });
     });
 
-    let multiplyNode = new Node(
-      flow,
-      "Multiply",
-      new Vector(552, 76),
-      100,
-      [
+    let multiplyNode = flow.createNode("core/empty", Vector.create(552, 76), {
+      name: "Multiply",
+      width: 100,
+      inputs: [
         { name: "a", dataType: "number" },
         { name: "b", dataType: "number" },
       ],
-      [{ name: "result", dataType: "number" }]
-    );
+      outputs: [{ name: "result", dataType: "number" }],
+    });
     multiplyNode.on("process", () => {
       let a = multiplyNode.getInput("a");
       let b = multiplyNode.getInput("b");
@@ -40,14 +61,13 @@ export default {
       });
     });
 
-    let numberSource = new StandardNodes.Common.NumberSource(flow, {
-      position: new Vector(245, 128),
+    let numberSource = flow.createNode("common/number-source", Vector.create(245, 128), {
       state: { value: 100 },
     });
 
-    let labelNode = flow.createNode("Label", new Vector(755, 119), 120, [], []);
+    let labelNode = flow.createNode("core/empty", Vector.create(755, 119), { name: "Label", width: 120 });
     labelNode.ui.append(
-      labelNode.createLabel("", { input: true, style: { precision: 2, fontSize: '14px' } })
+      labelNode.createUI("core/label", { text: "", input: true, style: { precision: 2, fontSize: "14px" } })
     );
 
     timerNode.outputs[0].connect(randomNode.inputs[0]);

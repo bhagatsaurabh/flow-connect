@@ -2,7 +2,7 @@
 
 <pre>
 {
-  hitColor: <Ref to="./serialized-color">SerializedColor</Ref>,
+  hitColor: <Ref to="../types/serialized-color">SerializedColor</Ref>,
   zIndex: number,
   focused: boolean,
   id: string,
@@ -12,10 +12,8 @@
   inputs: <Ref to="./serialized-terminal">SerializedTerminal</Ref>[],
   outputs: <Ref to="./serialized-terminal">SerializedTerminal</Ref>[],
   name: string,
+  type: string,
   style: <Ref to="./node-style">NodeStyle</Ref>,
-  terminalStyle: <Ref to="./terminal-style">TerminalStyle</Ref>,
-  ui: <Ref to="./serialized-container">SerializedContainer</Ref>,
-  width: number,
-  subFlow?: <Ref to="./serialized-flow">SerializedFlow</Ref>
+  width: number
 }
 </pre>

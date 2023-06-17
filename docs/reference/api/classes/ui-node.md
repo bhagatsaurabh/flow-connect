@@ -19,44 +19,13 @@ A <Ref to="./node">node</Ref> can have interactive UI, structured in a hierarchi
 ## Constructor
 
 ::: warning Usage not recommended
-For common usages, creating a UINode such as Labels, Selects, Toggles etc. using this constructor is not recommended, use <Ref to="./node#createbutton">Node.create*</Ref> methods instead.
+For common usages, creating a UINode such as Labels, Selects, Toggles etc. using this constructor is not recommended, use <Ref to="./node#createui">Node.createUI</Ref> method instead.
 :::
 
 <Method type="constructor">
   <template v-slot:signature>
-    new UINode(<strong>node: </strong><em><Ref to="./node">Node</Ref></em>,
-    <strong>position: </strong><em><Ref to="./vector">Vector</Ref></em>,
-    <strong>type: </strong><em><Ref to="../enums/ui-type">UIType</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/ui-node-options">UINodeOptions</Ref></em>):
+    new UINode():
     <em><Ref to="#class-uinode">UINode</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="node"><em><Ref to="./node">Node</Ref></em></Param>
-    <Param name="position">
-      <em><Ref to="./vector">Vector</Ref></em>
-    </Param>
-    <Param name="type">
-      <em><Ref to="../enums/ui-type">UIType</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/ui-node-options">UINodeOptions</Ref></em>
-  <template v-slot:default-value>
-
-  ```js
-  {
-    draggable: false,
-    zoomable: false,
-    visible: true,
-    style: {},
-    propName: null,
-    input: null,
-    output: null,
-    id: getNewUUID(), // dynamic
-    hitColor: null
-  }
-  ```
-  </template>
-    </Param>
   </template>
 </Method>
 
@@ -172,7 +141,7 @@ For common usages, creating a UINode such as Labels, Selects, Toggles etc. using
 
 <Property type="property" name="type">
   <template v-slot:type>
-    <em><Ref to="../enums/ui-type">UIType</Ref></em>
+    <em>string</em>
   </template>
 </Property>
 
@@ -236,6 +205,48 @@ For common usages, creating a UINode such as Labels, Selects, Toggles etc. using
   </template>
   <template v-slot:inherit>
     <Icon type="inherited" />from <Ref to="./hooks">Hooks</Ref>.<Ref to="./hooks#call">call</Ref>
+  </template>
+</Method>
+
+### create
+
+<Method type="method-static">
+  <template v-slot:signature>
+    create&lt;T extends <Ref to="./ui-node">UINode</Ref>&gt;(
+      <strong>type: </strong><em>string</em>,
+      <strong>node: </strong><em><Ref to="./node">Node</Ref></em>,
+      <strong>options: </strong><em><Ref to="../interfaces/ui-node-options">UINodeOptions</Ref></em>
+    ):
+    <em>T</em>
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em>string</em></Param>
+    <Param name="node"><em><Ref to="./node">Node</Ref></em></Param>
+    <Param name="options"><em><Ref to="../interfaces/ui-node-options">UINodeOptions</Ref></em></Param>
+  </template>
+  <template v-slot:return>
+    <em>T</em>
+  </template>
+</Method>
+
+### createTerminal
+
+<Method type="method">
+  <template v-slot:signature>
+    createTerminal(
+      <strong>type: </strong><em><Ref to="../enums/terminal-type">TerminalType</Ref></em>,
+      <strong>dataType: </strong><em>string</em>,
+      <strong>name: </strong><em>string</em>
+    ):
+    <em><Ref to="./terminal">Terminal</Ref></em>
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em><Ref to="../enums/terminal-type">TerminalType</Ref></em></Param>
+    <Param name="dataType"><em>string</em></Param>
+    <Param name="name"><em>string</em></Param>
+  </template>
+  <template v-slot:return>
+    <em><Ref to="./terminal">Terminal</Ref></em>
   </template>
 </Method>
 

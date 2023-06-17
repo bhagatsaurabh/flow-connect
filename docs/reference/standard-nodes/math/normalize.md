@@ -6,11 +6,10 @@
 <br/>
 
 ```js
-let normalize = new StandardNodes.Math.Normalize(
-  flow,
-  'array',
-  { state: { relative: true, constant: 5 } }
-);
+let normalize = flow.createNode("math/normalize", {
+  normalizationType: "array",
+  state: { relative: true, constant: 5 },
+});
 ```
 
 <br/>
@@ -21,31 +20,16 @@ let normalize = new StandardNodes.Math.Normalize(
 {
   min: 0,
   max: 100,
-  relative: false
+  relative: false,
+  constant: false,
+  normalizationType: "array"
 }
 ```
 
-## Constructor
+## Options
 
-<Method type="method">
-  <template v-slot:signature>
-    new Normalize(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>type: </strong><em>'number' | 'array'</em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-normalize">Normalize</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="type">
-      <em>'number' | 'array'</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>
+<pre>
+{
+  normalizationType: "number" | "array";
+}
+</pre>

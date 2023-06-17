@@ -83,6 +83,14 @@
       "type": "method-inherited"
     },
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
+      "name": "createTerminal",
+      "type": "method"
+    },
+    {
       "name": "getProp",
       "type": "method"
     },

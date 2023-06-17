@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "properties": [
     {
       "name": "connectors",
@@ -43,7 +38,7 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
+      "name": "renderer",
       "type": "property"
     },
     {
@@ -57,6 +52,10 @@
   ],
   "accessors": [
     {
+      "name": "ui",
+      "type": "accessor"
+    },
+    {
       "name": "propName",
       "type": "accessor"
     }
@@ -69,6 +68,10 @@
     {
       "name": "connect",
       "type": "method"
+    },
+    {
+      "name": "create",
+      "type": "method-static"
     },
     {
       "name": "disconnect",
@@ -105,10 +108,6 @@
     {
       "name": "setData",
       "type": "method"
-    },
-    {
-      "name": "deSerialize",
-      "type": "method-static"
     }
   ],
   "events": [

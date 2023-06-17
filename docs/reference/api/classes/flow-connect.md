@@ -49,9 +49,9 @@ A FlowConnect instance is bound to exactly one <code>&lt;canvas&gt;</code>, this
   </template>
   <template v-slot:default>
 
-  ```js:no-line-numbers
-  { top: 0, left: 0, width: 0, height: 0 }
-  ```
+```js:no-line-numbers
+{ top: 0, left: 0, width: 0, height: 0 }
+```
 
   </template>
 </Property>
@@ -156,62 +156,11 @@ A FlowConnect instance is bound to exactly one <code>&lt;canvas&gt;</code>, this
   <template v-slot:desc>
   Currently active pointers in any user-interaction (mouse or touch).
 
-  For e.g. while pinching (zooming) on touch devices, this array will contain two pointers each representing an individual touch.
+For e.g. while pinching (zooming) on touch devices, this array will contain two pointers each representing an individual touch.
 
-  While on mouse based devices, this array will only contain one pointer representing the mouse cursor at any given time.
-  </template>
-  <template v-slot:default>[]</template>
-</Property>
-
-### renderResolver
-
-<Property type="property" :extras="['readonly']" name="renderResolver">
-  <template v-slot:type>
-    {<br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>connector: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./connector">Connector</Ref>,
-        <Ref to="../interfaces/connector-renderparams">ConnectorRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>group?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./group">Group</Ref>,
-        <Ref to="../interfaces/group-renderparams">GroupRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>node?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./node">Node</Ref>,
-        <Ref to="../interfaces/node-renderparams">NodeRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>nodeButton?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./node-button">NodeButton</Ref>,
-        <Ref to="../interfaces/nodebutton-renderparams">NodeButtonRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>terminal?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./terminal">Terminal</Ref>,
-        <Ref to="../interfaces/terminal-renderparams">TerminalRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>uiContainer?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="../nodeui/container">Container</Ref>,
-        <Ref to="../interfaces/container-renderparams">ContainerRenderParams</Ref>&gt;
-      </span>
-    <br/>}
-  </template>
-  <template v-slot:desc>
-  A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> which is scoped to the FlowConnect instance.
-
-  Any custom render functions specified using this resolver will affect every <Ref to="./flow">Flow</Ref> created by this FlowConnect instance
-  </template>
-  <template v-slot:default>{}</template>
+While on mouse based devices, this array will only contain one pointer representing the mouse cursor at any given time.
+</template>
+<template v-slot:default>[]</template>
 </Property>
 
 ### startTime
@@ -234,6 +183,17 @@ A FlowConnect instance is bound to exactly one <code>&lt;canvas&gt;</code>, this
   </template>
   <template v-slot:default>
     <Ref to="../enums/flow-connect-state">FlowConnectState</Ref>.<Ref to="../enums/flow-connect-state#stopped">Stopped</Ref>
+  </template>
+</Property>
+
+### version
+
+<Property type="property" name="version" :extras="['readonly']">
+  <template v-slot:type>
+    <em>string</em>
+  </template>
+  <template v-slot:desc>
+    FlowConnect version
   </template>
 </Property>
 
@@ -374,13 +334,14 @@ A FlowConnect instance is bound to exactly one <code>&lt;canvas&gt;</code>, this
     <em><Ref to="../interfaces/flow-options">FlowOptions</Ref></em>
   <template v-slot:default-value>
 
-  ```js
-  {
-    name: 'New Flow',
-    rules: {},
-    terminalColors: {}
-  }
-  ```
+```js
+{
+  name: 'New Flow',
+  rules: {},
+  terminalColors: {}
+}
+```
+
   </template>
   </Param>
   </template>
@@ -389,39 +350,36 @@ A FlowConnect instance is bound to exactly one <code>&lt;canvas&gt;</code>, this
   </template>
   <template v-slot:example>
 
-  ```js:no-line-numbers
-  let flow = flowConnect.createFlow({
-    name: "Example Flow",
-    rules: {
-      r: ["r", "image"],
-      g: ["g", "image"],
-      b: ["b", "image"]
-      image: ['image']
-    },
-    terminalColors: {
-      r: '#ff0000',
-      g: '#00ff00',
-      b: '#0000ff',
-      image: 'purple'
-    }
-  });
-  ```
+```js:no-line-numbers
+let flow = flowConnect.createFlow({
+  name: "Example Flow",
+  rules: {
+    r: ["r", "image"],
+    g: ["g", "image"],
+    b: ["b", "image"]
+    image: ['image']
+  },
+  terminalColors: {
+    r: '#ff0000',
+    g: '#00ff00',
+    b: '#0000ff',
+    image: 'purple'
+  }
+});
+```
+
   </template>
 </Method>
 
 ### fromJson
 
-::: danger BETA
-In active development, might not work or can be unstable leading to unexpected results
-:::
-
-<Method type="method">
+<Method type="method-async">
   <template v-slot:signature>
     fromJson(
       <strong>json: </strong><em>string</em>,
       <Optional class="mr-0p5"/><strong>receive?: </strong><em><Ref to="../interfaces/data-fetch-provider">DataFetchProvider</Ref></em>
     ):
-    <em><Ref to="./flow">Flow</Ref></em>
+    <em>Promise&lt;<Ref to="./flow">Flow</Ref>&gt;</em>
   </template>
   <template v-slot:desc>
     Creates a flow from json string
@@ -434,6 +392,99 @@ In active development, might not work or can be unstable leading to unexpected r
   </template>
   <template v-slot:return>
     <em><Ref to="./flow">Flow</Ref></em>
+  </template>
+</Method>
+
+### getCache
+
+<Method type="method">
+  <template v-slot:signature>
+    getCache(
+      <strong>type: </strong><em>keyof <Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em>,
+      <strong>key: </strong><em>valueof <Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em>
+    ):
+    <em>valueof <Ref to="../interfaces/flow-connect-cache-values">FlowConnectCacheValues</Ref></em>
+  </template>
+  <template v-slot:desc>
+    Retrieves a cached entity.
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em>keyof <Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em></Param>
+    As of current version caching of only array-buffers and audio-buffers are supported.
+    <Param name="key"><em>valueof <Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em></Param>
+    Key that was used while caching.
+  </template>
+  <template v-slot:return>
+    <em>valueof <Ref to="../interfaces/flow-connect-cache-values">FlowConnectCacheValues</Ref></em>
+  </template>
+</Method>
+
+### getDefaultStyle
+
+<Method type="method">
+  <template v-slot:signature>
+    getDefaultStyle&lt;T&gt;(
+      <strong>type: </strong><em>string(node | ui | connector | group | terminal)</em>,
+      <Optional class="mr-0p5"/><strong>name: </strong><em>string</em>
+    ):
+    <em>T</em>
+  </template>
+  <template v-slot:desc>
+    Retrieves the default style for a given entity
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em>string (node | ui | connector | group | terminal)</em></Param>
+    Type of entity for which the default style needs to be retrieved
+    <Param name="name?"><em>string</em></Param>
+    Name of the entity, only used if type is either 'node' or 'ui'
+  </template>
+  <template v-slot:return>
+    <em>T</em>
+  </template>
+</Method>
+
+### getRegistered
+
+<Method type="method-static">
+  <template v-slot:signature>
+    getRegistered&lt;<em>keyof <Ref to="../interfaces/plugin-type">PluginType</Ref></em>&gt;(
+      <strong>type: </strong><em>keyof <Ref to="../interfaces/plugin-type">PluginType</Ref></em>,
+      <strong>name: </strong><em>string</em>
+    ):
+    <em>valueof <Ref to="../interfaces/plugin-type">PluginType</Ref></em>
+  </template>
+  <template v-slot:desc>
+    Retrieves the constructor for registered plugin type
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em>keyof <Ref to="../interfaces/plugin-type">PluginType</Ref></em></Param>
+    Type of the plugin
+    <Param name="name"><em>string</em></Param>
+    Name of the plugin
+  </template>
+  <template v-slot:return>
+    <em>valueof <Ref to="../interfaces/plugin-type">PluginType</Ref></em>
+  </template>
+</Method>
+
+### getRegisteredRenderer
+
+<Method type="method-static">
+  <template v-slot:signature>
+    getRegisteredRenderer&lt;<em>keyof <Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em>&gt;(
+      <strong>type: </strong><em>keyof <Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em>
+    ):
+    <em>valueof <Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em>
+  </template>
+  <template v-slot:desc>
+    Retrieves the registered custom renderer
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em>keyof <Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em></Param>
+    Type of custom renderer
+  </template>
+  <template v-slot:return>
+    <em>valueof <Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em>
   </template>
 </Method>
 
@@ -479,6 +530,54 @@ In active development, might not work or can be unstable leading to unexpected r
   </template>
 </Method>
 
+### register
+
+<Method type="method-static">
+  <template v-slot:signature>
+    register&lt;keyof <em><Ref to="../interfaces/plugin-type">PluginType</Ref></em>&gt;(
+      <strong>metadata: </strong><em><Ref to="../interfaces/plugin-metadata">PluginMetadata</Ref></em>,
+      <strong>executor: </strong><em>valueof <Ref to="../interfaces/plugin-type">PluginType</Ref></em>
+    ):
+    <em>boolean</em>
+  </template>
+  <template v-slot:desc>
+    Registers a plugin globally of given type and name specified in the metadata along with its constructor.
+  </template>
+  <template v-slot:params>
+    <Param name="metadata"><em><Ref to="../interfaces/plugin-metadata">PluginMetadata</Ref></em></Param>
+    The plugin metadata specifying the type of the plugin and its name to be registered
+    <Param name="executor"><em>valueof <Ref to="../interfaces/plugin-type">PluginType</Ref></em></Param>
+    The plugin constructor
+  </template>
+  <template v-slot:return>
+    <em>boolean</em>
+  </template>
+</Method>
+
+### registerRenderer
+
+<Method type="method-static">
+  <template v-slot:signature>
+    registerRenderer&lt;keyof <em><Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em>&gt;(
+      <strong>type: </strong>keyof <em><Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em>,
+      <strong>renderer: </strong>valueof <em><Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em>
+    ):
+    <em>boolean</em>
+  </template>
+  <template v-slot:desc>
+    Registers a plugin globally of given type and name specified in the metadata along with its constructor.
+  </template>
+  <template v-slot:params>
+    <Param name="type">keyof <em><Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em></Param>
+    The type of the custom renderer to register
+    <Param name="renderer">valueof <em><Ref to="../interfaces/flow-connect-renderers">FlowConnectRenderers</Ref></em></Param>
+    The custom renderer to register
+  </template>
+  <template v-slot:return>
+    <em>boolean</em>
+  </template>
+</Method>
+
 ### scaleBy
 
 ::: warning BETA
@@ -502,6 +601,67 @@ Definition of how this method should work is not clear at the moment, implementa
   </template>
 </Method>
 
+### setCache
+
+<Method type="method">
+  <template v-slot:signature>
+    setCache&lt;keyof <em><Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em>&gt;(
+      <strong>type: </strong>keyof <em><Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em>,
+      <strong>key: </strong>valueof <em><Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em>,
+      <strong>cache: </strong>valueof <em><Ref to="../interfaces/flow-connect-cache-values">FlowConnectCacheValues</Ref></em>
+    ):
+    <em>void</em>
+  </template>
+  <template v-slot:desc>
+    Sets a value in cache corresponding to given type and key.
+  </template>
+  <template v-slot:params>
+    <Param name="type">keyof <em><Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em></Param>
+    The type of the value to be cached
+    <Param name="key">valueof <em><Ref to="../interfaces/flow-connect-cache-keys">FlowConnectCacheKeys</Ref></em></Param>
+    The key against which the given value needs to be cached.
+    <Param name="cache">valueof <em><Ref to="../interfaces/flow-connect-cache-values">FlowConnectCacheValues</Ref></em></Param>
+    The value to cache
+  </template>
+  <template v-slot:return>
+    <em>void</em>
+  </template>
+</Method>
+
+### setDefaultStyle
+
+<Method type="method">
+  <template v-slot:signature>
+    setDefaultStyle&lt;T&gt;(
+      <strong>type: </strong><em>string(node | ui | connector | group | terminal)</em>,
+      <strong>style: </strong><em>T</em>
+    ):
+    <em>void</em>
+    <br/>
+    <br/>
+    setDefaultStyle&lt;T&gt;(
+      <strong>type: </strong><em>string(node | ui | connector | group | terminal)</em>,
+      <strong>style: </strong><em>T</em>,
+      <strong>name: </strong><em>string</em>
+    ):
+    <em>void</em>
+  </template>
+  <template v-slot:desc>
+    Sets the default style for the given type either globally or in case of 'node' and 'ui' specific to the provided type name.
+  </template>
+  <template v-slot:params>
+    <Param name="type"><em>string(node | ui | connector | group | terminal)</em></Param>
+    The type of the entity for which the default style needs to be set
+    <Param name="style"><em>T</em></Param>
+    The style to set as default
+    <Param name="name"><em>string</em></Param>
+    The type name in case the type is 'node' or 'ui'
+  </template>
+  <template v-slot:return>
+    <em>void</em>
+  </template>
+</Method>
+
 ### setupAudioContext
 
 <Method type="method-async">
@@ -512,20 +672,16 @@ Definition of how this method should work is not clear at the moment, implementa
   <template v-slot:desc>
     Creates an AudioContext if not already created, generates and loads utility AudioWorklets mainly used by <Ref to="../../standard-nodes/audio">StandardNodes.Audio</Ref> module
 
-  ::: warning Note
-  If FlowConnect is created using its static <Ref to="#create">create</Ref> method, this method gets called automatically
-  :::
+::: warning Note
+If FlowConnect is created using its static <Ref to="#create">create</Ref> method, this method gets called automatically
+:::
 
-  If a FlowConnect instance is created using the <Ref to="#constructor">constructor</Ref>, this method will not be called and AudioContext with all its utility AudioWorklets may not be present, which is good for a scenario where you don't need WebAudio support right away at the time of FlowConnect instantiation but require it at a later stage or on user-demand, in which case this method can come in handy.
-  </template>
-  <template v-slot:return><em>Promise&lt;void&gt;</em></template>
+If a FlowConnect instance is created using the <Ref to="#constructor">constructor</Ref>, this method will not be called and AudioContext with all its utility AudioWorklets may not be present, which is good for a scenario where you don't need WebAudio support right away at the time of FlowConnect instantiation but require it at a later stage or on user-demand, in which case this method can come in handy.
+</template>
+<template v-slot:return><em>Promise&lt;void&gt;</em></template>
 </Method>
 
 ### toJson
-
-::: danger BETA
-In active development, might not work or can be unstable leading to unexpected results
-:::
 
 <Method type="method">
   <template v-slot:signature>
@@ -557,32 +713,33 @@ In active development, might not work or can be unstable leading to unexpected r
   <template v-slot:desc>
   Renders the root flow of the flow-tree.
 
-  A flow-tree gets created if you have nested flows which can be achieved using <Ref to="./subflow-node">SubFlowNodes</Ref>
+A flow-tree gets created if you have nested flows which can be achieved using <Ref to="./subflow-node">SubFlowNodes</Ref>
 
-  A root Flow is one which sits at the top of this tree, or in other words, its a Flow from which all the other flows and subflows were created.
-  </template>
-  <template v-slot:return>
-    <em>void</em>
-  </template>
-  <template v-slot:example>
+A root Flow is one which sits at the top of this tree, or in other words, its a Flow from which all the other flows and subflows were created.
+</template>
+<template v-slot:return>
+<em>void</em>
+</template>
+<template v-slot:example>
 
-  ```js:no-line-numbers
-  let a = flowConnect.createFlow({ name: 'Flow A' });
-  let b = flowConnect.createFlow({ name: 'Flow B' });
-  let c = flowConnect.createFlow({ name: 'Flow C' });
-  a.addSubFlow(b);
-  a.addSubFlow(c);
-  let d = flowConnect.createFlow({ name: 'Flow D' });
-  b.addSubFlow(d);
-  let e = flowConnect.createFlow({ name: 'Flow E' });
-  let f = flowConnect.createFlow({ name: 'Flow F' });
-  c.addSubFlow(e);
-  c.addSubFlow(f);
-  ```
+```js:no-line-numbers
+let a = flowConnect.createFlow({ name: 'Flow A' });
+let b = flowConnect.createFlow({ name: 'Flow B' });
+let c = flowConnect.createFlow({ name: 'Flow C' });
+a.addSubFlow(b);
+a.addSubFlow(c);
+let d = flowConnect.createFlow({ name: 'Flow D' });
+b.addSubFlow(d);
+let e = flowConnect.createFlow({ name: 'Flow E' });
+let f = flowConnect.createFlow({ name: 'Flow F' });
+c.addSubFlow(e);
+c.addSubFlow(f);
+```
+
   <img alt="Flow-tree" src="/images/flow-tree.png" />
 
-  If for e.g. Flow D is currently being rendered on <Ref to="#canvas">canvas</Ref> then calling this method would start rendering Flow A instead (which is the root flow)
-  </template>
+If for e.g. Flow D is currently being rendered on <Ref to="#canvas">canvas</Ref> then calling this method would start rendering Flow A instead (which is the root flow)
+</template>
 </Method>
 
 ### translateBy
@@ -613,14 +770,15 @@ In active development, might not work or can be unstable leading to unexpected r
   <template v-slot:desc>
   Creates a FlowConnect instance with WebAudio support (AudioContext and utility AudioWorklets) already setup
 
-  See also <Ref to="#setupaudiocontext">setupAudioContext</Ref> to get more info on how this is different than just creating a FlowConnect using its <Ref to="#constructor">constructor</Ref>.
-  </template>
-  <template v-slot:params>
-    <Param name="mount?"><em>HTMLCanvasElement</em> | <em>HTMLDivElement</em></Param>
-  </template>
-  <template v-slot:return>
-    <em>Promise&lt;<Ref to="#class-flowconnect">FlowConnect</Ref>&gt;</em>
-  </template>
+See also <Ref to="#setupaudiocontext">setupAudioContext</Ref> to get more info on how this is different than just creating a FlowConnect using its <Ref to="#constructor">constructor</Ref>.
+</template>
+<template v-slot:params>
+
+<Param name="mount?"><em>HTMLCanvasElement</em> | <em>HTMLDivElement</em></Param>
+</template>
+<template v-slot:return>
+<em>Promise&lt;<Ref to="#class-flowconnect">FlowConnect</Ref>&gt;</em>
+</template>
 </Method>
 
 ## Events

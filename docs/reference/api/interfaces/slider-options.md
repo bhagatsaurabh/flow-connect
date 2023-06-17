@@ -1,12 +1,15 @@
 # Interface: SliderOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'UINodeOptions', link: './ui-node-options'}"
+/>
+
 <pre>
 {
-  value?: number,
-  propName?: string,
-  input?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  output?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  height?: number,
-  style?: <Ref to="./slider-style">SliderStyle</Ref>
+  min: number,
+  max: number,
+  value?: number
 }
 </pre>

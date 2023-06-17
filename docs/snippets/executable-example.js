@@ -1,15 +1,19 @@
-import { FlowConnect } from 'flow-connect';
-import { Vector, Node } from 'flow-connect/core';
+import { FlowConnect } from "flow-connect";
+import { Vector, Node } from "flow-connect/core";
 
-let flowConnect = new FlowConnect(document.getElementById('canvas'));
+let flowConnect = new FlowConnect(document.getElementById("canvas"));
 let flow = flowConnect.createFlow({ name: "Graph Execution Example" });
 
 class DummyNode extends Node {
-  constructor(flow, name, position) {
-    super(flow, name || "Node", position, 120,
-      [{ name: "in", dataType: "any" }], [{ name: "out", dataType: "any" }],
-      { state: { status: "Stopped", lastProcessed: -1 } }
-    );
+  setupIO() {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "in", dataType: "any" },
+      { type: TerminalType.OUT, name: "out", dataType: "any" },
+    ]);
+  }
+  created() {
+    this.state = { status: "Stopped", lastProcessed: -1 };
+    this.width = 120;
 
     this.setupUI();
     this.button.on("click", () => this.setOutputs(0, "Dummy Data"));
@@ -18,13 +22,14 @@ class DummyNode extends Node {
       this.state.lastProcessed = flow.flowConnect.time;
       this.setOutputs(0, "Dummy Data");
     });
-    flow.on("stop", () => this.state.status = "Stopped");
-    flow.flowConnect.on("tick", () => {
+    this.flow.on("stop", () => (this.state.status = "Stopped"));
+    this.flow.on("tick", () => {
       if (this.state.status === "Processing") {
         if (flow.flowConnect.time - this.state.lastProcessed > 250) this.state.status = "Idle";
       }
     });
   }
+  process() {}
 
   setupUI() {
     this.style.color = "white";
@@ -32,20 +37,23 @@ class DummyNode extends Node {
 
     this.button = this.createButton("Trigger output", {
       height: 20,
-      style: { backgroundColor: "white", color: "black", shadowColor: "grey" }
+      style: { backgroundColor: "white", color: "black", shadowColor: "grey" },
     });
     this.ui.append([
       this.createHozLayout([
         this.createLabel("Status:", { style: { grow: 0.4, color: "white" } }),
         this.createLabel(this.state.status, {
-          propName: "status", style: { grow: 0.6, color: "white", align: Align.Right }
-        })
+          propName: "status",
+          style: { grow: 0.6, color: "white", align: Align.Right },
+        }),
       ]),
-      this.button
+      this.button,
     ]);
   }
 }
-flow.renderResolver.uiContainer = () => {
+FlowConnect.register({ type: "node", name: "my-custom/dummy-node" }, DummyNode);
+
+flow.renderers.background = () => {
   return (context, params, target) => {
     Object.assign(context, {
       fillStyle: target.style.backgroundColor,
@@ -57,13 +65,21 @@ flow.renderResolver.uiContainer = () => {
 };
 
 let positions = [
-  new Vector(510.9, 18), new Vector(-298, 82.7), new Vector(-96.4, 21.1),
-  new Vector(-95.5, 182), new Vector(105.2, -62), new Vector(105.9, 76.3),
-  new Vector(104.4, 221.1), new Vector(302, 19.5), new Vector(304.4, 153.2),
-  new Vector(512, -105.5), new Vector(505.1, 153.2), new Vector(720.3, 90)
+  Vector.create(510.9, 18),
+  Vector.create(-298, 82.7),
+  Vector.create(-96.4, 21.1),
+  Vector.create(-95.5, 182),
+  Vector.create(105.2, -62),
+  Vector.create(105.9, 76.3),
+  Vector.create(104.4, 221.1),
+  Vector.create(302, 19.5),
+  Vector.create(304.4, 153.2),
+  Vector.create(512, -105.5),
+  Vector.create(505.1, 153.2),
+  Vector.create(720.3, 90),
 ];
 for (let i = 0; i < 12; i++) {
-  let dummyNode = new DummyNode(flow, "Node " + (i + 1), positions[i]);
+  flow.createNode("my-custom/dummy-node", positions[i], { name: "Node " + (i + 1) });
 }
 
 let nodes = [...flow.nodes.values()];

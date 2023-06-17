@@ -1,9 +1,5 @@
 <template>
-  <div
-    ref="feature-container"
-    :class="{ 'align-right': alignRight }"
-    class="feature-container"
-  >
+  <div ref="feature-container" :class="{ 'align-right': alignRight }" class="feature-container">
     <div class="feature-title">
       <h2>
         <slot name="name"></slot>
@@ -16,11 +12,7 @@
     </div>
     <div class="feature-live">
       <div class="feature-live-control">
-        <div
-          @click="controlClicked"
-          ref="control-icon"
-          class="control-icon"
-        ></div>
+        <div @click="controlClicked" ref="control-icon" class="control-icon"></div>
       </div>
       <div ref="live-example" class="feature-live-content">
         <slot name="live-example" :play="isLiveOpen"></slot>

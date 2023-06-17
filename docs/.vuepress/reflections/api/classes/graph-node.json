@@ -23,14 +23,5 @@
       "type": "property"
     }
   ],
-  "methods": [
-    {
-      "name": "serialize",
-      "type": "method"
-    },
-    {
-      "name": "deSerialize",
-      "type": "method-static"
-    }
-  ]
+  "methods": []
 }

@@ -1,10 +1,13 @@
 # Interface: ButtonOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'UINodeOptions', link: './ui-node-options'}"
+/>
+
 <pre>
 {
-  input?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  output?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  height?: number,
-  style?: <Ref to="./button-style">ButtonStyle</Ref>
+  text: number | string
 }
 </pre>

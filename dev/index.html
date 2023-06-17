@@ -5,12 +5,12 @@
   <link rel="stylesheet" href="styles/index.css" />
   <script src="lib/split.min.js"></script>
   <script src="flow-connect.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/common@latest/dist/common.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/net@latest/dist/net.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/audio@latest/dist/audio.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/visual@latest/dist/visual.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/ui@latest/dist/ui.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@flow-connect/math@latest/dist/math.js"></script>
+  <script src="common.js"></script>
+  <script src="net.js"></script>
+  <script src="audio.js"></script>
+  <script src="visual.js"></script>
+  <script src="ui.js"></script>
+  <script src="math.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 </head>
 
@@ -131,9 +131,14 @@
       }
     }
 
+    const storage = {};
+    let persistHandler = (id, blob) => {
+      storage[id] = blob;
+    }
     let exportHandler = async () => {
       if (flow.state !== FlowState.Stopped) flowControlHandler();
-      const content = await flowConnect.toJson(flow);
+      const content = await flowConnect.toJson(flow, persistHandler);
+      console.log(storage);
       if (content) {
         const downloader = document.createElement("a");
         document.body.appendChild(downloader);
@@ -148,6 +153,9 @@
       }
     }
 
+    let receiveHandler = (id) => {
+      return storage[id];
+    }
     let importHandler = async () => {
       if (flow.state !== FlowState.Stopped) flowControlHandler();
 
@@ -160,7 +168,7 @@
       uploader.onchange = async () => {
         if (uploader.files.length > 0) {
           const content = await (await fetch(URL.createObjectURL(uploader.files[0]))).text();
-          const flow = await flowConnect.fromJson(content);
+          flow = await flowConnect.fromJson(content, receiveHandler);
           flowConnect.render(flow);
         }
       }

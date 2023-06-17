@@ -2,15 +2,15 @@
 
 <pre>
 {
+  version: string,
   id: string,
   name: string,
   rules: <Ref to="./rules">Rules</Ref>,
-  terminalColors: Record&lt;string, string&gt;,
+  ruleColors: <Ref to="./serialized-rule-colors">SerializedRuleColors</Ref>,
   nodes: <Ref to="./serialized-node">SerializedNode</Ref>[],
   groups: <Ref to="./serialized-group">SerializedGroup</Ref>[],
   connectors: <Ref to="./serialized-connector">SerializedConnector</Ref>[],
   inputs: <Ref to="./serialized-tunnel-node">SerializedTunnelNode</Ref>[],
-  outputs: <Ref to="./serialized-tunnel-node">SerializedTunnelNode</Ref>[],
-  executionGraph: <Ref to="./serialized-graph">SerializedGraph</Ref>
+  outputs: <Ref to="./serialized-tunnel-node">SerializedTunnelNode</Ref>[]
 }
 </pre>

@@ -8,6 +8,6 @@
 
 <pre>
 {
-  proxyTerminalId: string
+  tunnelType: string (input | output)
 }
 </pre>

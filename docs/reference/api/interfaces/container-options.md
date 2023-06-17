@@ -1,7 +1,13 @@
 # Interface: ContainerOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'UINodeOptions', link: './ui-node-options'}"
+/>
+
 <pre>
 {
-  style?: <Ref to="./container-style">ContainerStyle</Ref>
+  width: number
 }
 </pre>

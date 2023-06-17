@@ -6,7 +6,7 @@
 <br/>
 
 ```js
-let moogEffect = new StandardNodes.Audio.MoogEffect(flow);
+let moogEffect = flow.createNode("audio/moog", {});
 ```
 
 <br/>
@@ -20,24 +20,3 @@ let moogEffect = new StandardNodes.Audio.MoogEffect(flow);
   bypass: false
 }
 ```
-
-## Constructor
-
-<Method type="method">
-  <template v-slot:signature>
-    new MoogEffect(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-moog">MoogEffect</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>

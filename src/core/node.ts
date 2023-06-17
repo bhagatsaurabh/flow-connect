@@ -1,70 +1,91 @@
 import { SerializedVector, Vector } from "./vector.js";
-import { ViewPort, LOD, Align } from '../common/enums.js';
-import {
-  VSlider, VSliderStyle, Slider2D, Slider2DStyle, RadioGroup, RadioGroupStyle, Envelope, EnvelopeStyle,
-  Dial, DialStyle, Container, ContainerRenderParams, SerializedContainer, Label, LabelStyle,
-  Button, ButtonStyle, Image, ImageStyle, HorizontalLayout, HorizontalLayoutStyle, Toggle, ToggleStyle,
-  Select, SelectStyle, Source, SourceStyle, Display, DisplayStyle, CustomRendererConfig, Input, InputStyle,
-  Stack, StackStyle, Slider, SliderStyle, UINode
-} from "../ui/index.js";
-import { get, getNewUUID, intersects } from "../utils/utils.js";
+import { ViewPort, LOD, Align } from "../common/enums.js";
+import { UINode, UINodeOptions, UIWheelEvent } from "../ui/ui-node.js";
+import { Container, ContainerOptions } from "../ui/container.js";
+import { uuid, intersects } from "../utils/utils.js";
 import { Color, SerializedColor } from "./color.js";
-import { Flow, FlowState, SerializedFlow } from './flow.js';
-import { Group } from './group.js';
-import { Terminal, TerminalType, TerminalStyle, SerializedTerminal, TerminalRenderParams } from './terminal.js';
-import { Hooks } from './hooks.js';
-import { DataFetchProvider, DataPersistenceProvider, Events, Renderable, RenderFunction, RenderResolver, RenderState, Serializable } from "../common/interfaces.js";
+import { Flow, FlowState } from "./flow.js";
+import { Group } from "./group.js";
+import { Terminal, TerminalType, SerializedTerminal } from "./terminal.js";
+import { Hooks } from "./hooks.js";
+import {
+  DataPersistenceProvider,
+  Events,
+  NodeRenderers,
+  Renderable,
+  RenderFn,
+  RenderState,
+  Serializable,
+} from "../common/interfaces.js";
 import { Connector } from "./connector.js";
 import { Log } from "../utils/logger.js";
+import { FlowConnect } from "../flow-connect.js";
 
-export class Node extends Hooks implements Events, Serializable<SerializedNode>, Renderable {
+export abstract class Node extends Hooks implements Events, Serializable<SerializedNode>, Renderable {
   //#region Properties
-  renderResolver: {
-    node?: RenderResolver<Node, NodeRenderParams>,
-    nodeButton?: RenderResolver<NodeButton, NodeButtonRenderParams>,
-    terminal?: RenderResolver<Terminal, TerminalRenderParams>,
-    uiContainer?: RenderResolver<Container, ContainerRenderParams>,
-  } = {};
-  hitColor: Color;
-  private _width: number;
+  renderers: NodeRenderers = {};
 
-  uiNodes: Map<string, UINode>;
-  terminals: Map<string, Terminal>;
-  nodeButtons: Map<string, NodeButton>;
+  private _width: number;
   private _zIndex: number;
   private _position: Vector;
-  private stateObserver = new Hooks();
-
-  renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeState.MAXIMIZED, lod: LOD.LOD2 };
+  private stateObserver;
 
   currHitTerminal: Terminal;
   prevHitTerminal: Terminal;
   currHitUINode: UINode;
   prevHitUINode: UINode;
 
+  flow: Flow;
+  name: string;
+  id: string;
+  type: string;
+  hitColor: Color;
+  private _style: NodeStyle;
   focused: boolean = false;
+  ui: Container;
+  uiNodes: Map<string, UINode>;
+  terminals: Map<string, Terminal>;
   inputs: Terminal[] = [];
   outputs: Terminal[] = [];
   inputsUI: Terminal[] = [];
   outputsUI: Terminal[] = [];
-  ui: Container;
   state: Record<string, any>;
   group: Group = null;
+  nodeButtons: Map<string, NodeButton>;
+  renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeState.MAXIMIZED, lod: LOD.LOD2 };
   //#endregion
 
   //#region Accessors
-  get height(): number { return this.ui.height }
-  get context(): CanvasRenderingContext2D { return this.flow.flowConnect.context }
-  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offContext }
-  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D { return this.flow.flowConnect.offUIContext }
-  get position(): Vector { return this._position }
+  get style(): NodeStyle {
+    return this._style;
+  }
+  set style(style: NodeStyle) {
+    this._style = { ...this._style, ...style };
+  }
+  get height(): number {
+    return this.ui.height;
+  }
+  get context(): CanvasRenderingContext2D {
+    return this.flow.flowConnect.context;
+  }
+  get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
+    return this.flow.flowConnect.offContext;
+  }
+  get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
+    return this.flow.flowConnect.offUIContext;
+  }
+  get position(): Vector {
+    return this._position;
+  }
   set position(position: Vector) {
     this._position = position;
     this.reflow();
     this.ui.update();
     this.updateRenderState();
   }
-  get zIndex(): number { return this._zIndex }
+  get zIndex(): number {
+    return this._zIndex;
+  }
   set zIndex(zIndex: number) {
     if (this.flow.sortedNodes.remove(this)) {
       this._zIndex = zIndex;
@@ -73,7 +94,9 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
       this._zIndex = zIndex;
     }
   }
-  get width(): number { return this._width }
+  get width(): number {
+    return this._width;
+  }
   set width(width: number) {
     this._width = width;
     this.ui.width = width;
@@ -81,101 +104,113 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
   }
   //#endregion
 
-  style: NodeStyle;
-  terminalStyle: TerminalStyle;
-  id: string;
-
-  constructor(
-    public flow: Flow,
-    public name: string,
-    position: Vector,
-    width: number,
-    inputs: SerializedTerminal[], outputs: SerializedTerminal[],
-    options: NodeConstructorOptions = DefaultNodeConstructorOptions()
-  ) {
-
+  protected constructor() {
     super();
 
-    this.style = get(options.style, {});
-    this.terminalStyle = get(options.terminalStyle, {});
-    this.id = get(options.id, getNewUUID());
-    options.state = get(options.state, {});
+    this._zIndex = 0;
 
-    this.hitColor = options.hitColor;
-    this._width = width;
-    this.style = { ...DefaultNodeStyle(), ...options.style }
-    this._position = position;
-    this.setupState(options.state);
+    this.stateObserver = new Hooks();
     this.uiNodes = new Map();
     this.terminals = new Map();
     this.nodeButtons = new Map();
-    this._zIndex = 0;
-    this.setHitColor(options.hitColor);
-
-    this.setupTerminals(options, inputs, outputs);
-
-    if (options.ui instanceof Container) {
-      this.ui = options.ui;
-    } else {
-      this.ui = new Container(this, width);
-    }
-
-    this.addNodeButton(() => this.toggleNodeState(), this._renderNodeButton, Align.Left);
-
-    this.reflow();
-    this.ui.update();
-
-    this.flow.on('transform', () => this.updateRenderState());
-
-    this.flow.nodes.set(this.id, this);
-    this.flow.sortedNodes.add(this);
-    this.flow.executionGraph.add(this);
   }
+
+  static create<T extends Node = Node>(
+    type: string,
+    flow: Flow,
+    position: Vector,
+    options: NodeOptions = DefaultNodeOptions(),
+    isDeserialized: boolean = false
+  ): T {
+    const construct = FlowConnect.getRegistered("node", type);
+    const node = new construct(flow, options);
+
+    const { name = "New Node", width = 100, style = {}, id = uuid(), state = {}, hitColor, inputs, outputs } = options;
+
+    node.flow = flow;
+    node.type = type;
+    node.name = name;
+    node._width = width;
+    node.style = { ...DefaultNodeStyle(), ...(flow.flowConnect.getDefaultStyle("node", type) || {}), ...style };
+    node.id = id;
+    node.state = state;
+    node._position = position;
+    node.ui = node.createUI<Container, ContainerOptions>("core/container", { width: node.width });
+
+    node.setHitColor(hitColor);
+    node.setupTerminals(inputs, outputs);
+    node.reflow();
+    node.ui.update();
+    node.addNodeButton((n) => n.toggle(), Node.renderControlButton, Align.Left);
+    node.on("transform", (n) => n.updateRenderState());
+
+    !isDeserialized && node.setupIO(options);
+    node.created(options);
+    node.setupState(node.state);
+
+    node.ui.update();
+    node.reflow();
+
+    return node as T;
+  }
+
+  protected abstract setupIO(options: NodeOptions): void;
+  protected abstract created(options: NodeOptions): void;
+  protected abstract process(inputs: any[]): void;
 
   //#region Methods
-  setupTerminals(options: NodeConstructorOptions, inputs: SerializedTerminal[], outputs: SerializedTerminal[]) {
-    this.inputs.push(...inputs.map(input =>
-      new Terminal(this, TerminalType.IN, input.dataType, input.name, {
-        style: input.style ? input.style : { ...options.terminalStyle },
-        id: input.id ? input.id : null,
-        hitColor: input.hitColor ? Color.deSerialize(input.hitColor) : null
-      })
-    ));
-    this.outputs.push(...outputs.map(output =>
-      new Terminal(this, TerminalType.OUT, output.dataType, output.name, {
-        style: output.style ? output.style : { ...options.terminalStyle },
-        id: output.id ? output.id : null,
-        hitColor: output.hitColor ? Color.deSerialize(output.hitColor) : null
-      })
-    ));
+  private setupTerminals(inputs: SerializedTerminal[], outputs: SerializedTerminal[]) {
+    inputs &&
+      this.inputs.push(
+        ...inputs.map((input) =>
+          Terminal.create(this, TerminalType.IN, input.dataType, {
+            name: input.name,
+            id: input.id ? input.id : null,
+            hitColor: input.hitColor ? Color.create(input.hitColor) : null,
+          })
+        )
+      );
+    outputs &&
+      this.outputs.push(
+        ...outputs.map((output) =>
+          Terminal.create(this, TerminalType.OUT, output.dataType, {
+            name: output.name,
+            id: output.id ? output.id : null,
+            hitColor: output.hitColor ? Color.create(output.hitColor) : null,
+          })
+        )
+      );
   }
   private setupState(state: any) {
-    this.state = new Proxy<any>({}, {
-      set: (target, prop, value) => {
-        let oldValue = target[prop];
-        target[prop] = value;
-        this.stateObserver.call(prop as string, oldValue, value);
-        return true;
+    this.state = new Proxy<any>(
+      {},
+      {
+        set: (target, prop, value) => {
+          let oldValue = target[prop];
+          target[prop] = value;
+          this.stateObserver.call(prop as string, oldValue, value);
+          return true;
+        },
       }
-    });
+    );
 
-    Object.keys(state).forEach(key => this.state[key] = state[key]);
+    Object.keys(state).forEach((key) => (this.state[key] = state[key]));
   }
   watch(propName: string, callback: (oldVal: any, newVal: any) => void): number {
-    if (typeof this.state[propName] !== 'undefined') {
+    if (typeof this.state[propName] !== "undefined") {
       return this.stateObserver.on(propName, callback);
     } else {
       Log.error(`Cannot watch prop '${propName}', prop not found`);
     }
   }
   unwatch(propName: string, id: number) {
-    if (typeof this.state[propName] !== 'undefined') {
+    if (typeof this.state[propName] !== "undefined") {
       this.stateObserver.off(propName, id);
     } else {
       Log.error(`Cannot unwatch prop '${propName}', prop not found`);
     }
   }
-  private setHitColor(hitColor: Color) {
+  private setHitColor(hitColor?: Color) {
     if (!hitColor) {
       hitColor = Color.Random();
       while (this.flow.nodeHitColors.get(hitColor.rgbaString)) hitColor = Color.Random();
@@ -183,13 +218,22 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     this.hitColor = hitColor;
     this.flow.nodeHitColors.set(this.hitColor.rgbaString, this);
   }
-  addNodeButton(callback: () => void, render: RenderFunction<NodeButton, NodeButtonRenderParams>, align: Align): NodeButton {
-    let newNodeButton = new NodeButton(this, callback, render, align);
+  addNodeButton(
+    onClick: (node: Node) => void,
+    render: RenderFn<NodeButton, NodeButtonRenderParams>,
+    align: Align
+  ): NodeButton {
+    let newNodeButton = new NodeButton(this, onClick, render, align);
 
-    let noOfButtons = [...this.nodeButtons.values()].filter(nodeButton => nodeButton.align === newNodeButton.align).length - 1;
+    let noOfButtons =
+      [...this.nodeButtons.values()].filter((nodeButton) => nodeButton.align === newNodeButton.align).length - 1;
     let deltaX;
     if (align === Align.Left) deltaX = noOfButtons * (this.style.nodeButtonSize + this.style.nodeButtonSpacing);
-    else deltaX = this.width - noOfButtons * (this.style.nodeButtonSize + this.style.nodeButtonSpacing) - this.style.nodeButtonSize;
+    else
+      deltaX =
+        this.width -
+        noOfButtons * (this.style.nodeButtonSize + this.style.nodeButtonSpacing) -
+        this.style.nodeButtonSize;
     newNodeButton.deltaX = deltaX;
 
     return newNodeButton;
@@ -198,26 +242,43 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     let y = this.position.y + this.style.terminalRowHeight / 2 + this.style.padding / 2 + this.style.titleHeight;
     if (this.inputs.length > this.outputs.length) {
       this.recalculateInputTerminals(y);
-      y = this.position.y + (this.inputs.length * this.style.terminalRowHeight) / 2 - (this.outputs.length * this.style.terminalRowHeight) / 2 + this.style.terminalRowHeight / 2 + this.style.padding / 2 + this.style.titleHeight;
+      y =
+        this.position.y +
+        (this.inputs.length * this.style.terminalRowHeight) / 2 -
+        (this.outputs.length * this.style.terminalRowHeight) / 2 +
+        this.style.terminalRowHeight / 2 +
+        this.style.padding / 2 +
+        this.style.titleHeight;
       this.recalculateOutputTerminals(y);
     } else {
       this.recalculateOutputTerminals(y);
-      y = this.position.y + (this.outputs.length * this.style.terminalRowHeight) / 2 - (this.inputs.length * this.style.terminalRowHeight) / 2 + this.style.terminalRowHeight / 2 + this.style.padding / 2 + this.style.titleHeight;
+      y =
+        this.position.y +
+        (this.outputs.length * this.style.terminalRowHeight) / 2 -
+        (this.inputs.length * this.style.terminalRowHeight) / 2 +
+        this.style.terminalRowHeight / 2 +
+        this.style.padding / 2 +
+        this.style.titleHeight;
       this.recalculateInputTerminals(y);
     }
   }
   private updateRenderState() {
     let realPos = this.position.transform(this.flow.flowConnect.transform);
     this.renderState.viewport = intersects(
-      0, 0,
-      this.flow.flowConnect.canvasDimensions.width, this.flow.flowConnect.canvasDimensions.height,
-      realPos.x, realPos.y,
+      0,
+      0,
+      this.flow.flowConnect.canvasDimensions.width,
+      this.flow.flowConnect.canvasDimensions.height,
+      realPos.x,
+      realPos.y,
       realPos.x + this.width * this.flow.flowConnect.scale,
-      realPos.y + (this.renderState.nodeState === NodeState.MAXIMIZED ? this.ui.height : this.style.titleHeight) * this.flow.flowConnect.scale
+      realPos.y +
+        (this.renderState.nodeState === NodeState.MAXIMIZED ? this.ui.height : this.style.titleHeight) *
+          this.flow.flowConnect.scale
     );
 
     if (this.flow.flowConnect.scale > 0.6) this.renderState.lod = LOD.LOD2;
-    else if (this.flow.flowConnect.scale <= 0.6 && this.flow.flowConnect.scale > .3) this.renderState.lod = LOD.LOD1;
+    else if (this.flow.flowConnect.scale <= 0.6 && this.flow.flowConnect.scale > 0.3) this.renderState.lod = LOD.LOD1;
     else this.renderState.lod = LOD.LOD0;
 
     if (this.renderState.viewport === ViewPort.INTERSECT) {
@@ -225,14 +286,14 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     }
   }
   private recalculateInputTerminals(y: number) {
-    this.inputs.forEach(terminal => {
+    this.inputs.forEach((terminal) => {
       terminal.position.x = this.position.x - this.style.terminalStripMargin - terminal.style.radius;
       terminal.position.y = y;
       y += this.style.terminalRowHeight;
     });
   }
   private recalculateOutputTerminals(y: number) {
-    this.outputs.forEach(terminal => {
+    this.outputs.forEach((terminal) => {
       terminal.position.x = this.position.x + this.ui.width + this.style.terminalStripMargin + terminal.style.radius;
       terminal.position.y = y;
       y += this.style.terminalRowHeight;
@@ -245,14 +306,15 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     let thisRealPosition = this.position.transform(this.flow.flowConnect.transform);
     if (
       (this.inputs.length + this.inputsUI.length > 0 && realPosition.x < thisRealPosition.x) ||
-      (this.outputs.length + this.outputsUI.length > 0 && realPosition.x > thisRealPosition.x + this.ui.width * this.flow.flowConnect.scale)
+      (this.outputs.length + this.outputsUI.length > 0 &&
+        realPosition.x > thisRealPosition.x + this.ui.width * this.flow.flowConnect.scale)
     ) {
       hitTerminal = this.terminals.get(hitColor);
     }
 
     if (this.currHitTerminal && this.currHitTerminal !== hitTerminal) {
       this.currHitTerminal.onExit(screenPosition, realPosition);
-      hitTerminal && hitTerminal.onEnter(screenPosition, realPosition);
+      hitTerminal?.onEnter(screenPosition, realPosition);
     }
 
     return hitTerminal;
@@ -268,7 +330,10 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
   run() {
     if (this.flow.state === FlowState.Stopped) return;
 
-    this.call('process', this, this.inputs.map(terminal => terminal.connectors.length > 0 ? terminal.connectors[0].data : null));
+    const inputs = this.inputs.map((terminal) => (terminal.connectors.length > 0 ? terminal.connectors[0].data : null));
+
+    this.process(inputs);
+    this.call("process", this, inputs);
   }
 
   render(): void {
@@ -280,56 +345,85 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     this.renderTerminals(context);
     this.renderName(context);
     this.renderFocused(context);
-    let flowRenderResolver = this.flow.renderResolver.node;
-    let flowConnectRenderResolver = this.flow.flowConnect.renderResolver.node;
-    ((this.renderResolver.node && this.renderResolver.node(this))
-      || (flowRenderResolver && flowRenderResolver(this))
-      || (flowConnectRenderResolver && flowConnectRenderResolver(this))
-      || this._render
-    )(context, this.getRenderParams(), this);
+
+    let scopeFlowConnect = this.flow.flowConnect.getRegisteredRenderer("node");
+    let scopeFlow = this.flow.renderers.node;
+    let scopeNode = this.renderers.node;
+    const renderFn =
+      (scopeNode && scopeNode(this)) ||
+      (scopeFlow && scopeFlow(this)) ||
+      (scopeFlowConnect && scopeFlowConnect(this)) ||
+      this._render;
+    renderFn(context, this.getRenderParams(), this);
     context.restore();
 
-    this.nodeButtons.forEach(nodeButton => nodeButton.render());
+    this.nodeButtons.forEach((nodeButton) => nodeButton.render());
 
     this.offContext.save();
     this._offRender();
     this.offContext.restore();
 
-    this.call('render', this);
+    this.call("render", this);
   }
   private renderTerminals(context: CanvasRenderingContext2D) {
     if (this.renderState.nodeState === NodeState.MAXIMIZED) {
       if (this.renderState.lod > 0) {
-        this.inputs.forEach(terminal => terminal.render());
-        this.outputs.forEach(terminal => terminal.render());
+        this.inputs.forEach((terminal) => terminal.render());
+        this.outputs.forEach((terminal) => terminal.render());
       }
 
       context.fillStyle = this.style.color;
-      context.font = this.style.fontSize + ' ' + this.style.font;
-      context.textBaseline = 'middle';
-      this.inputs.forEach(terminal => {
-        context.fillText(terminal.name, terminal.position.x + terminal.style.radius + this.style.terminalStripMargin + this.style.padding, terminal.position.y);
+      context.font = this.style.fontSize + " " + this.style.font;
+      context.textBaseline = "middle";
+      this.inputs.forEach((terminal) => {
+        context.fillText(
+          terminal.name,
+          terminal.position.x + terminal.style.radius + this.style.terminalStripMargin + this.style.padding,
+          terminal.position.y
+        );
       });
-      this.outputs.forEach(terminal => {
-        context.fillText(terminal.name, terminal.position.x - terminal.style.radius - this.style.terminalStripMargin - this.style.padding - context.measureText(terminal.name).width, terminal.position.y);
+      this.outputs.forEach((terminal) => {
+        context.fillText(
+          terminal.name,
+          terminal.position.x -
+            terminal.style.radius -
+            this.style.terminalStripMargin -
+            this.style.padding -
+            context.measureText(terminal.name).width,
+          terminal.position.y
+        );
       });
     } else {
       context.fillStyle = this.style.minimizedTerminalColor;
-      if ((this.inputs.length + this.inputsUI.length) > 0) {
+      if (this.inputs.length + this.inputsUI.length > 0) {
         let radius = this.inputs.length > 0 ? this.inputs[0].style.radius : this.inputsUI[0].style.radius;
-        context.fillRect(this.position.x - this.style.terminalStripMargin - radius * 2, this.position.y + this.style.titleHeight / 2 - radius, radius * 2, radius * 2);
+        context.fillRect(
+          this.position.x - this.style.terminalStripMargin - radius * 2,
+          this.position.y + this.style.titleHeight / 2 - radius,
+          radius * 2,
+          radius * 2
+        );
       }
-      if ((this.outputs.length + this.outputsUI.length) > 0) {
+      if (this.outputs.length + this.outputsUI.length > 0) {
         let radius = this.outputs.length > 0 ? this.outputs[0].style.radius : this.outputsUI[0].style.radius;
-        context.fillRect(this.position.x + this.width + this.style.terminalStripMargin, this.position.y + this.style.titleHeight / 2 - radius, radius * 2, radius * 2);
+        context.fillRect(
+          this.position.x + this.width + this.style.terminalStripMargin,
+          this.position.y + this.style.titleHeight / 2 - radius,
+          radius * 2,
+          radius * 2
+        );
       }
     }
   }
   private renderName(context: CanvasRenderingContext2D) {
     context.fillStyle = this.style.titleColor;
-    context.font = this.style.titleFontSize + ' ' + this.style.titleFont;
-    context.textBaseline = 'middle';
-    context.fillText(this.name, this.position.x + this.ui.width / 2 - context.measureText(this.name).width / 2, this.position.y + this.style.titleHeight / 2);
+    context.font = this.style.titleFontSize + " " + this.style.titleFont;
+    context.textBaseline = "middle";
+    context.fillText(
+      this.name,
+      this.position.x + this.ui.width / 2 - context.measureText(this.name).width / 2,
+      this.position.y + this.style.titleHeight / 2
+    );
   }
   private renderFocused(context: CanvasRenderingContext2D) {
     if (this.focused) {
@@ -356,32 +450,43 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
         this.position.x - inputTerminalsWidth,
         this.position.y,
         this.width + inputTerminalsWidth + outputTerminalsWidth,
-        this.renderState.nodeState === NodeState.MAXIMIZED ? (this.ui.height + this.style.padding) : this.style.titleHeight,
+        this.renderState.nodeState === NodeState.MAXIMIZED
+          ? this.ui.height + this.style.padding
+          : this.style.titleHeight,
         4
       );
     }
   }
-  private _render() { /**/ }
+  private _render() {
+    /**/
+  }
   private _offRender() {
     this.offContext.fillStyle = this.hitColor.rgbaCSSString;
     let x = this.position.x;
     let y = this.position.y;
-    let inputTerminalsStripWidth = 0, outputTerminalsStripWidth = 0;
-    if ((this.inputs.length + this.inputsUI.length) !== 0) {
+    let inputTerminalsStripWidth = 0,
+      outputTerminalsStripWidth = 0;
+    if (this.inputs.length + this.inputsUI.length !== 0) {
       let radius = this.inputs.length > 0 ? this.inputs[0].style.radius : this.inputsUI[0].style.radius;
       x -= this.style.terminalStripMargin + radius * 2;
       inputTerminalsStripWidth = radius * 2 + this.style.terminalStripMargin;
     }
-    if ((this.outputs.length + this.outputsUI.length) !== 0) {
+    if (this.outputs.length + this.outputsUI.length !== 0) {
       let radius = this.outputs.length > 0 ? this.outputs[0].style.radius : this.outputsUI[0].style.radius;
       outputTerminalsStripWidth = radius * 2 + this.style.terminalStripMargin;
     }
-    this.offContext.fillRect(x, y,
+    this.offContext.fillRect(
+      x,
+      y,
       this.ui.width + inputTerminalsStripWidth + outputTerminalsStripWidth,
       this.renderState.nodeState === NodeState.MAXIMIZED ? this.ui.height : this.style.titleHeight
     );
   }
-  private _renderNodeButton(context: CanvasRenderingContext2D, params: NodeButtonRenderParams, nodeButton: NodeButton) {
+  private static renderControlButton(
+    context: CanvasRenderingContext2D,
+    params: NodeButtonRenderParams,
+    nodeButton: NodeButton
+  ) {
     let style = nodeButton.node.style;
     context.fillStyle = style.maximizeButtonColor;
     context.fillRect(params.position.x, params.position.y, style.nodeButtonSize, style.nodeButtonSize);
@@ -391,23 +496,37 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
       position: this.position.serialize(),
       width: this.width,
       height: this.ui.height,
-      focus: this.focused
-    }
+      focus: this.focused,
+    };
   }
-  addTerminal(terminal: Terminal | SerializedTerminal) {
+  addTerminals(terminals: Terminal[] | SerializedTerminal[]) {
+    terminals?.forEach((terminal) => this.addTerminal(terminal));
+  }
+  addTerminal(terminal: Terminal | SerializedTerminal): Terminal {
+    let t: Terminal = null;
     if (!(terminal instanceof Terminal)) {
-      terminal = Terminal.deSerialize(this, terminal);
+      t = Terminal.create(this, terminal.type, terminal.dataType, {
+        name: terminal.name,
+        propName: terminal.propName,
+        style: terminal.style,
+        id: terminal.id,
+        hitColor: terminal.hitColor ? Color.create(terminal.hitColor) : null,
+      });
+    } else {
+      t = terminal;
     }
-    if (terminal.type === TerminalType.IN) this.inputs.push(terminal);
-    else this.outputs.push(terminal);
+
+    (terminal.type === TerminalType.IN ? this.inputs : this.outputs).push(t);
     this.ui.update();
     this.reflow();
+
+    return t;
   }
   removeTerminal(terminal: Terminal) {
     let type = terminal.type;
     let index = type === TerminalType.IN ? this.inputs.indexOf(terminal) : this.outputs.indexOf(terminal);
     if (index < 0) {
-      Log.error('Cannot remove terminal, terminal not found');
+      Log.error("Cannot remove terminal, terminal not found");
       return;
     }
     terminal.disconnect();
@@ -419,8 +538,8 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     this.reflow();
   }
   getInput(terminal: string | number): any {
-    if (typeof terminal === 'string') {
-      let inputTerminal = this.inputs.find(currTerm => (currTerm.name === terminal));
+    if (typeof terminal === "string") {
+      let inputTerminal = this.inputs.find((currTerm) => currTerm.name === terminal);
       if (inputTerminal) return inputTerminal.getData();
     } else {
       if (this.inputs[terminal]) return this.inputs[terminal].getData();
@@ -428,18 +547,18 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     return null;
   }
   getInputs(): any[] {
-    return this.inputs.map(terminal => terminal.getData());
+    return this.inputs.map((terminal) => terminal.getData());
   }
   setOutputs(outputs: string | number | Record<string, any>, data?: any) {
-    if (typeof outputs === 'string') {
-      let outputTerminal = this.outputs.find(term => (term.name === outputs));
+    if (typeof outputs === "string") {
+      let outputTerminal = this.outputs.find((term) => term.name === outputs);
       if (outputTerminal) outputTerminal.setData(data);
-    } else if (typeof outputs === 'number') {
+    } else if (typeof outputs === "number") {
       if (this.outputs[outputs]) this.outputs[outputs].setData(data);
     } else {
       let outputData = new Map<Terminal, any>();
-      Object.entries(outputs).forEach(entry => {
-        let terminal = this.outputs.find(term => term.name === entry[0]);
+      Object.entries(outputs).forEach((entry) => {
+        let terminal = this.outputs.find((term) => term.name === entry[0]);
         if (terminal) outputData.set(terminal, entry[1]);
         else throw Log.error("Terminal '" + entry[0] + "' not found");
       });
@@ -448,7 +567,7 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
 
       let curr: Terminal = outputDataIterator.next().value;
       while (curr) {
-        curr.connectors.forEach(connector => {
+        curr.connectors.forEach((connector) => {
           if (groupedConnectors.has(connector.endNode)) groupedConnectors.get(connector.endNode).push(connector);
           else groupedConnectors.set(connector.endNode, [connector]);
         });
@@ -469,60 +588,71 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
       this.flow.executionGraph.start();
     }
   }
-  toggleNodeState() {
-    this.renderState.nodeState = this.renderState.nodeState === NodeState.MAXIMIZED ? NodeState.MINIMIZED : NodeState.MAXIMIZED;
+  toggle() {
+    this.renderState.nodeState =
+      this.renderState.nodeState === NodeState.MAXIMIZED ? NodeState.MINIMIZED : NodeState.MAXIMIZED;
   }
   dispose(): void {
     this.flow.removeNode(this.id);
   }
+  createUI<T extends UINode = UINode, O extends UINodeOptions = UINodeOptions>(type: string, options: O): T {
+    const uiNode = UINode.create<T>(type, this, options);
+    return uiNode;
+  }
   //#endregion
 
   //#region Events
-  onDown(screenPosition: Vector, realPosition: Vector): void {
-    this.call('down', this, screenPosition, realPosition);
+  onDown(screenPos: Vector, realPos: Vector): void {
+    this.call("down", this, screenPos, realPos);
 
-    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+    let hitColor = Color.rgbaToString(
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
+    );
 
     this.currHitUINode = this.getHitUINode(hitColor);
-    this.currHitUINode && this.currHitUINode.onDown(screenPosition, realPosition);
+    this.currHitUINode && this.currHitUINode.sendEvent("down", { screenPos, realPos, target: this.currHitUINode });
 
-    let hitTerminal = this.getHitTerminal(hitColor, screenPosition, realPosition);
+    let hitTerminal = this.getHitTerminal(hitColor, screenPos, realPos);
     if (hitTerminal) {
       this.currHitTerminal = hitTerminal;
-      this.currHitTerminal.onDown(screenPosition, realPosition);
+      this.currHitTerminal.onDown(screenPos, realPos);
     }
   }
-  onOver(screenPosition: Vector, realPosition: Vector): void {
-    this.call('over', this, screenPosition, realPosition);
+  onOver(screenPos: Vector, realPos: Vector): void {
+    this.call("over", this, screenPos, realPos);
 
-    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+    let hitColor = Color.rgbaToString(
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
+    );
 
-    let hitTerminal = this.getHitTerminal(hitColor, screenPosition, realPosition);
+    let hitTerminal = this.getHitTerminal(hitColor, screenPos, realPos);
 
     if (hitTerminal !== this.prevHitTerminal) {
-      this.prevHitTerminal && this.prevHitTerminal.onExit(screenPosition, realPosition);
-      hitTerminal && hitTerminal.onEnter(screenPosition, realPosition);
+      this.prevHitTerminal && this.prevHitTerminal.onExit(screenPos, realPos);
+      hitTerminal && hitTerminal.onEnter(screenPos, realPos);
     } else {
-      hitTerminal && (!this.currHitTerminal) && hitTerminal.onOver(screenPosition, realPosition);
+      hitTerminal && !this.currHitTerminal && hitTerminal.onOver(screenPos, realPos);
     }
     this.prevHitTerminal = hitTerminal;
 
     let hitUINode = this.getHitUINode(hitColor);
     if (hitUINode !== this.prevHitUINode) {
-      this.prevHitUINode && this.prevHitUINode.onExit(screenPosition, realPosition);
-      hitUINode && hitUINode.onEnter(screenPosition, realPosition);
+      this.prevHitUINode && this.prevHitUINode.sendEvent("exit", { screenPos, realPos, target: this.prevHitUINode });
+      hitUINode && hitUINode.sendEvent("enter", { screenPos, realPos, target: hitUINode });
     } else {
-      hitUINode && (!this.currHitUINode) && hitUINode.onOver(screenPosition, realPosition);
+      hitUINode && !this.currHitUINode && hitUINode.sendEvent("over", { screenPos, realPos, target: hitUINode });
     }
     this.prevHitUINode = hitUINode;
   }
   onEnter(screenPosition: Vector, realPosition: Vector): void {
-    this.call('enter', this, screenPosition, realPosition);
+    this.call("enter", this, screenPosition, realPosition);
   }
   onExit(screenPosition: Vector, realPosition: Vector): void {
-    this.call('exit', this, screenPosition, realPosition);
+    this.call("exit", this, screenPosition, realPosition);
 
-    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+    let hitColor = Color.rgbaToString(
+      this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+    );
 
     let hitTerminal = this.getHitTerminal(hitColor, screenPosition, realPosition);
     hitTerminal && hitTerminal.onExit(screenPosition, realPosition);
@@ -530,351 +660,210 @@ export class Node extends Hooks implements Events, Serializable<SerializedNode>,
     this.prevHitTerminal = null;
     this.currHitTerminal && this.currHitTerminal.onExit(screenPosition, realPosition);
   }
-  onUp(screenPosition: Vector, realPosition: Vector): void {
-    this.call('up', this, screenPosition, realPosition);
+  onUp(screenPos: Vector, realPos: Vector): void {
+    this.call("up", this, screenPos, realPos);
 
-    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+    let hitColor = Color.rgbaToString(
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
+    );
 
     this.currHitUINode = null;
     let hitUINode = this.getHitUINode(hitColor);
-    hitUINode && hitUINode.onUp(screenPosition.clone(), realPosition.clone());
+    hitUINode &&
+      hitUINode.sendEvent("up", { screenPos: screenPos.clone(), realPos: realPos.clone(), target: hitUINode });
 
-    let hitTerminal = this.getHitTerminal(hitColor, screenPosition, realPosition);
-    hitTerminal && hitTerminal.onUp(screenPosition, realPosition);
+    let hitTerminal = this.getHitTerminal(hitColor, screenPos, realPos);
+    hitTerminal && hitTerminal.onUp(screenPos, realPos);
   }
-  onClick(screenPosition: Vector, realPosition: Vector): void {
-    this.call('click', this, screenPosition, realPosition);
+  onClick(screenPos: Vector, realPos: Vector): void {
+    this.call("click", this, screenPos, realPos);
 
-    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
-    if (realPosition.y < this.position.y + this.style.titleHeight * this.flow.flowConnect.scale) {
+    let hitColor = Color.rgbaToString(
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
+    );
+    if (realPos.y < this.position.y + this.style.titleHeight * this.flow.flowConnect.scale) {
       let hitNodeButton = this.getHitNodeButton(hitColor);
-      hitNodeButton && hitNodeButton.callback();
+      hitNodeButton && hitNodeButton.onClick(this);
     } else {
-      this.currHitTerminal && this.currHitTerminal.onClick(screenPosition, realPosition);
+      this.currHitTerminal && this.currHitTerminal.onClick(screenPos, realPos);
 
       let hitUINode = this.getHitUINode(hitColor);
-      hitUINode && hitUINode.onClick(screenPosition.clone(), realPosition.clone());
+      hitUINode &&
+        hitUINode.sendEvent("click", { screenPos: screenPos.clone(), realPos: realPos.clone(), target: hitUINode });
     }
   }
-  onDrag(screenPosition: Vector, realPosition: Vector): void {
-    this.call('drag', this, screenPosition, realPosition);
+  onDrag(screenPos: Vector, realPos: Vector): void {
+    this.call("drag", this, screenPos, realPos);
 
-    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+    let hitColor = Color.rgbaToString(
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
+    );
     let hitUINodeWhileDragging = this.getHitUINode(hitColor);
 
     if (this.currHitUINode && this.currHitUINode.draggable) {
       if (hitUINodeWhileDragging === this.currHitUINode) {
-        this.currHitUINode.onDrag(screenPosition, realPosition);
+        this.currHitUINode.sendEvent("drag", { screenPos, realPos, target: this.currHitUINode });
       } else {
-        this.currHitUINode.onExit(screenPosition, realPosition);
+        this.currHitUINode.sendEvent("exit", { screenPos, realPos, target: this.currHitUINode });
         this.currHitUINode = null;
         this.flow.flowConnect.currHitNode = null;
         this.flow.flowConnect.pointers = [];
       }
     }
   }
-  onContextMenu(): void {
-    this.call('rightclick', this);
-  }
-  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector): void {
-    this.call('wheel', this, direction, screenPosition, realPosition);
+  onContextMenu(screenPos: Vector, realPos: Vector): void {
+    this.call("rightclick", this);
 
-    let hitColor = Color.rgbaToString(this.flow.flowConnect.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+    if (this.currHitUINode)
+      this.currHitUINode.sendEvent("context-menu", { screenPos, realPos, target: this.currHitUINode });
+  }
+  onWheel(direction: boolean, screenPos: Vector, realPos: Vector): void {
+    this.call("wheel", this, direction, screenPos, realPos);
+
+    let hitColor = Color.rgbaToString(
+      this.flow.flowConnect.offUIContext.getImageData(screenPos.x, screenPos.y, 1, 1).data
+    );
     let hitUINode = this.getHitUINode(hitColor);
 
-    hitUINode && hitUINode.zoomable && hitUINode.onWheel(direction, screenPosition, realPosition);
+    hitUINode &&
+      hitUINode.zoomable &&
+      hitUINode.sendEvent<UIWheelEvent>("wheel", { screenPos, realPos, target: hitUINode, direction });
   }
   //#endregion
 
-  //#region UICreators
-  createLabel(text: string | number, options?: LabelCreatorOptions): Label {
-    return new Label(this, text, options);
+  private async serializeState(
+    state: Record<string, any>,
+    persist?: DataPersistenceProvider
+  ): Promise<Record<string, any>> {
+    for (let key in state) {
+      if (state[key] instanceof File) {
+        if (persist) {
+          const id = uuid();
+          await persist(id, state[key]);
+          state[key] = `raw##${id}`;
+        } else {
+          state[key] = null;
+        }
+      } else if (state[key] instanceof Vector) {
+        state[key] = state[key].serialize();
+      } else if (state[key] instanceof AudioBuffer) {
+        state[key] = null;
+      } else if (typeof state[key] === "object") {
+        state[key] = await this.serializeState(state[key]);
+      }
+    }
+    return state;
   }
-  createImage(source: string, options?: ImageCreatorOptions): Image {
-    return new Image(this, source, options);
-  }
-  createSlider(min: number, max: number, options?: SliderCreatorOptions) {
-    return new Slider(this, min, max, options);
-  }
-  createSlider2D(options?: Slider2DCreatorOptions) {
-    return new Slider2D(this, options);
-  }
-  createVSlider(min: number, max: number, options?: VSliderCreatorOptions) {
-    return new VSlider(this, min, max, options);
-  }
-  createDial(min: number, max: number, size: number, options?: DialCreatorOptions) {
-    return new Dial(this, min, max, size, options);
-  }
-  createHozLayout(childs: UINode[] = [], options?: HorizontalLayoutCreatorOptions) {
-    return new HorizontalLayout(this, childs, options);
-  }
-  createStack(options?: StackCreatorOptions) {
-    return new Stack(this, options);
-  }
-  createButton(text: string, options?: ButtonCreatorOptions) {
-    return new Button(this, text, options);
-  }
-  createToggle(options?: ToggleCreatorOptions) {
-    return new Toggle(this, options);
-  }
-  createRadioGroup(values?: string[], selected?: string, options?: RadioGroupCreatorOptions) {
-    return new RadioGroup(this, values, selected, options);
-  }
-  createSelect(values: string[], options?: SelectCreatorOptions) {
-    return new Select(this, values, options);
-  }
-  createSource(options?: SourceCreatorOptions) {
-    return new Source(this, options);
-  }
-  createDisplay(height: number, renderers: CustomRendererConfig[], options?: DisplayCreatorOptions) {
-    return new Display(this, height, renderers, options);
-  }
-  createInput(options?: InputCreatorOptions) {
-    return new Input(this, options);
-  }
-  createEnvelope(height: number, values?: Vector[], options?: EnvelopeCreatorOptions): Envelope {
-    return new Envelope(this, height, values, options);
-  }
-  //#endregion
 
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedNode> {
-    const ui = await this.ui.serialize(persist);
+    const serializedState = await this.serializeState({ ...this.state }, persist);
 
     return Promise.resolve<SerializedNode>({
       id: this.id,
       name: this.name,
+      type: this.type,
       position: this.position.serialize(),
       width: this.width,
-      state: this.state,
-      inputs: this.inputs.map(terminal => terminal.serialize()),
-      outputs: this.outputs.map(terminal => terminal.serialize()),
+      state: serializedState,
+      inputs: this.inputs.map((terminal) => terminal.serialize()),
+      outputs: this.outputs.map((terminal) => terminal.serialize()),
       style: this.style,
-      terminalStyle: this.terminalStyle,
       hitColor: this.hitColor.serialize(),
       zIndex: this.zIndex,
       focused: this.focused,
       renderState: this.renderState,
-      ui
     });
-  }
-  static async deSerialize(flow: Flow, data: SerializedNode, receive?: DataFetchProvider): Promise<Node> {
-    const node = new Node(flow, data.name, Vector.deSerialize(data.position), data.width, data.inputs, data.outputs, {
-      style: data.style,
-      terminalStyle: data.terminalStyle,
-      state: data.state,
-      id: data.id,
-      hitColor: Color.deSerialize(data.hitColor),
-      ui: data.ui,
-      focused: data.focused,
-      renderState: data.renderState
-    });
-
-    const ui = await Container.deSerialize(node, data.ui, receive);
-    node.ui = ui;
-    node.ui.update();
-
-    return Promise.resolve<Node>(node);
   }
 }
 
 export interface NodeRenderParams {
-  position: SerializedVector,
-  width: number,
-  height: number,
-  focus: boolean
+  position: SerializedVector;
+  width: number;
+  height: number;
+  focus: boolean;
 }
 export enum NodeState {
-  MAXIMIZED = 'Maximized',
-  MINIMIZED = 'Minimized'
+  MAXIMIZED = "Maximized",
+  MINIMIZED = "Minimized",
 }
 
 export interface NodeStyle {
-  font?: string,
-  fontSize?: string,
-  titleFont?: string,
-  titleFontSize?: string,
-  padding?: number,
-  spacing?: number,
-  rowHeight?: number,
-  color?: string,
-  titleColor?: string,
-  titleHeight?: number,
-  terminalRowHeight?: number,
-  terminalStripMargin?: number,
-  maximizeButtonColor?: string,
+  font?: string;
+  fontSize?: string;
+  titleFont?: string;
+  titleFontSize?: string;
+  padding?: number;
+  spacing?: number;
+  rowHeight?: number;
+  color?: string;
+  titleColor?: string;
+  titleHeight?: number;
+  terminalRowHeight?: number;
+  terminalStripMargin?: number;
+  maximizeButtonColor?: string;
   expandButtonColor?: string;
-  minimizedTerminalColor?: string,
-  nodeButtonSize?: number,
-  nodeButtonSpacing?: number,
-  outlineColor?: string
+  minimizedTerminalColor?: string;
+  nodeButtonSize?: number;
+  nodeButtonSpacing?: number;
+  outlineColor?: string;
 }
-let DefaultNodeStyle = () => {
-  return {
-    font: 'arial',
-    fontSize: '.75rem',
-    titleFont: 'arial',
-    titleFontSize: '.85rem',
-    color: '#000',
-    titleColor: '#000',
-    maximizeButtonColor: 'darkgrey',
-    nodeButtonSize: 10,
-    nodeButtonSpacing: 5,
-    expandButtonColor: '#000',
-    minimizedTerminalColor: 'green',
-    outlineColor: '#000',
-    padding: 10,
-    spacing: 10,
-    rowHeight: 20,
-    titleHeight: 29,
-    terminalRowHeight: 24,
-    terminalStripMargin: 8
-  };
-};
+const DefaultNodeStyle = (): NodeStyle => ({
+  font: "arial",
+  fontSize: ".75rem",
+  titleFont: "arial",
+  titleFontSize: ".85rem",
+  color: "#000",
+  titleColor: "#000",
+  maximizeButtonColor: "darkgrey",
+  nodeButtonSize: 10,
+  nodeButtonSpacing: 5,
+  expandButtonColor: "#000",
+  minimizedTerminalColor: "green",
+  outlineColor: "#000",
+  padding: 10,
+  spacing: 10,
+  rowHeight: 20,
+  titleHeight: 29,
+  terminalRowHeight: 24,
+  terminalStripMargin: 8,
+});
 
 export interface SerializedNode {
-  hitColor: SerializedColor,
-  zIndex: number,
-  focused: boolean,
-  id: string,
-  position: SerializedVector,
-  state: Record<string, any>,
-  renderState: RenderState,
-  inputs: SerializedTerminal[],
-  outputs: SerializedTerminal[],
-  name: string,
-  style: NodeStyle,
-  terminalStyle: TerminalStyle,
-  ui: SerializedContainer,
-  width: number,
-  subFlow?: SerializedFlow
+  hitColor: SerializedColor;
+  zIndex: number;
+  focused: boolean;
+  id: string;
+  position: SerializedVector;
+  state: Record<string, any>;
+  renderState: RenderState;
+  inputs: SerializedTerminal[];
+  outputs: SerializedTerminal[];
+  name: string;
+  type: string;
+  style: NodeStyle;
+  width: number;
 }
 
-export interface NodeConstructorOptions {
-  style?: NodeStyle,
-  terminalStyle?: TerminalStyle,
-  state?: Object,
-  id?: string,
-  hitColor?: Color,
-  ui?: Container | SerializedContainer,
-  focused?: boolean,
-  renderState?: RenderState
+export interface NodeOptions {
+  name: string;
+  width?: number;
+  style?: NodeStyle;
+  state?: Object;
+  id?: string;
+  hitColor?: Color;
+  inputs?: SerializedTerminal[];
+  outputs?: SerializedTerminal[];
 }
-let DefaultNodeConstructorOptions = (): NodeConstructorOptions => {
-  return {
-    style: {},
-    terminalStyle: {},
-    state: {},
-    id: getNewUUID(),
-  }
-}
-
-interface ToggleCreatorOptions {
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  height?: number,
-  style?: ToggleStyle
-}
-interface StackCreatorOptions {
-  childs?: UINode[],
-  style?: StackStyle
-}
-interface SourceCreatorOptions {
-  accept?: string,
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  height?: number,
-  style?: SourceStyle
-}
-interface SliderCreatorOptions {
-  value?: number,
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  height?: number,
-  style?: SliderStyle
-}
-interface VSliderCreatorOptions {
-  value?: number,
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  height?: number,
-  width?: number,
-  style?: VSliderStyle
-}
-interface Slider2DCreatorOptions {
-  value?: Vector,
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  height?: number,
-  style?: Slider2DStyle
-}
-interface SelectCreatorOptions {
-  height?: number,
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  style?: SelectStyle
-}
-interface RadioGroupCreatorOptions {
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  height?: number,
-  style?: RadioGroupStyle
-}
-interface LabelCreatorOptions {
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  style?: LabelStyle,
-  height?: number
-}
-interface InputCreatorOptions {
-  value?: string | number,
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  height?: number,
-  style?: InputStyle
-}
-interface ImageCreatorOptions {
-  propName?: string,
-  style?: ImageStyle
-}
-interface HorizontalLayoutCreatorOptions {
-  style?: HorizontalLayoutStyle,
-  input?: boolean,
-  output?: boolean
-}
-interface ButtonCreatorOptions {
-  input?: boolean,
-  output?: boolean,
-  height?: number,
-  style?: ButtonStyle
-}
-interface DialCreatorOptions {
-  value?: number
-  propName?: string,
-  input?: boolean,
-  output?: boolean,
-  style?: DialStyle,
-}
-interface DisplayCreatorOptions {
-  style?: DisplayStyle
-}
-interface EnvelopeCreatorOptions {
-  input?: boolean,
-  output?: boolean,
-  style?: EnvelopeStyle
-}
+const DefaultNodeOptions = (): NodeOptions => ({
+  name: "New Node",
+  width: 100,
+  style: {},
+  state: {},
+  id: uuid(),
+});
 
 export class NodeButton extends Hooks implements Renderable {
-  renderResolver: RenderResolver<NodeButton, NodeButtonRenderParams> = () => null;
-  defaultRenderFn: RenderFunction<NodeButton, NodeButtonRenderParams>;
+  renderer: RenderFn<NodeButton, NodeButtonRenderParams>;
   style: Record<string, any> = {};
 
   hitColor: Color;
@@ -882,16 +871,16 @@ export class NodeButton extends Hooks implements Renderable {
 
   constructor(
     public node: Node,
-    public callback: () => void,
-    render: RenderFunction<NodeButton, NodeButtonRenderParams>,
+    public onClick: (n: Node) => void,
+    renderer: RenderFn<NodeButton, NodeButtonRenderParams>,
     public align: Align,
     style?: Record<string, any>
   ) {
     super();
 
-    this.style = get(style, {});
+    this.style = style ?? {};
     this.setHitColor();
-    this.defaultRenderFn = render;
+    this.renderer = renderer;
   }
 
   private setHitColor() {
@@ -902,28 +891,20 @@ export class NodeButton extends Hooks implements Renderable {
   }
   render() {
     this.node.context.save();
-    let nodeRenderResolver = this.node.renderResolver.nodeButton;
-    let flowRenderResolver = this.node.flow.renderResolver.nodeButton;
-    let flowConnectRenderResolver = this.node.flow.flowConnect.renderResolver.nodeButton;
-    ((this.renderResolver && this.renderResolver(this))
-      || (nodeRenderResolver && nodeRenderResolver(this))
-      || (flowRenderResolver && flowRenderResolver(this))
-      || (flowConnectRenderResolver && flowConnectRenderResolver(this))
-      || this.defaultRenderFn
-    )(this.node.context, this.getRenderParams(), this);
+    this.renderer(this.node.context, this.getRenderParams(), this);
     this.node.context.restore();
 
     this.node.offUIContext.save();
     this._offUIRender();
     this.node.offUIContext.restore();
 
-    this.call('render', this);
+    this.call("render", this);
   }
   private getRenderParams(): NodeButtonRenderParams {
     let position = this.node.position.serialize();
     position.x += this.deltaX;
-    position.y += (this.node.style.titleHeight / 2 - this.node.style.nodeButtonSize / 2);
-    return { position }
+    position.y += this.node.style.titleHeight / 2 - this.node.style.nodeButtonSize / 2;
+    return { position };
   }
   private _offUIRender() {
     this.node.offUIContext.fillStyle = this.hitColor.rgbaCSSString;
@@ -936,5 +917,5 @@ export class NodeButton extends Hooks implements Renderable {
   }
 }
 export interface NodeButtonRenderParams {
-  position: SerializedVector
+  position: SerializedVector;
 }

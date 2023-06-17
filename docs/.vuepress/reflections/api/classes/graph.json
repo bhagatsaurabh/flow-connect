@@ -35,14 +35,6 @@
     {
       "name": "debugGraph",
       "type": "method"
-    },
-    {
-      "name": "serialize",
-      "type": "method"
-    },
-    {
-      "name": "deSerialize",
-      "type": "method-static"
     }
   ]
 }

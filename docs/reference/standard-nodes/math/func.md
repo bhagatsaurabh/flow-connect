@@ -6,11 +6,9 @@
 <br/>
 
 ```js
-let func = new StandardNodes.Math.Function(
-  flow,
-  {},
-  'sin(t) + 0.2cos(2.8t)'
-);
+let func = flow.createNode("math/func", {
+  expression: "sin(t) + 0.2cos(2.8t)",
+});
 ```
 
 <br/>
@@ -18,30 +16,16 @@ let func = new StandardNodes.Math.Function(
 ### Default State
 
 ```js
-{ newVar: 'y' }
+{
+  newVar: "y";
+  expression: "a*sin(a^2)+cos(a*tan(a))";
+}
 ```
 
-## Constructor
+## Options
 
-<Method type="method">
-  <template v-slot:signature>
-    new Func(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>,
-    <strong>expression?: </strong><em>string</em>):
-    <em><Ref to="#standardnode-func">Func</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-    <Param name="expression?">
-      <em>string</em>
-    </Param>
-  </template>
-</Method>
+<pre>
+{
+  expression?: string;
+}
+</pre>

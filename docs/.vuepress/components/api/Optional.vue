@@ -1,11 +1,5 @@
 <template>
-  <Badge
-    aria-label="optional"
-    title="optional"
-    type="tip"
-    vertical="middle"
-    text="?"
-  />
+  <Badge aria-label="optional" title="optional" type="tip" vertical="middle" text="?" />
 </template>
 
 <script>

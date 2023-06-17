@@ -11,7 +11,7 @@ export default {
     window.customExampleFC = this.flowConnect;
     let flow = this.flowConnect.createFlow({
       name: "Customization Example",
-      terminalColors: {
+      ruleColors: {
         event: "#ff8787",
         number: "#b7ff87",
         boolean: "#87afff",
@@ -20,8 +20,7 @@ export default {
       },
     });
 
-    let timerNode1 = new StandardNodes.Common.Timer(flow, {
-      position: new Vector(22.6, 1.2),
+    let timerNode1 = flow.createNode("common/timer", Vector.create(22.6, 1.2), {
       state: { delay: 700 },
       style: {
         padding: 15,
@@ -48,12 +47,11 @@ export default {
       borderColor: "#0062ff",
       borderWidth: 8,
     };
-    let label = timerNode1.ui.query("input")[0].children[0];
+    let label = timerNode1.ui.query("core/input")[0].children[0];
     label.style.backgroundColor = "#fff";
     label.style.color = "#000";
 
-    let timerNode2 = new StandardNodes.Common.Timer(flow, {
-      position: new Vector(22.6, 194.7),
+    let timerNode2 = flow.createNode("common/timer", Vector.create(22.6, 194.7), {
       state: { delay: 600 },
     });
     timerNode2.ui.style = {
@@ -65,8 +63,7 @@ export default {
       borderWidth: 0,
     };
 
-    let randomNode = new StandardNodes.Common.Random(flow, {
-      position: new Vector(321.5, 6.7),
+    let randomNode = flow.createNode("common/random", Vector.create(321.5, 6.7), {
       state: { min: 0, max: 5 },
     });
     randomNode.ui.style.backgroundColor = "#f7ff99";
@@ -74,36 +71,31 @@ export default {
       color: "#547053",
       font: "courier",
     };
-    randomNode.ui
-      .query("label")
-      .forEach((lbl) => Object.assign(lbl.style, labelStyle));
-    randomNode.ui
-      .query("input")
-      .forEach(
-        (input) => (input.children[0].style.backgroundColor = "#abff45")
-      );
+    randomNode.ui.query("core/label").forEach((lbl) => Object.assign(lbl.style, labelStyle));
+    randomNode.ui.query("core/input").forEach((input) => (input.children[0].style.backgroundColor = "#abff45"));
 
-    let customNode = flow.createNode("Custom", new Vector(615.3, 79.8), 200, {
+    let customNode = flow.createNode("core/empty", Vector.create(615.3, 79.8), {
+      name: "Custom",
+      width: 200,
       state: { preset: "default", renderer: 0 },
     });
-    let select = customNode.createSelect(
-      ["default", "dark", "transparent", "red", "green"],
-      {
-        propName: "preset",
-        height: 15,
-        input: true,
-        style: { fontSize: "13px", grow: 1 },
-      }
-    );
-    let button = customNode.createButton("Custom Renderers", { input: true });
+    let select = customNode.createUI("core/select", {
+      values: ["default", "dark", "transparent", "red", "green"],
+      propName: "preset",
+      height: 15,
+      input: true,
+      style: { fontSize: "13px", grow: 1 },
+    });
+    let button = customNode.createUI("core/button", { text: "Custom Renderers", input: true });
     customNode.ui.append([
-      customNode.createHozLayout([customNode.createLabel("Preset"), select], {
+      customNode.createUI("core/x-layout", {
+        childs: [customNode.createUI("core/label", { text: "Preset" }), select],
         style: { spacing: 15 },
       }),
       button,
     ]);
-    let labels = customNode.ui.query("label");
-    let selects = customNode.ui.query("select");
+    let labels = customNode.ui.query("core/label");
+    let selects = customNode.ui.query("core/select");
     let lightStyle = () => {
       labels.forEach((label) => (label.style.color = "#000"));
       selects.forEach((select) => (select.style.arrowColor = "#000"));
@@ -139,27 +131,14 @@ export default {
           return;
       }
     });
-    button.on(
-      "click",
-      () => (customNode.state.renderer = (customNode.state.renderer + 1) % 3)
-    );
+    button.on("click", () => (customNode.state.renderer = (customNode.state.renderer + 1) % 3));
     customNode.ui.style.shadowOffset = Vector.Zero();
     customNode.ui.style.shadowBlur = 20;
     customNode.ui.style.borderWidth = 0;
 
     let renderer0 = (context, params) => {
-      context.strokeRect(
-        params.position.x,
-        params.position.y,
-        params.width,
-        params.height
-      );
-      context.fillRect(
-        params.position.x,
-        params.position.y,
-        params.width,
-        params.height
-      );
+      context.strokeRect(params.position.x, params.position.y, params.width, params.height);
+      context.fillRect(params.position.x, params.position.y, params.width, params.height);
     };
     let renderer1 = (context, params) => {
       context.beginPath();
@@ -202,26 +181,17 @@ export default {
       context.beginPath();
       context.moveTo(params.position.x, params.position.y);
       context.lineTo(params.position.x + params.width, params.position.y);
-      context.lineTo(
-        params.position.x + params.width + 20,
-        params.position.y + params.height / 2
-      );
-      context.lineTo(
-        params.position.x + params.width,
-        params.position.y + params.height
-      );
+      context.lineTo(params.position.x + params.width + 20, params.position.y + params.height / 2);
+      context.lineTo(params.position.x + params.width, params.position.y + params.height);
       context.lineTo(params.position.x, params.position.y + params.height);
-      context.lineTo(
-        params.position.x - 20,
-        params.position.y + params.height / 2
-      );
+      context.lineTo(params.position.x - 20, params.position.y + params.height / 2);
       context.lineTo(params.position.x, params.position.y);
       context.closePath();
       context.stroke();
       context.fill();
     };
     let renderers = [renderer0, renderer1, renderer2];
-    customNode.renderResolver.uiContainer = (container) => {
+    customNode.renderers.background = (container) => {
       return (context, params) => {
         Object.assign(context, {
           fillStyle: container.style.backgroundColor,
@@ -279,12 +249,7 @@ export default {
 
       context.strokeStyle = "white";
       context.lineWidth = 4;
-      let dist = Vector.Distance(
-        params.start.x,
-        params.start.y,
-        params.end.x,
-        params.end.y
-      );
+      let dist = Vector.Distance(params.start.x, params.start.y, params.end.x, params.end.y);
       if (!connector.offset) connector.offset = 1;
       connector.offset += dist / 100;
       if (connector.offset > dist * 1.5) connector.offset = 0;
@@ -295,16 +260,15 @@ export default {
       points.forEach((point) => context.lineTo(point.x, point.y));
       context.stroke();
     };
-    this.flowConnect.renderResolver.connector = (connector) => {
+    this.flowConnect.registerRenderer("connector", (connector) => {
       if (
         (connector.start && connector.start.dataType) === "event" ||
         (connector.end && connector.end.dataType) === "event"
       )
         return customRenderFn1;
-    };
-    flow.renderResolver.connector = (connector) => {
-      if (connector.start && connector.start.node === timerNode2)
-        return customRenderFn2;
+    });
+    flow.renderers.connector = (connector) => {
+      if (connector.start && connector.start.node === timerNode2) return customRenderFn2;
     };
 
     timerNode1.outputs[0].connect(randomNode.inputs[0]);

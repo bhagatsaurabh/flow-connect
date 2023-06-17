@@ -15,35 +15,6 @@ A Flow is a set of <Ref to="./node">Nodes</Ref>, <Ref to="./connector">Connector
 
 <Overview :data="data" />
 
-## Constructor
-
-::: tip
-Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
-:::
-
-<Method type="constructor">
-  <template v-slot:signature>
-    new Flow(<strong>flowConnect: </strong><em><Ref to="./flow-connect">FlowConnect</Ref></em>,
-    <strong>name: </strong><em>string</em>,
-    <strong>rules: </strong><em><Ref to="../interfaces/rules">Rules</Ref></em>,
-    <strong>terminalColors: </strong><em><Ref to="../interfaces/record">Record</Ref>&lt;string, string&gt;</em>):
-    <em><Ref to="#class-flow">Flow</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flowConnect"><em><Ref to="./flow-connect">FlowConnect</Ref></em></Param>
-    <Param name="name">
-      <em>string</em>
-    </Param>
-    <Param name="rules">
-      <em><Ref to="../interfaces/rules">Rules</Ref></em>
-    </Param>
-    <Param name="terminalColors">
-      <em><Ref to="../interfaces/record">Record</Ref>&lt;string, string&gt;</em><br/>
-      An object with keys as <Ref to="./terminal">Terminal</Ref> names and values as hex colors.
-    </Param>
-  </template>
-</Method>
-
 ## Properties
 
 ### connectors
@@ -169,55 +140,18 @@ Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
   </template>
 </Property>
 
-### renderResolver
+### renderers
 
-<Property type="property" :extras="['readonly']" name="renderResolver">
+<Property type="property" :extras="['readonly']" name="renderers">
   <template v-slot:type>
-    {<br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>connector: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./connector">Connector</Ref>,
-        <Ref to="../interfaces/connector-renderparams">ConnectorRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>group?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./group">Group</Ref>,
-        <Ref to="../interfaces/group-renderparams">GroupRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>node?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./node">Node</Ref>,
-        <Ref to="../interfaces/node-renderparams">NodeRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>nodeButton?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./node-button">NodeButton</Ref>,
-        <Ref to="../interfaces/nodebutton-renderparams">NodeButtonRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>terminal?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="./terminal">Terminal</Ref>,
-        <Ref to="../interfaces/terminal-renderparams">TerminalRenderParams</Ref>&gt;
-      </span><br/>
-      <span class="ml-1">
-        <Optional class="mr-0p5" /><strong>uiContainer?: </strong>
-        <Ref to="../interfaces/render-resolver">RenderResolver</Ref
-        >&lt;<Ref to="../nodeui/container">Container</Ref>,
-        <Ref to="../interfaces/container-renderparams">ContainerRenderParams</Ref>&gt;
-      </span>
-    <br/>}
+    <em><Ref to="../interfaces/flow-renderers">FlowRenderers</Ref></em>
   </template>
   <template v-slot:desc>
-  A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> which is scoped to the Flow instance.
+  A map of <Ref to="../interfaces/renderer">Renderer</Ref> which is scoped to the Flow instance.
 
-  Any custom render functions specified using this resolver will affect everything inside this <Ref to="./flow">Flow</Ref> instance.
-  </template>
-  <template v-slot:default>{}</template>
+Any custom render functions specified using this resolver will affect everything inside this <Ref to="./flow">Flow</Ref> instance.
+</template>
+<template v-slot:default>{}</template>
 </Property>
 
 ### rules
@@ -227,11 +161,21 @@ Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
     <em><Ref to="../interfaces/rules">Rules</Ref></em>
   </template>
   <template v-slot:desc>
-    Specifies what terminal types can be connected to one another.<br/><br/>
+    Specifies what terminal data types can be connected to one another.<br/><br/>
     Also see, <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>.
   </template>
 </Property>
 
+### ruleColors
+
+<Property type="property" name="ruleColors">
+  <template v-slot:type>
+    <em><Ref to="../interfaces/rule-colors">RuleColors</Ref></em>
+  </template>
+  <template v-slot:desc>
+    Map of colors corresponding to data types specified in <Ref to="#rules">rules</Ref>
+  </template>
+</Property>
 
 ## Accessors
 
@@ -333,56 +277,68 @@ Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
   </template>
 </Method>
 
+### create
+
+<Method type="method-static">
+  <template v-slot:signature>
+    create(
+      <strong>flowConnect: </strong><em><Ref to="./flow-connect">FlowConnect</Ref></em>,
+      <strong>options: </strong><em><Ref to="../interfaces/flow-options">FlowOptions</Ref></em>
+    ):
+    <em><Ref to="./flow">Flow</Ref></em>
+  </template>
+  <template v-slot:params>
+    <Param name="flowConnect"><em><Ref to="./flow-connect">FlowConnect</Ref></em></Param>
+    <Param name="options"><em><Ref to="../interfaces/flow-options">FlowOptions</Ref></em></Param>
+  </template>
+  <template v-slot:return>
+    <em><Ref to="./flow">Flow</Ref></em>
+  </template>
+</Method>
+
 ### createNode
 
 <Method type="method">
   <template v-slot:signature>
-    createNode(<strong>name: </strong><em>string</em>,
+    createNode&lt;T extends <Ref to="./node">Node</Ref>&gt;(<strong>type: </strong><em>string</em>,
     <strong>position: </strong><em><Ref to="./vector">Vector</Ref></em>,
-    <strong>width: </strong><em>number</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/node-options">NodeOptions</Ref></em>):
-    <em><Ref to="./node">Node</Ref></em>
+    <strong>options: </strong><em><Ref to="../interfaces/node-options">NodeOptions</Ref></em>):
+    <em>T</em>
   </template>
   <template v-slot:params>
-    <Param name="name"><em>string</em></Param>
+    <Param name="type"><em>string</em></Param>
+    Type of the node to create, can be either built-in types such as <code>core/empty</code> or custom plugins such as <code>common/timer</code>
     <Param name="position"><em><Ref to="./vector">Vector</Ref></em></Param>
-    <Param name="width"><em>number</em></Param>
-    <Param name="options?"><em><Ref to="../interfaces/node-options">NodeOptions</Ref></em></Param>
+    <Param name="options"><em><Ref to="../interfaces/node-options">NodeOptions</Ref></em></Param>
   </template>
   <template v-slot:desc>
     Creates and adds a new <Ref to="./node">Node</Ref> to the flow.
   </template>
-   <template v-slot:return>
+  <template v-slot:return>
     <em><Ref to="./node">Node</Ref></em>
   </template>
   <template v-slot:example>
 
-  ```js
-  let node = flow.createNode(
-    'Test Node',
-    new Vector(50, 50),
-    250,
-    {
-      inputs: [
-        { name: 'A', dataType: 'a' },
-        { name: 'B', dataType: 'b' }
-      ],
-      outputs: [
-        { name: 'C', dataType: 'c' }
-      ],
-      state: {
-        labelText: 'Label Text',
-        sliderValue: 50,
-        toggle: false
-      },
-      style: {
-        padding: 10,
-        spacing: 10
-      },
-      terminalStyle: {}
-    }
-  );
-  ```
+```js
+let node = flow.createNode("core/empty", Vector.create(50, 50), {
+  name: "Test Node",
+  width: 250,
+  inputs: [
+    { name: "A", dataType: "a" },
+    { name: "B", dataType: "b" },
+  ],
+  outputs: [{ name: "C", dataType: "c" }],
+  state: {
+    labelText: "Label Text",
+    sliderValue: 50,
+    toggle: false,
+  },
+  style: {
+    padding: 10,
+    spacing: 10,
+  },
+});
+```
 
   </template>
 </Method>
@@ -445,17 +401,60 @@ Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
   </template>
 </Method>
 
+### removeSubFlow
+
+<Method type="method">
+  <template v-slot:signature>
+    removeSubFlow(<strong>subFlow: </strong><em><Ref to="./flow">Flow</Ref></em>):
+    <em>void</em>
+    <br/>
+    <br/>
+    removeSubFlow(<strong>subFlowNode: </strong><em><Ref to="./subflow-node">SubFlowNode</Ref></em>):
+    <em>void</em>
+  </template>
+  <template v-slot:params>
+    <Param name="subFlow">
+      <em><Ref to="./flow">Flow</Ref></em>
+    </Param>
+    <Param name="subFlowNode">
+      <em><Ref to="./subflow-node">SubFlowNode</Ref></em>
+    </Param>
+  </template>
+  <template v-slot:desc>
+    Removes a subflow and its corresponding <Ref to="./subflow-node">SubFlowNode</Ref> from the flow.
+  </template>
+</Method>
+
+### removeConnector
+
+<Method type="method">
+  <template v-slot:signature>
+    removeConnector(<strong>id: </strong><em>string</em>):
+    <em>void</em>
+  </template>
+  <template v-slot:params>
+    <Param name="id">
+      <em>string</em>
+    </Param>
+  </template>
+</Method>
+
 ### serialize
 
-<Method type="method-implementation">
+<Method type="method-async">
   <template v-slot:signature>
-    serialize():
-    <em><Ref to="../interfaces/serialized-connector">SerializedConnector</Ref></em>
+    serialize(<strong>persist?: </strong><em><Ref to="../interfaces/data-persistence-provider">DataPersistenceProvider</Ref></em>):
+    <em>Promise&lt;<Ref to="../interfaces/serialized-flow">SerializedFlow</Ref>&gt;</em>
+  </template>
+  <template v-slot:params>
+    <Param name="persist?">
+      <em><Ref to="../interfaces/data-persistence-provider">DataPersistenceProvider</Ref></em>
+    </Param>
   </template>
   <template v-slot:inherit>
     <Icon valign="bottom" type="implementation" /> of <Ref to="../interfaces/serializable">Serializable</Ref>.<Ref to="../interfaces/serializable#serialize">serialize</Ref>
   </template>
-  <template v-slot:return><em><Ref to="../interfaces/serialized-connector">SerializedConnector</Ref></em></template>
+  <template v-slot:return><em>Promise&lt;<Ref to="../interfaces/serialized-flow">SerializedFlow</Ref>&gt;</em></template>
 </Method>
 
 ### start
@@ -484,17 +483,19 @@ Also see <Ref to="./flow-connect#createflow">FlowConnect.createFlow</Ref>
 
 ### deSerialize
 
-<Method type="method-static">
+<Method type="method-static-async">
   <template v-slot:signature>
     deSerialize(<strong>flowConnect: </strong><em><Ref to="./flow-connect">FlowConnect</Ref></em>,
-    <strong>data: </strong><em><Ref to="../interfaces/serialized-flow">SerializedFlow</Ref></em>):
-    <em><Ref to="#class-flow">Flow</Ref></em>
+    <strong>data: </strong><em><Ref to="../interfaces/serialized-flow">SerializedFlow</Ref></em>,
+    <strong>receive?: </strong><em><Ref to="../interfaces/data-fetch-provider">DataFetchProvider</Ref></em>):
+    <em>Promise&lt;<Ref to="#class-flow">Flow</Ref>&gt;</em>
   </template>
   <template v-slot:params>
     <Param name="flowConnect"><em><Ref to="./flow-connect">FlowConnect</Ref></em></Param>
     <Param name="data"><em><Ref to="../interfaces/serialized-flow">SerializedFlow</Ref></em></Param>
+    <Param name="receive?"><em><Ref to="../interfaces/data-fetch-provider">DataFetchProvider</Ref></em></Param>
   </template>
-  <template v-slot:return><em><Ref to="#class-flow">Flow</Ref></em></template>
+  <template v-slot:return><em>Promise&lt;<Ref to="#class-flow">Flow</Ref>&gt;</em></template>
 </Method>
 
 ## Events

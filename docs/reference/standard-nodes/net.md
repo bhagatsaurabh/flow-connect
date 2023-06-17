@@ -1,4 +1,4 @@
-# StandardNodes.Net
+# @flow-connect/net
 
 <ul class="list">
   <li v-for="item in data.classes" :key="item">

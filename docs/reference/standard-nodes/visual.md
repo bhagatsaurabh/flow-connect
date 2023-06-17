@@ -1,4 +1,4 @@
-# StandardNodes.Visual
+# @flow-connect/visual
 
 <ul class="list">
   <li v-for="item in data.classes" :key="item">

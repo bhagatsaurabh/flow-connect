@@ -1,8 +1,5 @@
 <template>
-  <button
-    class="action-button"
-    :class="{ primary: primary, secondary: secondary }"
-  >
+  <button class="action-button" :class="{ primary: primary, secondary: secondary }">
     <router-link :to="to">
       <slot></slot>
     </router-link>
@@ -32,8 +29,7 @@ export default {
   font-size: 1.1rem;
   cursor: pointer;
   padding: 1rem 2rem;
-  transition: background-color 0.3s ease, background-color 0.3s ease,
-    box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .action-button a {
   transition: color 0.3s ease;

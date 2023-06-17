@@ -6,7 +6,7 @@
 <br/>
 
 ```js
-let stereoPanner = new StandardNodes.Audio.StereoPanner(flow);
+let stereoPanner = flow.createNode("audio/stereo-panner", {});
 ```
 
 <br/>
@@ -19,24 +19,3 @@ let stereoPanner = new StandardNodes.Audio.StereoPanner(flow);
   bypass: false
 }
 ```
-
-## Constructor
-
-<Method type="method">
-  <template v-slot:signature>
-    new StereoPanner(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-stereopanner">StereoPanner</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>

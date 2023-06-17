@@ -1,17 +1,8 @@
 <template>
   <div class="graph-controls">
     <div @click="buttonClicked('play')" class="graph-control-button">
-      <div
-        ref="graph-play-icon"
-        class="graph-control-button-icon graph-icon-play"
-      ></div>
-      <div
-        :class="{ 'display-none': !showText }"
-        ref="graph-play-icon-text"
-        class="graph-control-button-text"
-      >
-        Run
-      </div>
+      <div ref="graph-play-icon" class="graph-control-button-icon graph-icon-play"></div>
+      <div :class="{ 'display-none': !showText }" ref="graph-play-icon-text" class="graph-control-button-text">Run</div>
     </div>
   </div>
 </template>
@@ -25,13 +16,13 @@ export default {
       if (name === "play") {
         if (this.$refs["graph-play-icon-text"].innerText.trim() === "Run") {
           const iconEl = this.$refs["graph-play-icon"];
-          iconEl.classList.remove('graph-icon-play');
-          iconEl.classList.add('graph-icon-stop');
+          iconEl.classList.remove("graph-icon-play");
+          iconEl.classList.add("graph-icon-stop");
           this.$refs["graph-play-icon-text"].innerText = "Stop";
         } else {
           const iconEl = this.$refs["graph-play-icon"];
-          iconEl.classList.remove('graph-icon-stop');
-          iconEl.classList.add('graph-icon-play');
+          iconEl.classList.remove("graph-icon-stop");
+          iconEl.classList.add("graph-icon-play");
           this.$refs["graph-play-icon-text"].innerText = "Run";
         }
       }

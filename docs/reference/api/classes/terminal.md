@@ -19,46 +19,6 @@ A Terminal is an input/output interface for a <Ref to="./node">node</Ref>, it ca
 
 <Overview :data="data" />
 
-## Constructor
-
-::: tip
-Also see, <Ref to="./node#addterminal">Node.addTerminal</Ref>.
-:::
-
-<Method type="constructor">
-  <template v-slot:signature>
-    new Terminal(<strong>node: </strong><em><Ref to="./node">Node</Ref></em>,
-    <strong>type: </strong><em><Ref to="../enums/terminal-type">TerminalType</Ref></em>,
-    <strong>dataType: </strong><em>string</em>,
-    <strong>name: </strong><em>string</em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/terminal-options">TerminalOptions</Ref></em>):
-    <em><Ref to="#class-terminal">Terminal</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="node"><em><Ref to="./node">Node</Ref></em></Param>
-    <Param name="type">
-      <em><Ref to="../enums/terminal-type">TerminalType</Ref></em>
-    </Param>
-    <Param name="dataType">
-      <em>string</em>
-    </Param>
-    <Param name="name">
-      <em>string</em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/terminal-options">TerminalOptions</Ref></em>
-  <template v-slot:default-value>
-
-  ```js
-  {
-    style: {}
-  }
-  ```
-  </template>
-    </Param>
-  </template>
-</Method>
-
 ## Properties
 
 ### connectors
@@ -154,20 +114,20 @@ Also see, <Ref to="./node#addterminal">Node.addTerminal</Ref>.
   </template>
 </Property>
 
-### renderResolver
+### renderer
 
-<Property type="property" name="renderResolver">
+<Property type="property" name="renderer">
   <template v-slot:type>
-    <Ref to="../interfaces/render-resolver">RenderResolver</Ref
+    <Ref to="../interfaces/renderer">Renderer</Ref
     >&lt;<Ref to="#class-terminal">Terminal</Ref>,
     <Ref to="../interfaces/terminal-renderparams">TerminalRenderParams</Ref>&gt;
   </template>
   <template v-slot:desc>
-  A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> which is scoped to the Terminal instance.
+  A <Ref to="../interfaces/renderer">Renderer</Ref> which is scoped to the Terminal instance.
 
-  Any custom render function specified using this resolver will only affect this terminal instance.
-  </template>
-  <template v-slot:default>() => null</template>
+Any custom render function specified using this resolver will only affect this terminal instance.
+</template>
+<template v-slot:default>() => null</template>
 </Property>
 
 ### style
@@ -236,6 +196,33 @@ Also see, <Ref to="./node#addterminal">Node.addTerminal</Ref>.
   <template v-slot:return>
     <em>boolean</em><br/>
     If the connection is successful.
+  </template>
+</Method>
+
+### create
+
+::: warning Not Recommended
+Using the `create` method can lead to unexpected results, use <Ref to="./node">Node</Ref>.<Ref to="./node#addterminal">addTerminal</Ref> or <Ref to="./node">Node</Ref>.<Ref to="./node#addterminals">addTerminals</Ref> method instead
+:::
+
+<Method type="method">
+  <template v-slot:signature>
+    connect(
+      <strong>node: </strong><em><Ref to="./node">Node</Ref></em>,
+      <strong>type: </strong><em><Ref to="../enums/terminal-type">TerminalType</Ref></em>,
+      <strong>dataType: </strong><em>string</em>,
+      <strong>options: </strong><em><Ref to="../interfaces/terminal-options">TerminalOptions</Ref></em>
+    ):
+    <em><Ref to="./terminal">Terminal</Ref></em>
+  </template>
+  <template v-slot:params>
+    <Param name="node"><em><Ref to="./node">Node</Ref></em></Param>
+    <Param name="type"><em><Ref to="../enums/terminal-type">TerminalType</Ref></em></Param>
+    <Param name="dataType"><em>string</em></Param>
+    <Param name="options"><em><Ref to="../interfaces/terminal-options">TerminalOptions</Ref></em></Param>
+  </template>
+  <template v-slot:return>
+    <em><Ref to="./terminal">Terminal</Ref></em>
   </template>
 </Method>
 

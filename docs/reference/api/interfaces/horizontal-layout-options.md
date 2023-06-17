@@ -1,9 +1,13 @@
 # Interface: HorizontalLayoutOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'UINodeOptions', link: './ui-node-options'}"
+/>
+
 <pre>
 {
-  style?: <Ref to="./horizontal-layout-style">HorizontalLayoutStyle</Ref>,
-  input?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  output?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>
+  childs?: <Ref to="../classes/ui-node">UINode</Ref>[]
 }
 </pre>

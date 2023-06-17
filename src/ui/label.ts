@@ -1,18 +1,17 @@
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { TerminalType } from "../core/terminal.js";
 import { Node } from "../core/node.js";
-import { Vector } from "../core/vector.js";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
-import { Serializable } from "../common/interfaces.js";
-import { Color } from "../core/color.js";
-import { binarySearch, exists, get } from "../utils/utils.js";
+import { UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
+import { binarySearch, exists } from "../utils/utils.js";
 import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
 
-export class Label extends UINode implements Serializable<SerializedLabel> {
+export class Label extends UINode<LabelStyle> {
+  style: LabelStyle;
+
   private displayText: string;
   private _text: string | number;
-  private textWidth: number;    // This may be smaller due to surrounding width constraints (this is som...)
-  private orgTextWidth: number; // While this is the actual width                           (this is some text)
+  private textWidth: number; // This may be smaller due to surrounding width constraints (this is som...)
+  private orgTextWidth: number; // While this is the actual width                        (this is some text)
   private textHeight: number;
 
   get text(): string {
@@ -20,7 +19,7 @@ export class Label extends UINode implements Serializable<SerializedLabel> {
     if (this.propName) value = this.getProp();
     else value = this._text;
 
-    if (typeof value === 'number') value = this.format(value);
+    if (typeof value === "number") value = this.format(value);
     return value;
   }
   set text(text: string | number) {
@@ -34,46 +33,42 @@ export class Label extends UINode implements Serializable<SerializedLabel> {
       this.reflow();
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
+    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
-  constructor(
-    node: Node,
-    text: string | number,
-    options: LabelOptions = DefaultLabelOptions(node)
-  ) {
-    super(node, Vector.Zero(), UIType.Label, {
-      style: options.style ? { ...DefaultLabelStyle(), ...options.style } : DefaultLabelStyle(),
-      propName: options.propName,
-      input: options.input && (typeof options.input === 'boolean'
-        ? new Terminal(node, TerminalType.IN, 'any', '', {})
-        : Terminal.deSerialize(node, options.input)),
-      output: options.output && (typeof options.output === 'boolean'
-        ? new Terminal(node, TerminalType.OUT, 'string', '', {})
-        : Terminal.deSerialize(node, options.output)),
-      id: options.id,
-      hitColor: options.hitColor
-    });
+  constructor(_node: Node, options: LabelOptions) {
+    super();
+
+    options = { ...DefaultLabelOptions(), ...options };
+    const { style = {} } = options;
+
+    this.style = { ...DefaultLabelStyle(), ...style };
+  }
+
+  protected created(options: LabelOptions): void {
+    const { text = "Label", input, output, height } = options;
+
+    if (input) {
+      const terminal = this.createTerminal(TerminalType.IN, "any");
+      terminal.on("connect", (_, connector) => {
+        if (connector.data) this.text = connector.data;
+      });
+      terminal.on("data", (_, data) => {
+        if (data) this.text = data;
+      });
+    }
+    if (output) {
+      const terminal = this.createTerminal(TerminalType.OUT, "string");
+      terminal.on("connect", (_, connector) => (connector.data = this.text));
+    }
 
     this._text = this.propName ? this.getProp() : text;
     this.reflow();
 
-    this.height = get(options.height, this.textHeight + 5);
+    this.height = height ?? this.textHeight + 5;
     if (!this.style.grow) this.width = this.orgTextWidth;
 
-    if (this.input) {
-      this.input.on('connect', (_, connector) => {
-        if (exists(connector.data)) this.text = connector.data;
-      });
-      this.input.on('data', (_, data) => {
-        if (exists(data)) this.text = data;
-      });
-    }
-    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.text);
-
-    this.node.on('process', () => {
-      if (this.output) this.output.setData(this.text);
-    });
+    this.node.on("process", () => this.output?.setData(this.text));
   }
 
   paint(): void {
@@ -83,8 +78,8 @@ export class Label extends UINode implements Serializable<SerializedLabel> {
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
 
     context.fillStyle = this.style.color;
-    context.font = this.style.fontSize + ' ' + this.style.font;
-    context.textBaseline = 'middle';
+    context.font = this.style.fontSize + " " + this.style.font;
+    context.textBaseline = "middle";
     let y = this.position.y + this.height / 2;
     let x = this.position.x;
     if (this.style.align === Align.Center) {
@@ -92,14 +87,14 @@ export class Label extends UINode implements Serializable<SerializedLabel> {
     } else if (this.style.align === Align.Right) {
       x += this.width - this.textWidth - this.style.padding;
     } else {
-      x += this.style.padding
+      x += this.style.padding;
     }
 
     context.fillText(this.displayText, x, y);
   }
   paintLOD1() {
     let context = this.context;
-    context.strokeStyle = '#000';
+    context.strokeStyle = "#000";
     context.fillStyle = this.style.color;
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
@@ -111,7 +106,7 @@ export class Label extends UINode implements Serializable<SerializedLabel> {
 
   reflow(): void {
     let context = this.context;
-    context.font = this.style.fontSize + ' ' + this.style.font;
+    context.font = this.style.fontSize + " " + this.style.font;
     this.orgTextWidth = context.measureText(this.text).width;
     this.displayText = this.getBestFitString();
     let metrics = context.measureText(this.displayText);
@@ -135,10 +130,10 @@ export class Label extends UINode implements Serializable<SerializedLabel> {
   }
   getBestFitString(): string {
     let text = this.text;
-    if (typeof (text as any) !== 'string') text = text.toString();
+    if (typeof (text as any) !== "string") text = text.toString();
 
     let width = this.context.measureText(text).width;
-    const ellipsis = '…';
+    const ellipsis = "…";
     const ellipsisWidth = this.context.measureText(ellipsis).width;
     if (width <= this.width || width <= ellipsisWidth) return text;
 
@@ -160,114 +155,29 @@ export class Label extends UINode implements Serializable<SerializedLabel> {
 
     this.output && this.output.setData(this._text);
   }
-  onOver(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call('over', this, screenPosition, realPosition);
-  }
-  onDown(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call('down', this, screenPosition, realPosition);
-  }
-  onUp(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call('up', this, screenPosition, realPosition);
-  }
-  onClick(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call('click', this, screenPosition, realPosition);
-  }
-  onDrag(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call('drag', this, screenPosition, realPosition);
-  }
-  onEnter(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call('enter', this, screenPosition, realPosition);
-  }
-  onExit(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call('exit', this, screenPosition, realPosition);
-  }
-  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call('wheel', this, direction, screenPosition, realPosition);
-  }
-  onContextMenu(): void {
-    if (this.disabled) return;
-  }
-
-  serialize(): SerializedLabel {
-    return {
-      text: this.text,
-      propName: this.propName,
-      input: this.input ? this.input.serialize() : null,
-      output: this.output ? this.output.serialize() : null,
-      height: this.height,
-      style: this.style,
-      id: this.id,
-      hitColor: this.hitColor.serialize(),
-      type: this.type,
-      childs: []
-    }
-  }
-  static deSerialize(node: Node, data: SerializedLabel): Label {
-    return new Label(node, data.text, {
-      propName: data.propName,
-      input: data.input,
-      output: data.output,
-      height: data.height,
-      style: data.style,
-      id: data.id,
-      hitColor: Color.deSerialize(data.hitColor)
-    });
-  }
 }
 
 export interface LabelStyle extends UINodeStyle {
-  color?: string,
-  backgroundColor?: string,
-  fontSize?: string,
-  font?: string,
-  align?: Align,
-  precision?: number,
-  padding?: number
+  color?: string;
+  backgroundColor?: string;
+  fontSize?: string;
+  font?: string;
+  align?: Align;
+  precision?: number;
+  padding?: number;
 }
-let DefaultLabelStyle = () => {
-  return {
-    color: '#000',
-    backgroundColor: 'transparent',
-    fontSize: '11px',
-    font: 'arial',
-    align: Align.Left,
-    padding: 0,
-    visible: true
-  };
-};
+let DefaultLabelStyle = (): LabelStyle => ({
+  color: "#000",
+  backgroundColor: "transparent",
+  fontSize: "11px",
+  font: "arial",
+  align: Align.Left,
+  padding: 0,
+});
 
-export interface SerializedLabel extends SerializedUINode {
-  text: string,
-  height: number
+export interface LabelOptions extends UINodeOptions<LabelStyle> {
+  text: string | number;
 }
-
-interface LabelOptions {
-  propName?: string,
-  input?: boolean | SerializedTerminal,
-  output?: boolean | SerializedTerminal,
-  height?: number,
-  style?: LabelStyle,
-  id?: string,
-  hitColor?: Color
-}
-let DefaultLabelOptions = (node: Node): LabelOptions => {
-  return {
-    height: node.style.rowHeight * 1.5
-  }
-};
+let DefaultLabelOptions = (): LabelOptions => ({
+  text: "Label",
+});

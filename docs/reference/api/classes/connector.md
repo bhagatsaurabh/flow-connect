@@ -16,45 +16,6 @@ A Connector virtually "connects" <Ref to="./terminal">Terminals</Ref> of two dif
 
 <Overview :data="data" />
 
-## Constructor
-
-::: tip
-If you need to connect two terminals without explicitly creating a connector using this constructor you can always use <Ref to="./terminal#connect">Terminal.connect</Ref>
-:::
-
-<Method type="constructor">
-  <template v-slot:signature>
-    new Connector(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>start: </strong><em><Ref to="./terminal">Terminal</Ref></em>,
-    <strong>end: </strong><em><Ref to="./terminal">Terminal</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/connector-options">ConnectorOptions</Ref></em>):
-    <em><Ref to="#class-connector">Connector</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="start">
-      <em><Ref to="./terminal">Terminal</Ref></em><br/>
-      The output terminal of a <Ref to="./node">Node</Ref>
-    </Param>
-    <Param name="end">
-      <em><Ref to="./terminal">Terminal</Ref></em><br/>
-      The input terminal of a <Ref to="./node">Node</Ref>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/connector-options">ConnectorOptions</Ref></em>
-  <template v-slot:default-value>
-
-  ```js
-  {
-    style: {},
-    id: getNewUUID() // dynamic
-  }
-  ```
-  </template>
-    </Param>
-  </template>
-</Method>
-
 ## Properties
 
 ### end
@@ -127,17 +88,17 @@ If you need to connect two terminals without explicitly creating a connector usi
   </template>
 </Property>
 
-### renderResolver
+### renderer
 
-<Property type="property" name="renderResolver">
+<Property type="property" name="renderer">
   <template v-slot:type>
-    <em><Ref to="../interfaces/render-resolver">RenderResolver</Ref>&lt;<Ref to="#class-connector">Connector</Ref>, <Ref to="../interfaces/connector-render-params">ConnectorRenderParams</Ref>&gt;</em>
+    <em><Ref to="../interfaces/renderer">Renderer</Ref>&lt;<Ref to="#class-connector">Connector</Ref>, <Ref to="../interfaces/connector-render-params">ConnectorRenderParams</Ref>&gt;</em>
   </template>
   <template v-slot:default>
     <strong><Function class="mr-0p5" /></strong><em>() => null</em>
   </template>
   <template v-slot:desc>
-    A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> scoped to a single <Ref to="#class-connector">Connector</Ref> instance.
+    A <Ref to="../interfaces/renderer">Renderer</Ref> scoped to a single <Ref to="#class-connector">Connector</Ref> instance.
     <br/><br/>
     Any custom render function specified using this resolver will only affect this instance of Connector.
   </template>
@@ -151,21 +112,22 @@ If you need to connect two terminals without explicitly creating a connector usi
   </template>
   <template v-slot:default>
 
-  ```js
-  {
-    width: 5,
-    color: '#7fff00aa',
-    border: true,
-    borderColor: 'grey'
-  }
-  ```
+```js
+{
+  width: 5,
+  color: '#7fff00aa',
+  border: true,
+  borderColor: 'grey'
+}
+```
+
   </template>
 </Property>
-
 
 ## Accessors
 
 ### data
+
 <Property type="accessor" name="data">
   <template v-slot:type>
     <em>any</em>
@@ -174,7 +136,6 @@ If you need to connect two terminals without explicitly creating a connector usi
     The reference to data set by start (input) terminal.
   </template>
 </Property>
-
 
 ## Methods
 
@@ -243,23 +204,23 @@ If you need to connect two terminals without explicitly creating a connector usi
   <template v-slot:return><em><Ref to="../interfaces/serialized-connector">SerializedConnector</Ref></em></template>
 </Method>
 
-### deSerialize
+### create
+
+::: warning Not Recommended
+Using the `create` method directly is not recommended as it can lead to unexpected results, use the <Ref to="./terminal">Terminal</Ref>.<Ref to="./terminal#connect">connect()</Ref> method instead
+:::
 
 <Method type="method-static">
   <template v-slot:signature>
-    deSerialize(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>start: </strong><em><Ref to="./terminal">Terminal</Ref></em>,
-    <strong>end: </strong><em><Ref to="./terminal">Terminal</Ref></em>,
-    <strong>data: </strong><em><Ref to="../interfaces/serialized-connector">SerializedConnector</Ref></em>):
-    <em><Ref to="#class-connector">Connector</Ref></em>
+    create(
+      <strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
+      <strong>start: </strong><em><Ref to="./terminal">Terminal</Ref></em>,
+      <strong>end: </strong><em><Ref to="./terminal">Terminal</Ref></em>,
+      <strong>options: </strong><em><Ref to="../interfaces/connector-options">ConnectorOptions</Ref></em>
+    ):
+    <em><Ref to="./connector">Connector</Ref></em>
   </template>
-  <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="start"><em><Ref to="./terminal">Terminal</Ref></em></Param>
-    <Param name="end"><em><Ref to="./terminal">Terminal</Ref></em></Param>
-    <Param name="data"><em><Ref to="../interfaces/serialized-connector">SerializedConnector</Ref></em></Param>
-  </template>
-  <template v-slot:return><em><Ref to="#class-connector">Connector</Ref></em></template>
+  <template v-slot:return><em><Ref to="./connector">Connector</Ref></em></template>
 </Method>
 
 ## Events

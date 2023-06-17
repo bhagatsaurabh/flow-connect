@@ -1,16 +1,17 @@
-import { Terminal, TerminalType, SerializedTerminal } from "../core/terminal.js";
+import { TerminalType } from "../core/terminal.js";
 import { Node } from "../core/node.js";
-import { Vector } from "../core/vector.js";
-import { clamp, denormalize, exists, get, normalize } from "../utils/utils.js";
-import { SerializedUINode, UINode, UINodeStyle, UIType } from "./ui-node.js";
-import { Serializable } from "../common/interfaces.js";
-import { Color } from "../core/color.js";
+import { clamp, denormalize, exists, normalize } from "../utils/utils.js";
+import { UIEvent, UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 import { FlowState } from "../core/flow.js";
 import { Constant } from "../resource/constants.js";
 
-export class Slider extends UINode implements Serializable<SerializedSlider> {
+export class Slider extends UINode<SliderStyle> {
+  style: SliderStyle;
+
   private thumbFill: number;
   private _value: number;
+  min: number;
+  max: number;
 
   get value(): number {
     if (this.propName) return this.getProp();
@@ -29,43 +30,42 @@ export class Slider extends UINode implements Serializable<SerializedSlider> {
       this.reflow();
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call('change', this, oldVal, newVal);
+    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
-  constructor(
-    node: Node, public min: number, public max: number,
-    options: SliderOptions = DefaultSliderOptions(node)
-  ) {
-    super(node, Vector.Zero(), UIType.Slider, {
-      draggable: true,
-      style: options.style ? { ...DefaultSliderStyle(node, options.height), ...options.style } : DefaultSliderStyle(node, options.height),
-      propName: options.propName,
-      input: options.input && (typeof options.input === 'boolean'
-        ? new Terminal(node, TerminalType.IN, 'number', '', {})
-        : Terminal.deSerialize(node, options.input)),
-      output: options.output && (typeof options.output === 'boolean'
-        ? new Terminal(node, TerminalType.OUT, 'number', '', {})
-        : Terminal.deSerialize(node, options.output)),
-      id: options.id,
-      hitColor: options.hitColor
-    });
+  constructor(node: Node, _options: SliderOptions = DefaultSliderOptions(node)) {
+    super();
 
-    this.height = get(options.height, this.node.style.rowHeight);
-    this._value = this.propName ? this.getProp() : get(options.value, min);
+    this.draggable = true;
+  }
+
+  protected created(options: SliderOptions): void {
+    options = { ...DefaultSliderOptions(this.node), ...options };
+    const { style = {}, height, min = 0, max = 100, value = min, input, output } = options;
+
+    this.min = min;
+    this.max = max;
+    this.height = height ?? this.node.style.rowHeight;
+    this.style = { ...DefaultSliderStyle(this.node, height), ...style };
+    this._value = this.propName ? this.getProp() : value;
     this._value = clamp(this._value, this.min, this.max);
 
-    if (this.input) {
-      this.input.on('connect', (_, connector) => {
+    if (input) {
+      const terminal = this.createTerminal(TerminalType.IN, "number");
+      terminal.on("connect", (_, connector) => {
         if (connector.data) this.value = connector.data;
       });
-      this.input.on('data', (_, data) => {
+      terminal.on("data", (_, data) => {
         if (data) this.value = data;
       });
     }
-    if (this.output) this.output.on('connect', (_, connector) => connector.data = this.value);
+    if (output) {
+      const terminal = this.createTerminal(TerminalType.OUT, "number");
+      terminal.on("connect", (_, connector) => (connector.data = this.value));
+    }
 
-    this.node.on('process', () => {
-      if (this.output) this.output.setData(this.value);
+    this.node.on("process", () => {
+      this.output?.setData(this.value);
     });
   }
 
@@ -73,7 +73,7 @@ export class Slider extends UINode implements Serializable<SerializedSlider> {
     let context = this.context;
     context.lineWidth = this.style.railHeight;
     context.strokeStyle = this.style.color;
-    context.lineCap = 'butt';
+    context.lineCap = "butt";
 
     let start = Math.max(this.position.x, this.position.x + this.thumbFill - 3);
     if (start !== this.position.x) {
@@ -83,7 +83,7 @@ export class Slider extends UINode implements Serializable<SerializedSlider> {
       context.stroke();
     }
     start = Math.min(this.position.x + 2 * this.style.thumbRadius + this.thumbFill + 3, this.position.x + this.width);
-    if (start !== (this.position.x + this.width)) {
+    if (start !== this.position.x + this.width) {
       context.beginPath();
       context.moveTo(start, this.position.y + this.height / 2);
       context.lineTo(this.position.x + this.width, this.position.y + this.height / 2);
@@ -94,13 +94,16 @@ export class Slider extends UINode implements Serializable<SerializedSlider> {
     context.beginPath();
     context.arc(
       this.position.x + this.style.thumbRadius + this.thumbFill,
-      this.position.y + this.height / 2, this.style.thumbRadius, 0, Constant.TAU
+      this.position.y + this.height / 2,
+      this.style.thumbRadius,
+      0,
+      Constant.TAU
     );
     context.fill();
   }
   paintLOD1() {
     let context = this.context;
-    context.strokeStyle = '#000';
+    context.strokeStyle = "#000";
     context.fillStyle = this.style.color;
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
@@ -131,125 +134,40 @@ export class Slider extends UINode implements Serializable<SerializedSlider> {
     this._value = newVal;
     this.reflow();
 
-    this.output && this.output.setData(this.value);
+    this.output?.setData(this.value);
   }
-  onOver(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
 
-    this.call('over', this, screenPosition, realPosition);
-  }
-  onDown(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call('down', this, screenPosition, realPosition);
-  }
-  onUp(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call('up', this, screenPosition, realPosition);
-  }
-  onClick(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
-    this.call('click', this, screenPosition, realPosition);
-  }
-  onDrag(screenPosition: Vector, realPosition: Vector): void {
-    if (this.disabled) return;
-
+  onDrag(event: UIEvent): void {
     let y = this.position.y + this.height / 2 - this.style.railHeight / 2;
-    this.thumbFill = realPosition
+    this.thumbFill = event.realPos
       .clamp(this.position.x + this.style.thumbRadius, this.position.x + this.width - this.style.thumbRadius, y, y)
-      .subtractInPlace(this.position.x + this.style.thumbRadius, 0)
-      .x;
+      .subtractInPlace(this.position.x + this.style.thumbRadius, 0).x;
 
     this.value = denormalize(normalize(this.thumbFill, 0, this.width - 2 * this.style.thumbRadius), this.min, this.max);
-
-    this.call('drag', this, screenPosition, realPosition);
-  }
-  onEnter(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call('enter', this, screenPosition, realPosition);
-  }
-  onExit(screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call('exit', this, screenPosition, realPosition);
-  }
-  onWheel(direction: boolean, screenPosition: Vector, realPosition: Vector) {
-    if (this.disabled) return;
-
-    this.call('wheel', this, direction, screenPosition, realPosition);
-  }
-  onContextMenu(): void {
-    if (this.disabled) return;
-  }
-
-  serialize(): SerializedSlider {
-    return {
-      min: this.min,
-      max: this.max,
-      value: this.value,
-      propName: this.propName,
-      input: this.input ? this.input.serialize() : null,
-      output: this.output ? this.output.serialize() : null,
-      height: this.height,
-      style: this.style,
-      id: this.id,
-      hitColor: this.hitColor.serialize(),
-      type: this.type,
-      childs: []
-    }
-  }
-  static deSerialize(node: Node, data: SerializedSlider) {
-    return new Slider(node, data.min, data.max, {
-      value: data.value,
-      propName: data.propName,
-      input: data.input,
-      output: data.output,
-      height: data.height,
-      style: data.style,
-      id: data.id,
-      hitColor: Color.deSerialize(data.hitColor)
-    });
   }
 }
 
 export interface SliderStyle extends UINodeStyle {
-  railHeight?: number,
-  thumbRadius?: number,
-  color?: string,
-  thumbColor?: string,
-  precision?: number
+  railHeight?: number;
+  thumbRadius?: number;
+  color?: string;
+  thumbColor?: string;
+  precision?: number;
 }
-let DefaultSliderStyle = (node: Node, height: number) => {
-  return {
-    color: '#444',
-    thumbColor: '#000',
-    railHeight: 3,
-    thumbRadius: typeof height !== 'undefined' ? height / 2 : (node.style.rowHeight * 1.5) / 2
-  }
-}
+const DefaultSliderStyle = (node: Node, height: number): SliderStyle => ({
+  color: "#444",
+  thumbColor: "#000",
+  railHeight: 3,
+  thumbRadius: exists(height) ? height / 2 : (node.style.rowHeight * 1.5) / 2,
+});
 
-export interface SerializedSlider extends SerializedUINode {
-  min: number,
-  max: number,
-  value: number,
-  height: number
+export interface SliderOptions extends UINodeOptions<SliderStyle> {
+  min: number;
+  max: number;
+  value?: number;
 }
-
-interface SliderOptions {
-  value?: number,
-  propName?: string,
-  input?: boolean | SerializedTerminal,
-  output?: boolean | SerializedTerminal,
-  height?: number,
-  style?: SliderStyle,
-  id?: string,
-  hitColor?: Color
-}
-let DefaultSliderOptions = (node: Node): SliderOptions => {
-  return {
-    height: node.style.rowHeight * 1.5
-  }
-};
+const DefaultSliderOptions = (node: Node): SliderOptions => ({
+  min: 0,
+  max: 100,
+  height: node.style.rowHeight * 1.5,
+});

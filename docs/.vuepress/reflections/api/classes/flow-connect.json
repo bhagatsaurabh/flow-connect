@@ -51,15 +51,15 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
-      "type": "property"
-    },
-    {
       "name": "startTime",
       "type": "property"
     },
     {
       "name": "state",
+      "type": "property"
+    },
+    {
+      "name": "version",
       "type": "property"
     },
     {
@@ -111,11 +111,31 @@
       "type": "method-inherited"
     },
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
       "name": "createFlow",
       "type": "method"
     },
     {
       "name": "fromJson",
+      "type": "method"
+    },
+    {
+      "name": "getCache",
+      "type": "method"
+    },
+    {
+      "name": "getDefaultStyle",
+      "type": "method"
+    },
+    {
+      "name": "getRegistered",
+      "type": "method-static"
+    },
+    {
+      "name": "getRegisteredRenderer",
       "type": "method"
     },
     {
@@ -135,7 +155,23 @@
       "type": "method"
     },
     {
+      "name": "register",
+      "type": "method-static"
+    },
+    {
+      "name": "registerRenderer",
+      "type": "method"
+    },
+    {
       "name": "scaleBy",
+      "type": "method"
+    },
+    {
+      "name": "setCache",
+      "type": "method"
+    },
+    {
+      "name": "setDefaultStyle",
       "type": "method"
     },
     {
@@ -153,10 +189,6 @@
     {
       "name": "translateBy",
       "type": "method"
-    },
-    {
-      "name": "create",
-      "type": "method-static"
     }
   ],
   "events": [

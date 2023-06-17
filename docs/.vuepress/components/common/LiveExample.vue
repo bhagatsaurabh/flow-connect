@@ -5,13 +5,7 @@
         <slot name="name"></slot>
       </div>
       <div class="live-example-controls">
-        <div
-          ref="runButton"
-          @click="runClicked"
-          class="live-example-button"
-          title="Run Demo"
-          data-title="Run"
-        >
+        <div ref="runButton" @click="runClicked" class="live-example-button" title="Run Demo" data-title="Run">
           <img alt="Run" src="/images/play-icon.png" />
         </div>
         <div
@@ -51,9 +45,7 @@ export default {
       .then((res) => res.text())
       .then((text) => (this.snippetText = text));
 
-    this.$refs.codeButton.addEventListener("animationend", () =>
-      this.copyActionAnimEnd()
-    );
+    this.$refs.codeButton.addEventListener("animationend", () => this.copyActionAnimEnd());
   },
   props: {
     snippet: String,
@@ -154,8 +146,7 @@ export default {
   border-left: 1px solid #bbb;
   line-height: calc(3rem - 1px);
   background-color: #000;
-  transition: background-color 0.3s ease, border-bottom 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, border-bottom 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   background-position: center;
   background-size: 50%;

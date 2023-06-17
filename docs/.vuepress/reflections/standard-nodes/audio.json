@@ -6,7 +6,7 @@
     { "name": "BiquadFilter", "link": "/reference/standard-nodes/audio/biquad-filter" },
     { "name": "Bitcrusher", "link": "/reference/standard-nodes/audio/bitcrusher" },
     { "name": "ChannelMerger", "link": "/reference/standard-nodes/audio/channel-merger" },
-    { "name": "Channel-Splitter", "link": "/reference/standard-nodes/audio/channel-splitter" },
+    { "name": "ChannelSplitter", "link": "/reference/standard-nodes/audio/channel-splitter" },
     { "name": "Chorus", "link": "/reference/standard-nodes/audio/chorus" },
     { "name": "Convolver", "link": "/reference/standard-nodes/audio/convolver" },
     { "name": "Debug", "link": "/reference/standard-nodes/audio/debug" },

@@ -49,7 +49,7 @@ If a new NodeButton needs to be added to the Node, but you don't want to use thi
   <template v-slot:signature>
     new NodeButton(<strong>node: </strong><em><Ref to="./node">Node</Ref></em>,
     <strong>callback: </strong><em>() => void</em>,
-    <strong>render: </strong><em><Ref to="../interfaces/render-function">RenderFunction</Ref>&lt;<Ref to="#class-nodebutton">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>,
+    <strong>render: </strong><em><Ref to="../interfaces/render-fn">RenderFn</Ref>&lt;<Ref to="#class-nodebutton">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>,
     <strong>align: </strong><em><Ref to="../enums/align">Align</Ref></em>,
     <strong>style?: </strong><em><Ref to="../interfaces/record">Record</Ref>&lt;string, any&gt;</em>):
     <em><Ref to="#class-nodebutton">NodeButton</Ref></em>
@@ -60,7 +60,7 @@ If a new NodeButton needs to be added to the Node, but you don't want to use thi
       <em>() => void</em>
     </Param>
     <Param name="render">
-      <em><Ref to="../interfaces/render-function">RenderFunction</Ref>&lt;<Ref to="#class-nodebutton">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>
+      <em><Ref to="../interfaces/render-fn">RenderFn</Ref>&lt;<Ref to="#class-nodebutton">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>
     </Param>
     <Param name="align">
       <em><Ref to="../enums/align">Align</Ref></em>
@@ -106,14 +106,14 @@ If a new NodeButton needs to be added to the Node, but you don't want to use thi
   </template>
 </Property>
 
-### renderResolver
+### renderer
 
-<Property type="property" name="renderResolver">
+<Property type="property" name="renderer">
   <template v-slot:type>
-    <em><Ref to="../interfaces/render-resolver">RenderResolver</Ref>&lt;<Ref to="class-nodebutton">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>
+    <em><Ref to="../interfaces/render-fn">RenderFn</Ref>&lt;<Ref to="class-nodebutton">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>
   </template>
   <template v-slot:desc>
-  A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> which is scoped to the Node-button instance.
+  A <Ref to="../interfaces/render-fn">RenderFn</Ref> which is scoped to the Node-button instance.
 
   Any custom render function specified using this resolver will only affect this NodeButton instance.
   </template>

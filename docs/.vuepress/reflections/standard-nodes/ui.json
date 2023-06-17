@@ -1,5 +1,3 @@
 {
-  "classes": [
-    { "name": "Dial", "link": "/reference/standard-nodes/ui/dial" }
-  ]
+  "classes": [{ "name": "Dial", "link": "/reference/standard-nodes/ui/dial" }]
 }

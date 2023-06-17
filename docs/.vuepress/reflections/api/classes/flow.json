@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "properties": [
     {
       "name": "connectors",
@@ -51,7 +46,7 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
+      "name": "renderers",
       "type": "property"
     },
     {
@@ -59,7 +54,7 @@
       "type": "property"
     },
     {
-      "name": "terminalColors",
+      "name": "ruleColors",
       "type": "property"
     }
   ],
@@ -87,6 +82,10 @@
       "type": "method-inherited"
     },
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
       "name": "createNode",
       "type": "method"
     },
@@ -107,8 +106,20 @@
       "type": "method"
     },
     {
-      "name": "serialize",
+      "name": "removeSubFlow",
       "type": "method"
+    },
+    {
+      "name": "removeConnector",
+      "type": "method"
+    },
+    {
+      "name": "serialize",
+      "type": "method-async"
+    },
+    {
+      "name": "deSerialize",
+      "type": "method-static-async"
     },
     {
       "name": "start",
@@ -117,10 +128,6 @@
     {
       "name": "stop",
       "type": "method"
-    },
-    {
-      "name": "deSerialize",
-      "type": "method-static"
     }
   ],
   "events": [

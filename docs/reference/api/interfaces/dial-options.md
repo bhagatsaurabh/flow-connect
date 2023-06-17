@@ -1,11 +1,16 @@
 # Interface: DialOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'UINodeOptions', link: './ui-node-options'}"
+/>
+
 <pre>
 {
-  value?: number,
-  propName?: string,
-  input?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  output?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  style?: <Ref to="./dial-style">DialStyle</Ref>
+  height: number,
+  min: number,
+  max: number,
+  value?: number
 }
 </pre>

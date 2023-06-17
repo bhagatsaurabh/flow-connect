@@ -6,10 +6,9 @@
 <br/>
 
 ```js
-let arraySource = new StandardNodes.Common.ArraySource(
-  flow,
-  { state: { number: true } }
-);
+let arraySource = flow.createNode("common/array-source", {
+  state: { number: true },
+});
 ```
 
 <br/>
@@ -20,29 +19,8 @@ let arraySource = new StandardNodes.Common.ArraySource(
 {
   number: true,
   range: false,
-  min: 0, max: 100,
-  step: 0.1,
-  value: []
+  min: 0,
+  max: 100,
+  step: 0.1
 }
 ```
-
-## Constructor
-
-<Method type="method">
-  <template v-slot:signature>
-    new ArraySource(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-arraysource">ArraySource</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>

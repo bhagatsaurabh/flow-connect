@@ -47,7 +47,7 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
+      "name": "renderers",
       "type": "property"
     },
     {
@@ -59,11 +59,7 @@
       "type": "property"
     },
     {
-      "name": "style",
-      "type": "property"
-    },
-    {
-      "name": "terminalStyle",
+      "name": "type",
       "type": "property"
     },
     {
@@ -95,6 +91,10 @@
     {
       "name": "zIndex",
       "type": "accessor"
+    },
+    {
+      "name": "style",
+      "type": "accessor"
     }
   ],
   "methods": [
@@ -107,71 +107,23 @@
       "type": "method"
     },
     {
+      "name": "addTerminals",
+      "type": "method"
+    },
+    {
       "name": "call",
       "type": "method-inherited"
     },
     {
-      "name": "createButton",
+      "name": "create",
+      "type": "method-static"
+    },
+    {
+      "name": "created",
       "type": "method"
     },
     {
-      "name": "createDial",
-      "type": "method"
-    },
-    {
-      "name": "createDisplay",
-      "type": "method"
-    },
-    {
-      "name": "createEnvelope",
-      "type": "method"
-    },
-    {
-      "name": "createHozLayout",
-      "type": "method"
-    },
-    {
-      "name": "createImage",
-      "type": "method"
-    },
-    {
-      "name": "createInput",
-      "type": "method"
-    },
-    {
-      "name": "createLabel",
-      "type": "method"
-    },
-    {
-      "name": "createRadioGroup",
-      "type": "method"
-    },
-    {
-      "name": "createSelect",
-      "type": "method"
-    },
-    {
-      "name": "createSlider",
-      "type": "method"
-    },
-    {
-      "name": "createSlider2D",
-      "type": "method"
-    },
-    {
-      "name": "createSource",
-      "type": "method"
-    },
-    {
-      "name": "createStack",
-      "type": "method"
-    },
-    {
-      "name": "createToggle",
-      "type": "method"
-    },
-    {
-      "name": "createVSlider",
+      "name": "createUI",
       "type": "method"
     },
     {
@@ -199,19 +151,27 @@
       "type": "method-inherited"
     },
     {
+      "name": "process",
+      "type": "method"
+    },
+    {
       "name": "removeTerminal",
       "type": "method"
     },
     {
       "name": "serialize",
-      "type": "method"
+      "type": "method-async"
     },
     {
       "name": "setOutputs",
       "type": "method"
     },
     {
-      "name": "toggleNodeState",
+      "name": "setupIO",
+      "type": "method"
+    },
+    {
+      "name": "toggle",
       "type": "method"
     },
     {
@@ -221,10 +181,6 @@
     {
       "name": "watch",
       "type": "method"
-    },
-    {
-      "name": "deSerialize",
-      "type": "method-static"
     }
   ],
   "events": [

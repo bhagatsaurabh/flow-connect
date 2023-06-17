@@ -1,50 +1,59 @@
 let flow = flowConnect.createFlow({
   name: "Audio Test",
   rules: {},
-  terminalColors: {},
 });
 
-// let log = new StandardNodes.Common.Log(flow);
-// let timer = new StandardNodes.Common.Timer(flow);
+// const log = flow.createNode("common/log", Vector.create(50, 50), { width: 180 });
+const timer = flow.createNode("common/timer", Vector.create(100, 100), {});
+// const arrayIndex = flow.createNode("common/array-index", Vector.create(50, 50), {});
+// const arraySource = flow.createNode("common/array-source", Vector.create(100, 100), {});
+// const numberSource1 = flow.createNode("common/number-source", Vector.create(150, 150), {});
+// const numberSource2 = flow.createNode("common/number-source", Vector.create(150, 150), {});
+// const boolSource = flow.createNode("common/boolean-source", Vector.create(50, 50), {});
+// const buffer = flow.createNode("common/buffer", Vector.create(100, 100), {});
+// const compare = flow.createNode("common/compare", Vector.create(150, 150), {});
+const random = flow.createNode("common/random", Vector.create(150, 150), {});
+// const delay = flow.createNode("common/delay", Vector.create(150, 150), {});
+// const fileSource = flow.createNode("common/file-source", Vector.create(150, 150), {});
 
-let audioSource = new StandardNodes.Audio.Source(flow);
-let destination = new StandardNodes.Audio.Destination(flow);
-audioSource.outputs[0].connect(destination.inputs[0]);
+// const audioSource = flow.createNode("audio/source", Vector.create(50, 50), { width: 200 });
+// const destination = flow.createNode("audio/destination", Vector.create(200, 50), { width: 150 });
 
-// let serialized = flowConnect.toJson(flow);
-// flow = flowConnect.fromJson(serialized);
+// audioSource.outputs[0].connect(destination.inputs[0]);
 
-// let automate = new StandardNodes.Audio.Automate(flow, { state: { min: 20, max: 800, value: 20 } });
-// let splitter = new StandardNodes.Audio.ChannelSplitter(flow);
-// let merger = new StandardNodes.Audio.ChannelMerger(flow);
+// const automate = flow.createNode("audio/automate", Vector.create(100, 200), {
+//   state: { min: 20, max: 800, value: 20 },
+// });
+// const splitter = flow.createNode("audio/channel-splitter", Vector.create(100, 200), {});
+// const merger = flow.createNode("audio/channel-merger", Vector.create(100, 200), {});
 // let debug = new StandardNodes.Audio.Debug(flow);
-// let adsr = new StandardNodes.Audio.ADSR(flow);
-// let gainNode = new StandardNodes.Audio.Gain(flow);
-// let metronome = new StandardNodes.Audio.Metronome(flow);
-// let moogEffect = new StandardNodes.Audio.MoogEffect(flow);
-// let bitcrusherEffect = new StandardNodes.Audio.BitcrusherEffect(flow);
-// let biquadFilter = new StandardNodes.Audio.BiquadFilter(flow);
-// let delayEffect = new StandardNodes.Audio.DelayEffect(flow);
-// let dynamicsCompressor = new StandardNodes.Audio.DynamicsCompressor(flow);
-// let chorusEffect = new StandardNodes.Audio.ChorusEffect(flow);
-// let overdriveEffect = new StandardNodes.Audio.OverdriveEffect(flow);
-// let audioBufferSource = new StandardNodes.Audio.AudioBufferSource(flow);
-// let convolver = new StandardNodes.Audio.Convolver(flow);
-// let tremoloEffect = new StandardNodes.Audio.TremoloEffect(flow);
-// let pingPongDelay = new StandardNodes.Audio.PingPongDelay(flow);
-// let stereoPanner = new StandardNodes.Audio.StereoPanner(flow);
-// let spatialPanner = new StandardNodes.Audio.SpatialPanner(flow);
-// let noise = new StandardNodes.Audio.Noise(flow);
-// let oscillator = new StandardNodes.Audio.Oscillator(flow);
-// let oscillator1 = new StandardNodes.Audio.Oscillator(flow);
-// let microphone = new StandardNodes.Audio.Microphone(flow);
-// let distorter = new StandardNodes.Audio.Distorter(flow);
-// let equalizer = new StandardNodes.Audio.Equalizer(flow);
-// let frequencyAnalyser = new StandardNodes.Audio.FrequencyAnalyser(flow);
-// let waveformAnalyser = new StandardNodes.Audio.WaveformAnalyser(flow);
-// let spectrogramAnalyser = new StandardNodes.Audio.SpectrogramAnalyser(flow);
+// const adsr = flow.createNode("audio/adsr", Vector.create(100, 200), {});
+// const gainNode = flow.createNode("audio/gain", Vector.create(100, 200), {});
+// const metronome = flow.createNode("audio/metronome", Vector.create(100, 200), {});
+// const moogEffect = flow.createNode("audio/moog", Vector.create(100, 200), {});
+// const bitcrusherEffect = flow.createNode("audio/bitcrusher", Vector.create(100, 200), {});
+// const biquadFilter = flow.createNode("audio/biquad", Vector.create(100, 200), {});
+// const delayEffect = flow.createNode("audio/delay", Vector.create(100, 200), {});
+// const dynamicsCompressor = flow.createNode("audio/dynamics-compressor", Vector.create(100, 200), {});
+// const chorusEffect = flow.createNode("audio/chorus", Vector.create(100, 200), {});
+// const overdriveEffect = flow.createNode("audio/overdrive", Vector.create(100, 200), {});
+// const audioBufferSource = flow.createNode("audio/buffer-source", Vector.create(100, 200), {});
+// const convolver = flow.createNode("audio/convolver", Vector.create(100, 200), {});
+// const tremoloEffect = flow.createNode("audio/tremolo", Vector.create(100, 200), {});
+// const pingPongDelay = flow.createNode("audio/pingpong", Vector.create(100, 200), {});
+// const stereoPanner = flow.createNode("audio/stereo-panner", Vector.create(100, 200), {});
+// const spatialPanner = flow.createNode("audio/spatial-panner", Vector.create(100, 200), {});
+// const noise = flow.createNode("audio/noise", Vector.create(100, 200), {});
+// const oscillator = flow.createNode("audio/oscillator", Vector.create(100, 200), {});
+// const oscillator1 = flow.createNode("audio/oscillator", Vector.create(100, 200), {});
+// const microphone = flow.createNode("audio/microphone", Vector.create(100, 200), {});
+// const distorter = flow.createNode("audio/distorter", Vector.create(100, 200), {});
+// const equalizer = flow.createNode("audio/equalizer", Vector.create(100, 200), {});
+// const frequencyAnalyser = flow.createNode("audio/frequency", Vector.create(100, 200), {});
+// const waveformAnalyser = flow.createNode("audio/waveform", Vector.create(100, 200), {});
+// const spectrogramAnalyser = flow.createNode("audio/spectrogram", Vector.create(100, 200), {});
 
-// let dial = new StandardNodes.UI.Dial(flow, { state: { min: 0, max: 2, value: 0.5 } });
+const dial = flow.createNode("ui/dial", Vector.create(50, 50), {});
 // let detune = new StandardNodes.UI.Dial(flow, { state: { min: -2400, max: 2400, value: 0 } });
 // let playRate = new StandardNodes.UI.Dial(flow, { state: { min: 0.25, max: 3, value: 1 } });
 // let threshold = new StandardNodes.UI.Dial(flow, { state: { min: -100, max: 0, value: -20 } });

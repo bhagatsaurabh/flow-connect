@@ -8,8 +8,7 @@
   name: string,
   style: <Ref to="./group-style">GroupStyle</Ref>,
   id: string,
-  hitColor: <Ref to="./serialized-color">SerializedColor</Ref>,
-  nodes: string[],
-  nodeDeltas: <Ref to="./serialized-vector">SerializedVector</Ref>[]
+  hitColor: <Ref to="../types/serialized-color">SerializedColor</Ref>,
+  nodes: string[]
 }
 </pre>

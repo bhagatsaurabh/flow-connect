@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "accessors": [
     {
       "name": "checked",
@@ -14,35 +9,35 @@
   "events": [
     {
       "name": "over",
-      "type": "event"
+      "type": "event-inherited"
     },
     {
       "name": "down",
-      "type": "event"
+      "type": "event-inherited"
     },
     {
       "name": "up",
-      "type": "event"
+      "type": "event-inherited"
     },
     {
       "name": "click",
-      "type": "event"
+      "type": "event-inherited"
     },
     {
       "name": "drag",
-      "type": "event"
+      "type": "event-inherited"
     },
     {
       "name": "enter",
-      "type": "event"
+      "type": "event-inherited"
     },
     {
       "name": "exit",
-      "type": "event"
+      "type": "event-inherited"
     },
     {
       "name": "wheel",
-      "type": "event"
+      "type": "event-inherited"
     }
   ]
 }

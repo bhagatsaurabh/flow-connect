@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "properties": [
     {
       "name": "x",
@@ -47,6 +42,10 @@
     {
       "name": "clone",
       "type": "method"
+    },
+    {
+      "name": "create",
+      "type": "method-static"
     },
     {
       "name": "isEqual",
@@ -114,10 +113,6 @@
     },
     {
       "name": "Zero",
-      "type": "method-static"
-    },
-    {
-      "name": "deSerialize",
       "type": "method-static"
     }
   ]

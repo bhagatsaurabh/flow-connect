@@ -4,16 +4,11 @@
   "compilerOptions": {
     "target": "es6",
     "moduleResolution": "node",
-    "lib": [
-      "ES6",
-      "DOM"
-    ],
+    "lib": ["ES6", "DOM"],
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": false
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }

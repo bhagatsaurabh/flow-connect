@@ -2,9 +2,8 @@
   <div class="quick-start-title">
     <h1>Quick Start</h1>
     <h4>
-      FlowConnect is a visual programming framework for creating node-based
-      interfaces that are reactive, event-driven, customizable and
-      executable.
+      FlowConnect is a visual programming framework for creating node-based interfaces that are reactive, event-driven,
+      customizable and executable.
     </h4>
   </div>
 </template>
@@ -51,4 +50,3 @@ export default {
   }
 }
 </style>
-

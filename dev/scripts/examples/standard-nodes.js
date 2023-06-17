@@ -1,13 +1,31 @@
-let flow = flowConnect.createFlow({ name: 'StandardNodes Test' });
+flowConnect.setDefaultStyle("ui", "core/label", { color: "#fff" });
+flowConnect.setDefaultStyle("ui", "core/input", { color: "#fff", border: "#fff" });
+flowConnect.setDefaultStyle("ui", "core/toggle", { color: "#fff", backgroundColor: "#777" });
+flowConnect.setDefaultStyle("node", { color: "#fff" });
+flowConnect.setDefaultStyle("connector", { width: 2, border: false, color: "#000" });
+flowConnect.registerRenderer("background", () => {
+  return (context, params, _) => {
+    context.fillStyle = "#292929";
+    context.shadowColor = "#000";
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 0;
+    context.shadowBlur = 15;
+    context.fillRect(params.position.x, params.position.y, params.width, params.height);
+  };
+});
 
-let log = new StandardNodes.Common.Log(flow);
+let flow = flowConnect.createFlow({ name: "StandardNodes Test", rules: {} });
+
+// let log = new StandardNodes.Common.Log(flow);
 // let timer = new StandardNodes.Common.Timer(flow, { state: { delay: 500 } });
 // let random1 = new StandardNodes.Common.Random(flow);
 // let random2 = new StandardNodes.Common.Random(flow);
 // let random3 = new StandardNodes.Common.Random(flow);
 // let random4 = new StandardNodes.Common.Random(flow);
 // let buffer = new StandardNodes.Common.Buffer(flow, { state: { size: 300 } });
-// let arraySource = new StandardNodes.Common.ArraySource(flow, { state: { number: true } });
+const arraySource = flow.createNode("common/array-source", Vector.create(50, 50), {
+  state: { number: true, range: true, min: -5 * Math.PI, max: 5 * Math.PI, step: 0.1 },
+});
 // let arrayIndex = new StandardNodes.Common.ArrayIndex(flow, {});
 // let boolean = new StandardNodes.Common.BooleanSource(flow);
 // let json = new StandardNodes.Common.JsonSource(flow);
@@ -24,9 +42,11 @@ let log = new StandardNodes.Common.Log(flow);
 // let timer3 = new StandardNodes.Common.Timer(flow, { state: { delay: 1500 } });
 // let timer4 = new StandardNodes.Common.Timer(flow, { state: { delay: 2000 } });
 // let sync = new StandardNodes.Common.SyncEvent(flow, {}, 4);
-// let toVector = new StandardNodes.Common.ToVector(flow);
+const toVector = flow.createNode("common/to-vector", Vector.create(50, 50), {});
 // let toArray = new StandardNodes.Common.ToArray(flow, 3);
-// let numberRange = new StandardNodes.Common.NumberRange(flow, { state: { value: -5 * Math.PI, min: -5 * Math.PI, max: 5 * Math.PI, step: 0.1 } });
+// const numberRange = flow.createNode("common/number-range", Vector.create(150, 150), {
+//   state: { value: -5 * Math.PI, min: -5 * Math.PI, max: 5 * Math.PI, step: 0.1 },
+// });
 
 // let delay = new StandardNodes.Common.Delay(flow);
 
@@ -35,8 +55,9 @@ let log = new StandardNodes.Common.Log(flow);
 // let ceil = new StandardNodes.Math.Ceil(flow);
 // let floor = new StandardNodes.Math.Floor(flow);
 // let clamp = new StandardNodes.Math.Clamp(flow);
-// let func = new StandardNodes.Math.Function(flow, {}, 'sin(t) + 0.2cos(2.8t)');
-// let parametricPlotter = new StandardNodes.Visual.ParametricPlotter(flow, {}, 250);
+const func1 = flow.createNode("math/func", Vector.create(100, 100), { expression: "sin(t) + 0.2cos(2.8t)" });
+const func2 = flow.createNode("math/func", Vector.create(100, 100), { expression: "cos(t)" });
+const parametricPlotter = flow.createNode("visual/function-plotter", Vector.create(50, 50), { displayHeight: 250 });
 // let gEventEmitter = new StandardNodes.Common.GlobalEvent(flow, GlobalEventType.Emitter, 'reset', {});
 // let gEventReceiver = new StandardNodes.Common.GlobalEvent(flow, GlobalEventType.Receiver, 'reset', {});
 

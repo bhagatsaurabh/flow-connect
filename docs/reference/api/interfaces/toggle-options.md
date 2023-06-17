@@ -1,12 +1,13 @@
 # Interface: ToggleOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'UINodeOptions', link: './ui-node-options'}"
+/>
+
 <pre>
 {
-  value?: boolean,
-  propName?: string,
-  input?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  output?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  height?: number,
-  style?: <Ref to="./toggle-style">ToggleStyle</Ref>
+  value?: boolean
 }
 </pre>

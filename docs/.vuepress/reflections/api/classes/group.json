@@ -1,10 +1,5 @@
 {
-  "constructors": [
-    {
-      "name": "constructor",
-      "type": "constructor"
-    }
-  ],
+  "constructors": [],
   "properties": [
     {
       "name": "flow",
@@ -23,7 +18,7 @@
       "type": "property"
     },
     {
-      "name": "renderResolver",
+      "name": "renderer",
       "type": "property"
     },
     {
@@ -51,6 +46,10 @@
       "type": "method-inherited"
     },
     {
+      "name": "create",
+      "type": "method-static"
+    },
+    {
       "name": "off",
       "type": "method-inherited"
     },
@@ -67,8 +66,12 @@
       "type": "method"
     },
     {
-      "name": "deSerialize",
-      "type": "method-static"
+      "name": "add",
+      "type": "method"
+    },
+    {
+      "name": "remove",
+      "type": "method"
     }
   ],
   "events": [

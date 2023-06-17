@@ -18,37 +18,6 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
 
 <Overview :data="data" />
 
-## Constructor
-
-<Method type="constructor">
-  <template v-slot:signature>
-    new Group(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>position: </strong><em><Ref to="./vector">Vector</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../interfaces/group-options">GroupOptions</Ref></em>):
-    <em><Ref to="#class-group">Group</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="position">
-      <em><Ref to="./vector">Vector</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../interfaces/group-options">GroupOptions</Ref></em>
-  <template v-slot:default-value>
-
-  ```js
-  {
-    width: 0,
-    height: 0,
-    style: {},
-    id: getNewUUID() // dynamic
-  }
-  ```
-  </template>
-    </Param>
-  </template>
-</Method>
-
 ## Properties
 
 ### flow
@@ -95,17 +64,17 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
   </template>
 </Property>
 
-### renderResolver
+### renderer
 
-<Property type="property" name="renderResolver">
+<Property type="property" name="renderer">
   <template v-slot:type>
-    <em><Ref to="../interfaces/render-resolver">RenderResolver</Ref>&lt;<Ref to="#class-group">Group</Ref>, <Ref to="../interfaces/group-render-params">GroupRenderParams</Ref>&gt;</em>
+    <em><Ref to="../interfaces/renderer">Renderer</Ref>&lt;<Ref to="#class-group">Group</Ref>, <Ref to="../interfaces/group-render-params">GroupRenderParams</Ref>&gt;</em>
   </template>
   <template v-slot:default>
     <strong><Function class="mr-0p5" /></strong><em>() => null</em>
   </template>
   <template v-slot:desc>
-    A <Ref to="../interfaces/render-resolver">RenderResolver</Ref> scoped to a single <Ref to="#class-group">Group</Ref> instance.
+    A <Ref to="../interfaces/renderer">Renderer</Ref> scoped to a single <Ref to="#class-group">Group</Ref> instance.
     <br/><br/>
     Any custom render function specified using this resolver will only affect this instance of Group.
   </template>
@@ -119,13 +88,14 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
   </template>
   <template v-slot:default>
 
-  ```js
-  {
-    titleColor: '#000',
-    fontSize: '16px',
-    font: 'arial'
-  }
-  ```
+```js
+{
+  titleColor: '#000',
+  fontSize: '16px',
+  font: 'arial'
+}
+```
+
   </template>
 </Property>
 
@@ -167,6 +137,25 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
   <template v-slot:inherit>
     <Icon type="inherited" />from <Ref to="./hooks">Hooks</Ref>.<Ref to="./hooks#call">call</Ref>
   </template>
+</Method>
+
+### create
+
+<Method type="method-static">
+  <template v-slot:signature>
+    create(
+      <strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
+      <strong>position: </strong><em><Ref to="./vector">Vector</Ref></em>,
+      <strong>options: </strong><em><Ref to="../interfaces/group-options">GroupOptions</Ref></em>
+    ):
+    <em><Ref to="./group">Group</Ref></em>
+  </template>
+  <template v-slot:params>
+    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
+    <Param name="position"><em><Ref to="./vector">Vector</Ref></em></Param>
+    <Param name="options"><em><Ref to="../interfaces/group-options">GroupOptions</Ref></em></Param>
+  </template>
+  <template v-slot:return><em><Ref to="#class-group">Group</Ref></em></template>
 </Method>
 
 ### off
@@ -222,19 +211,30 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
   <template v-slot:return><em><Ref to="../interfaces/serialized-group">SerializedGroup</Ref></em></template>
 </Method>
 
-### deSerialize
+### add
 
-<Method type="method-static">
+<Method type="method-implementation">
   <template v-slot:signature>
-    deSerialize(<strong>flow: </strong><em><Ref to="./flow">Flow</Ref></em>,
-    <strong>data: </strong><em><Ref to="../interfaces/serialized-group">SerializedGroup</Ref></em>):
-    <em><Ref to="#class-group">Group</Ref></em>
+    add(<strong>node: </strong><em><Ref to="./node">Node</Ref></em>):
+    <em>boolean</em>
   </template>
   <template v-slot:params>
-    <Param name="flow"><em><Ref to="./flow">Flow</Ref></em></Param>
-    <Param name="data"><em><Ref to="../interfaces/serialized-group">SerializedGroup</Ref></em></Param>
+    <Param name="node"><em><Ref to="./node">Node</Ref></em></Param>
   </template>
-  <template v-slot:return><em><Ref to="#class-group">Group</Ref></em></template>
+  <template v-slot:return><em>boolean</em></template>
+</Method>
+
+### remove
+
+<Method type="method-implementation">
+  <template v-slot:signature>
+    remove(<strong>node: </strong><em><Ref to="./node">Node</Ref></em>):
+    <em>boolean</em>
+  </template>
+  <template v-slot:params>
+    <Param name="node"><em><Ref to="./node">Node</Ref></em></Param>
+  </template>
+  <template v-slot:return><em>boolean</em></template>
 </Method>
 
 ## Events

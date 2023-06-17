@@ -1,4 +1,4 @@
-# StandardNodes.Math
+# @flow-connect/math
 
 <ul class="list">
   <li v-for="item in data.classes" :key="item">
