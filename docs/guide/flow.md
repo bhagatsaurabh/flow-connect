@@ -8,7 +8,7 @@ A Flow is a set of <Ref to="/reference/api/classes/node">Nodes</Ref>, <Ref to="/
 <Ref to="/reference/api/classes/flow-connect#createflow">FlowConnect.createFlow</Ref>
 
 ```js
-let flow = flowConnect.createFlow({ name: 'Basic Example' });
+let flow = flowConnect.createFlow({ name: "Basic Example" });
 ```
 
 ```js
@@ -20,14 +20,15 @@ let flow = flowConnect.createFlow({
     b: ["b", "image"]
     image: ['image']
   },
-  terminalColors: {
-    r: '#ff0000',
-    g: '#00ff00',
-    b: '#0000ff',
-    image: 'purple'
+  ruleColors: {
+    r: Color.create('#ff0000'),
+    g: Color.create('#00ff00'),
+    b: Color.create('#0000ff'),
+    image: Color.create('#0ffff0')
   }
 });
 ```
+
 <br/>
 
 ## Creating Rules
@@ -38,9 +39,10 @@ If you need to create a Flow that restricts terminals with <Ref to="/reference/a
 
 ```js
 {
-  A: ['C', 'D']
+  A: ["C", "D"];
 }
 ```
+
 <br/>
 If two dataTypes can be connected bi-directionally, then you need to specify rules for them explicitly, for e.g.
 If terminals with dataType 'C' can also be connected to 'A', then the rule becomes:

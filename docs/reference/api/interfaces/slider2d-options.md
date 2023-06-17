@@ -1,12 +1,13 @@
 # Interface: Slider2DOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'UINodeOptions', link: './ui-node-options'}"
+/>
+
 <pre>
 {
-  value?: <Ref to="../classes/vector">Vector</Ref>,
-  propName?: string,
-  input?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  output?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  height?: number,
-  style?: <Ref to="./slider2d-style">Slider2DStyle</Ref>
+  value?: <Ref to="../classes/vector">Vector</Ref>
 }
 </pre>

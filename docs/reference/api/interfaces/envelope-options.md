@@ -1,9 +1,14 @@
 # Interface: EnvelopeOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'UINodeOptions', link: './ui-node-options'}"
+/>
+
 <pre>
 {
-  input?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  output?: boolean | <Ref to="./serialized-terminal">SerializedTerminal</Ref>,
-  style?: <Ref to="./envelope-style">EnvelopeStyle</Ref>
+  height: number,
+  values?: <Ref to="../classes/vector">Vector</Ref>[]
 }
 </pre>

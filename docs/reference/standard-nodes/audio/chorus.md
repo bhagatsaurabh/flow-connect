@@ -6,7 +6,7 @@
 <br/>
 
 ```js
-let chorusEffect = new StandardNodes.Audio.ChorusEffect(flow);
+let chorusEffect = flow.createNode("audio/chorus", {});
 ```
 
 <br/>
@@ -22,24 +22,3 @@ let chorusEffect = new StandardNodes.Audio.ChorusEffect(flow);
   bypass: false
 }
 ```
-
-## Constructor
-
-<Method type="method">
-  <template v-slot:signature>
-    new ChorusEffect(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-chorus">ChorusEffect</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>

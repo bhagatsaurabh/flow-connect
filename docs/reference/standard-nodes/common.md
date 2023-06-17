@@ -1,4 +1,4 @@
-# StandardNodes.Common
+# @flow-connect/common
 
 <ul class="list">
   <li v-for="item in data.classes" :key="item">

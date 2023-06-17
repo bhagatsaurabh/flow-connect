@@ -191,7 +191,7 @@ Any custom render functions specified using this resolver will affect everything
     A local reactive state of the node, properties defined within this state is two-way bindable with any <Ref to="./ui-node">UINode</Ref>.
 
 ```js
-let customNode = flow.createNode("Custom Node", new Vector(50, 50), 170, {
+let customNode = flow.createNode("Custom Node", Vector.create(50, 50), 170, {
   state: {
     name: "John Doe",
     age: 24,
@@ -318,14 +318,14 @@ let customNode = flow.createNode("Custom Node", new Vector(50, 50), 170, {
 <Method type="method">
   <template v-slot:signature>
     addNodeButton(<strong>callback: </strong><em>() => void</em>,
-    <strong>render: </strong><em><Ref to="../interfaces/render-function">RenderFunction</Ref>&lt;<Ref to="./node-button">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>,
+    <strong>render: </strong><em><Ref to="../interfaces/render-fn">RenderFn</Ref>&lt;<Ref to="./node-button">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>,
     <strong>align: </strong><em><Ref to="../enums/align">Align</Ref></em>):
     <em><Ref to="./node-button">NodeButton</Ref></em>
   </template>
   <template v-slot:params>
     <Param name="callback"><em>() => void</em></Param>
     <Param name="render">
-      <em><Ref to="../interfaces/render-function">RenderFunction</Ref>&lt;<Ref to="./node-button">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>
+      <em><Ref to="../interfaces/render-fn">RenderFn</Ref>&lt;<Ref to="./node-button">NodeButton</Ref>, <Ref to="../interfaces/node-button-render-params">NodeButtonRenderParams</Ref>&gt;</em>
     </Param>
     <Param name="align"><em><Ref to="../enums/align">Align</Ref></em></Param>
   </template>

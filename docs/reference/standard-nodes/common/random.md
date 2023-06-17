@@ -6,7 +6,7 @@
 <br/>
 
 ```js
-let random = new StandardNodes.Common.Random(flow);
+let random = flow.createNode("common/random", {});
 ```
 
 <br/>
@@ -16,24 +16,3 @@ let random = new StandardNodes.Common.Random(flow);
 ```js
 { min: 0, max: 100, fractional: false }
 ```
-
-## Constructor
-
-<Method type="method">
-  <template v-slot:signature>
-    new Random(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-random">Random</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>

@@ -1,4 +1,4 @@
-# StandardNodes.Audio
+# @flow-connect/audio
 
 <ul class="list">
   <li v-for="item in data.classes" :key="item">

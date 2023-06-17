@@ -6,7 +6,7 @@
 <br/>
 
 ```js
-let delay = new StandardNodes.Common.Delay(flow);
+let delay = flow.createNode("common/delay");
 ```
 
 <br/>
@@ -14,26 +14,7 @@ let delay = new StandardNodes.Common.Delay(flow);
 ### Default State
 
 ```js
-{ delay: 0, eventQueue: null }
+{
+  delay: 0;
+}
 ```
-
-## Constructor
-
-<Method type="method">
-  <template v-slot:signature>
-    new Delay(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-delay">Delay</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>

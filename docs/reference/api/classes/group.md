@@ -68,7 +68,7 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
 
 <Property type="property" name="renderer">
   <template v-slot:type>
-    <em><Ref to="../interfaces/render-resolver">Renderer</Ref>&lt;<Ref to="#class-group">Group</Ref>, <Ref to="../interfaces/group-render-params">GroupRenderParams</Ref>&gt;</em>
+    <em><Ref to="../interfaces/renderer">Renderer</Ref>&lt;<Ref to="#class-group">Group</Ref>, <Ref to="../interfaces/group-render-params">GroupRenderParams</Ref>&gt;</em>
   </template>
   <template v-slot:default>
     <strong><Function class="mr-0p5" /></strong><em>() => null</em>

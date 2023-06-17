@@ -4,6 +4,7 @@
 {
   name: string,
   rules: <Ref to="./rules">Rules</Ref>,
-  terminalColors: <Ref to="./record">Record</Ref>&lt;string, string&gt;
+  ruleColors?: <Ref to="./rule-colors">RuleColors</Ref>,
+  id?: string
 }
 </pre>

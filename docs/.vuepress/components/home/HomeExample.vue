@@ -137,7 +137,7 @@ export default {
           node.position = this.orgPositions[node.id].clone();
         });
       }
-      let origin = new Vector(this.flowConnect.canvasDimensions.width, this.flowConnect.canvasDimensions.height);
+      let origin = Vector.create(this.flowConnect.canvasDimensions.width, this.flowConnect.canvasDimensions.height);
       this.flowConnect.translateBy(origin.subtract(origin.transform(this.flowConnect.transform)));
     },
     maxWidth(nodes) {

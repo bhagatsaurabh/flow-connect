@@ -6,7 +6,7 @@
 <br/>
 
 ```js
-let sync = new StandardNodes.Common.SyncEvent(flow, {}, 4);
+let sync = flow.createNode("common/sync-event", { noOfEvents: 4 });
 ```
 
 <br/>
@@ -14,30 +14,14 @@ let sync = new StandardNodes.Common.SyncEvent(flow, {}, 4);
 ### Default State
 
 ```js
-{}
+{
+}
 ```
 
-## Constructor
+## Options
 
-<Method type="method">
-  <template v-slot:signature>
-    new SyncEvent(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>,
-    <strong>events?: </strong><em>number</em>):
-    <em><Ref to="#standardnode-syncevent">SyncEvent</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-    <Param name="events?">
-      <em>number</em>
-    </Param>
-  </template>
-</Method>
+<pre>
+{
+  noOfEvents: number
+}
+</pre>

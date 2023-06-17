@@ -65,18 +65,18 @@ flow.renderers.background = () => {
 };
 
 let positions = [
-  new Vector(510.9, 18),
-  new Vector(-298, 82.7),
-  new Vector(-96.4, 21.1),
-  new Vector(-95.5, 182),
-  new Vector(105.2, -62),
-  new Vector(105.9, 76.3),
-  new Vector(104.4, 221.1),
-  new Vector(302, 19.5),
-  new Vector(304.4, 153.2),
-  new Vector(512, -105.5),
-  new Vector(505.1, 153.2),
-  new Vector(720.3, 90),
+  Vector.create(510.9, 18),
+  Vector.create(-298, 82.7),
+  Vector.create(-96.4, 21.1),
+  Vector.create(-95.5, 182),
+  Vector.create(105.2, -62),
+  Vector.create(105.9, 76.3),
+  Vector.create(104.4, 221.1),
+  Vector.create(302, 19.5),
+  Vector.create(304.4, 153.2),
+  Vector.create(512, -105.5),
+  Vector.create(505.1, 153.2),
+  Vector.create(720.3, 90),
 ];
 for (let i = 0; i < 12; i++) {
   flow.createNode("my-custom/dummy-node", positions[i], { name: "Node " + (i + 1) });

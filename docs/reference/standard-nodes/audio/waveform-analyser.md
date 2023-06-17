@@ -6,7 +6,7 @@
 <br/>
 
 ```js
-let waveformAnalyser = new StandardNodes.Audio.WaveformAnalyser(flow);
+let waveformAnalyser = flow.createNode("audio/waveform-analyser", {});
 ```
 
 <br/>
@@ -14,26 +14,7 @@ let waveformAnalyser = new StandardNodes.Audio.WaveformAnalyser(flow);
 ### Default State
 
 ```js
-{ fftSize: 11 }
+{
+  fftSize: 11;
+}
 ```
-
-## Constructor
-
-<Method type="method">
-  <template v-slot:signature>
-    new WaveformAnalyser(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-waveformanalyser">WaveformAnalyser</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>

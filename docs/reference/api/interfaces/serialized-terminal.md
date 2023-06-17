@@ -5,9 +5,10 @@
   name: string,
   dataType: string,
   type?: <Ref to="../enums/terminal-type">TerminalType</Ref>,
+  ui?: boolean,
   propName?: string,
   id?: string,
-  hitColor?: <Ref to="./serialized-color">SerializedColor</Ref>,
+  hitColor?: <Ref to="../types/serialized-color">SerializedColor</Ref>,
   style?: <Ref to="./terminal-style">TerminalStyle</Ref>
 }
 </pre>

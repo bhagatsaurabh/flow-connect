@@ -1,7 +1,7 @@
-# Interface: RenderFunction
+# Interface: RenderFn
 
 <pre>
-RenderFunction&lt;T, P&gt;: (
+RenderFn&lt;T, P&gt;: (
   context: CanvasRenderingContext2D,
   params: P,
   target: T

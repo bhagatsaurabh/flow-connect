@@ -11,7 +11,7 @@
   backgroundColor?: string,
   shadowColor?: string,
   shadowBlur?: number,
-  shadowOffset?: Vector,
+  shadowOffset?: <Ref to="../classes/vector">Vector</Ref>,
   borderColor?: string,
   borderWidth?: number
 }

@@ -2,6 +2,7 @@
 
 <pre>
 {
-  grow?: number
+  grow?: number,
+  align?: <Ref to="../enums/align">Align</Ref>
 }
 </pre>

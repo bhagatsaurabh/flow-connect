@@ -8,6 +8,7 @@
 
 <pre>
 {
+  pointDiameter?: number,
   backgroundColor?: string,
   thumbColor?: string
   borderColor?: string,

@@ -6,11 +6,10 @@
 <br/>
 
 ```js
-let syncData = new StandardNodes.Common.SyncData(
-  flow,
-  { state: { syncType: 'partial' } },
-  3
-);
+let syncData = flow.createNode("common/sync-data", {
+  state: { syncType: "partial" },
+  noOfInputs: 3,
+});
 ```
 
 <br/>
@@ -18,30 +17,15 @@ let syncData = new StandardNodes.Common.SyncData(
 ### Default State
 
 ```js
-{ syncType: 'partial' }
+{
+  syncType: "partial";
+}
 ```
 
-## Constructor
+## Options
 
-<Method type="method">
-  <template v-slot:signature>
-    new SyncData(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>,
-    <strong>inputs?: </strong><em>number</em>):
-    <em><Ref to="#standardnode-syncdata">SyncData</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-    <Param name="inputs?">
-      <em>number</em>
-    </Param>
-  </template>
-</Method>
+<pre>
+{
+  noOfInputs: number
+}
+</pre>

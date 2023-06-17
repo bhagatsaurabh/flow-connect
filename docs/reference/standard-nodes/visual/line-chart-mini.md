@@ -6,12 +6,12 @@
 <br/>
 
 ```js
-let chart = new StandardNodes.Visual.LineChartMini(
-  flow, 100,
-  ['#ff6666', '#66d4ff'],
-  { backgroundColor: '#7a7a7a' },
-  { name: 'Example', width: 250 }
-);
+let chart = flow.createNode("visual/line-chart-mini", {
+  name: "Example",
+  width: 250,
+  displayHeight: 100,
+  displayStyle: { backgroundColor: "#7a7a7a" },
+});
 ```
 
 <br/>
@@ -19,38 +19,17 @@ let chart = new StandardNodes.Visual.LineChartMini(
 ### Default State
 
 ```js
-{ size: 10 }
+{
+  size: 10;
+  colors: ["#ff6666", "#66d4ff"];
+}
 ```
 
-## Constructor
+## Options
 
-<Method type="method">
-  <template v-slot:signature>
-    new LineChartMini(<strong>flow: </strong><em><Ref to="../../api/classes/flow">Flow</Ref></em>,
-    <strong>height: </strong><em>number</em>,
-    <strong>colors: </strong><em>string[]</em>,
-    <strong>displayStyle: </strong><em><Ref to="../../api/interfaces/display-style">DisplayStyle</Ref></em>,
-    <strong>options?: </strong><em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>):
-    <em><Ref to="#standardnode-linechartmini">LineChartMini</Ref></em>
-  </template>
-  <template v-slot:params>
-    <Param name="flow">
-      <em><Ref to="../../api/classes/flow">Flow</Ref></em>
-    </Param>
-    <Param name="height">
-      <em>number</em>
-    </Param>
-    <Param name="colors">
-      <em>string[]</em>
-    </Param>
-    <Param name="displayStyle">
-      <em><Ref to="../../api/interfaces/display-style">DisplayStyle</Ref></em>
-    </Param>
-    <Param name="options?">
-      <em><Ref to="../../api/interfaces/node-creator-options">NodeCreatorOptions</Ref></em>
-      <template v-slot:default-value>
-        <em>{}</em>
-      </template>
-    </Param>
-  </template>
-</Method>
+<pre>
+{
+  displayHeight: number;
+  displayStyle: <Ref to="../../api/interfaces/display-style">DisplayStyle</Ref>;
+}
+</pre>

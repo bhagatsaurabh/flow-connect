@@ -54,11 +54,11 @@ A general purpose RGBA color class with a few utility functions.
 
 <Method type="method-static">
   <template v-slot:signature>
-    create(<strong>data: </strong><em><Ref to="../interfaces/serialized-color">SerializedColor</Ref></em>):
+    create(<strong>data: </strong><em><Ref to="../types/serialized-color">SerializedColor</Ref></em>):
     <em><Ref to="./color">Color</Ref></em>
   </template>
   <template v-slot:params>
-    <Param name="data"><em><Ref to="../interfaces/serialized-color">SerializedColor</Ref></em></Param>
+    <Param name="data"><em><Ref to="../types/serialized-color">SerializedColor</Ref></em></Param>
   </template>
   <template v-slot:return><em><Ref to="./color">Color</Ref></em></template>
 </Method>
@@ -84,12 +84,12 @@ A general purpose RGBA color class with a few utility functions.
 <Method type="method-implementation">
   <template v-slot:signature>
     serialize():
-    <em><Ref to="../interfaces/serialized-color">SerializedColor</Ref></em>
+    <em><Ref to="../types/serialized-color">SerializedColor</Ref></em>
   </template>
   <template v-slot:inherit>
     <Icon valign="bottom" type="implementation" /> of <Ref to="../interfaces/serializable">Serializable</Ref>.<Ref to="../interfaces/serializable#serialize">serialize</Ref>
   </template>
-  <template v-slot:return><em><Ref to="../interfaces/serialized-color">SerializedColor</Ref></em></template>
+  <template v-slot:return><em><Ref to="../types/serialized-color">SerializedColor</Ref></em></template>
 </Method>
 
 ### Random
@@ -106,11 +106,11 @@ A general purpose RGBA color class with a few utility functions.
 
 <Method type="method-static">
   <template v-slot:signature>
-    deSerialize(<strong>data: </strong><em><Ref to="../interfaces/serialized-color">SerializedColor</Ref></em>):
+    deSerialize(<strong>data: </strong><em><Ref to="../types/serialized-color">SerializedColor</Ref></em>):
     <em><Ref to="#class-color">Color</Ref></em>
   </template>
   <template v-slot:params>
-    <Param name="data"><em><Ref to="../interfaces/serialized-color">SerializedColor</Ref></em></Param>
+    <Param name="data"><em><Ref to="../types/serialized-color">SerializedColor</Ref></em></Param>
   </template>
   <template v-slot:return><em><Ref to="#class-color">Color</Ref></em></template>
 </Method>

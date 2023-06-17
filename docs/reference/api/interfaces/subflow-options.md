@@ -1,10 +1,13 @@
 # Interface: SubFlowOptions
 
+## Hierarchy
+
+<Hierarchy
+  :extend="{name: 'NodeOptions', link: './node-options'}"
+/>
+
 <pre>
 {
-  name?: string,
-  style?: <Ref to="./node-style">NodeStyle</Ref>,
-  terminalStyle?: <Ref to="./terminal-style">TerminalStyle</Ref>,
-  state?: Object
+  subFlow: <Ref to="../classes/flow">Flow</Ref>
 }
 </pre>

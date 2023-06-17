@@ -134,7 +134,7 @@ A 2D vector.
 
 <Method type="method-static">
   <template v-slot:signature>
-    new Vector(<strong>xOrDOMPoint: </strong><em>number | <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMPoint">DOMPoint</a><ExternalLinkIcon /></em>,
+    create(<strong>xOrDOMPoint: </strong><em>number | <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMPoint">DOMPoint</a><ExternalLinkIcon /></em>,
     <strong>y?: </strong><em>number</em>):
     <em><Ref to="#class-vector">Vector</Ref></em>
   </template>
