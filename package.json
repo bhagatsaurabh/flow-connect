@@ -1,6 +1,6 @@
 {
   "name": "flow-connect",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "type": "module",
   "main": "dist/cjs/flow-connect.js",
@@ -19,6 +19,7 @@
     "build:cjs": "tsc -p tsconfig/cjs.tsconfig.json",
     "build:esm": "tsc -p tsconfig/esm.tsconfig.json",
     "build:types": "tsc -p tsconfig/types.tsconfig.json",
+    "postbuild": "node postbuild dist/cjs/flow-connect.js dist/esm/flow-connect.js",
     "dev": "webpack-dev-server --open --config=webpack.dev.js",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs --clean-temp --clean-cache",

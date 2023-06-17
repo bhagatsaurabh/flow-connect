@@ -85,7 +85,7 @@ module.exports = {
           },
         ],
       },
-      { text: "v2.0.0", link: "/" },
+      { text: "v2.0.1", link: "/" },
     ],
     sidebar: {
       "/guide/": [
