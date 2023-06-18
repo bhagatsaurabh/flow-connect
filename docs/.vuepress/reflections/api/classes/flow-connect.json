@@ -119,6 +119,10 @@
       "type": "method"
     },
     {
+      "name": "detach",
+      "type": "method"
+    },
+    {
       "name": "fromJson",
       "type": "method"
     },

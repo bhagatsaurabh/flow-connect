@@ -371,6 +371,20 @@ let flow = flowConnect.createFlow({
   </template>
 </Method>
 
+### detach
+
+<Method type="method-async">
+  <template v-slot:signature>
+    detach(): <em>void</em>
+  </template>
+  <template v-slot:desc>
+    Detaches the attached <code>&lt;canvas&gt;</code> element from the FlowConnect instance, once detached, the <Ref to="./flow-connect">FlowConnect</Ref> instance cannot be used anymore, a new instance must be created and attached to the canvas element again.
+  </template>
+  <template v-slot:return>
+    <em>void</em>
+  </template>
+</Method>
+
 ### fromJson
 
 <Method type="method-async">

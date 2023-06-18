@@ -9,5 +9,5 @@ While serializing a flow using <Ref to="/reference/api/classes/flow-connect#tojs
 When de-serializing using <Ref to="/reference/api/classes/flow-connect#fromjson">FlowConnect<em>.fromJson()</em></Ref>, FlowConnect will invoke this function whenever a stored file id and its name is encountered in serialized flow JSON, the same unique id will be passed as the first argument, and this function should return a Blob back corresponding to the file that was stored previously.
 
 <pre>
-<Function /> (id: string) => Promise&lt;Blob&gt;
+<Function /> (meta: <Ref to="./raw-metadata">RawMetadata</Ref>) => Promise&lt;<Ref to="../types/raw">Raw</Ref>&gt;
 </pre>
