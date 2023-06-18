@@ -468,6 +468,8 @@ export class FlowConnect extends Hooks {
     let dragDelta: Vector;
     let prevPanPosition: Vector = Vector.Zero();
     let prevPinchDistance: number = -1;
+    let longPressTimerId = -1;
+    let longPressPointer: Pointer = null;
 
     document.onkeydown = (ev: KeyboardEvent) => this.handleKeyDown(ev);
     document.onkeyup = (ev: KeyboardEvent) => {
@@ -481,6 +483,15 @@ export class FlowConnect extends Hooks {
       if (this.pointers.length === 1) {
         prevPanPosition = this.pointers[0].screenPosition;
         this.currHitNode = this.getHitNode(this.pointers[0].screenPosition);
+        longPressTimerId = window.setTimeout(() => {
+          this.currHitNode?.onContextMenu(this.pointers[0].screenPosition, this.pointers[0].realPosition);
+          this.call("context-menu", {
+            screenPos: this.pointers[0].screenPosition,
+            realPos: this.pointers[0].realPosition,
+            target: this.currHitNode ?? this,
+          });
+        }, 1000);
+        longPressPointer = this.pointers[0];
         if (this.currHitNode) {
           this.currHitNode.zIndex = Number.MAX_SAFE_INTEGER;
           if (this.keymap["Control"]) {
@@ -507,6 +518,8 @@ export class FlowConnect extends Hooks {
           }
         }
       } else {
+        clearTimeout(longPressTimerId);
+        longPressPointer = null;
         this.currHitNode = null;
         this.currHitGroup = null;
         this.currFlow.removeAllFocus();
@@ -517,6 +530,11 @@ export class FlowConnect extends Hooks {
       if (!this.currFlow) return;
 
       this.removePointer(this.pointers, ev);
+
+      if (longPressPointer?.id === ev.pointerId) {
+        clearTimeout(longPressTimerId);
+        longPressPointer = null;
+      }
 
       if (this.pointers.length < 2) prevPinchDistance = -1;
 
@@ -529,7 +547,7 @@ export class FlowConnect extends Hooks {
       this.currHitGroup = null;
 
       let hitNode = this.getHitNode(screenPosition);
-      hitNode && hitNode.onUp(screenPosition.clone(), realPosition.clone());
+      hitNode?.onUp(screenPosition.clone(), realPosition.clone());
 
       if (this.currGroup) {
         this.addCurrAsNewGroup();
@@ -640,8 +658,8 @@ export class FlowConnect extends Hooks {
       if (ev.pointerType === "mouse" && !this.currHitNode) {
         let hitNode = this.getHitNode(screenPosition);
         if (hitNode !== this.prevHitNode) {
-          this.prevHitNode && this.prevHitNode.onExit(screenPosition, realPosition);
-          hitNode && hitNode.onEnter(screenPosition, realPosition);
+          this.prevHitNode?.onExit(screenPosition, realPosition);
+          hitNode?.onEnter(screenPosition, realPosition);
         } else {
           hitNode && !this.currHitNode && hitNode.onOver(screenPosition, realPosition);
         }
@@ -654,11 +672,11 @@ export class FlowConnect extends Hooks {
       let screenPosition = this.getRelativePosition(ev);
       let realPosition = screenPosition.transform(this.inverseTransform);
       let hitNode = this.getHitNode(screenPosition);
-      hitNode && hitNode.onClick(screenPosition.clone(), realPosition.clone());
+      hitNode?.onClick(screenPosition.clone(), realPosition.clone());
 
       if (!hitNode) {
         let hitGroup = this.getHitGroup(screenPosition);
-        hitGroup && hitGroup.onClick(screenPosition.clone(), realPosition.clone());
+        hitGroup?.onClick(screenPosition.clone(), realPosition.clone());
       }
     };
     this.canvas.oncontextmenu = (ev) => {
@@ -670,9 +688,21 @@ export class FlowConnect extends Hooks {
       let realPosition = screenPosition.transform(this.inverseTransform);
 
       let hitNode = this.getHitNode(screenPosition);
-      hitNode && hitNode.onContextMenu(screenPosition, realPosition);
+      hitNode?.onContextMenu(screenPosition, realPosition);
+      this.call("context-menu", { screenPos: screenPosition, realPos: realPosition, target: hitNode ?? this });
       if (!this.keymap["Control"]) this.currFlow.removeAllFocus();
       hitNode && (hitNode.focused = true);
+    };
+    this.canvas.ondblclick = (ev) => {
+      if (!this.currFlow) return;
+
+      ev.preventDefault();
+
+      let screenPosition = this.getRelativePosition(ev);
+      let realPosition = screenPosition.transform(this.inverseTransform);
+
+      let hitNode = this.getHitNode(screenPosition);
+      this.call("dbl-press", { screenPos: screenPosition, realPos: realPosition, target: hitNode ?? this });
     };
     this.canvas.onwheel = (ev: WheelEvent) => {
       if (!this.currFlow) return;
@@ -686,7 +716,7 @@ export class FlowConnect extends Hooks {
         let hitUINode = hitNode.getHitUINode(hitColor);
 
         // Need to add touch compability for pinch on UINodes
-        if (hitUINode && hitUINode.zoomable) {
+        if (hitUINode?.zoomable) {
           hitNode.onWheel(ev.deltaY < 0, screenPosition, screenPosition.transform(this.inverseTransform));
           return;
         }
@@ -707,6 +737,7 @@ export class FlowConnect extends Hooks {
     this.canvas.onpointermove = null;
     this.canvas.onclick = null;
     this.canvas.oncontextmenu = null;
+    this.canvas.ondblclick = null;
     this.canvas.onwheel = null;
   }
   private addCurrAsNewGroup() {
