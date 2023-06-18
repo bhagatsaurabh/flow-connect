@@ -289,6 +289,7 @@ export class FlowConnect extends Hooks {
       return this.defaultStyles[type] as T;
     }
   }
+  private throttle = false;
   //#endregion
 
   /**
@@ -309,21 +310,23 @@ export class FlowConnect extends Hooks {
   //#region Methods
   /** Re-calculates cavnvas position/dimension when scrolling/resizing happens */
   private registerChangeListeners() {
-    let throttle = false;
-    document.addEventListener("scroll", () => {
-      if (!throttle) {
-        window.requestAnimationFrame(() => {
-          this.calcCanvasDimension(false);
-          throttle = false;
-        });
-        throttle = true;
-      }
-    });
+    document.addEventListener("scroll", this.scrollListener.bind(this));
     this.registerObservers(this.canvas.parentElement);
   }
+  private deRegisterChangeListeners() {
+    document.removeEventListener("scroll", this.scrollListener);
+  }
+  private scrollListener() {
+    if (!this.throttle) {
+      window.requestAnimationFrame(() => {
+        this.calcCanvasDimension(false);
+        this.throttle = false;
+      });
+      this.throttle = true;
+    }
+  }
   private registerObservers(parent: HTMLElement) {
-    this.parentResizeObserver && this.parentResizeObserver.disconnect();
-    this.bodyResizeObserver && this.bodyResizeObserver.disconnect();
+    this.deRegisterObservers();
 
     this.parentResizeObserver = new ResizeObserver(() => {
       this.calcCanvasDimension(true);
@@ -337,6 +340,10 @@ export class FlowConnect extends Hooks {
       });
       this.bodyResizeObserver.observe(document.body);
     }
+  }
+  private deRegisterObservers() {
+    this.parentResizeObserver && this.parentResizeObserver.disconnect();
+    this.bodyResizeObserver && this.bodyResizeObserver.disconnect();
   }
   private prepareCanvas(mount?: HTMLCanvasElement | HTMLDivElement) {
     if (!mount) {
@@ -691,6 +698,17 @@ export class FlowConnect extends Hooks {
       }
     };
   }
+  private deRegisterEvents() {
+    document.onkeydown = null;
+    document.onkeyup = null;
+    this.canvas.onpointerdown = null;
+    this.canvas.onpointerup = null;
+    this.canvas.onpointerout = null;
+    this.canvas.onpointermove = null;
+    this.canvas.onclick = null;
+    this.canvas.oncontextmenu = null;
+    this.canvas.onwheel = null;
+  }
   private addCurrAsNewGroup() {
     let newGroup = this.currGroup;
     this.currGroup = null;
@@ -899,6 +917,9 @@ export class FlowConnect extends Hooks {
       realPosition: position.transform(this.inverseTransform),
     });
   }
+  screenToReal(pos: Vector) {
+    return pos.transform(this.inverseTransform);
+  }
   private removePointer(pointers: Pointer[], ev: PointerEvent) {
     pointers.splice(
       pointers.findIndex((pointer) => pointer.id === ev.pointerId),
@@ -1028,6 +1049,12 @@ export class FlowConnect extends Hooks {
       Log.error(error);
     }
     return flow;
+  }
+  detach() {
+    this.currFlow?.stop();
+    this.deRegisterObservers();
+    this.deRegisterEvents();
+    this.deRegisterChangeListeners();
   }
   //#endregion
 }
