@@ -63,6 +63,7 @@ declare global {
  * it registers user-interaction events (mouse, keyboard, touch) and creates additional OffScreenCanvas's to track/act-upon these events
  */
 export class FlowConnect extends Hooks {
+  private static audioWorkletsRegistered = false;
   static async create(mount?: HTMLCanvasElement | HTMLDivElement): Promise<FlowConnect> {
     let flowConnect = new FlowConnect(mount);
     await flowConnect.setupAudioContext();
@@ -727,12 +728,16 @@ export class FlowConnect extends Hooks {
     // This one-time setup is not at all related to FlowConnect, couldn't find any place to do this
     // Might be a better idea to do this somewhere in StandardNodes Audio package
 
-    let workletUtils = generateWorkletUtils();
-    let audioWorklets = generateAudioWorklets(workletUtils.CircularBuffer);
-    await this.audioContext.audioWorklet.addModule(workletUtils.CircularBuffer);
-    return Promise.all(
-      Object.keys(audioWorklets).map((key) => this.audioContext.audioWorklet.addModule(audioWorklets[key]))
-    );
+    if (!FlowConnect.audioWorkletsRegistered) {
+      let workletUtils = generateWorkletUtils();
+      let audioWorklets = generateAudioWorklets(workletUtils.CircularBuffer);
+      await this.audioContext.audioWorklet.addModule(workletUtils.CircularBuffer);
+      await Promise.all(
+        Object.keys(audioWorklets).map((key) => this.audioContext.audioWorklet.addModule(audioWorklets[key]))
+      );
+
+      FlowConnect.audioWorkletsRegistered = true;
+    }
   }
 
   showGenericInput(

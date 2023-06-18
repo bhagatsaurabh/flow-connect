@@ -252,18 +252,18 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     receive?: DataFetchProvider
   ): Promise<Record<string, any>> {
     for (let key in state) {
-      if (typeof state[key] === "string" && (state[key] as string).startsWith("raw##")) {
-        if (receive) {
-          state[key] = await receive((state[key] as string).replace("raw##", ""));
-        } else {
-          state[key] = null;
-        }
-      } else if (
+      if (
         typeof state[key] === "object" &&
         state[key] &&
         Object.keys(state[key]).every((k) => ["x", "y"].includes(k) && typeof state[key][k] === "number")
       ) {
         state[key] = Vector.create(state[key].x, state[key].y);
+      } else if (typeof state[key] === "object" && state[key] && state[key].rawType) {
+        if (receive) {
+          state[key] = await receive({ ...state[key], id: (state[key].id as string).replace("raw##", "") });
+        } else {
+          state[key] = null;
+        }
       }
     }
     return state;
