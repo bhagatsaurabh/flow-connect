@@ -615,6 +615,24 @@ Definition of how this method should work is not clear at the moment, implementa
   </template>
 </Method>
 
+### screenToReal
+
+<Method type="method">
+  <template v-slot:signature>
+    screenToReal(<strong>pos: </strong><em><Ref to="./vector">Vector</Ref></em>):
+    <em><Ref to="./vector">Vector</Ref></em>
+  </template>
+  <template v-slot:desc>
+    Transforms the given screen space position to real space within canvas
+  </template>
+  <template v-slot:params>
+    <Param name="pos"><em><Ref to="./vector">Vector</Ref></em></Param>
+  </template>
+  <template v-slot:return>
+    <em><Ref to="./vector">Vector</Ref></em>
+  </template>
+</Method>
+
 ### setCache
 
 <Method type="method">

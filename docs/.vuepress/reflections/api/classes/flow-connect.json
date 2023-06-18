@@ -171,6 +171,10 @@
       "type": "method"
     },
     {
+      "name": "screenToReal",
+      "type": "method"
+    },
+    {
       "name": "setCache",
       "type": "method"
     },
