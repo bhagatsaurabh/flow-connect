@@ -99,8 +99,13 @@ export interface SerializedRuleColors {
   [dataType: string]: SerializedColor;
 }
 
-export type DataPersistenceProvider = (id: string, ref: Blob) => Promise<void>;
-export type DataFetchProvider = (id: string) => Promise<Blob>;
+export type Raw = File | Blob;
+export interface RawMetadata {
+  id: string;
+  [key: string]: string;
+}
+export type DataPersistenceProvider = (id: string, ref: Raw) => Promise<RawMetadata>;
+export type DataFetchProvider = (meta: RawMetadata) => Promise<Raw>;
 
 export type NodeConstructor<T extends Node = Node, O extends NodeOptions = NodeOptions> = {
   new (flow: Flow, options: O): T;

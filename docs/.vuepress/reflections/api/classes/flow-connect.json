@@ -119,6 +119,10 @@
       "type": "method"
     },
     {
+      "name": "detach",
+      "type": "method"
+    },
+    {
       "name": "fromJson",
       "type": "method"
     },
@@ -164,6 +168,10 @@
     },
     {
       "name": "scaleBy",
+      "type": "method"
+    },
+    {
+      "name": "screenToReal",
       "type": "method"
     },
     {

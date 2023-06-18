@@ -739,8 +739,8 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       if (state[key] instanceof File) {
         if (persist) {
           const id = uuid();
-          await persist(id, state[key]);
-          state[key] = `raw##${id}`;
+          const meta = await persist(id, state[key]);
+          state[key] = { id: `raw##${id}`, ...meta };
         } else {
           state[key] = null;
         }

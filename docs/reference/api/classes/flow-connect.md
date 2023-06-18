@@ -371,6 +371,20 @@ let flow = flowConnect.createFlow({
   </template>
 </Method>
 
+### detach
+
+<Method type="method-async">
+  <template v-slot:signature>
+    detach(): <em>void</em>
+  </template>
+  <template v-slot:desc>
+    Detaches the attached <code>&lt;canvas&gt;</code> element from the FlowConnect instance, once detached, the <Ref to="./flow-connect">FlowConnect</Ref> instance cannot be used anymore, a new instance must be created and attached to the canvas element again.
+  </template>
+  <template v-slot:return>
+    <em>void</em>
+  </template>
+</Method>
+
 ### fromJson
 
 <Method type="method-async">
@@ -598,6 +612,24 @@ Definition of how this method should work is not clear at the moment, implementa
   </template>
   <template v-slot:return>
     <em>void</em>
+  </template>
+</Method>
+
+### screenToReal
+
+<Method type="method">
+  <template v-slot:signature>
+    screenToReal(<strong>pos: </strong><em><Ref to="./vector">Vector</Ref></em>):
+    <em><Ref to="./vector">Vector</Ref></em>
+  </template>
+  <template v-slot:desc>
+    Transforms the given screen space position to real space within canvas
+  </template>
+  <template v-slot:params>
+    <Param name="pos"><em><Ref to="./vector">Vector</Ref></em></Param>
+  </template>
+  <template v-slot:return>
+    <em><Ref to="./vector">Vector</Ref></em>
   </template>
 </Method>
 

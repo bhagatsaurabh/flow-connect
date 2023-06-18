@@ -11,5 +11,5 @@ The implementation of this function is up to the developer, whether the files ne
 When de-serializing using <Ref to="/reference/api/classes/flow-connect#fromjson">FlowConnect<em>.fromJson()</em></Ref>, the same unique ids will be passed to a <Ref to="/reference/api/interfaces/data-fetch-provider">DataFetchProvider</Ref>, which is another developer implemented function that returns a Blob back whenever FlowConnect encounters a stored file in serialized flow JSON.
 
 <pre>
-<Function /> (id: string, ref: Blob) => Promise&lt;void&gt;
+<Function /> (id: string, ref: <Ref to="../types/raw">Raw</Ref>) => Promise&lt;<Ref to="./raw-metadata">RawMetadata</Ref>&gt;
 </pre>
