@@ -1,6 +1,6 @@
 {
   "name": "flow-connect",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "type": "module",
   "main": "dist/cjs/flow-connect.js",
