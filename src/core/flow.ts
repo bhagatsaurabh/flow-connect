@@ -258,7 +258,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
         Object.keys(state[key]).every((k) => ["x", "y"].includes(k) && typeof state[key][k] === "number")
       ) {
         state[key] = Vector.create(state[key].x, state[key].y);
-      } else if (typeof state[key] === "object" && state[key] && state[key].rawType) {
+      } else if (typeof state[key] === "object" && state[key] && state[key].id?.startsWith("raw##")) {
         if (receive) {
           state[key] = await receive({ ...state[key], id: (state[key].id as string).replace("raw##", "") });
         } else {

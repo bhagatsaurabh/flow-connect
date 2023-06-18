@@ -102,11 +102,9 @@ export interface SerializedRuleColors {
 export type Raw = File | Blob;
 export interface RawMetadata {
   id: string;
-  rawType: "file" | "blob";
-  name?: string;
-  type?: string;
+  [key: string]: string;
 }
-export type DataPersistenceProvider = (id: string, ref: Raw) => Promise<void>;
+export type DataPersistenceProvider = (id: string, ref: Raw) => Promise<RawMetadata>;
 export type DataFetchProvider = (meta: RawMetadata) => Promise<Raw>;
 
 export type NodeConstructor<T extends Node = Node, O extends NodeOptions = NodeOptions> = {
