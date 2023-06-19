@@ -24,7 +24,12 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
     if (this.propName) this.setProp(newVal);
     else this._selected = newVal;
 
+    this.setLabelStyle();
+
     if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+  }
+  get values(): string[] {
+    return [...this._values];
   }
 
   constructor(node: Node, _options: RadioGroupOptions = DefaultRadioGroupOptions(node)) {
@@ -72,15 +77,6 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
 
         label.on("click", (event: UIEvent<Label>) => {
           if (event.target.text === this.selected) return;
-          const lastSelectedLabel = this.children[this._values.indexOf(this.selected)];
-          Object.assign(lastSelectedLabel.style, {
-            backgroundColor: this.style.backgroundColor,
-            color: this.style.color,
-          });
-          Object.assign(event.target.style, {
-            backgroundColor: this.style.selectedBackgroundColor,
-            color: this.style.selectedColor,
-          });
           this.selected = event.target.text;
         });
 
@@ -88,6 +84,21 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
       })
     );
     Object.assign(this.children[this._values.indexOf(this._selected)].style, {
+      backgroundColor: this.style.selectedBackgroundColor,
+      color: this.style.selectedColor,
+    });
+  }
+
+  setLabelStyle() {
+    this.children.forEach((label) => {
+      Object.assign(label.style, {
+        backgroundColor: this.style.backgroundColor,
+        color: this.style.color,
+      });
+    });
+
+    const selectedLabel = this.children[this._values.indexOf(this.selected)];
+    Object.assign(selectedLabel.style, {
       backgroundColor: this.style.selectedBackgroundColor,
       color: this.style.selectedColor,
     });
@@ -147,6 +158,7 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
   onPropChange(_oldVal: any, newVal: any) {
     if (!this._values.includes(newVal)) newVal = this._values[0];
     this._selected = newVal;
+    this.setLabelStyle();
 
     this.output?.setData(this._selected);
   }
