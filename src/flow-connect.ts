@@ -483,15 +483,7 @@ export class FlowConnect extends Hooks {
       if (this.pointers.length === 1) {
         prevPanPosition = this.pointers[0].screenPosition;
         this.currHitNode = this.getHitNode(this.pointers[0].screenPosition);
-        longPressTimerId = window.setTimeout(() => {
-          this.currHitNode?.onContextMenu(this.pointers[0].screenPosition, this.pointers[0].realPosition);
-          this.call("context-menu", {
-            screenPos: this.pointers[0].screenPosition,
-            realPos: this.pointers[0].realPosition,
-            target: this.currHitNode ?? this,
-          });
-        }, 1000);
-        longPressPointer = this.pointers[0];
+
         if (this.currHitNode) {
           this.currHitNode.zIndex = Number.MAX_SAFE_INTEGER;
           if (this.keymap["Control"]) {
@@ -502,6 +494,18 @@ export class FlowConnect extends Hooks {
           }
           this.currHitNode.onDown(this.pointers[0].screenPosition.clone(), this.pointers[0].realPosition.clone());
           dragDelta = this.currHitNode.position.subtract(this.pointers[0].realPosition);
+
+          if (!this.currHitNode.currHitUINode) {
+            longPressTimerId = window.setTimeout(() => {
+              this.currHitNode.onContextMenu(this.pointers[0].screenPosition, this.pointers[0].realPosition);
+              this.call("context-menu", {
+                screenPos: this.pointers[0].screenPosition,
+                realPos: this.pointers[0].realPosition,
+                target: this.currHitNode,
+              });
+            }, 1000);
+            longPressPointer = this.pointers[0];
+          }
         } else {
           if (!this.keymap["Control"]) {
             this.currFlow.removeAllFocus();
@@ -558,6 +562,11 @@ export class FlowConnect extends Hooks {
       if (!this.currFlow) return;
 
       this.removePointer(this.pointers, ev);
+      if (longPressPointer?.id === ev.pointerId) {
+        clearTimeout(longPressTimerId);
+        longPressPointer = null;
+      }
+
       if (this.pointers.length === 0) {
         if (this.currHitNode) {
           let screenPosition = this.getRelativePosition(ev);
@@ -585,6 +594,11 @@ export class FlowConnect extends Hooks {
 
       let screenPosition = this.getRelativePosition(ev);
       let realPosition = screenPosition.transform(this.inverseTransform);
+
+      if (longPressPointer?.id === ev.pointerId) {
+        clearTimeout(longPressTimerId);
+        longPressPointer = null;
+      }
 
       this.updatePointer(ev.pointerId, screenPosition, realPosition);
 
@@ -702,7 +716,11 @@ export class FlowConnect extends Hooks {
       let realPosition = screenPosition.transform(this.inverseTransform);
 
       let hitNode = this.getHitNode(screenPosition);
-      this.call("dbl-press", { screenPos: screenPosition, realPos: realPosition, target: hitNode ?? this });
+      let hitColor = Color.rgbaToString(this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
+      let currHitUINode = hitNode.getHitUINode(hitColor);
+      if (!currHitUINode) {
+        this.call("dbl-press", { screenPos: screenPosition, realPos: realPosition, target: hitNode ?? this });
+      }
     };
     this.canvas.onwheel = (ev: WheelEvent) => {
       if (!this.currFlow) return;

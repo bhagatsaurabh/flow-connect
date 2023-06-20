@@ -91,16 +91,16 @@ export class Input extends UINode<InputStyle> {
         const realPosition = this.position.transform(this.node.flow.flowConnect.transform);
         Object.assign(this.inputEl.style, {
           visibility: "visible",
-          "pointer-events": "all",
+          pointerEvents: "all",
           top: realPosition.y + this.node.flow.flowConnect.canvasDimensions.top + 1 + "px",
           left: realPosition.x + this.node.flow.flowConnect.canvasDimensions.left + 1 + "px",
           width: (this.width - 1) * this.node.flow.flowConnect.scale + "px",
           height: (this.height - 1) * this.node.flow.flowConnect.scale + "px",
-          "font-family": this.style.font,
-          "font-size": parseInt(this.style.fontSize.replace("px", "")) * this.node.flow.flowConnect.scale + "px",
+          fontFamily: this.style.font,
+          fontSize: parseInt(this.style.fontSize.replace("px", "")) * this.node.flow.flowConnect.scale + "px",
           color: this.style.color,
-          "background-color": this.inputEl.validity.patternMismatch ? "red" : this.style.backgroundColor,
-          "text-align": this.style.align,
+          backgroundColor: this.inputEl.validity.patternMismatch ? "red" : this.style.backgroundColor,
+          textAlign: this.style.align,
         });
         if (this.style.type === InputType.Number) this.inputEl.step = this.style.step;
         this.inputEl.focus();
@@ -116,6 +116,9 @@ export class Input extends UINode<InputStyle> {
     const inputType = this.style.type === "string" ? "text" : this.style.type;
     this.inputEl.type = this.style.pattern ? "text" : inputType;
     this.inputEl.value = this.value.toString();
+    this.inputEl.style.color = this.style.color;
+    this.inputEl.style.backgroundColor = this.style.backgroundColor;
+    this.inputEl.style.border = this.style.border;
 
     if (this.style.pattern) this.inputEl.pattern = this.style.pattern;
     if (this.style.type === InputType.Number && this.style.step) this.inputEl.step = this.style.step;
@@ -214,7 +217,7 @@ const DefaultInputStyle = (): InputStyle => ({
   color: "#000",
   fontSize: "11px",
   font: "arial",
-  border: "1px solid black",
+  border: "black",
   align: Align.Left,
   type: InputType.Text,
 });
