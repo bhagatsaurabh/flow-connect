@@ -7,7 +7,7 @@ export class List<T> extends Hooks {
 
   constructor(public comparator?: (a: T, b: T) => number, source?: Array<T>) {
     super();
-    if (source) source.forEach(value => this.append(value));
+    if (source) source.forEach((value) => this.append(value));
   }
 
   prepend(data: T) {
@@ -22,7 +22,7 @@ export class List<T> extends Hooks {
     }
 
     this.length += 1;
-    this.call('prepend', this, newNode);
+    this.call("prepend", this, newNode);
     return newNode;
   }
   append(data: T | ListNode<T>) {
@@ -37,7 +37,7 @@ export class List<T> extends Hooks {
     }
 
     this.length += 1;
-    this.call('append', this, newNode);
+    this.call("append", this, newNode);
     return newNode;
   }
   removeFirst(hook: boolean = true): T {
@@ -54,7 +54,7 @@ export class List<T> extends Hooks {
     }
 
     this.length -= 1;
-    if (hook) this.call('removefirst', this, removed);
+    if (hook) this.call("removefirst", this, removed);
     return removed;
   }
   removeLast(): T {
@@ -71,7 +71,7 @@ export class List<T> extends Hooks {
     }
 
     this.length -= 1;
-    this.call('removelast', this, removed);
+    this.call("removelast", this, removed);
     return removed;
   }
   addAfter(data: T, node: ListNode<T>): ListNode<T> {
@@ -100,11 +100,8 @@ export class List<T> extends Hooks {
     if (this.length === 1) {
       this.head = null;
       this.tail = null;
-    }
-    else if (node === this.head)
-      this.removeFirst();
-    else if (node === this.tail)
-      this.removeLast();
+    } else if (node === this.head) this.removeFirst();
+    else if (node === this.tail) this.removeLast();
     else {
       if (node.prev) node.prev.next = node.next;
       if (node.next) node.next.prev = node.prev;
@@ -130,7 +127,7 @@ export class List<T> extends Hooks {
   get(index: number): T {
     if (index >= this.length) return null;
     else if (index === 0) return this.head ? this.head.data : null;
-    else if (index === (this.length - 1)) return this.tail ? this.tail.data : null;
+    else if (index === this.length - 1) return this.tail ? this.tail.data : null;
     else {
       let count = 0;
       let curr = this.head;
@@ -152,16 +149,16 @@ export class List<T> extends Hooks {
   }
   map(callback: (node: ListNode<T>) => any): any[] {
     let mapped: any[] = [];
-    this.forEach(node => mapped.push(callback(node)));
+    this.forEach((node) => mapped.push(callback(node)));
     return mapped;
   }
   toArray(): T[] {
     let data: T[] = [];
-    this.forEach(node => data.push(node.data));
+    this.forEach((node) => data.push(node.data));
     return data;
   }
   toString(): string {
-    return this.toArray().join(', ');
+    return this.toArray().join(", ");
   }
 }
 
