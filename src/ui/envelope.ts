@@ -18,14 +18,23 @@ export class Envelope extends UINode<EnvelopeStyle> {
   private offPointsContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 
   get value(): Vector[] {
-    return this._value.toArray().map((vec) => vec.clone());
+    let value;
+    if (this.propName) value = this.getProp().map((vec: Vector) => vec.clone());
+    else value = this._value.toArray().map((vec) => vec.clone());
+
+    return value;
   }
   set value(value: Vector[]) {
-    const oldVal = this.value;
+    let oldVal = this._value.toArray().map((vec) => vec.clone());
+    let newVal = value;
 
-    this.handleEnvelopeChange(value);
+    if (this.propName) {
+      this.setProp(newVal);
+    } else {
+      this.handleEnvelopeChange(newVal);
+    }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, this._value.toArray());
+    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(_node: Node, options: EnvelopeOptions = DefaultEnvelopeOptions()) {
@@ -66,7 +75,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
     }
     this.offPointsContext = this.offPointsCanvas.getContext("2d");
 
-    this.handleEnvelopeChange(values);
+    this.handleEnvelopeChange(this.getProp() ?? values);
   }
 
   handleEnvelopeChange(values: Vector[]) {
@@ -183,6 +192,8 @@ export class Envelope extends UINode<EnvelopeStyle> {
       .clampInPlace(this.currHitPoint.prev?.data.x || 0, this.currHitPoint.next?.data.x || 1, -Infinity, Infinity);
     this.currHitPoint.data = Vector.create(this.currHitPoint.data.x, 1 - this.currHitPoint.data.y);
 
+    this.updateState();
+
     this.renderOffPoints();
   }
   newPoint(realPosition: Vector, width: number, height: number) {
@@ -201,6 +212,9 @@ export class Envelope extends UINode<EnvelopeStyle> {
 
     this.pointHitColorPoint.set(Color.Random().hexValue, newPointNode);
     this.renderOffPoints();
+
+    this.updateState();
+
     if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, this._value.toArray());
   }
   deletePoint() {
@@ -209,10 +223,23 @@ export class Envelope extends UINode<EnvelopeStyle> {
     this.pointHitColorPoint.delete(this.currHitPoint);
     this.renderOffPoints();
 
+    this.updateState();
+
     if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, this._value.toArray());
   }
+  updateState() {
+    if (this.propName && this.node.state[this.propName]) {
+      this.node.state[this.propName].length = 0;
+      const updatedVal = this._value.toArray().map((vec) => vec.clone());
+      this.node.state[this.propName].push(...updatedVal);
+    }
+  }
 
-  onPropChange() {}
+  onPropChange(_oldVal: any, newVal: any) {
+    this.handleEnvelopeChange(newVal);
+
+    this.output && this.output.setData(newVal);
+  }
 
   private currHitPoint: ListNode<Vector>;
   private lastDownPosition: Vector;

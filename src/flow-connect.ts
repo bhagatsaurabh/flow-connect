@@ -717,7 +717,7 @@ export class FlowConnect extends Hooks {
 
       let hitNode = this.getHitNode(screenPosition);
       let hitColor = Color.rgbaToString(this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data);
-      let currHitUINode = hitNode.getHitUINode(hitColor);
+      let currHitUINode = hitNode?.getHitUINode(hitColor);
       if (!currHitUINode) {
         this.call("dbl-press", { screenPos: screenPosition, realPos: realPosition, target: hitNode ?? this });
       }

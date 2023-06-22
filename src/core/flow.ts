@@ -1,5 +1,5 @@
 import { Color, FlowConnect } from "../flow-connect.js";
-import { Vector } from "./vector.js";
+import { SerializedVector, Vector } from "./vector.js";
 import { Node, NodeOptions, SerializedNode } from "./node.js";
 import { Hooks } from "./hooks.js";
 import { Group, SerializedGroup } from "./group.js";
@@ -16,7 +16,7 @@ import {
 } from "../common/interfaces.js";
 import { SerializedSubFlowNode, SubFlowNode, SubFlowNodeOptions } from "./subflow-node.js";
 import { TunnelNode, SerializedTunnelNode, TunnelNodeOptions } from "./tunnel-node.js";
-import { capitalize, uuid } from "../utils/utils.js";
+import { capitalize, isVector, uuid } from "../utils/utils.js";
 import { Graph } from "./graph.js";
 import { Terminal } from "./terminal.js";
 import { Log } from "../utils/logger.js";
@@ -252,12 +252,10 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     receive?: DataFetchProvider
   ): Promise<Record<string, any>> {
     for (let key in state) {
-      if (
-        typeof state[key] === "object" &&
-        state[key] &&
-        Object.keys(state[key]).every((k) => ["x", "y"].includes(k) && typeof state[key][k] === "number")
-      ) {
+      if (isVector(state[key])) {
         state[key] = Vector.create(state[key].x, state[key].y);
+      } else if (Array.isArray(state[key]) && state[key].length > 0 && isVector(state[key][0])) {
+        state[key] = state[key].map((sv: SerializedVector) => Vector.create(sv.x, sv.y));
       } else if (typeof state[key] === "object" && state[key] && state[key].id?.startsWith("raw##")) {
         if (receive) {
           state[key] = await receive({ ...state[key], id: (state[key].id as string).replace("raw##", "") });

@@ -79,3 +79,10 @@ export const cloneAudioBuffer = (from: AudioBuffer): AudioBuffer => {
   }
   return cloned;
 };
+export const isVector = (obj: any) => {
+  return (
+    typeof obj === "object" &&
+    obj &&
+    Object.keys(obj).every((k) => ["x", "y"].includes(k) && typeof obj[k] === "number")
+  );
+};
