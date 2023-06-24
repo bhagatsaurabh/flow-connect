@@ -16,6 +16,7 @@ export class Source extends UINode<SourceStyle> {
 
   label: Label;
   accept: string;
+  actionOverride = false;
 
   get file(): File {
     if (this.propName) return this.getProp();
@@ -40,10 +41,11 @@ export class Source extends UINode<SourceStyle> {
 
   protected created(options: SourceOptions): void {
     options = { ...DefaultSourceOptions(this.node), ...options };
-    const { style = {}, height, accept, input, output, file } = options;
+    const { style = {}, height, accept, input, output, file, actionOverride } = options;
 
     this.style = { ...DefaultSourceStyle(), ...style };
     this.accept = accept;
+    this.actionOverride = actionOverride;
     this.height = height ?? this.node.style.rowHeight;
 
     this.setupInputElement(options);
@@ -56,7 +58,7 @@ export class Source extends UINode<SourceStyle> {
     this.fileIcon = this.node.createUI<Image, ImageOptions>("core/image", {
       src: fileIcon,
     });
-    this.label.on("click", () => this.htmlInput.click());
+    this.label.on("click", () => !this.actionOverride && this.htmlInput.click());
     this.children.push(this.label, this.fileIcon);
 
     if (input) {
@@ -152,6 +154,7 @@ const DefaultSourceStyle = (): SourceStyle => ({
 export interface SourceOptions extends UINodeOptions<SourceStyle> {
   accept?: string;
   file?: File;
+  actionOverride?: boolean;
 }
 const DefaultSourceOptions = (node: Node): SourceOptions => ({
   height: node.style.rowHeight * 1.5,
