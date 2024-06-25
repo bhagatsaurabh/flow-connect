@@ -1,13 +1,13 @@
 {
   "name": "flow-connect",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "type": "module",
   "main": "dist/cjs/flow-connect.js",
   "types": "dist/types/flow-connect.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/saurabh-prosoft/flow-connect.git"
+    "url": "https://github.com/bhagatsaurabh/flow-connect.git"
   },
   "author": "Saurabh Bhagat",
   "license": "MIT",

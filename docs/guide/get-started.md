@@ -18,7 +18,7 @@ npm i flow-connect
 
 ESM
 
-#### Note: Seperate dependency required for '@flow-connect/\*' packages, check [flow-connect-standard-nodes](https://github.com/saurabh-prosoft/flow-connect-standard-nodes) monorepo for further details.
+#### Note: Seperate dependency required for '@flow-connect/\*' packages, check [flow-connect-standard-nodes](https://github.com/bhagatsaurabh/flow-connect-standard-nodes) monorepo for further details.
 
 <br/>
 

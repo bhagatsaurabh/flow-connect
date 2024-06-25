@@ -27,7 +27,7 @@ jobs:
           npm run build
 
       - name: Upload dist artifacts
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: flow-connect-dist
           path: dist
@@ -62,7 +62,7 @@ jobs:
           node-version: 16
 
       - name: Download dist artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: flow-connect-dist
           path: dist
@@ -75,7 +75,7 @@ jobs:
           npm run docs:build
 
       - name: Upload docs artifacts
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: flow-connect-docs
           path: docs/.vuepress/dist
@@ -89,7 +89,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download docs artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: flow-connect-docs
           path: docs/.vuepress/dist
@@ -113,7 +113,7 @@ jobs:
           node-version: 16
 
       - name: Download dist artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: flow-connect-dist
           path: dist
@@ -137,11 +137,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete dist artifacts
-        uses: geekyeggo/delete-artifact@v1
+        uses: geekyeggo/delete-artifact@v5.0.0
         with:
           name: flow-connect-dist
+          failOnError: false
 
       - name: Delete docs artifacts
-        uses: geekyeggo/delete-artifact@v1
+        uses: geekyeggo/delete-artifact@v5.0.0
         with:
           name: flow-connect-docs
+          failOnError: false

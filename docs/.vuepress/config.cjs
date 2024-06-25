@@ -85,7 +85,7 @@ module.exports = {
           },
         ],
       },
-      { text: "v2.0.7", link: "/" },
+      { text: "v2.0.8", link: "/" },
     ],
     sidebar: {
       "/guide/": [
@@ -370,10 +370,10 @@ module.exports = {
         },
       ],
     },
-    repo: "saurabh-prosoft/flow-connect",
+    repo: "bhagatsaurabh/flow-connect",
     lastUpdated: true,
     search: true,
-    docsRepo: "saurabh-prosoft/flow-connect",
+    docsRepo: "bhagatsaurabh/flow-connect",
     docsDir: "docs",
     docsBranch: "master",
     editLinks: true,
