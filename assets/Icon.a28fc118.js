@@ -1,0 +1,1 @@
+import{_ as t,o as a,c as n,G as c}from"./app.6c1464b6.js";const l={name:"Icon",props:["type","valign"]},o=["title","alt","src"];function s(i,r,e,_,m,f){return a(),n("img",{title:e.type,class:c(["api-icon mr-0p5",{"v-align-bottom":e.valign?e.valign:!1}]),alt:e.type,src:`images/${e.type}.png`},null,10,o)}var p=t(l,[["render",s],["__file","Icon.vue"]]);export{p as default};

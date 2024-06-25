@@ -1,0 +1,4 @@
+import{_ as i,r as t,o as s,c,b as e,a as n,w as h,e as o}from"./app.6c1464b6.js";const d={},l=e("h1",{id:"interface-horizontallayoutoptions",tabindex:"-1"},[e("a",{class:"header-anchor",href:"#interface-horizontallayoutoptions","aria-hidden":"true"},"#"),o(" Interface: HorizontalLayoutOptions")],-1),_=e("h2",{id:"hierarchy",tabindex:"-1"},[e("a",{class:"header-anchor",href:"#hierarchy","aria-hidden":"true"},"#"),o(" Hierarchy")],-1),u=o(`{
+  childs?: `),p=o("UINode"),f=o(`[]
+}
+`);function m(y,x){const a=t("Hierarchy"),r=t("Ref");return s(),c("div",null,[l,_,e("p",null,[n(a,{extend:{name:"UINodeOptions",link:"./ui-node-options"}},null,8,["extend"])]),e("pre",null,[u,n(r,{to:"../classes/ui-node"},{default:h(()=>[p]),_:1}),f])])}var N=i(d,[["render",m],["__file","horizontal-layout-options.html.vue"]]);export{N as default};

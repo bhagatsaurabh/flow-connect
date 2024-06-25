@@ -1,0 +1,1 @@
+import{_ as t,r as c,o as a,c as o,b as r,a as n}from"./app.6c1464b6.js";const s={};function l(_,i){const e=c("Redirect");return a(),o("div",null,[r("template",null,[n(e,{to:"/reference/api/classes/flow-connect"})])])}var f=t(s,[["render",l],["__file","api.html.vue"]]);export{f as default};

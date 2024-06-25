@@ -1,0 +1,2 @@
+import{_ as r,o,c as a,b as e,e as t}from"./app.6c1464b6.js";const s={},i=e("h1",{id:"type-serializedcolor",tabindex:"-1"},[e("a",{class:"header-anchor",href:"#type-serializedcolor","aria-hidden":"true"},"#"),t(" Type: SerializedColor")],-1),c=e("pre",null,`number[] | string
+`,-1),l=[i,c];function n(d,_){return o(),a("div",null,l)}var f=r(s,[["render",n],["__file","serialized-color.html.vue"]]);export{f as default};

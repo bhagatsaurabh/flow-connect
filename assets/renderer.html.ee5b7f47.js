@@ -1,0 +1,2 @@
+import{_ as t,r as a,o,c,b as r,a as s,w as d,e}from"./app.6c1464b6.js";const _={},i=r("h1",{id:"interface-renderer",tabindex:"-1"},[r("a",{class:"header-anchor",href:"#interface-renderer","aria-hidden":"true"},"#"),e(" Interface: Renderer")],-1),f=e("Renderer<T, P>: (instance: T) => "),l=e("RenderFn"),h=e(`<T, P>
+`);function m(u,p){const n=a("Ref");return o(),c("div",null,[i,r("pre",null,[f,s(n,{to:"./render-fn"},{default:d(()=>[l]),_:1}),h])])}var R=t(_,[["render",m],["__file","renderer.html.vue"]]);export{R as default};

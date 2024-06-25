@@ -1,0 +1,1 @@
+import{_ as o,r,o as s,v as t,w as n,b as l,y as p,a1 as c,a2 as _}from"./app.6c1464b6.js";const f={name:"Ref",props:["name"]};function u(e,i,d,m,$,v){const a=r("router-link");return s(),t(a,c(_(e.$attrs)),{default:n(()=>[l("strong",null,[p(e.$slots,"default")])]),_:3},16)}var R=o(f,[["render",u],["__file","Ref.vue"]]);export{R as default};

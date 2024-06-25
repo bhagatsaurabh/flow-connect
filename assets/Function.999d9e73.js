@@ -1,0 +1,1 @@
+import{_ as t,r as n,o,v as a}from"./app.6c1464b6.js";const c={name:"Function"};function r(i,s,_,p,f,l){const e=n("Badge");return o(),a(e,{"aria-label":"function",title:"function",type:"tip",vertical:"middle",text:"f"})}var d=t(c,[["render",r],["__file","Function.vue"]]);export{d as default};

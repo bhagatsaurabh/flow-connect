@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-f2d3fdca","path":"/guide/connect.html","title":"Connections","lang":"en-US","frontmatter":{},"excerpt":"","headers":[],"git":{"updatedTime":1649616376000,"contributors":[{"name":"saurabh-prosoft","email":"saurabhbhagat98die@gmail.com","commits":3}]},"filePathRelative":"guide/connect.md"}');export{e as data};
