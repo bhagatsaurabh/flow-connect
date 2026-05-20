@@ -57,5 +57,5 @@ Avoid creating TunnelNodes manually and thereby setting/modifying this accessor,
 </Method>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/tunnel-node.json';
+import data from '../../../.vuepress/reflections/api/classes/tunnel-node.json';
 </script>

@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { Hooks } from "../../src/core/hooks";
 
 describe("Hooks", () => {
@@ -13,13 +14,19 @@ describe("Hooks", () => {
     it("should register hooks", () => {
       let hooks = new Hooks();
 
-      let callback1 = () => { /**/ };
+      let callback1 = () => {
+        /**/
+      };
       let id1 = hooks.on("event1", callback1);
       expect(hooks.registeredEvents).toHaveProperty("event1");
       expect(hooks.registeredEvents.event1).toStrictEqual({ [id1]: callback1 });
 
-      let callback2 = () => { /**/ };
-      let callback3 = () => { /**/ };
+      let callback2 = () => {
+        /**/
+      };
+      let callback3 = () => {
+        /**/
+      };
       let id2 = hooks.on("event2", callback2);
       let id3 = hooks.on("event1", callback3);
       expect(hooks.registeredEvents).toHaveProperty("event2");
@@ -34,7 +41,9 @@ describe("Hooks", () => {
     it("should de-register hooks", () => {
       let hooks = new Hooks();
 
-      let callback = () => { /**/ };
+      let callback = () => {
+        /**/
+      };
       let id1 = hooks.on("event1", callback);
       let id2 = hooks.on("event2", callback);
       let id3 = hooks.on("event2", callback);
@@ -59,17 +68,27 @@ describe("Hooks", () => {
       let hooks = new Hooks();
 
       let callbacks = {
-        callback1: () => { /**/ },
-        callback2: () => { /**/ },
-        callback3: () => { /**/ },
-        callback4: () => { /**/ },
-        callback5: () => { /**/ },
+        callback1: () => {
+          /**/
+        },
+        callback2: () => {
+          /**/
+        },
+        callback3: () => {
+          /**/
+        },
+        callback4: () => {
+          /**/
+        },
+        callback5: () => {
+          /**/
+        },
       };
-      let spyCallback1 = jest.spyOn(callbacks, "callback1");
-      let spyCallback2 = jest.spyOn(callbacks, "callback2");
-      let spyCallback3 = jest.spyOn(callbacks, "callback3");
-      let spyCallback4 = jest.spyOn(callbacks, "callback4");
-      let spyCallback5 = jest.spyOn(callbacks, "callback5");
+      let spyCallback1 = vi.spyOn(callbacks, "callback1");
+      let spyCallback2 = vi.spyOn(callbacks, "callback2");
+      let spyCallback3 = vi.spyOn(callbacks, "callback3");
+      let spyCallback4 = vi.spyOn(callbacks, "callback4");
+      let spyCallback5 = vi.spyOn(callbacks, "callback5");
 
       hooks.on("event1", callbacks.callback1);
       hooks.on("event2", callbacks.callback1);

@@ -19,7 +19,9 @@
         </ul>
       </template>
       <h4 v-if="$slots.return" class="d-inline-block mb-0 mr-1">Returns</h4>
-      <em><slot name="return"></slot></em>
+      <em>
+        <slot name="return"></slot>
+      </em>
     </section>
     <section v-if="$slots.example">
       <h4>Example</h4>

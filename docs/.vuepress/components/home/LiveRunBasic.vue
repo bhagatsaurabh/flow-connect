@@ -28,9 +28,9 @@ export default {
         });
         this.flow.on("stop", () => clearInterval(this.timerId));
       }
-      process() {}
+      process() { }
     }
-    FlowConnect.register({ type: "node", name: "custom/timer-node" }, CustomTimerNode);
+    FC.FlowConnect.register({ type: "node", name: "custom/timer-node" }, CustomTimerNode);
 
     let timerNode = flow.createNode("custom/timer-node", Vector.create(45, 7), { width: 500 });
 

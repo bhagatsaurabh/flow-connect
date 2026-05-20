@@ -248,5 +248,5 @@ Groups multiple <Ref to="./node">nodes</Ref> together.
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/group.json';
+import data from '../../../.vuepress/reflections/api/classes/group.json';
 </script>

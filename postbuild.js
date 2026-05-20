@@ -1,5 +1,7 @@
 import fs from "fs";
-import meta from "./package.json" assert { type: "json" };
+import path from "path";
+
+const meta = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "package.json"), "utf8"));
 
 const args = process.argv.slice(2);
 

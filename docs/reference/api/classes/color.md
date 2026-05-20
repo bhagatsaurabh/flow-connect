@@ -186,5 +186,5 @@ A general purpose RGBA color class with a few utility functions.
 </Method>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/color.json';
+import data from '../../../.vuepress/reflections/api/classes/color.json';
 </script>

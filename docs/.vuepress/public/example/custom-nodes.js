@@ -24,5 +24,5 @@ if (!window.TimerNode) {
     process() {}
   };
 
-  FlowConnect.register({ type: "node", name: "custom/timer-node" }, window.TimerNode);
+  FC.FlowConnect.register({ type: "node", name: "custom/timer-node" }, window.TimerNode);
 }

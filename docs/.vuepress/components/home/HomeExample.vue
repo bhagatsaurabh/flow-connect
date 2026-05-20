@@ -149,7 +149,7 @@ export default {
     },
     themeChanged() {
       this.lastTheme = document.querySelector("html").className;
-      document.querySelector(".home .hero img").src = this.lastTheme.includes("dark")
+      document.querySelector(".vp-home .vp-hero img").src = this.lastTheme.includes("dark")
         ? this.loadedDarkHeroImage || "images/hero-dark.png"
         : this.loadedLightHeroImage || "images/hero.png";
 
@@ -191,6 +191,7 @@ export default {
   height: calc(var(--navbar-height) * 8.5);
   z-index: -1;
 }
+
 .home-example-graph-controls {
   z-index: 1;
   top: 0;
@@ -208,12 +209,15 @@ export default {
   background-color: #ffffff55;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
 .home-example-graph-controls div {
   padding-left: 0.7rem;
 }
+
 .home-example-graph-controls .graph-control-button:first-child .graph-control-button-text {
   display: none;
 }
+
 @media (max-width: 419px) {
   .home-example-container {
     position: relative;
@@ -222,6 +226,7 @@ export default {
     height: 60vh;
     z-index: 1;
   }
+
   .home-example {
     box-shadow: 0 0 10px grey;
   }

@@ -19,7 +19,7 @@ describe("Color", () => {
       expect(color).toBeInstanceOf(Color);
       expect(color.rgbaString).toStrictEqual(`${rgba[0]}:${rgba[1]}:${rgba[2]}:${rgba[3]}`);
       expect(color.rgbaCSSString).toStrictEqual(
-        `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${(rgba[3] / 255).toFixed(3)})`
+        `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${(rgba[3] / 255).toFixed(3)})`,
       );
       expect(color.hexValue).toStrictEqual(`#${toHex(rgba[0]) + toHex(rgba[1]) + toHex(rgba[2]) + toHex(rgba[3])}`);
     });

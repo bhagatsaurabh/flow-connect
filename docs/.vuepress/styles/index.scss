@@ -162,21 +162,21 @@ html.dark {
   font-weight: bold;
 }
 
-.home {
+.vp-home {
   margin-left: 0;
   max-width: 100%;
   position: relative;
   z-index: 1;
 }
-.home .hero {
+.vp-home .vp-hero {
   text-align: left;
   pointer-events: none;
 }
-.home .hero img {
+.vp-home .vp-hero img {
   margin: 3rem 0 1.5rem 0;
   opacity: 0.93;
 }
-.home .hero .description {
+.vp-home .vp-hero .vp-hero-description {
   margin-left: 0;
 }
 
@@ -214,11 +214,6 @@ div[class*="language-"] {
 }
 .code-block pre {
   margin-top: 0 !important;
-}
-.code-group {
-  transition: box-shadow 0.3s ease;
-  box-shadow: 0 0 20px var(--c-block-shadow);
-  border-radius: 6px;
 }
 
 .no-border-radius {
@@ -286,24 +281,21 @@ article {
 }
 
 @media (max-width: 419px) {
-  .home {
+  .vp-home {
     margin-left: auto;
     max-width: var(--homepage-width);
   }
-  .home .hero {
+  .vp-home .vp-hero {
     text-align: center;
   }
-  .home .hero img {
+  .vp-home .vp-hero img {
     margin: 3rem auto 1.5rem;
   }
-  .home .hero .description {
+  .vp-home .vp-hero .vp-hero-description {
     margin-left: auto;
   }
   .code-block div {
     margin: 0 !important;
-  }
-  .code-group {
-    border-radius: 0;
   }
   .border-radius {
     border-radius: 0 !important;

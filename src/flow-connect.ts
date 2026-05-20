@@ -369,7 +369,7 @@ export class FlowConnect extends Hooks {
       width: "100%",
       height: "100%",
     });
-    this._context = this.canvas.getContext("2d");
+    this._context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
   }
   /** Creates additional canvases for rendering color hit-maps */
   private setupHitCanvas() {
@@ -382,9 +382,15 @@ export class FlowConnect extends Hooks {
       this.offUICanvas = document.createElement("canvas");
       this.offGroupCanvas = document.createElement("canvas");
     }
-    this._offContext = this.offCanvas.getContext("2d", { willReadFrequently: true });
-    this._offUIContext = this.offUICanvas.getContext("2d", { willReadFrequently: true });
-    this._offGroupContext = this.offGroupCanvas.getContext("2d", { willReadFrequently: true });
+    this._offContext = this.offCanvas.getContext("2d", { willReadFrequently: true }) as
+      | OffscreenCanvasRenderingContext2D
+      | CanvasRenderingContext2D;
+    this._offUIContext = this.offUICanvas.getContext("2d", { willReadFrequently: true }) as
+      | OffscreenCanvasRenderingContext2D
+      | CanvasRenderingContext2D;
+    this._offGroupContext = this.offGroupCanvas.getContext("2d", { willReadFrequently: true }) as
+      | OffscreenCanvasRenderingContext2D
+      | CanvasRenderingContext2D;
   }
   private attachStyles() {
     this.canvas.style.touchAction = "none";

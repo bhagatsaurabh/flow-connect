@@ -97,6 +97,7 @@ export default {
   max-width: 80vw;
   margin: auto;
 }
+
 .feature {
   padding-left: 0;
   padding-right: 0;
@@ -107,6 +108,7 @@ export default {
     flex-direction: column;
   }
 }
+
 @media (max-width: 700px) {
   .features {
     max-width: 90vw;

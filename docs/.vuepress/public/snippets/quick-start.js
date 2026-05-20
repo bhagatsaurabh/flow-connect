@@ -28,7 +28,7 @@ class CustomTimerNode extends Node {
 }
 
 /* Register this new custom node with a unique name */
-FlowConnect.register({ type: "node", name: "my-custom/timer-node" }, CustomTimerNode);
+FC.FlowConnect.register({ type: "node", name: "my-custom/timer-node" }, CustomTimerNode);
 
 /* Create new node using previously registered node type */
 let timerNode = flow.createNode("my-custom/timer-node", Vector.create(45, 7), { width: 500 });

@@ -194,5 +194,5 @@ If a new NodeButton needs to be added to the Node, but you don't want to use thi
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/node-button.json';
+import data from '../../../.vuepress/reflections/api/classes/node-button.json';
 </script>

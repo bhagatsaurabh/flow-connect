@@ -76,7 +76,7 @@ export class Slider2D extends UINode<Slider2DStyle> {
       this.offThumbCanvas.width = this.width;
       this.offThumbCanvas.height = this.height;
     }
-    this.offThumbContext = this.offThumbCanvas.getContext("2d");
+    this.offThumbContext = this.offThumbCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
     this.renderOffThumb();
   }
 

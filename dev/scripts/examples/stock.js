@@ -20,7 +20,7 @@ class DataExtractNode extends Node {
     });
   }
 }
-FlowConnect.register({ type: "node", name: "custom/data-extract" }, DataExtractNode);
+FC.FlowConnect.register({ type: "node", name: "custom/data-extract" }, DataExtractNode);
 
 let flow = flowConnect.createFlow({
   name: "Stock Flow",

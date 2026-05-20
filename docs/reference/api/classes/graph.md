@@ -154,5 +154,5 @@ A directed acyclic graph containing references to all <Ref to="./node">Nodes</Re
 </Method>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/graph.json';
+import data from '../../../.vuepress/reflections/api/classes/graph.json';
 </script>

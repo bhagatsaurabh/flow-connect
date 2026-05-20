@@ -10,10 +10,8 @@ tests/
 .editorconfig
 .firebaserc
 .gitignore
-babel.config.js
 firebase.json
 index-mob.html
-jest.config.js
 tsconfig.json
 webpack.common.js
 webpack.dev.js

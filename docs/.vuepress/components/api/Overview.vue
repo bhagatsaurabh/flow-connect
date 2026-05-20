@@ -61,6 +61,7 @@ export default {
   column-gap: 3rem;
   list-style: none;
 }
+
 .list li a {
   white-space: nowrap;
 }
@@ -70,6 +71,7 @@ export default {
     column-count: 2;
   }
 }
+
 @media (max-width: 490px) {
   .list {
     column-count: 1;

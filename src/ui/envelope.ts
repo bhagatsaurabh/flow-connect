@@ -73,7 +73,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
       this.offPointsCanvas.width = this.width;
       this.offPointsCanvas.height = this.height;
     }
-    this.offPointsContext = this.offPointsCanvas.getContext("2d");
+    this.offPointsContext = this.offPointsCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 
     this.handleEnvelopeChange(this.getProp() ?? values);
   }

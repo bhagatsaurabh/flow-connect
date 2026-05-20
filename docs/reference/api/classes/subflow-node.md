@@ -97,5 +97,5 @@ All Properties, Accessors, Methods and Events <Icon type="inherited" class="ml-0
 </Method>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/subflow-node.json';
+import data from '../../../.vuepress/reflections/api/classes/subflow-node.json';
 </script>

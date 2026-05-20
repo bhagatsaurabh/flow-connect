@@ -165,5 +165,5 @@ You can also register and listen to your custom events.
 </Method>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/hooks.json';
+import data from '../../../.vuepress/reflections/api/classes/hooks.json';
 </script>

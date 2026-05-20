@@ -1111,5 +1111,5 @@ node.setOutputs({
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/node.json';
+import data from '../../../.vuepress/reflections/api/classes/node.json';
 </script>

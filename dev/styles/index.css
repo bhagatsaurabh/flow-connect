@@ -27,7 +27,7 @@ body {
 }
 .gutter {
   background-color: #dedede;
-  box-shadow: 0 0 5px 0px gray;
+  box-shadow: 0 0 4px 0px gray;
   border: 1px solid;
 }
 .gutter-horizontal {
@@ -64,7 +64,7 @@ body {
   margin-right: 1em;
 }
 .control-button:hover {
-  box-shadow: 0 0 5px 0 gray;
+  box-shadow: 0 0 4px 0 gray;
 }
 img {
   width: 100%;

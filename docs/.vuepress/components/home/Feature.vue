@@ -62,33 +62,41 @@ export default {
 .align-right {
   text-align: right;
 }
+
 .feature-container {
   width: 100%;
   margin-bottom: 3rem;
 }
+
 .feature-title {
   margin-top: 5rem;
 }
+
 .feature-title h2 {
   font-size: 1.7rem;
   border-bottom: none;
   padding-bottom: 0;
 }
+
 .feature-desc h5 {
   margin-bottom: 1.5rem;
   max-width: 60vw;
 }
+
 .feature-desc.align-right h5 {
   margin-left: auto;
 }
+
 .feature-live {
   margin-bottom: 1rem;
 }
+
 .feature-live-control {
   height: calc(2rem - 2.5px);
   border-bottom: 5px solid var(--c-text);
   transition: border-bottom 0.3s ease;
 }
+
 .control-icon {
   z-index: 1;
   margin: auto;
@@ -105,18 +113,20 @@ export default {
   background-image: url("/images/expand-icon.png");
   cursor: pointer;
   transition: box-shadow 0.3s ease, transform 0.3s ease, border 0.3s ease;
-  box-shadow: 0 0 20px var(--c-block-shadow);
+  box-shadow: 0 0 20px -5px var(--c-block-shadow);
 }
+
 .control-icon.flip {
   transform: rotateX(180deg);
 }
+
 .feature-live-content {
   max-height: 0;
   min-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out, min-height 0.2s ease-out;
   background-color: #f1f1f1;
-  box-shadow: 0 0 20px var(--c-block-shadow);
+  box-shadow: 0 0 20px -5px var(--c-block-shadow);
 }
 
 @media (max-width: 419px) {
@@ -124,15 +134,18 @@ export default {
     margin-left: -1.5rem;
     margin-right: -1.5rem;
   }
+
   .feature-desc h5 {
     max-width: 100vw;
   }
 }
+
 @media (max-width: 700px) {
   .feature-live {
     margin-left: -1.5rem;
     margin-right: -1.5rem;
   }
+
   .feature-desc h5 {
     max-width: 70vw;
   }

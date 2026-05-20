@@ -44,7 +44,7 @@ export class Display extends UINode<DisplayStyle> {
           offCanvas = new OffscreenCanvas(this.node.width - 2 * this.node.style.padding, this.height);
         }
 
-        offContext = offCanvas.getContext("2d");
+        offContext = offCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
         newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true };
         this.displayConfigs.push(newOffCanvasConfig);
       });
@@ -54,7 +54,7 @@ export class Display extends UINode<DisplayStyle> {
         offCanvas.width = this.node.width - 2 * this.node.style.padding;
         offCanvas.height = this.height;
 
-        const offContext = offCanvas.getContext("2d");
+        const offContext = offCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
         const newOffCanvasConfig = { canvas: offCanvas, context: offContext, rendererConfig, shouldRender: true };
         this.displayConfigs.push(newOffCanvasConfig);
       });

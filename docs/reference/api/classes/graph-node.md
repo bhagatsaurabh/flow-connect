@@ -117,5 +117,5 @@ The execution <Ref to="./graph">Graph</Ref> creates and maintains these graph no
 </Method>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/graph-node.json';
+import data from '../../../.vuepress/reflections/api/classes/graph-node.json';
 </script>
