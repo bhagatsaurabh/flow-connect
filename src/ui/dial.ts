@@ -201,9 +201,9 @@ const DefaultDialStyle = (): DialStyle => ({
 });
 
 export interface DialOptions extends UINodeOptions<DialStyle> {
-  height: number;
-  min: number;
-  max: number;
+  height?: number;
+  min?: number;
+  max?: number;
   value?: number;
 }
 const DefaultDialOptions = (node: Node): DialOptions => ({

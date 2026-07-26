@@ -7,18 +7,18 @@ import { Node, NodeState } from "./node.js";
 import { Hooks } from "./hooks.js";
 
 export class Connector extends Hooks implements Serializable<SerializedConnector>, Renderable {
-  renderer: Renderer<Connector, ConnectorRenderParams> = () => null;
+  renderer: Renderer<Connector, ConnectorRenderParams> = () => () => undefined;
 
-  flow: Flow;
-  id: string;
-  start: Terminal;
-  end: Terminal;
-  startNode: Node;
-  endNode: Node;
-  style: ConnectorStyle;
+  flow?: Flow;
+  id?: string;
+  start?: Terminal;
+  end?: Terminal;
+  startNode?: Node;
+  endNode?: Node;
+  style?: ConnectorStyle;
 
   _data: any;
-  floatingTip: Vector;
+  floatingTip?: Vector;
 
   get data(): any {
     return this._data;
@@ -26,8 +26,8 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
   set data(data: any) {
     this.setData(data);
 
-    if (this.flow.state !== FlowState.Stopped) {
-      this.flow.executionGraph.setDirty(this.endNode);
+    if (this.flow?.state !== FlowState.Stopped && this.endNode) {
+      this.flow?.executionGraph.setDirty(this.endNode);
     }
   }
 
@@ -39,7 +39,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
     flow: Flow,
     start: Terminal,
     end: Terminal,
-    options: ConnectorOptions = DefaultConnectorOptions()
+    options: ConnectorOptions = DefaultConnectorOptions(),
   ): Connector {
     const connector = new Connector();
 
@@ -59,7 +59,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
     connector.endNode = connector.end?.node;
 
     if (start && end) {
-      connector.floatingTip = null;
+      connector.floatingTip = undefined;
 
       start.connectors.push(connector);
       if (end.connectors.length > 0) {
@@ -79,15 +79,19 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
 
   disconnect(): void {
     let [startTerm, endTerm] = [this.start, this.end];
-    this.flow.removeConnector(this.id);
-    this.start.connectors.splice(
+    if (this.id) {
+      this.flow?.removeConnector(this.id);
+    }
+    this.start?.connectors.splice(
       this.start.connectors.findIndex((cntr) => cntr.id === this.id),
-      1
+      1,
     );
-    this.end.connectors.pop();
-    this.flow.executionGraph.disconnect(startTerm.node, endTerm.node);
-    this.start.onDisconnect(this, startTerm, endTerm);
-    this.end.onDisconnect(this, startTerm, endTerm);
+    this.end?.connectors.pop();
+    if (startTerm && endTerm) {
+      this.flow?.executionGraph.disconnect(startTerm.node, endTerm.node);
+    }
+    this.start?.onDisconnect(this, startTerm, endTerm);
+    this.end?.onDisconnect(this, startTerm, endTerm);
   }
   setData(data: any) {
     this._data = data;
@@ -96,7 +100,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
   canConnect(other: Terminal): boolean {
     let firstTerminal = !this.start ? this.end : this.start;
     let source, destination;
-    if (firstTerminal.type === TerminalType.IN) {
+    if (firstTerminal?.type === TerminalType.IN) {
       source = other;
       destination = firstTerminal;
     } else {
@@ -104,31 +108,41 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
       destination = other;
     }
 
-    return canConnect(source, destination, this.flow.rules, this.flow.executionGraph);
+    if (this.flow && source) {
+      return canConnect(source, destination, this.flow.rules, this.flow.executionGraph);
+    }
+    return false;
   }
 
   render() {
-    let context = this.flow.flowConnect.context;
-    context.save();
-    const scopeFlowConnect = this.flow.flowConnect.getRegisteredRenderer("connector");
-    const scopeFlow = this.flow.renderers.connector;
+    let context = this.flow?.flowConnect.context;
+    context?.save();
+    const scopeFlowConnect = this.flow?.flowConnect.getRegisteredRenderer("connector");
+    const scopeFlow = this.flow?.renderers.connector;
     const scopeConnector = this.renderer;
     const renderFn =
       (scopeConnector && scopeConnector(this)) ||
       (scopeFlow && scopeFlow(this)) ||
       (scopeFlowConnect && scopeFlowConnect(this)) ||
       this._render;
-    renderFn(context, this.getRenderParams(), this);
-    context.restore();
 
-    let offContext = this.flow.flowConnect.offContext;
-    offContext.save();
+    if (context) {
+      renderFn(context, this.getRenderParams(), this);
+    }
+    context?.restore();
+
+    let offContext = this.flow?.flowConnect.offContext;
+    offContext?.save();
     this._offRender();
-    offContext.restore();
+    offContext?.restore();
 
     this.call("render", this);
   }
   private _render(context: CanvasRenderingContext2D, params: ConnectorRenderParams, connector: Connector) {
+    if (!params.start || !params.end) {
+      return;
+    }
+
     let ax = params.start.x,
       ay = params.start.y,
       dx = params.end.x,
@@ -141,9 +155,13 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
     let [cx, cy] = [dx - offset, dy];
     let [midx, midy] = [(bx + cx) / 2, (by + cy) / 2];
 
-    if (connector.style.border) {
-      context.strokeStyle = connector.style.borderColor;
-      context.lineWidth = connector.style.width + 2;
+    if (connector.style?.border) {
+      if (connector.style.borderColor) {
+        context.strokeStyle = connector.style.borderColor;
+      }
+      if (typeof connector.style.width === "number") {
+        context.lineWidth = connector.style.width + 2;
+      }
       context.beginPath();
       context.moveTo(ax, ay);
       context.quadraticCurveTo(bx, by, midx, midy);
@@ -152,8 +170,12 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
       context.stroke();
     }
 
-    context.strokeStyle = connector.style.color;
-    context.lineWidth = connector.style.width;
+    if (connector.style?.color) {
+      context.strokeStyle = connector.style.color;
+    }
+    if (typeof connector.style?.width === "number") {
+      context.lineWidth = connector.style.width;
+    }
     context.beginPath();
     context.moveTo(ax, ay);
     context.quadraticCurveTo(bx, by, midx, midy);
@@ -165,23 +187,26 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
     /**/
   }
   private getRenderParams(): ConnectorRenderParams {
-    let start: SerializedVector, end: SerializedVector;
+    let start: SerializedVector | undefined, end: SerializedVector | undefined;
     if (this.start) {
       if (this.startNode.renderState.nodeState === NodeState.MAXIMIZED) start = this.start.position.serialize();
       else {
         start = this.startNode.position.serialize();
-        start.x += this.startNode.width + this.startNode.style.terminalStripMargin + this.start.style.radius;
-        start.y += this.startNode.style.titleHeight / 2;
+        start.x +=
+          this.startNode.width + (this.startNode.style.terminalStripMargin ?? 0) + (this.start.style.radius ?? 0);
+        start.y += (this.startNode.style.titleHeight ?? 0) / 2;
       }
-    } else start = this.floatingTip.serialize();
+    } else {
+      start = this.floatingTip?.serialize();
+    }
     if (this.end) {
       if (this.endNode.renderState.nodeState === NodeState.MAXIMIZED) end = this.end.position.serialize();
       else {
         end = this.endNode.position.serialize();
-        end.x -= this.endNode.style.terminalStripMargin + this.end.style.radius;
-        end.y += this.endNode.style.titleHeight / 2;
+        end.x -= (this.endNode.style.terminalStripMargin ?? 0) + (this.end.style.radius ?? 0);
+        end.y += (this.endNode.style.titleHeight ?? 0) / 2;
       }
-    } else end = this.floatingTip.serialize();
+    } else end = this.floatingTip?.serialize();
 
     return { start, end };
   }
@@ -189,22 +214,22 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
   serialize(): SerializedConnector {
     return {
       id: this.id,
-      startId: this.start.ui ? this.startNode.outputsUI.findIndex((term) => this.start === term) : this.start.id,
-      endId: this.end.ui ? this.endNode.inputsUI.findIndex((term) => this.end === term) : this.end.id,
-      startNodeId: this.startNode.id,
-      endNodeId: this.endNode.id,
+      startId: this.start?.ui ? this.startNode?.outputsUI.findIndex((term) => this.start === term) : this.start?.id,
+      endId: this.end?.ui ? this.endNode?.inputsUI.findIndex((term) => this.end === term) : this.end?.id,
+      startNodeId: this.startNode?.id,
+      endNodeId: this.endNode?.id,
       style: this.style,
     };
   }
 }
 
 export interface SerializedConnector {
-  startNodeId: string;
-  endNodeId: string;
-  startId: string | number;
-  endId: string | number;
-  id: string;
-  style: ConnectorStyle;
+  startNodeId?: string;
+  endNodeId?: string;
+  startId?: string | number;
+  endId?: string | number;
+  id?: string;
+  style?: ConnectorStyle;
 }
 
 export interface ConnectorStyle {
@@ -235,6 +260,6 @@ let DefaultConnectorOptions = (): ConnectorOptions => {
 };
 
 export interface ConnectorRenderParams {
-  start: SerializedVector;
-  end: SerializedVector;
+  start?: SerializedVector;
+  end?: SerializedVector;
 }

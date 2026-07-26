@@ -99,15 +99,7 @@ npm run build
 or
 
 ```bash
-npm run build:cjs
-```
-
-```bash
 npm run build:esm
-```
-
-```bash
-npm run build:umd
 ```
 
 <br/>

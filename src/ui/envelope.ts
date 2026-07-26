@@ -73,7 +73,9 @@ export class Envelope extends UINode<EnvelopeStyle> {
       this.offPointsCanvas.width = this.width;
       this.offPointsCanvas.height = this.height;
     }
-    this.offPointsContext = this.offPointsCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+    this.offPointsContext = this.offPointsCanvas.getContext("2d") as
+      | OffscreenCanvasRenderingContext2D
+      | CanvasRenderingContext2D;
 
     this.handleEnvelopeChange(this.getProp() ?? values);
   }
@@ -115,7 +117,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
       Vector.create(node.data.x, 1 - node.data.y)
         .multiplyInPlace(width, height)
         .addInPlace(this.position)
-        .addInPlace(this.style.pointDiameter / 2)
+        .addInPlace(this.style.pointDiameter / 2),
     );
 
     if (points.length > 0) {
@@ -159,13 +161,13 @@ export class Envelope extends UINode<EnvelopeStyle> {
     if (this.input) {
       this.input.position.assign(
         this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
         this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -184,7 +186,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
         this.position.x + this.style.pointDiameter / 2,
         this.position.x + this.width - this.style.pointDiameter / 2,
         this.position.y + this.style.pointDiameter / 2,
-        this.position.y + this.height - this.style.pointDiameter / 2
+        this.position.y + this.height - this.style.pointDiameter / 2,
       )
       .subtractInPlace(this.position.add(this.style.pointDiameter / 2))
       .clampInPlace(0, width, 0, height)
@@ -207,7 +209,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
     let newPointNode;
     let anchor = this._value.searchTail((node) => node.data.x <= newPoint.x);
 
-    if (anchor === null) newPointNode = this._value.prepend(newPoint);
+    if (!anchor) newPointNode = this._value.prepend(newPoint);
     else newPointNode = this._value.addAfter(newPoint, anchor);
 
     this.pointHitColorPoint.set(Color.Random().hexValue, newPointNode);
@@ -241,8 +243,8 @@ export class Envelope extends UINode<EnvelopeStyle> {
     this.output && this.output.setData(newVal);
   }
 
-  private currHitPoint: ListNode<Vector>;
-  private lastDownPosition: Vector;
+  private currHitPoint?: ListNode<Vector>;
+  private lastDownPosition?: Vector;
   onDown(event: UIEvent): void {
     this.currHitPoint = this.getHitPoint(event.realPos);
     this.lastDownPosition = event.realPos;
@@ -265,8 +267,8 @@ export class Envelope extends UINode<EnvelopeStyle> {
       if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, null, this._value.toArray());
     }
 
-    this.currHitPoint = null;
-    this.lastDownPosition = null;
+    this.currHitPoint = undefined;
+    this.lastDownPosition = undefined;
   }
   onDrag(event: UIEvent): void {
     if (this.currHitPoint) this.movePoint(event.realPos);
@@ -276,8 +278,8 @@ export class Envelope extends UINode<EnvelopeStyle> {
       this.movePoint(event.realPos);
       if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, null, this._value.toArray());
     }
-    this.currHitPoint = null;
-    this.lastDownPosition = null;
+    this.currHitPoint = undefined;
+    this.lastDownPosition = undefined;
   }
 }
 
@@ -299,7 +301,7 @@ const DefaultEnvelopeStyle = (): EnvelopeStyle => ({
 });
 
 export interface EnvelopeOptions extends UINodeOptions<EnvelopeStyle> {
-  height: number;
+  height?: number;
   values?: Vector[];
 }
 const DefaultEnvelopeOptions = (): EnvelopeOptions => ({

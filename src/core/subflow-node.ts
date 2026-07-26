@@ -84,7 +84,7 @@ export class SubFlowNode extends Node {
 }
 
 export interface SubFlowNodeOptions extends NodeOptions {
-  subFlow: Flow;
+  subFlow?: Flow;
 }
 
 export interface SerializedSubFlowNode extends SerializedNode {

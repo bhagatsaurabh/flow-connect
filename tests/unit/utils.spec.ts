@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { clamp, denormalize, getRandom, normalize } from "../../src/utils/utils";
 
 describe("Utils", () => {

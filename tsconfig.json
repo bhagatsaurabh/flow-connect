@@ -3,19 +3,17 @@
   "compileOnSave": false,
   "compilerOptions": {
     "target": "es6",
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "rootDir": "src",
-    "ignoreDeprecations": "6.0",
-    "strict": false,
-    "strictNullChecks": false,
-    "strictPropertyInitialization": false,
-    "lib": ["ES2020", "DOM"],
+    "lib": ["es6", "DOM"],
     "types": ["node"],
-    "skipLibCheck": true,
     "noImplicitAny": true,
     "removeComments": true,
-    "preserveConstEnums": true,
-    "sourceMap": false
+    "sourceMap": false,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*.ts"]
 }

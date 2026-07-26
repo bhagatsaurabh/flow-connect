@@ -162,8 +162,8 @@ const DefaultSliderStyle = (node: Node, height: number): SliderStyle => ({
 });
 
 export interface SliderOptions extends UINodeOptions<SliderStyle> {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   value?: number;
 }
 const DefaultSliderOptions = (node: Node): SliderOptions => ({

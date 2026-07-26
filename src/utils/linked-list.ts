@@ -1,18 +1,21 @@
 import { Hooks } from "../core/hooks.js";
 
 export class List<T> extends Hooks {
-  head: ListNode<T> = null;
-  tail: ListNode<T> = null;
+  head?: ListNode<T>;
+  tail?: ListNode<T>;
   length: number = 0;
 
-  constructor(public comparator?: (a: T, b: T) => number, source?: Array<T>) {
+  constructor(
+    public comparator?: (a: T, b: T) => number,
+    source?: Array<T>,
+  ) {
     super();
     if (source) source.forEach((value) => this.append(value));
   }
 
   prepend(data: T) {
     let newNode = new ListNode(data);
-    if (this.head === null) {
+    if (!this.head) {
       this.head = newNode;
       this.tail = newNode;
     } else {
@@ -27,7 +30,7 @@ export class List<T> extends Hooks {
   }
   append(data: T | ListNode<T>) {
     let newNode = data instanceof ListNode ? data : new ListNode(data);
-    if (this.tail === null) {
+    if (!this.tail) {
       this.head = newNode;
       this.tail = newNode;
     } else {
@@ -40,16 +43,18 @@ export class List<T> extends Hooks {
     this.call("append", this, newNode);
     return newNode;
   }
-  removeFirst(hook: boolean = true): T {
+  removeFirst(hook: boolean = true): T | undefined {
     let removed;
-    if (this.head === null) return null;
+    if (!this.head) return;
     else if (this.length === 1) {
       removed = this.head.data;
-      this.head = null;
-      this.tail = null;
+      this.head = undefined;
+      this.tail = undefined;
     } else {
       removed = this.head.data;
-      this.head.next.prev = null;
+      if (this.head.next) {
+        this.head.next.prev = undefined;
+      }
       this.head = this.head.next;
     }
 
@@ -57,16 +62,18 @@ export class List<T> extends Hooks {
     if (hook) this.call("removefirst", this, removed);
     return removed;
   }
-  removeLast(): T {
+  removeLast(): T | undefined {
     let removed;
-    if (this.tail === null) return null;
+    if (!this.tail) return;
     else if (this.length === 1) {
       removed = this.tail.data;
-      this.head = null;
-      this.tail = null;
+      this.head = undefined;
+      this.tail = undefined;
     } else {
       removed = this.tail.data;
-      this.tail.prev.next = null;
+      if (this.tail.prev) {
+        this.tail.prev.next = undefined;
+      }
       this.tail = this.tail.prev;
     }
 
@@ -98,8 +105,8 @@ export class List<T> extends Hooks {
   }
   delete(node: ListNode<T>) {
     if (this.length === 1) {
-      this.head = null;
-      this.tail = null;
+      this.head = undefined;
+      this.tail = undefined;
     } else if (node === this.head) this.removeFirst();
     else if (node === this.tail) this.removeLast();
     else {
@@ -108,41 +115,41 @@ export class List<T> extends Hooks {
       this.length -= 1;
     }
   }
-  searchHead(callback: (node: ListNode<T>) => boolean): ListNode<T> {
+  searchHead(callback: (node: ListNode<T>) => boolean): ListNode<T> | undefined {
     let curr = this.head;
-    while (curr !== null) {
+    while (curr) {
       if (callback(curr)) return curr;
       curr = curr.next;
     }
-    return null;
+    return;
   }
-  searchTail(callback: (node: ListNode<T>) => boolean): ListNode<T> {
+  searchTail(callback: (node: ListNode<T>) => boolean): ListNode<T> | undefined {
     let curr = this.tail;
-    while (curr !== null) {
+    while (curr) {
       if (callback(curr)) return curr;
       curr = curr.prev;
     }
-    return null;
+    return;
   }
-  get(index: number): T {
-    if (index >= this.length) return null;
-    else if (index === 0) return this.head ? this.head.data : null;
-    else if (index === this.length - 1) return this.tail ? this.tail.data : null;
+  get(index: number): T | undefined {
+    if (index >= this.length) return;
+    else if (index === 0) return this.head ? this.head.data : undefined;
+    else if (index === this.length - 1) return this.tail ? this.tail.data : undefined;
     else {
       let count = 0;
       let curr = this.head;
-      while (curr !== null) {
+      while (curr) {
         if (count === index) return curr.data;
         count += 1;
         curr = curr.next;
       }
-      return null;
+      return;
     }
   }
 
   forEach(callback: (node: ListNode<T>) => void) {
     let curr = this.head;
-    while (curr !== null) {
+    while (curr) {
       callback(curr);
       curr = curr.next;
     }
@@ -154,7 +161,7 @@ export class List<T> extends Hooks {
   }
   toArray(): T[] {
     let data: T[] = [];
-    this.forEach((node) => data.push(node.data));
+    this.forEach((node) => node.data && data.push(node.data));
     return data;
   }
   toString(): string {
@@ -163,13 +170,13 @@ export class List<T> extends Hooks {
 }
 
 export class ListNode<T> {
-  prev: ListNode<T>;
-  next: ListNode<T>;
-  data: T;
+  prev?: ListNode<T>;
+  next?: ListNode<T>;
+  data?: T;
 
   constructor(data?: T) {
-    this.prev = null;
-    this.next = null;
-    this.data = data ? data : null;
+    this.prev = undefined;
+    this.next = undefined;
+    this.data = data ? data : undefined;
   }
 }

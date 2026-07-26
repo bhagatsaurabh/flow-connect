@@ -68,7 +68,7 @@ export interface Serializable<T> {
   serialize(persist?: DataPersistenceProvider): Promise<T> | T;
 }
 export type RenderFn<T, P> = (context: CanvasRenderingContext2D, params: P, target: T) => void;
-export type Renderer<T, P> = (instance: T) => RenderFn<T, P>;
+export type Renderer<T, P> = (instance: T) => RenderFn<T, P | undefined>;
 
 export interface NodeRenderers {
   node?: Renderer<Node, NodeRenderParams>;

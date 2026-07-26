@@ -48,7 +48,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     this.bindToProp(propName);
   }
 
-  renderer: Renderer<Terminal, TerminalRenderParams> = () => null;
+  renderer: Renderer<Terminal, TerminalRenderParams> = () => () => undefined;
 
   private constructor() {
     super();
@@ -62,7 +62,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     node: Node,
     type: TerminalType,
     dataType: string,
-    options: TerminalOptions = DefaultTerminalOptions()
+    options: TerminalOptions = DefaultTerminalOptions(),
   ): Terminal {
     const terminal = new Terminal();
 
@@ -108,7 +108,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       return;
     }
     if (this.connectors.length > 0) return this.connectors[0].data;
-    return null;
+    return;
   }
   setData(data: any) {
     if (this.type === TerminalType.IN) {
@@ -248,7 +248,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       this.position.y,
       this.style.radius + this.node.style.terminalStripMargin,
       0,
-      Constant.TAU
+      Constant.TAU,
     );
     context.fillStyle = this.hitColor.rgbaCSSString;
     context.fill();
@@ -265,7 +265,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     this.focus = true;
     this.node.flow.flowConnect.cursor = "pointer";
   }
-  onExit(screenPosition: Vector, realPosition: Vector): void {
+  onExit(screenPosition?: Vector, realPosition?: Vector): void {
     this.call("exit", this, screenPosition, realPosition);
 
     this.focus = false;
@@ -277,7 +277,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
         const start = this.connectors[0].start;
         this.disconnect();
         this.node.flow.setFloatingConnector(realPosition, start, "left");
-        this.node.currHitTerminal = null;
+        this.node.currHitTerminal = undefined;
       } else {
         if (this.node.flow.floatingConnector) return;
         this.node.flow.setFloatingConnector(realPosition, this, "left");

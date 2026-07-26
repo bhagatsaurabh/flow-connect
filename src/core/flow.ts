@@ -25,22 +25,22 @@ import { Log } from "../utils/logger.js";
  *  ![](media://example.png)
  */
 export class Flow extends Hooks implements Serializable<SerializedFlow> {
-  name: string;
-  id: string;
-  rules: Rules;
-  ruleColors: RuleColors;
+  name?: string;
+  id?: string;
+  rules?: Rules;
+  ruleColors?: RuleColors;
   sortedNodes: AVLTree<Node>;
   nodes: Map<string, Node>;
   groups: Group[];
   connectors: Map<string, Connector>;
-  floatingConnector: Connector;
+  floatingConnector?: Connector;
   inputs: TunnelNode[];
   outputs: TunnelNode[];
   get state(): FlowState {
     return this.executionGraph.state;
   }
   globalEvents: Hooks = new Hooks();
-  parentFlow: Flow = null;
+  parentFlow?: Flow;
 
   nodeHitColors: Map<string, Node>;
   groupHitColors: Map<string, Group>;
@@ -60,7 +60,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     this.groupHitColors = new Map();
     this.sortedNodes = new AVLTree(
       (a: Node, b: Node) => a.zIndex - b.zIndex,
-      (node: Node) => node.id
+      (node: Node) => node.id,
     );
     this.inputs = [];
     this.outputs = [];
@@ -115,10 +115,10 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     this.call(`add-${type}`, this, ioNode);
     return ioNode;
   }
-  addSubFlow(subFlow: Flow, position: Vector = Vector.Zero()): SubFlowNode {
+  addSubFlow(subFlow: Flow, position: Vector = Vector.Zero()): SubFlowNode | undefined {
     if (subFlow.parentFlow) {
       Log.error("Provided flow is already a sub-flow, a sub-flow cannot have multiple parent flows");
-      return null;
+      return;
     }
 
     const node = this.createNode<SubFlowNode, SubFlowNodeOptions>("core/subflow", position, {
@@ -132,7 +132,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
   removeSubFlow(subFlow: Flow): void;
   removeSubFlow(subFlowNode: SubFlowNode): void;
   removeSubFlow(arg1: Flow | SubFlowNode): void {
-    let subFlowNode: SubFlowNode = null;
+    let subFlowNode: SubFlowNode | undefined = undefined;
     if (arg1 instanceof Flow) {
       subFlowNode = [...this.nodes.values()]
         .filter((node) => node.type === "core/subflow")
@@ -148,7 +148,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
   createNode<T extends Node = Node, O extends NodeOptions = NodeOptions>(
     type: string,
     position: Vector,
-    options: O
+    options: O,
   ): T {
     const node = Node.create<T>(type, this, position, options);
     this.addNode(node);
@@ -157,7 +157,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
   private _createNode<T extends Node = Node, O extends NodeOptions = NodeOptions>(
     type: string,
     position: Vector,
-    options: O
+    options: O,
   ): T {
     const node = Node.create<T>(type, this, position, options, true);
     this.addNode(node);
@@ -180,7 +180,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     if (node.group) {
       node.group.nodes.splice(
         node.group.nodes.findIndex((currNode) => currNode.id === node.id),
-        1
+        1,
       );
     }
 
@@ -189,7 +189,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     this.executionGraph.remove(node);
   }
   removeConnector(id: string) {
-    if (this.connectors.get(id) === this.floatingConnector) this.floatingConnector = null;
+    if (this.connectors.get(id) === this.floatingConnector) this.floatingConnector = undefined;
     this.connectors.delete(id);
   }
   removeAllFocus() {
@@ -224,8 +224,8 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
   }
 
   setFloatingConnector(floatingPos: Vector, fixedEnd: Terminal, type: string) {
-    const start = type === "left" ? fixedEnd : null;
-    const end = type === "left" ? null : fixedEnd;
+    const start = type === "left" ? fixedEnd : undefined;
+    const end = type === "left" ? undefined : fixedEnd;
 
     let connector = Connector.create(this, start, end, { floatingTip: floatingPos });
     this.connectors.set(connector.id, connector);
@@ -234,13 +234,13 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
   removeFloatingConnector(): Terminal {
     if (!this.floatingConnector) return;
 
-    let terminal = null;
+    let terminal = undefined;
     if (this.floatingConnector.start) terminal = this.floatingConnector.start;
     else terminal = this.floatingConnector.end;
 
     if (terminal.node.currHitTerminal) {
-      terminal.node.currHitTerminal.onExit(null, null);
-      terminal.node.currHitTerminal = null;
+      terminal.node.currHitTerminal.onExit();
+      terminal.node.currHitTerminal = undefined;
     }
     this.removeConnector(this.floatingConnector.id);
 
@@ -249,7 +249,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
 
   private static async deSerializeState(
     state: Record<string, any>,
-    receive?: DataFetchProvider
+    receive?: DataFetchProvider,
   ): Promise<Record<string, any>> {
     for (let key in state) {
       if (isVector(state[key])) {
@@ -260,7 +260,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
         if (receive) {
           state[key] = await receive({ ...state[key], id: (state[key].id as string).replace("raw##", "") });
         } else {
-          state[key] = null;
+          state[key] = undefined;
         }
       }
     }
@@ -273,7 +273,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     const outputs = await Promise.all(this.outputs.map((output) => output.serialize()));
     const ruleColors: SerializedRuleColors = {};
     Object.keys(this.ruleColors).forEach(
-      (key) => (ruleColors[key] = (this.ruleColors[key] ?? Color.Random()).serialize())
+      (key) => (ruleColors[key] = (this.ruleColors[key] ?? Color.Random()).serialize()),
     );
 
     return Promise.resolve<SerializedFlow>({

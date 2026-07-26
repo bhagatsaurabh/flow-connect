@@ -165,7 +165,7 @@ const DefaultSelectStyle = (): SelectStyle => ({
 });
 
 export interface SelectOptions extends UINodeOptions<SelectStyle> {
-  values: string[];
+  values?: string[];
   selected?: string;
 }
 const DefaultSelectOptions = (node: Node): SelectOptions => ({

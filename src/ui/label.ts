@@ -110,7 +110,7 @@ export class Label extends UINode<LabelStyle> {
     this.orgTextWidth = context.measureText(this.text).width;
     this.displayText = this.getBestFitString();
     let metrics = context.measureText(this.displayText);
-    context.font = null;
+    context.font = undefined;
     this.textWidth = metrics.width;
 
     this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + 5;
@@ -118,13 +118,13 @@ export class Label extends UINode<LabelStyle> {
     if (this.input) {
       this.input.position.assign(
         this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
         this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -176,7 +176,7 @@ let DefaultLabelStyle = (): LabelStyle => ({
 });
 
 export interface LabelOptions extends UINodeOptions<LabelStyle> {
-  text: string | number;
+  text?: string | number;
 }
 let DefaultLabelOptions = (): LabelOptions => ({
   text: "Label",

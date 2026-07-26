@@ -29,7 +29,7 @@ export class Graph {
     this.graphNodes.delete(data.id);
     this.nodes[0].splice(
       this.nodes[0].findIndex((node) => node.id === graphNode.id),
-      1
+      1,
     );
   }
   connect(sourceNode: Node, destinationNode: Node) {
@@ -50,7 +50,7 @@ export class Graph {
 
     let connectedEndNodes = new Set<Node>();
     sourceNode.outputs.forEach((terminal) =>
-      terminal.connectors.forEach((connector) => connector.endNode && connectedEndNodes.add(connector.endNode))
+      terminal.connectors.forEach((connector) => connector.endNode && connectedEndNodes.add(connector.endNode)),
     );
 
     if (connectedEndNodes.has(destinationNode)) return;
@@ -133,8 +133,8 @@ export class Graph {
             graphNode.flowNode.run();
             this.clearDirty(graphNode);
             resolve();
-          })
-      )
+          }),
+      ),
     );
   }
   setDirty(node: Node | GraphNode) {
@@ -183,7 +183,11 @@ export class GraphNode {
   childs: GraphNode[] = [];
   order: number;
 
-  constructor(public flowNode: Node, order?: number, id?: string) {
+  constructor(
+    public flowNode: Node,
+    order?: number,
+    id?: string,
+  ) {
     this.order = order ? order : 0;
     this.id = id ? id : uuid();
   }

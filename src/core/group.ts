@@ -8,11 +8,11 @@ import { Renderable, Renderer, Serializable } from "../common/interfaces.js";
 import { ViewPort } from "../common/enums.js";
 
 export class Group extends Hooks implements Serializable<SerializedGroup>, Renderable {
-  renderer: Renderer<Group, GroupRenderParams> = () => null;
+  renderer: Renderer<Group, GroupRenderParams> = () => () => undefined;
 
-  flow: Flow;
+  flow?: Flow;
   nodes: Node[] = [];
-  get name(): string {
+  get name(): string | undefined {
     return this._name;
   }
   set name(name: string) {
@@ -20,7 +20,7 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
     else this._name = name;
     this.computeTextMetrics();
   }
-  get position(): Vector {
+  get position(): Vector | undefined {
     return this._position;
   }
   set position(position: Vector) {
@@ -31,17 +31,17 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
 
   nodeDeltas: Vector[] = [];
 
-  hitColor: Color;
-  private textWidth: number;
-  private textHeight: number;
-  private _name: string;
+  hitColor?: Color;
+  private textWidth?: number;
+  private textHeight?: number;
+  private _name?: string;
   private renderState: ViewPort = ViewPort.INSIDE;
-  private _position: Vector;
+  private _position?: Vector;
 
-  width: number;
-  height: number;
-  style: GroupStyle;
-  id: string;
+  width?: number;
+  height?: number;
+  style?: GroupStyle;
+  id?: string;
 
   private constructor() {
     super();
@@ -75,7 +75,7 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
   }
 
   add(node: Node): boolean {
-    if (!node) return false;
+    if (!this.flow || !this.position || !node || !node.position) return false;
 
     const scale = this.flow.flowConnect.scale;
     const transform = this.flow.flowConnect.transform;
@@ -84,6 +84,7 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
     node.group = this;
     this.nodes.push(node);
     this.nodeDeltas.push(node.position.subtract(this.position));
+    return true;
   }
   remove(node: Node): boolean {
     let idx = this.nodes.findIndex((cNode) => cNode.id === node.id);
@@ -91,10 +92,21 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
 
     this.nodes.splice(idx, 1);
     this.nodeDeltas.splice(idx, 1);
-    node.group = null;
+    node.group = undefined;
     return true;
   }
   static isNodeInside(group: Group, node: Node, scale: number, transform: DOMMatrix): boolean {
+    if (
+      !node.position ||
+      !group.position ||
+      typeof group.width !== "number" ||
+      typeof group.height !== "number" ||
+      typeof node.width !== "number" ||
+      typeof node.height !== "number"
+    ) {
+      return false;
+    }
+
     let groupRealPos = group.position.transform(transform);
     let nodeRealPos = node.position.transform(transform);
 
@@ -107,11 +119,15 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
         nodeRealPos.x,
         nodeRealPos.y,
         nodeRealPos.x + node.width * scale,
-        nodeRealPos.y + node.height * scale
+        nodeRealPos.y + node.height * scale,
       ) === ViewPort.INSIDE
     );
   }
   private setHitColor(hitColor?: Color) {
+    if (!this.flow) {
+      return;
+    }
+
     if (!hitColor) {
       hitColor = Color.Random();
       while (this.flow.groupHitColors.get(hitColor.rgbaString)) hitColor = Color.Random();
@@ -120,24 +136,30 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
     this.flow.groupHitColors.set(this.hitColor.rgbaString, this);
   }
   private computeTextMetrics() {
+    if (!this.flow) {
+      return;
+    }
     let context = this.flow.flowConnect.context;
-    context.font = this.style.fontSize + " " + this.style.font;
-    let metrics = context.measureText(this.name);
+    context.font = (this.style?.fontSize ?? "") + " " + (this.style?.font ?? "");
+    let metrics = context.measureText(this.name ?? "");
     this.textWidth = metrics.width;
     metrics = context.measureText("M");
-    context.font = null;
+    context.font = "";
     this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
     if (typeof this.textHeight === "undefined") {
       let d = document.createElement("span");
       d.textContent = "M";
-      d.style.font = this.style.fontSize + " " + this.style.font;
+      d.style.font = (this.style?.fontSize ?? "") + " " + (this.style?.font ?? "");
       document.body.appendChild(d);
       this.textHeight = d.offsetHeight;
       document.body.removeChild(d);
     }
   }
   private updateRenderState() {
+    if (!this.position || !this.flow) {
+      return;
+    }
     let realPos = this.position.transform(this.flow.flowConnect.transform);
     this.renderState = intersects(
       0,
@@ -146,17 +168,20 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
       this.flow.flowConnect.canvasDimensions.height,
       realPos.x,
       realPos.y,
-      realPos.x + this.width * this.flow.flowConnect.scale,
-      realPos.y + this.height * this.flow.flowConnect.scale
+      realPos.x + (this.width ?? 0) * this.flow.flowConnect.scale,
+      realPos.y + (this.height ?? 0) * this.flow.flowConnect.scale,
     );
   }
   private recomputeNodePositions() {
     this.nodes.forEach((node, index) => {
-      node.position = this.position.add(this.nodeDeltas[index]);
+      node.position = this.position!.add(this.nodeDeltas[index]);
     });
   }
 
   render() {
+    if (!this.flow) {
+      return;
+    }
     if (this.renderState === ViewPort.OUTSIDE) return;
 
     let context = this.flow.flowConnect.context;
@@ -179,27 +204,33 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
     this.call("render", this);
   }
   private _render(context: CanvasRenderingContext2D, params: GroupRenderParams, group: Group) {
-    context.strokeStyle = group.style.borderColor;
+    context.strokeStyle = group.style?.borderColor ?? "";
     context.lineWidth = 2;
-    context.fillStyle = group.style.color;
+    context.fillStyle = group.style?.color ?? "";
     context.strokeRect(params.position.x, params.position.y, params.width, params.height);
     context.fillRect(params.position.x, params.position.y, params.width, params.height);
-    context.fillStyle = group.style.titleColor;
+    context.fillStyle = group.style?.titleColor ?? "";
     context.textBaseline = "bottom";
-    context.font = group.style.fontSize + " " + group.style.font;
-    context.fillText(group.name, params.position.x, params.position.y - 10);
+    context.font = (group.style?.fontSize ?? "") + " " + (group.style?.font ?? "");
+    context.fillText(group.name ?? "", params.position.x, params.position.y - 10);
   }
   private _offRender() {
-    this.flow.flowConnect.offGroupContext.fillStyle = this.hitColor.rgbaCSSString;
-    this.flow.flowConnect.offGroupContext.fillRect(this.position.x, this.position.y, this.width, this.height);
+    if (!this.flow || !this.position) {
+      return;
+    }
+    this.flow.flowConnect.offGroupContext.fillStyle = this.hitColor?.rgbaCSSString ?? "";
+    this.flow.flowConnect.offGroupContext.fillRect(this.position.x, this.position.y, this.width ?? 0, this.height ?? 0);
     this.flow.flowConnect.offGroupContext.fillRect(
       this.position.x,
-      this.position.y - this.textHeight - 10,
-      this.textWidth,
-      this.textHeight + 10
+      this.position.y - (this.textHeight ?? 0) - 10,
+      this.textWidth ?? 0,
+      (this.textHeight ?? 0) + 10,
     );
   }
-  private getRenderParams(): GroupRenderParams {
+  private getRenderParams(): GroupRenderParams | undefined {
+    if (!this.position || typeof this.width !== "number" || typeof this.height !== "number") {
+      return;
+    }
     return {
       position: this.position.serialize(),
       width: this.width,
@@ -208,25 +239,28 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
   }
 
   onClick(screenPosition: Vector, realPosition: Vector) {
+    if (!this.position || !this.flow) {
+      return;
+    }
     this.call("click", this, screenPosition, realPosition);
 
     let thisRealPosition = this.position.transform(this.flow.flowConnect.transform);
     if (screenPosition.y < thisRealPosition.y) {
       this.flow.flowConnect.showGenericInput(
-        thisRealPosition.subtract(0, (10 + this.textHeight) * this.flow.flowConnect.scale),
-        this.name,
+        thisRealPosition.subtract(0, (10 + (this.textHeight ?? 0)) * this.flow.flowConnect.scale),
+        this.name ?? "",
         {
-          width: Math.max(this.textWidth, 50) * this.flow.flowConnect.scale + "px",
-          height: this.textHeight * this.flow.flowConnect.scale + "px",
-          fontSize: parseInt(this.style.fontSize.replace("px", "")) * this.flow.flowConnect.scale + "px",
-          fontFamily: this.style.font,
+          width: Math.max(this.textWidth ?? 0, 50) * this.flow.flowConnect.scale + "px",
+          height: (this.textHeight ?? 0) * this.flow.flowConnect.scale + "px",
+          fontSize: parseInt(this.style?.fontSize?.replace("px", "") ?? "0") * this.flow.flowConnect.scale + "px",
+          fontFamily: this.style?.font ?? "",
         },
         {
           type: "text",
         },
         (value) => {
           this.name = value;
-        }
+        },
       );
     }
   }
@@ -234,8 +268,8 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
   serialize(): SerializedGroup {
     return {
       id: this.id,
-      hitColor: this.hitColor.serialize(),
-      position: this.position.serialize(),
+      hitColor: this.hitColor?.serialize(),
+      position: this.position?.serialize(),
       name: this.name,
       width: this.width,
       height: this.height,
@@ -246,14 +280,14 @@ export class Group extends Hooks implements Serializable<SerializedGroup>, Rende
 }
 
 export interface SerializedGroup {
-  position: SerializedVector;
-  width: number;
-  height: number;
-  name: string;
-  style: GroupStyle;
-  id: string;
-  hitColor: SerializedColor;
-  nodes: string[];
+  position?: SerializedVector;
+  width?: number;
+  height?: number;
+  name?: string;
+  style?: GroupStyle;
+  id?: string;
+  hitColor?: SerializedColor;
+  nodes?: (string | undefined)[];
 }
 
 let DefaultGroupColors = {

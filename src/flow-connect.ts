@@ -1,9 +1,9 @@
-import { Flow } from "./core/flow.js";
-import { Group } from "./core/group.js";
-import { Node } from "./core/node.js";
-import { Color } from "./core/color.js";
-import { Hooks } from "./core/hooks.js";
-import { Vector } from "./core/vector.js";
+import { Flow } from "./core/flow";
+import { Group } from "./core/group";
+import { Node, NodeStyle } from "./core/node";
+import { Color } from "./core/color";
+import { Hooks } from "./core/hooks";
+import { Vector } from "./core/vector";
 import {
   DataFetchProvider,
   DataPersistenceProvider,
@@ -17,17 +17,17 @@ import {
   PluginType,
   Plugins,
   Pointer,
-} from "./common/interfaces.js";
-import { cloneAudioBuffer, intersects, noop } from "./utils/utils.js";
-import { Log } from "./utils/logger.js";
-import { TerminalType } from "./core/terminal.js";
-import { FlowState, FlowOptions, SerializedFlow } from "./core/flow.js";
-import { ViewPort } from "./common/enums.js";
-import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets.js";
-import { TunaInitializer } from "./lib/tuna.js";
-import { EmptyNode } from "./core/empty-node.js";
-import { SubFlowNode } from "./core/subflow-node.js";
-import { TunnelNode } from "./core/tunnel-node.js";
+} from "./common/interfaces";
+import { cloneAudioBuffer, intersects, noop } from "./utils/utils";
+import { Log } from "./utils/logger";
+import { TerminalType } from "./core/terminal";
+import { FlowState, FlowOptions, SerializedFlow } from "./core/flow";
+import { ViewPort } from "./common/enums";
+import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets";
+import { TunaInitializer } from "./lib/tuna";
+import { EmptyNode } from "./core/empty-node";
+import { SubFlowNode } from "./core/subflow-node";
+import { TunnelNode } from "./core/tunnel-node";
 import {
   Button,
   Label,
@@ -46,7 +46,8 @@ import {
   Toggle,
   VSlider,
   Container,
-} from "./flow-connect.js";
+} from "./flow-connect";
+import { UINodeStyle } from "./ui/ui-node";
 
 declare global {
   interface CanvasRenderingContext2D {
@@ -114,14 +115,14 @@ export class FlowConnect extends Hooks {
 
   //#region Properties and Accessors
   /** Reference to the canvas element on which the flows will be rendered by FlowConnect instance */
-  canvas: HTMLCanvasElement;
-  private _context: CanvasRenderingContext2D;
+  canvas!: HTMLCanvasElement;
+  private _context!: CanvasRenderingContext2D;
   get context(): CanvasRenderingContext2D {
     return this._context;
   }
 
   /** Reference to the AudioContext (one FlowConnect instance will only have one audio context) */
-  private _audioContext: AudioContext;
+  private _audioContext!: AudioContext;
   get audioContext(): AudioContext {
     return this._audioContext;
   }
@@ -134,7 +135,7 @@ export class FlowConnect extends Hooks {
   setCache<K extends keyof FlowConnectCacheKeys>(
     type: K,
     key: FlowConnectCacheKeys[K],
-    cache: FlowConnectCacheValues[K]
+    cache: FlowConnectCacheValues[K],
   ) {
     if (type === "array") {
       this.caches[type].set(key, (cache as ArrayBuffer).slice(0) as FlowConnectCacheValues[K]);
@@ -144,9 +145,12 @@ export class FlowConnect extends Hooks {
       this.caches[type].set(key, cache);
     }
   }
-  getCache<K extends keyof FlowConnectCacheKeys>(type: K, key: FlowConnectCacheKeys[K]): FlowConnectCacheValues[K] {
+  getCache<K extends keyof FlowConnectCacheKeys>(
+    type: K,
+    key: FlowConnectCacheKeys[K],
+  ): FlowConnectCacheValues[K] | undefined {
     const cache = this.caches[type].get(key);
-    if (!cache) return null;
+    if (!cache) return undefined;
 
     if (type === "array") {
       return (cache as ArrayBuffer).slice(0) as FlowConnectCacheValues[K];
@@ -157,22 +161,22 @@ export class FlowConnect extends Hooks {
   }
 
   /** For rendering color hit-maps for Nodes */
-  offCanvas: OffscreenCanvas | HTMLCanvasElement;
-  private _offContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  offCanvas!: OffscreenCanvas | HTMLCanvasElement;
+  private _offContext!: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   get offContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
     return this._offContext;
   }
 
   /** For rendering color hit-maps for UI elements and Terminals of Nodes */
-  offUICanvas: OffscreenCanvas | HTMLCanvasElement;
-  private _offUIContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  offUICanvas!: OffscreenCanvas | HTMLCanvasElement;
+  private _offUIContext!: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
     return this._offUIContext;
   }
 
   /** For rendering color hit-maps for Groups */
-  offGroupCanvas: OffscreenCanvas | HTMLCanvasElement;
-  private _offGroupContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  offGroupCanvas!: OffscreenCanvas | HTMLCanvasElement;
+  private _offGroupContext!: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
   get offGroupContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
     return this._offGroupContext;
   }
@@ -190,24 +194,24 @@ export class FlowConnect extends Hooks {
   state: FlowConnectState = FlowConnectState.Stopped;
 
   /** Id recieved from *requestAnimationFrame* */
-  private frameId: number;
+  private frameId!: number;
 
   /** Root flow of the flow-tree (Flow that contains SubFlowNodes that again contains SubFlowNodes and so on...) */
-  private rootFlow: Flow;
+  private rootFlow!: Flow;
   /** Flow which is currently rendered on the canvas */
-  private currFlow: Flow;
+  private currFlow!: Flow;
 
   /** All the flows created by this FlowConnect instance  */
   flows: Flow[] = [];
 
   /** Reference of the current/previous Nodes/Groups under user-interaction (mouse, touch) */
-  currHitNode: Node;
-  private prevHitNode: Node;
-  private currHitGroup: Group;
+  currHitNode?: Node;
+  private prevHitNode?: Node;
+  private currHitGroup?: Group;
 
   /** Reference to the new Group being drawn */
-  private currGroup: Group;
-  private groupStartPoint: Vector;
+  private currGroup?: Group;
+  private groupStartPoint!: Vector;
 
   /** For controlling user-interaction */
   pointers: Pointer[] = [];
@@ -217,8 +221,8 @@ export class FlowConnect extends Hooks {
   /** @hidden HTML input overlayed on canvas when focused */
   private genericInput: HTMLInputElement = document.createElement("input");
   /** @hidden ResizeObservers to trigger re-render when dimensions change */
-  private parentResizeObserver: ResizeObserver;
-  private bodyResizeObserver: ResizeObserver;
+  private parentResizeObserver!: ResizeObserver;
+  private bodyResizeObserver!: ResizeObserver;
 
   minScale: number = 0.1;
   maxScale: number = 5;
@@ -239,7 +243,7 @@ export class FlowConnect extends Hooks {
 
   /** Time (in ms) when one or more flows created by this FlowConnect instance was started */
   startTime: number = -1;
-  private timerId: number;
+  private timerId!: number;
   /** No. of milliseconds passed since the start of one or more flows */
   get time(): number {
     return this.startTime < 0 ? this.startTime : performance.now() - this.startTime;
@@ -269,12 +273,12 @@ export class FlowConnect extends Hooks {
   };
   setDefaultStyle<T>(type: "node" | "ui" | "connector" | "group" | "terminal", style: T): void;
   setDefaultStyle<T>(type: "node" | "ui" | "connector" | "group" | "terminal", name: string, style: T): void;
-  setDefaultStyle<T>(
+  setDefaultStyle<T extends NodeStyle & UINodeStyle>(
     type: "node" | "ui" | "connector" | "group" | "terminal",
     nameOrStyle: string | T,
-    style?: T
+    style?: T,
   ): void {
-    if ((type === "node" || type === "ui") && typeof nameOrStyle === "string") {
+    if ((type === "node" || type === "ui") && typeof nameOrStyle === "string" && style) {
       this.defaultStyles[type][nameOrStyle] = style;
     } else if ((type === "node" || type === "ui") && typeof nameOrStyle === "object") {
       this.defaultStyles.global[type] = nameOrStyle as T;
@@ -283,7 +287,7 @@ export class FlowConnect extends Hooks {
     }
   }
   getDefaultStyle<T>(type: "node" | "ui" | "connector" | "group" | "terminal", name?: string): T {
-    if (type === "node" || type === "ui") {
+    if ((type === "node" || type === "ui") && name) {
       return (this.defaultStyles[type][name] ?? this.defaultStyles.global[type]) as T;
     } else {
       return this.defaultStyles[type] as T;
@@ -311,7 +315,7 @@ export class FlowConnect extends Hooks {
   /** Re-calculates cavnvas position/dimension when scrolling/resizing happens */
   private registerChangeListeners() {
     document.addEventListener("scroll", this.scrollListener.bind(this));
-    this.registerObservers(this.canvas.parentElement);
+    this.registerObservers(this.canvas.parentElement!);
   }
   private deRegisterChangeListeners() {
     document.removeEventListener("scroll", this.scrollListener);
@@ -330,13 +334,13 @@ export class FlowConnect extends Hooks {
 
     this.parentResizeObserver = new ResizeObserver(() => {
       this.calcCanvasDimension(true);
-      this.updateTransform(null, null, null);
+      this.updateTransform();
     });
     this.parentResizeObserver.observe(parent);
     if (parent !== document.body) {
       this.bodyResizeObserver = new ResizeObserver(() => {
         this.calcCanvasDimension(true);
-        this.updateTransform(null, null, null);
+        this.updateTransform();
       });
       this.bodyResizeObserver.observe(document.body);
     }
@@ -430,7 +434,7 @@ export class FlowConnect extends Hooks {
       y: number,
       width: number,
       height: number,
-      radius: number
+      radius: number,
     ) {
       this.beginPath();
       this.moveTo(x + radius, y);
@@ -449,7 +453,7 @@ export class FlowConnect extends Hooks {
       y: number,
       width: number,
       height: number,
-      radius: number
+      radius: number,
     ) {
       if (typeof radius === "undefined") radius = 5;
       this.roundRect(x, y, width, height, radius);
@@ -460,7 +464,7 @@ export class FlowConnect extends Hooks {
       y: number,
       width: number,
       height: number,
-      radius: number
+      radius: number,
     ) {
       if (typeof radius === "undefined") radius = 5;
       this.roundRect(x, y, width, height, radius);
@@ -475,7 +479,7 @@ export class FlowConnect extends Hooks {
     let prevPanPosition: Vector = Vector.Zero();
     let prevPinchDistance: number = -1;
     let longPressTimerId = -1;
-    let longPressPointer: Pointer = null;
+    let longPressPointer: Pointer | undefined;
 
     document.onkeydown = (ev: KeyboardEvent) => this.handleKeyDown(ev);
     document.onkeyup = (ev: KeyboardEvent) => {
@@ -503,7 +507,7 @@ export class FlowConnect extends Hooks {
 
           if (!this.currHitNode.currHitUINode) {
             longPressTimerId = window.setTimeout(() => {
-              this.currHitNode.onContextMenu(this.pointers[0].screenPosition, this.pointers[0].realPosition);
+              this.currHitNode!.onContextMenu(this.pointers[0].screenPosition, this.pointers[0].realPosition);
               this.call("context-menu", {
                 screenPos: this.pointers[0].screenPosition,
                 realPos: this.pointers[0].realPosition,
@@ -529,9 +533,9 @@ export class FlowConnect extends Hooks {
         }
       } else {
         clearTimeout(longPressTimerId);
-        longPressPointer = null;
-        this.currHitNode = null;
-        this.currHitGroup = null;
+        longPressPointer = undefined;
+        this.currHitNode = undefined;
+        this.currHitGroup = undefined;
         this.currFlow.removeAllFocus();
         this.currFlow.removeFloatingConnector();
       }
@@ -543,7 +547,7 @@ export class FlowConnect extends Hooks {
 
       if (longPressPointer?.id === ev.pointerId) {
         clearTimeout(longPressTimerId);
-        longPressPointer = null;
+        longPressPointer = undefined;
       }
 
       if (this.pointers.length < 2) prevPinchDistance = -1;
@@ -553,8 +557,8 @@ export class FlowConnect extends Hooks {
 
       if (this.currHitNode) this.handleGrouping(screenPosition);
 
-      this.currHitNode = null;
-      this.currHitGroup = null;
+      this.currHitNode = undefined;
+      this.currHitGroup = undefined;
 
       let hitNode = this.getHitNode(screenPosition);
       hitNode?.onUp(screenPosition.clone(), realPosition.clone());
@@ -562,7 +566,9 @@ export class FlowConnect extends Hooks {
       if (this.currGroup) {
         this.addCurrAsNewGroup();
       }
-      if (this.currFlow.floatingConnector) this.handleConnection(hitNode, screenPosition, realPosition);
+      if (this.currFlow.floatingConnector) {
+        this.handleConnection(screenPosition, realPosition, hitNode);
+      }
     };
     this.canvas.onpointerout = (ev) => {
       if (!this.currFlow) return;
@@ -570,7 +576,7 @@ export class FlowConnect extends Hooks {
       this.removePointer(this.pointers, ev);
       if (longPressPointer?.id === ev.pointerId) {
         clearTimeout(longPressTimerId);
-        longPressPointer = null;
+        longPressPointer = undefined;
       }
 
       if (this.pointers.length === 0) {
@@ -578,8 +584,8 @@ export class FlowConnect extends Hooks {
           let screenPosition = this.getRelativePosition(ev);
           this.handleGrouping(screenPosition);
         }
-        this.currHitNode = null;
-        this.currHitGroup = null;
+        this.currHitNode = undefined;
+        this.currHitGroup = undefined;
       }
 
       if (this.currGroup) {
@@ -592,7 +598,7 @@ export class FlowConnect extends Hooks {
         let screenPosition = this.getRelativePosition(ev);
         let realPosition = screenPosition.transform(this.inverseTransform);
         this.prevHitNode.onExit(screenPosition, realPosition);
-        this.prevHitNode = null;
+        this.prevHitNode = undefined;
       }
     };
     this.canvas.onpointermove = (ev) => {
@@ -603,7 +609,7 @@ export class FlowConnect extends Hooks {
 
       if (longPressPointer?.id === ev.pointerId) {
         clearTimeout(longPressTimerId);
-        longPressPointer = null;
+        longPressPointer = undefined;
       }
 
       this.updatePointer(ev.pointerId, screenPosition, realPosition);
@@ -615,7 +621,7 @@ export class FlowConnect extends Hooks {
             this.handleZoom(
               currPinchDistance > prevPinchDistance,
               Vector.Midpoint(this.pointers[0].screenPosition, this.pointers[1].screenPosition),
-              this.pinchScaleDelta
+              this.pinchScaleDelta,
             );
           }
         }
@@ -654,11 +660,11 @@ export class FlowConnect extends Hooks {
                 nodeRealPos.x,
                 nodeRealPos.y,
                 nodeRealPos.x + this.currHitNode.width * this.scale,
-                nodeRealPos.y + this.currHitNode.ui.height * this.scale
+                nodeRealPos.y + this.currHitNode.ui.height * this.scale,
               );
 
               if (intersection === ViewPort.INSIDE) {
-                let nodeIndex = hitGroup.nodes.findIndex((node) => node.id === this.currHitNode.id);
+                let nodeIndex = hitGroup.nodes.findIndex((node) => node.id === this.currHitNode!.id);
                 hitGroup.nodeDeltas[nodeIndex] = this.currHitNode.position.subtract(hitGroup.position);
               }
             }
@@ -670,7 +676,7 @@ export class FlowConnect extends Hooks {
         } else if (this.pointers.length === 1 && !this.keymap["Control"] && !this.touchControls["CreateGroup"]) {
           let delta = screenPosition.subtract(prevPanPosition).multiplyInPlace(1 / this.scale);
           prevPanPosition = screenPosition;
-          this.updateTransform(null, null, delta);
+          this.updateTransform(undefined, undefined, delta);
         }
       }
       if (this.currFlow.floatingConnector) this.currFlow.floatingConnector.floatingTip = realPosition;
@@ -735,7 +741,7 @@ export class FlowConnect extends Hooks {
       let hitNode = this.getHitNode(screenPosition);
       if (hitNode) {
         let hitColor = Color.rgbaToString(
-          this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data
+          this.offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data,
         );
         let hitUINode = hitNode.getHitUINode(hitColor);
 
@@ -766,8 +772,8 @@ export class FlowConnect extends Hooks {
   }
   private addCurrAsNewGroup() {
     let newGroup = this.currGroup;
-    this.currGroup = null;
-    if (newGroup.width > 10 && newGroup.height > 10) {
+    this.currGroup = undefined;
+    if (newGroup && newGroup.width > 10 && newGroup.height > 10) {
       this.currFlow.groups.push(newGroup);
 
       [...this.currFlow.nodes.values()]
@@ -806,7 +812,7 @@ export class FlowConnect extends Hooks {
       let audioWorklets = generateAudioWorklets(workletUtils.CircularBuffer);
       await this.audioContext.audioWorklet.addModule(workletUtils.CircularBuffer);
       await Promise.all(
-        Object.keys(audioWorklets).map((key) => this.audioContext.audioWorklet.addModule(audioWorklets[key]))
+        Object.keys(audioWorklets).map((key) => this.audioContext.audioWorklet.addModule(audioWorklets[key])),
       );
 
       FlowConnect.audioWorkletsRegistered = true;
@@ -818,7 +824,7 @@ export class FlowConnect extends Hooks {
     value: string,
     styles: Record<string, any>,
     attributes: Record<string, any>,
-    callback: (value: string) => void
+    callback: (value: string) => void,
   ) {
     if (document.activeElement === this.genericInput) return;
 
@@ -847,7 +853,7 @@ export class FlowConnect extends Hooks {
   }
   private handleZoom(zoomIn: boolean, origin: Vector, scaleDelta: number) {
     if ((this._transform.a >= this.maxScale && zoomIn) || (this._transform.a <= this.minScale && !zoomIn)) return;
-    this.updateTransform(zoomIn ? scaleDelta : 1 / scaleDelta, origin, null);
+    this.updateTransform(zoomIn ? scaleDelta : 1 / scaleDelta, origin);
     this.currFlow?.call("scale", this.scale);
     this.call("scale", this.scale);
   }
@@ -857,7 +863,7 @@ export class FlowConnect extends Hooks {
     let intersection;
     if (hitGroup) {
       let groupRealPos = hitGroup.position.transform(this._transform);
-      let nodeRealPos = this.currHitNode.position.transform(this._transform);
+      let nodeRealPos = this.currHitNode!.position.transform(this._transform);
 
       intersection = intersects(
         groupRealPos.x,
@@ -866,19 +872,19 @@ export class FlowConnect extends Hooks {
         groupRealPos.y + hitGroup.height * this.scale,
         nodeRealPos.x,
         nodeRealPos.y,
-        nodeRealPos.x + this.currHitNode.width * this.scale,
-        nodeRealPos.y + this.currHitNode.height * this.scale
+        nodeRealPos.x + this.currHitNode!.width * this.scale,
+        nodeRealPos.y + this.currHitNode!.height * this.scale,
       );
     }
 
-    if (this.currHitNode.group && (this.currHitNode.group !== hitGroup || intersection !== ViewPort.INSIDE)) {
-      this.currHitNode.group.remove(this.currHitNode);
+    if (this.currHitNode!.group && (this.currHitNode!.group !== hitGroup || intersection !== ViewPort.INSIDE)) {
+      this.currHitNode!.group.remove(this.currHitNode!);
     }
     if (hitGroup && intersection === ViewPort.INSIDE) {
-      hitGroup.add(this.currHitNode);
+      hitGroup.add(this.currHitNode!);
     }
   }
-  private handleConnection(hitNode: Node, screenPosition: Vector, realPosition: Vector) {
+  private handleConnection(screenPosition: Vector, realPosition: Vector, hitNode?: Node) {
     if (!hitNode) {
       this.currFlow.removeFloatingConnector();
       return;
@@ -886,7 +892,7 @@ export class FlowConnect extends Hooks {
     let hitTerminal = hitNode.getHitTerminal(
       Color.rgbaToString(this._offUIContext.getImageData(screenPosition.x, screenPosition.y, 1, 1).data),
       screenPosition.clone(),
-      realPosition.clone()
+      realPosition.clone(),
     );
     if (hitTerminal) hitNode.currHitTerminal = hitTerminal;
     if (!hitTerminal) {
@@ -895,40 +901,42 @@ export class FlowConnect extends Hooks {
     }
 
     let destination = hitNode.currHitTerminal;
-    if (!this.currFlow.floatingConnector.canConnect(destination)) {
+    if (!this.currFlow.floatingConnector.canConnect(destination!)) {
       this.currFlow.removeFloatingConnector();
-      hitNode.currHitTerminal = null;
-      destination.node.currHitTerminal = null;
+      hitNode.currHitTerminal = undefined;
+      if (destination) {
+        destination.node.currHitTerminal = undefined;
+      }
     } else {
-      if (destination.type === TerminalType.OUT) {
+      if (destination?.type === TerminalType.OUT) {
         const terminal = this.currFlow.removeFloatingConnector();
-        hitNode.currHitTerminal?.onExit(null, null);
-        hitNode.currHitTerminal = null;
-        destination.node.currHitTerminal?.onExit(null, null);
-        destination.node.currHitTerminal = null;
+        hitNode.currHitTerminal?.onExit();
+        hitNode.currHitTerminal = undefined;
+        destination.node.currHitTerminal?.onExit();
+        destination.node.currHitTerminal = undefined;
         terminal.connect(destination);
       } else {
-        if (destination.connectors.length > 0) {
+        if (destination && destination.connectors.length > 0) {
           if (destination.connectors[0].start === this.currFlow.floatingConnector.start) {
             this.currFlow.removeFloatingConnector();
-            hitNode.currHitTerminal = null;
+            hitNode.currHitTerminal = undefined;
             return;
           }
 
           destination.disconnect();
           const terminal = this.currFlow.removeFloatingConnector();
-          hitNode.currHitTerminal?.onExit(null, null);
-          hitNode.currHitTerminal = null;
-          destination.node.currHitTerminal?.onExit(null, null);
-          destination.node.currHitTerminal = null;
+          hitNode.currHitTerminal?.onExit();
+          hitNode.currHitTerminal = undefined;
+          destination.node.currHitTerminal?.onExit();
+          destination.node.currHitTerminal = undefined;
           terminal.connect(destination);
         } else {
           const terminal = this.currFlow.removeFloatingConnector();
-          hitNode.currHitTerminal?.onExit(null, null);
-          hitNode.currHitTerminal = null;
-          destination.node.currHitTerminal?.onExit(null, null);
-          destination.node.currHitTerminal = null;
-          terminal.connect(destination);
+          hitNode.currHitTerminal?.onExit();
+          hitNode.currHitTerminal = undefined;
+          destination!.node.currHitTerminal?.onExit();
+          destination!.node.currHitTerminal = undefined;
+          terminal.connect(destination!);
         }
       }
     }
@@ -937,7 +945,7 @@ export class FlowConnect extends Hooks {
     return Vector.create(ev.clientX - this.canvasDimensions.left, ev.clientY - this.canvasDimensions.top);
   }
   private updateTransform(scale?: number, scaleOrigin?: Vector, translate?: Vector) {
-    if (scale) {
+    if (scale && scaleOrigin) {
       let realSpaceOrigin = scaleOrigin.transform(this.inverseTransform);
       this._transform
         .translateSelf(realSpaceOrigin.x, realSpaceOrigin.y)
@@ -960,7 +968,7 @@ export class FlowConnect extends Hooks {
     this.call("transform", this);
   }
   translateBy(delta: Vector) {
-    this.updateTransform(null, null, delta);
+    this.updateTransform(undefined, undefined, delta);
   }
   scaleBy(scale: number, scaleOrigin: Vector) {
     this.updateTransform(scale, scaleOrigin);
@@ -978,14 +986,14 @@ export class FlowConnect extends Hooks {
   private removePointer(pointers: Pointer[], ev: PointerEvent) {
     pointers.splice(
       pointers.findIndex((pointer) => pointer.id === ev.pointerId),
-      1
+      1,
     );
   }
-  private getHitNode(position: Vector): Node {
+  private getHitNode(position: Vector): Node | undefined {
     let rgbaString = Color.rgbaToString(this._offContext.getImageData(position.x, position.y, 1, 1).data);
     return this.currFlow.nodeHitColors.get(rgbaString);
   }
-  private getHitGroup(position: Vector): Group {
+  private getHitGroup(position: Vector): Group | undefined {
     let rgbaString = Color.rgbaToString(this._offGroupContext.getImageData(position.x, position.y, 1, 1).data);
     return this.currFlow.groupHitColors.get(rgbaString);
   }
@@ -1081,20 +1089,21 @@ export class FlowConnect extends Hooks {
   /** Serializes a flow to json
    * @param flow The flow
    */
-  async toJson(flow: Flow, persist?: DataPersistenceProvider): Promise<string> {
+  async toJson(flow: Flow, persist?: DataPersistenceProvider): Promise<string | undefined> {
     try {
       let serializedFlow: SerializedFlow = await flow.serialize(persist);
-      return JSON.stringify(serializedFlow, null);
+      return JSON.stringify(serializedFlow);
     } catch (error) {
       Log.error(error);
     }
+    return undefined;
   }
   /** Creates a flow from json
    * @param json Json string with schema SerializedFlow
    */
-  async fromJson(json: string, receive?: DataFetchProvider): Promise<Flow> {
+  async fromJson(json: string, receive?: DataFetchProvider): Promise<Flow | undefined> {
     let data: SerializedFlow;
-    let flow: Flow = null;
+    let flow: Flow | undefined;
 
     try {
       data = JSON.parse(json);
@@ -1119,7 +1128,7 @@ export enum FlowConnectState {
   Running = "Running",
 }
 
-export * from "./common/index.js";
-export * from "./core/index.js";
-export * from "./utils/index.js";
-export * from "./ui/index.js";
+export * from "./common/index";
+export * from "./core/index";
+export * from "./utils/index";
+export * from "./ui/index";

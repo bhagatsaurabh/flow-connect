@@ -81,7 +81,7 @@ export class Input extends UINode<InputStyle> {
         align: this.style.align,
         color: this.style.color,
         padding: 5,
-        precision: this.style.precision ?? null,
+        precision: this.style.precision ?? undefined,
       },
       height: this.height,
     });
@@ -173,13 +173,13 @@ export class Input extends UINode<InputStyle> {
     if (this.input) {
       this.input.position.assign(
         this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
         this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.position.y + this.height / 2,
       );
     }
   }

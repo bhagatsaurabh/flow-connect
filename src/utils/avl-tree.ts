@@ -1,10 +1,13 @@
 export class AVLTree<T> {
-  root: AVLTreeNode<T>;
-  dataRefToTreeNode: Record<string, AVLTreeNode<T>>;
+  root?: AVLTreeNode<T>;
+  dataRefToTreeNode: Record<string, AVLTreeNode<T> | undefined>;
   size: number;
 
-  constructor(public comparator: (a: T, b: T) => number, public dataToTreeNodeMapper: (data: T) => string) {
-    this.root = null;
+  constructor(
+    public comparator: (a: T, b: T) => number,
+    public dataToTreeNodeMapper: (data: T) => string,
+  ) {
+    this.root = undefined;
     this.dataRefToTreeNode = {};
     this.size = 0;
   }
@@ -15,21 +18,29 @@ export class AVLTree<T> {
   }
   rightRotate(node: AVLTreeNode<T>) {
     let newRoot = node.left;
-    node.left = newRoot.right;
-    newRoot.right = node;
+    node.left = newRoot?.right;
+    if (newRoot) {
+      newRoot.right = node;
+    }
 
     node.height = Math.max(node.left ? node.left.height : 0, node.right ? node.right.height : 0) + 1;
-    newRoot.height = Math.max(newRoot.left ? newRoot.left.height : 0, newRoot.right ? newRoot.right.height : 0) + 1;
+    if (newRoot) {
+      newRoot.height = Math.max(newRoot.left ? newRoot.left.height : 0, newRoot.right ? newRoot.right.height : 0) + 1;
+    }
 
     return newRoot;
   }
   leftRotate(node: AVLTreeNode<T>) {
     let newRoot = node.right;
-    node.right = newRoot.left;
-    newRoot.left = node;
+    node.right = newRoot?.left;
+    if (newRoot) {
+      newRoot.left = node;
+    }
 
     node.height = Math.max(node.left ? node.left.height : 0, node.right ? node.right.height : 0) + 1;
-    newRoot.height = Math.max(newRoot.left ? newRoot.left.height : 0, newRoot.right ? newRoot.right.height : 0) + 1;
+    if (newRoot) {
+      newRoot.height = Math.max(newRoot.left ? newRoot.left.height : 0, newRoot.right ? newRoot.right.height : 0) + 1;
+    }
 
     return newRoot;
   }
@@ -38,14 +49,20 @@ export class AVLTree<T> {
     return (node.left ? node.left.height : 0) - (node.right ? node.right.height : 0);
   }
 
-  add(data: T): AVLTreeNode<T> {
-    let res: { node: AVLTreeNode<T> } = { node: null };
-    this.root = this._insert(this.root, data, res);
+  add(data: T): AVLTreeNode<T> | undefined {
+    let res: { node?: AVLTreeNode<T> } = { node: undefined };
+    if (this.root) {
+      this.root = this._insert(this.root, data, res);
+    }
     this.dataRefToTreeNode[this.dataToTreeNodeMapper(data)] = res.node;
     this.size += 1;
     return res.node;
   }
-  private _insert(node: AVLTreeNode<T>, data: T, res: { node: AVLTreeNode<T> }): AVLTreeNode<T> {
+  private _insert(
+    node: AVLTreeNode<T> | undefined,
+    data: T,
+    res: { node?: AVLTreeNode<T> },
+  ): AVLTreeNode<T> | undefined {
     if (!node) {
       let newNode = new AVLTreeNode([data]);
       res.node = newNode;
@@ -65,13 +82,13 @@ export class AVLTree<T> {
     node.height = 1 + Math.max(node.left ? node.left.height : 0, node.right ? node.right.height : 0);
     let balance = this.getBalance(node);
 
-    if (balance > 1 && this.comparator(data, node.left.data[0]) < 0) return this.rightRotate(node);
-    if (balance > 1 && this.comparator(data, node.left.data[0]) > 0) {
+    if (balance > 1 && node.left && this.comparator(data, node.left.data[0]) < 0) return this.rightRotate(node);
+    if (balance > 1 && node.left && this.comparator(data, node.left.data[0]) > 0) {
       node.left = this.leftRotate(node.left);
       return this.rightRotate(node);
     }
-    if (balance < -1 && this.comparator(data, node.right.data[0]) > 0) return this.leftRotate(node);
-    if (balance < -1 && this.comparator(data, node.right.data[0]) < 0) {
+    if (balance < -1 && node.right && this.comparator(data, node.right.data[0]) > 0) return this.leftRotate(node);
+    if (balance < -1 && node.right && this.comparator(data, node.right.data[0]) < 0) {
       node.right = this.rightRotate(node.right);
       return this.leftRotate(node);
     }
@@ -86,7 +103,7 @@ export class AVLTree<T> {
     this.size -= 1;
     return res.deleted;
   }
-  private _delete(node: AVLTreeNode<T>, data: T, res: { deleted: boolean }): AVLTreeNode<T> {
+  private _delete(node: AVLTreeNode<T> | undefined, data: T, res: { deleted: boolean }): AVLTreeNode<T> | undefined {
     if (!node) return node;
 
     if (this.comparator(data, node.data[0]) < 0) node.left = this._delete(node.left, data, res);
@@ -94,7 +111,9 @@ export class AVLTree<T> {
     else {
       // Duplicate Keys
       if (node.data.length > 1) {
-        let index = node.data.findIndex(currData => this.dataToTreeNodeMapper(currData) === this.dataToTreeNodeMapper(data));
+        let index = node.data.findIndex(
+          (currData) => this.dataToTreeNodeMapper(currData) === this.dataToTreeNodeMapper(data),
+        );
         if (index > -1) {
           node.data.splice(index, 1);
           res.deleted = true;
@@ -104,13 +123,12 @@ export class AVLTree<T> {
         return node;
       } else {
         if (!node.left || !node.right) {
-          let temp = null;
+          let temp = undefined;
           if (!node.left) temp = node.right;
           else temp = node.left;
 
           if (!temp) {
-            // temp = node;
-            node = null;
+            node = undefined;
           } else node = temp;
           res.deleted = true;
         } else {
@@ -126,13 +144,13 @@ export class AVLTree<T> {
     node.height = Math.max(node.left ? node.left.height : 0, node.right ? node.right.height : 0) + 1;
     let balance = this.getBalance(node);
 
-    if (balance > 1 && this.getBalance(node.left) >= 0) return this.rightRotate(node);
-    if (balance > 1 && this.getBalance(node.left) < 0) {
+    if (balance > 1 && node.left && this.getBalance(node.left) >= 0) return this.rightRotate(node);
+    if (balance > 1 && node.left && this.getBalance(node.left) < 0) {
       node.left = this.leftRotate(node.left);
       return this.rightRotate(node);
     }
-    if (balance < -1 && this.getBalance(node.right) <= 0) return this.leftRotate(node);
-    if (balance < -1 && this.getBalance(node.right) > 0) {
+    if (balance < -1 && node.right && this.getBalance(node.right) <= 0) return this.leftRotate(node);
+    if (balance < -1 && node.right && this.getBalance(node.right) > 0) {
       node.right = this.rightRotate(node.right);
       return this.leftRotate(node);
     }
@@ -148,31 +166,30 @@ export class AVLTree<T> {
     this._inorder(this.root, action);
   }
 
-  private _inorder(node: AVLTreeNode<T>, action: (item: T) => void) {
-    if (node !== null) {
+  private _inorder(node: AVLTreeNode<T> | undefined, action: (item: T) => void) {
+    if (node) {
       this._inorder(node.left, action);
-      node.data.forEach(data => action(data));
+      node.data.forEach((data) => action(data));
       this._inorder(node.right, action);
     }
   }
   private _reverseInorder(node: AVLTreeNode<T>, action: (item: T) => void) {
-    if (node !== null) {
+    if (node) {
       this._inorder(node.right, action);
-      node.data.forEach(data => action(data));
+      node.data.forEach((data) => action(data));
       this._inorder(node.left, action);
     }
   }
 }
 
-
 export class AVLTreeNode<T> {
   height: number;
-  left: AVLTreeNode<T>;
-  right: AVLTreeNode<T>;
+  left?: AVLTreeNode<T>;
+  right?: AVLTreeNode<T>;
 
   constructor(public data: T[]) {
     this.height = 1;
-    this.left = null;
-    this.right = null;
+    this.left = undefined;
+    this.right = undefined;
   }
 }

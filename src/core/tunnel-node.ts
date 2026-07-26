@@ -56,7 +56,7 @@ export interface SerializedTunnelNode extends SerializedNode {
 }
 
 export interface TunnelNodeOptions extends NodeOptions {
-  tunnelType: "input" | "output";
+  tunnelType?: "input" | "output";
   tunnelName?: string;
   tunnelDataType?: string;
 }

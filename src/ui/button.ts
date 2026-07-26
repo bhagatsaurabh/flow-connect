@@ -111,7 +111,7 @@ const DefaultButtonStyle = (): ButtonStyle => ({
 });
 
 export interface ButtonOptions extends UINodeOptions<ButtonStyle> {
-  text: number | string;
+  text?: number | string;
 }
 const DefaultButtonOptions = (node: Node): ButtonOptions => ({
   text: "Button",

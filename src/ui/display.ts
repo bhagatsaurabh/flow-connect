@@ -177,8 +177,8 @@ const DefaultDisplayStyle = (): DisplayStyle => ({
 });
 
 export interface DisplayOptions extends UINodeOptions<DisplayStyle> {
-  height: number;
-  customRenderers: CustomRendererConfig[];
+  height?: number;
+  customRenderers?: CustomRendererConfig[];
   clear?: boolean | SerializedTerminal;
 }
 const DefaultDisplayOptions = (): DisplayOptions => ({ height: 70, customRenderers: [] });

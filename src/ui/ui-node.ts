@@ -60,7 +60,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
   static create<T extends UINode = UINode>(
     type: string,
     node: Node,
-    options: UINodeOptions = DefaultUINodeOptions(node)
+    options: UINodeOptions = DefaultUINodeOptions(node),
   ): T {
     options.style = { ...(node.flow.flowConnect.getDefaultStyle("ui", type) || {}), ...(options.style || {}) };
 
@@ -135,7 +135,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
       realPos.x,
       realPos.y,
       realPos.x + this.width * this.node.flow.flowConnect.scale,
-      realPos.y + this.height * this.node.flow.flowConnect.scale
+      realPos.y + this.height * this.node.flow.flowConnect.scale,
     );
 
     this.children.forEach((child) => child.updateRenderState());
@@ -254,9 +254,9 @@ const DefaultUINodeOptions = (node: Node): UINodeOptions => {
   return {
     visible: true,
     style: {},
-    propName: null,
+    propName: undefined,
     id: uuid(),
-    hitColor: null,
+    hitColor: undefined,
     height: node.style.rowHeight,
     position: Vector.Zero(),
   };

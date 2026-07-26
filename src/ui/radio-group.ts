@@ -182,7 +182,7 @@ const DefaultRadioGroupStyle = (): RadioGroupStyle => ({
 });
 
 export interface RadioGroupOptions extends UINodeOptions<RadioGroupStyle> {
-  values: string[];
+  values?: string[];
   selected?: string;
 }
 const DefaultRadioGroupOptions = (node: Node): RadioGroupOptions => ({

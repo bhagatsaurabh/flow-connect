@@ -7,7 +7,7 @@ import { Align } from "../common/enums.js";
 export class Container extends UINode<ContainerStyle> {
   style: ContainerStyle;
 
-  renderer: Renderer<Container, ContainerRenderParams> = () => null;
+  renderer: Renderer<Container, ContainerRenderParams> = () => () => undefined;
   contentWidth: number;
 
   constructor(_node: Node, _options: ContainerOptions) {
@@ -63,7 +63,7 @@ export class Container extends UINode<ContainerStyle> {
       this.position.y + this.node.style.titleHeight,
       this.width,
       this.height - this.node.style.titleHeight,
-      5
+      5,
     );
     context.stroke();
     context.fill();
@@ -135,7 +135,7 @@ const DefaultContainerStyle = (): ContainerStyle => ({
 });
 
 export interface ContainerOptions extends UINodeOptions<ContainerStyle> {
-  width: number;
+  width?: number;
 }
 let DefaultContainerOptions = (node: Node): ContainerOptions => ({
   width: node.width,

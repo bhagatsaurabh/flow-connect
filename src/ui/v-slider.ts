@@ -170,8 +170,8 @@ const DefaultVSliderStyle = (node: Node, width: number): VSliderStyle => ({
 });
 
 export interface VSliderOptions extends UINodeOptions<VSliderStyle> {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   value?: number;
   width?: number;
 }
