@@ -1,0 +1,14 @@
+{
+  "name": "dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host"
+  },
+  "dependencies": {
+    "flow-connect": "*"
+  },
+  "devDependencies": {
+    "vite": "^8.0.13"
+  }
+}
