@@ -1,3 +1,9 @@
+<script setup>
+import Icon from "./Icon.vue";
+
+defineProps(["type", "multipleSig"]);
+</script>
+
 <template>
   <article class="mt-1">
     <section>
@@ -29,15 +35,3 @@
     </section>
   </article>
 </template>
-
-<script setup>
-import Icon from "./Icon.vue";
-</script>
-<script>
-export default {
-  name: "Method",
-  props: ["type", "multipleSig"],
-};
-</script>
-
-<style scoped></style>

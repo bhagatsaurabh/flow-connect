@@ -1,3 +1,16 @@
+<script setup>
+defineProps({
+  to: { default: "/" },
+  primary: { type: Boolean, default: false },
+  secondary: { type: Boolean, default: false },
+});
+const emit = defineEmits(['click']);
+
+const clicked = () => {
+  emit("click");
+}
+</script>
+
 <template>
   <button class="action-button" :class="{ primary: primary, secondary: secondary }">
     <router-link :to="to">
@@ -5,22 +18,6 @@
     </router-link>
   </button>
 </template>
-
-<script>
-export default {
-  name: "ActionButton",
-  props: {
-    to: { default: "/" },
-    primary: { type: Boolean, default: false },
-    secondary: { type: Boolean, default: false },
-  },
-  methods: {
-    clicked() {
-      this.$emit("click");
-    },
-  },
-};
-</script>
 
 <style scoped>
 .action-button {

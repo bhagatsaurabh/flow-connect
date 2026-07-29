@@ -8,12 +8,6 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "QuickStart",
-};
-</script>
-
 <style scoped>
 .quick-start-title {
   padding-top: 4rem;

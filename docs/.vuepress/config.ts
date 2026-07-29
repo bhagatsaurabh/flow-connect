@@ -57,14 +57,14 @@ export default defineUserConfig({
       };
       `,
     ],
-    [
+    /* [
       "script",
       { src: "https://cdn.jsdelivr.net/npm/flow-connect@latest/dist/flow-connect.js", onload: "loadPackages()" },
     ],
     [
       "script",
       { src: "https://cdn.jsdelivr.net/npm/flow-connect@latest/dist/flow-connect.js.map", type: "application/json" },
-    ],
+    ], */
     // ['script', { src: 'example/custom-nodes.js' }]
   ],
   extendsMarkdown: (md) => {

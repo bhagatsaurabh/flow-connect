@@ -1,3 +1,9 @@
+<script setup>
+import Optional from "./Optional.vue";
+
+defineProps(['name']);
+</script>
+
 <template>
   <li class="param">
     <strong>
@@ -9,16 +15,6 @@
     <slot name="default-value"></slot>
   </li>
 </template>
-
-<script setup>
-import Optional from "./Optional.vue";
-</script>
-<script>
-export default {
-  name: "Param",
-  props: ["name"],
-};
-</script>
 
 <style>
 ul li.param:not(:first-child) {

@@ -1,3 +1,30 @@
+<script setup>
+import { useTemplateRef } from 'vue';
+
+defineProps({ showText: { type: Boolean, default: true } });
+const emit = defineEmits(['control']);
+
+const graphPlayIconText = useTemplateRef('graph-play-icon-text');
+const graphPlayIcon = useTemplateRef('graph-play-icon');
+
+const buttonClicked = (name) => {
+  if (name === "play") {
+    if (graphPlayIconText.value.innerText.trim() === "Run") {
+      const iconEl = graphPlayIcon.value;
+      iconEl.classList.remove("graph-icon-play");
+      iconEl.classList.add("graph-icon-stop");
+      graphPlayIconText.value.innerText = "Stop";
+    } else {
+      const iconEl = graphPlayIcon.value;
+      iconEl.classList.remove("graph-icon-stop");
+      iconEl.classList.add("graph-icon-play");
+      graphPlayIconText.value.innerText = "Run";
+    }
+  }
+  emit("control", name);
+},
+</script>
+
 <template>
   <div class="graph-controls">
     <div @click="buttonClicked('play')" class="graph-control-button">
@@ -6,31 +33,6 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  name: "GraphControls",
-  props: { showText: { type: Boolean, default: true } },
-  methods: {
-    buttonClicked(name) {
-      if (name === "play") {
-        if (this.$refs["graph-play-icon-text"].innerText.trim() === "Run") {
-          const iconEl = this.$refs["graph-play-icon"];
-          iconEl.classList.remove("graph-icon-play");
-          iconEl.classList.add("graph-icon-stop");
-          this.$refs["graph-play-icon-text"].innerText = "Stop";
-        } else {
-          const iconEl = this.$refs["graph-play-icon"];
-          iconEl.classList.remove("graph-icon-stop");
-          iconEl.classList.add("graph-icon-play");
-          this.$refs["graph-play-icon-text"].innerText = "Run";
-        }
-      }
-      this.$emit("control", name);
-    },
-  },
-};
-</script>
 
 <style scoped>
 .graph-controls {

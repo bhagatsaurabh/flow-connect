@@ -9,12 +9,3 @@
     </section>
   </article>
 </template>
-
-<script setup></script>
-<script>
-export default {
-  name: "Event",
-};
-</script>
-
-<style scoped></style>

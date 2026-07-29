@@ -1,3 +1,7 @@
+<script setup>
+defineProps(['name']);
+</script>
+
 <template>
   <router-link v-bind="$attrs">
     <strong>
@@ -5,10 +9,3 @@
     </strong>
   </router-link>
 </template>
-
-<script>
-export default {
-  name: "Ref",
-  props: ["name"],
-};
-</script>

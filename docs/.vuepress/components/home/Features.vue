@@ -1,3 +1,12 @@
+<script setup>
+import Feature from "./Feature.vue";
+import LiveExample from "../common/LiveExample.vue";
+import LiveRunCustomizable from "./LiveRunCustomizable.vue";
+import LiveRunEvent from "./LiveRunEvent.vue";
+import LiveRunReactive from "./LiveRunReactive.vue";
+import LiveRunExecutable from "./LiveRunExecutable.vue";
+</script>
+
 <template>
   <div class="features">
     <Feature>
@@ -76,21 +85,6 @@
     </Feature>
   </div>
 </template>
-
-<script setup>
-import Feature from "./Feature.vue";
-import LiveExample from "../common/LiveExample.vue";
-import LiveRunCustomizable from "./LiveRunCustomizable.vue";
-import LiveRunEvent from "./LiveRunEvent.vue";
-import LiveRunReactive from "./LiveRunReactive.vue";
-import LiveRunExecutable from "./LiveRunExecutable.vue";
-</script>
-<script>
-export default {
-  name: "Features",
-  components: [Feature],
-};
-</script>
 
 <style scoped>
 .features {

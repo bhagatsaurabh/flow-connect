@@ -1,3 +1,78 @@
+<script setup>
+import { onMounted, ref, watch } from "vue";
+import GraphControls from "./GraphControls.vue";
+
+const props = defineProps({
+  snippet: String,
+  default: { default: "code" },
+  play: false,
+});
+
+const isGraphPlaying = ref(false);
+const currView = ref("");
+const snippetText = ref("");
+const runButton = ref(null);
+const codeButton = ref(null);
+const run = ref(null);
+const code = ref(null);
+const graphControls = ref(null);
+
+const runClicked = () => {
+  if (currView.value !== "run") {
+    code.value.classList.remove("live-example-visible");
+    code.value.classList.add("live-example-hidden");
+    run.value.classList.remove("live-example-hidden");
+    run.value.classList.add("live-example-visible");
+    runButton.value.classList.add("active");
+    codeButton.value.classList.remove("active");
+    currView.value = "run";
+
+    codeButton.value.title = "See Code";
+  }
+};
+const codeClicked = () => {
+  if (currView.value !== "code") {
+    run.value.classList.remove("live-example-visible");
+    run.value.classList.add("live-example-hidden");
+    code.value.classList.remove("live-example-hidden");
+    code.value.classList.add("live-example-visible");
+    codeButton.value.classList.add("active");
+    runButton.value.classList.remove("active");
+    currView.value = "code";
+
+    codeButton.value.title = "Copy";
+  } else {
+    codeButton.value.classList.add("anim-copy");
+
+    navigator.clipboard.writeText(snippetText.value);
+  }
+};
+const handleControl = (controlName) => {
+  if (controlName === "play") {
+    isGraphPlaying.value = !isGraphPlaying.value;
+  }
+};
+const copyActionAnimEnd = () => {
+  codeButton.value.classList.remove("anim-copy");
+};
+
+watch(() => props.play, (newVal) => {
+  if (!newVal && !isGraphPlaying.value) return;
+  graphControls.value.buttonClicked("play");
+})
+
+onMounted(() => {
+  if (props.default === "code") codeClicked();
+  else runClicked();
+
+  fetch(`snippets/${props.snippet}.js`)
+    .then((res) => res.text())
+    .then((text) => (snippetText.value = text));
+
+  codeButton.value.addEventListener("animationend", () => copyActionAnimEnd());
+})
+</script>
+
 <template>
   <div class="live-example">
     <div class="live-example-nav">
@@ -20,88 +95,10 @@
     </div>
     <div ref="run" class="live-example-run">
       <slot name="run" :play="isGraphPlaying"></slot>
-      <GraphControls ref="graph-controls" @control="handleControl" />
+      <GraphControls ref="graphControls" @control="handleControl" />
     </div>
   </div>
 </template>
-
-<script setup>
-import GraphControls from "./GraphControls.vue";
-</script>
-<script>
-export default {
-  name: "LiveExample",
-  components: [GraphControls],
-  mounted() {
-    if (this.default === "code") this.codeClicked();
-    else this.runClicked();
-
-    fetch(`snippets/${this.snippet}.js`)
-      .then((res) => res.text())
-      .then((text) => (this.snippetText = text));
-
-    this.$refs.codeButton.addEventListener("animationend", () => this.copyActionAnimEnd());
-  },
-  props: {
-    snippet: String,
-    default: { default: "code" },
-    play: false,
-  },
-  watch: {
-    play(newVal) {
-      if (!newVal && !this.isGraphPlaying) return;
-      this.$refs["graph-controls"].buttonClicked("play");
-    },
-  },
-  data() {
-    return {
-      isGraphPlaying: false,
-      currView: "",
-      snippetText: "",
-    };
-  },
-  methods: {
-    runClicked() {
-      if (this.currView !== "run") {
-        this.$refs.code.classList.remove("live-example-visible");
-        this.$refs.code.classList.add("live-example-hidden");
-        this.$refs.run.classList.remove("live-example-hidden");
-        this.$refs.run.classList.add("live-example-visible");
-        this.$refs.runButton.classList.add("active");
-        this.$refs.codeButton.classList.remove("active");
-        this.currView = "run";
-
-        this.$refs.codeButton.title = "See Code";
-      }
-    },
-    codeClicked() {
-      if (this.currView !== "code") {
-        this.$refs.run.classList.remove("live-example-visible");
-        this.$refs.run.classList.add("live-example-hidden");
-        this.$refs.code.classList.remove("live-example-hidden");
-        this.$refs.code.classList.add("live-example-visible");
-        this.$refs.codeButton.classList.add("active");
-        this.$refs.runButton.classList.remove("active");
-        this.currView = "code";
-
-        this.$refs.codeButton.title = "Copy";
-      } else {
-        this.$refs.codeButton.classList.add("anim-copy");
-
-        navigator.clipboard.writeText(this.snippetText);
-      }
-    },
-    handleControl(controlName) {
-      if (controlName === "play") {
-        this.isGraphPlaying = !this.isGraphPlaying;
-      }
-    },
-    copyActionAnimEnd() {
-      this.$refs.codeButton.classList.remove("anim-copy");
-    },
-  },
-};
-</script>
 
 <style scoped>
 .live-example {

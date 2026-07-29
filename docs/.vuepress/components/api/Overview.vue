@@ -1,3 +1,9 @@
+<script setup>
+import Icon from "./Icon.vue";
+
+defineProps(["data"]);
+</script>
+
 <template>
   <ul class="list">
     <li v-for="item in data.constructors" :key="item">
@@ -44,16 +50,6 @@
     </li>
   </ul>
 </template>
-
-<script setup>
-import Icon from "./Icon.vue";
-</script>
-<script>
-export default {
-  name: "Overview",
-  props: ["data"],
-};
-</script>
 
 <style scoped>
 .list {

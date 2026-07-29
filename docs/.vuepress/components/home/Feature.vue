@@ -1,3 +1,38 @@
+<script setup>
+import { ref, useTemplateRef } from 'vue';
+
+const props = defineProps({
+  alignRight: { default: false },
+});
+
+const isLiveOpen = ref(false);
+const liveExample = useTemplateRef('live-example');
+const featureContainer = useTemplateRef('feature-container');
+const controlIcon = useTemplateRef('control-icon');
+
+const controlClicked = () => {
+  if (!isLiveOpen.value) {
+    liveExample.value.style.maxHeight = "60vh";
+    liveExample.value.style.minHeight = "60vh";
+    controlIcon.value.classList.add("flip");
+
+    setTimeout(
+      () =>
+        featureContainer.value.scrollIntoView({
+          block: "start",
+          behavior: "smooth",
+        }),
+      0
+    );
+  } else {
+    liveExample.value.style.maxHeight = "0";
+    liveExample.value.style.minHeight = "0";
+    controlIcon.value.classList.remove("flip");
+  }
+  isLiveOpen.value = !isLiveOpen.value;
+},
+</script>
+
 <template>
   <div ref="feature-container" :class="{ 'align-right': alignRight }" class="feature-container">
     <div class="feature-title">
@@ -20,43 +55,6 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  name: "Feature",
-  data() {
-    return {
-      isLiveOpen: false,
-    };
-  },
-  props: {
-    alignRight: { default: false },
-  },
-  methods: {
-    controlClicked() {
-      if (!this.isLiveOpen) {
-        this.$refs["live-example"].style.maxHeight = "60vh";
-        this.$refs["live-example"].style.minHeight = "60vh";
-        this.$refs["control-icon"].classList.add("flip");
-
-        setTimeout(
-          () =>
-            this.$refs["feature-container"].scrollIntoView({
-              block: "start",
-              behavior: "smooth",
-            }),
-          0
-        );
-      } else {
-        this.$refs["live-example"].style.maxHeight = "0";
-        this.$refs["live-example"].style.minHeight = "0";
-        this.$refs["control-icon"].classList.remove("flip");
-      }
-      this.isLiveOpen = !this.isLiveOpen;
-    },
-  },
-};
-</script>
 
 <style scoped>
 .align-right {
