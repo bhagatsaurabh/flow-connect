@@ -8,11 +8,11 @@ import { Align } from "../common/enums.js";
 export class Label extends UINode<LabelStyle> {
   style: LabelStyle;
 
-  private displayText: string;
-  private _text: string | number;
-  private textWidth: number; // This may be smaller due to surrounding width constraints (this is som...)
-  private orgTextWidth: number; // While this is the actual width                        (this is some text)
-  private textHeight: number;
+  private displayText!: string;
+  private _text!: string | number;
+  private textWidth!: number; // This may be smaller due to surrounding width constraints (this is som...)
+  private orgTextWidth!: number; // While this is the actual width                        (this is some text)
+  private textHeight!: number;
 
   get text(): string {
     let value;
@@ -33,7 +33,7 @@ export class Label extends UINode<LabelStyle> {
       this.reflow();
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(_node: Node, options: LabelOptions) {
@@ -74,10 +74,10 @@ export class Label extends UINode<LabelStyle> {
   paint(): void {
     let context = this.context;
 
-    context.fillStyle = this.style.backgroundColor;
+    context.fillStyle = this.style.backgroundColor ?? "";
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
 
-    context.fillStyle = this.style.color;
+    context.fillStyle = this.style.color ?? "";
     context.font = this.style.fontSize + " " + this.style.font;
     context.textBaseline = "middle";
     let y = this.position.y + this.height / 2;
@@ -85,9 +85,9 @@ export class Label extends UINode<LabelStyle> {
     if (this.style.align === Align.Center) {
       x += this.width / 2 - this.textWidth / 2;
     } else if (this.style.align === Align.Right) {
-      x += this.width - this.textWidth - this.style.padding;
+      x += this.width - this.textWidth - this.style.padding!;
     } else {
-      x += this.style.padding;
+      x += this.style.padding!;
     }
 
     context.fillText(this.displayText, x, y);
@@ -95,7 +95,7 @@ export class Label extends UINode<LabelStyle> {
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = "#000";
-    context.fillStyle = this.style.color;
+    context.fillStyle = this.style.color ?? "";
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
@@ -110,20 +110,20 @@ export class Label extends UINode<LabelStyle> {
     this.orgTextWidth = context.measureText(this.text).width;
     this.displayText = this.getBestFitString();
     let metrics = context.measureText(this.displayText);
-    context.font = undefined;
+    context.font = "";
     this.textWidth = metrics.width;
 
     this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + 5;
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
         this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
         this.position.y + this.height / 2,
       );
     }

@@ -8,12 +8,12 @@ import { Constant } from "../resource/constants.js";
 import { clampMin } from "../flow-connect.js";
 
 export class Slider2D extends UINode<Slider2DStyle> {
-  style: Slider2DStyle;
+  style!: Slider2DStyle;
 
-  private _value: Vector;
-  private thumbHitColor: string;
-  offThumbCanvas: OffscreenCanvas | HTMLCanvasElement;
-  private offThumbContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  private _value!: Vector;
+  private thumbHitColor!: string;
+  offThumbCanvas!: OffscreenCanvas | HTMLCanvasElement;
+  private offThumbContext!: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 
   get value(): Vector {
     if (this.propName) return this.getProp();
@@ -31,7 +31,7 @@ export class Slider2D extends UINode<Slider2DStyle> {
     }
     this.renderOffThumb();
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(node: Node, _options: Slider2DOptions = DefaultSlider2DOptions(node)) {
@@ -45,8 +45,8 @@ export class Slider2D extends UINode<Slider2DStyle> {
     const { height, style = {}, value = Vector.create(0.5, 0.5), input, output } = options;
 
     this.style = { ...DefaultSlider2DStyle(), ...style };
-    this.style.pointDiameter = clampMin(this.style.pointDiameter, 5);
-    this.height = height ?? this.node.style.rowHeight * 4;
+    this.style.pointDiameter = clampMin(this.style.pointDiameter!, 5);
+    this.height = height ?? this.node.style?.rowHeight! * 4;
     this._value = this.propName ? this.getProp() : value;
     this._value.clampInPlace(0, 1);
 
@@ -76,47 +76,49 @@ export class Slider2D extends UINode<Slider2DStyle> {
       this.offThumbCanvas.width = this.width;
       this.offThumbCanvas.height = this.height;
     }
-    this.offThumbContext = this.offThumbCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+    this.offThumbContext = this.offThumbCanvas.getContext("2d") as
+      | OffscreenCanvasRenderingContext2D
+      | CanvasRenderingContext2D;
     this.renderOffThumb();
   }
 
   renderOffThumb() {
-    let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
+    let [width, height] = [this.width - this.style.pointDiameter!, this.height - this.style.pointDiameter!];
     this.offThumbContext.clearRect(0, 0, width, height);
 
     let coord = Vector.create(this.value.x, 1 - this.value.y)
       .multiply(width, height)
-      .add(this.style.pointDiameter / 2);
+      .add(this.style.pointDiameter! / 2);
     this.offThumbContext.fillStyle = this.thumbHitColor;
     this.offThumbContext.beginPath();
-    this.offThumbContext.arc(coord.x, coord.y, this.style.pointDiameter / 2, 0, Constant.TAU);
+    this.offThumbContext.arc(coord.x, coord.y, this.style.pointDiameter! / 2, 0, Constant.TAU);
     this.offThumbContext.fill();
   }
 
   paint(): void {
-    let context = this.node.context;
+    let context = this.node.context!;
 
-    context.fillStyle = this.style.backgroundColor;
-    context.strokeStyle = this.style.borderColor;
-    context.lineWidth = this.style.borderWidth;
+    context.fillStyle = this.style.backgroundColor ?? "";
+    context.strokeStyle = this.style.borderColor ?? "";
+    context.lineWidth = this.style.borderWidth ?? 0;
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
-    let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
+    let [width, height] = [this.width - this.style.pointDiameter!, this.height - this.style.pointDiameter!];
     let point = Vector.create(this.value.x, 1 - this.value.y)
       .multiplyInPlace(width, height)
       .addInPlace(this.position)
-      .addInPlace(this.style.pointDiameter / 2);
+      .addInPlace(this.style.pointDiameter! / 2);
 
-    context.fillStyle = this.style.thumbColor;
+    context.fillStyle = this.style.thumbColor ?? "";
     context.beginPath();
-    context.arc(point.x, point.y, this.style.pointDiameter / 2, 0, Constant.TAU);
+    context.arc(point.x, point.y, this.style.pointDiameter! / 2, 0, Constant.TAU);
     context.fill();
   }
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = "#000";
-    context.fillStyle = this.style.backgroundColor;
+    context.fillStyle = this.style.backgroundColor ?? "";
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
@@ -139,14 +141,14 @@ export class Slider2D extends UINode<Slider2DStyle> {
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -156,16 +158,16 @@ export class Slider2D extends UINode<Slider2DStyle> {
     return this.thumbHitColor === hitColor;
   }
   movePoint(realPosition: Vector) {
-    let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
+    let [width, height] = [this.width - this.style.pointDiameter!, this.height - this.style.pointDiameter!];
 
     this._value = realPosition
       .clamp(
-        this.position.x + this.style.pointDiameter / 2,
-        this.position.x + this.width - this.style.pointDiameter / 2,
-        this.position.y + this.style.pointDiameter / 2,
-        this.position.y + this.height - this.style.pointDiameter / 2
+        this.position.x + this.style.pointDiameter! / 2,
+        this.position.x + this.width - this.style.pointDiameter! / 2,
+        this.position.y + this.style.pointDiameter! / 2,
+        this.position.y + this.height - this.style.pointDiameter! / 2,
       )
-      .subtractInPlace(this.position.add(this.style.pointDiameter / 2))
+      .subtractInPlace(this.position.add(this.style.pointDiameter! / 2))
       .clampInPlace(0, width, 0, height)
       .normalizeInPlace(0, width, 0, height);
 
@@ -179,9 +181,9 @@ export class Slider2D extends UINode<Slider2DStyle> {
     this.output?.setData(this.value);
   }
 
-  private isHit: boolean;
+  private isHit: boolean | undefined;
   onUp(): void {
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, null, this._value);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, null, this._value);
     this.isHit = false;
   }
   onDrag(event: UIEvent): void {
@@ -190,7 +192,7 @@ export class Slider2D extends UINode<Slider2DStyle> {
   onExit(event: UIEvent) {
     if (this.isHit) {
       this.movePoint(event.realPos);
-      if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, null, this._value);
+      if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, null, this._value);
     }
     this.isHit = false;
   }
@@ -216,5 +218,5 @@ export interface Slider2DOptions extends UINodeOptions<Slider2DStyle> {
 }
 const DefaultSlider2DOptions = (node: Node): Slider2DOptions => ({
   value: Vector.create({ x: 0.5, y: 0.5 }),
-  height: node.style.rowHeight * 4,
+  height: node.style?.rowHeight! * 4,
 });

@@ -7,11 +7,11 @@ import { Align } from "../common/enums.js";
 import { exists } from "../utils/utils.js";
 
 export class Input extends UINode<InputStyle> {
-  style: InputStyle;
+  style!: InputStyle;
 
-  label: Label;
-  inputEl: HTMLInputElement;
-  private _value: string | number;
+  label!: Label;
+  inputEl!: HTMLInputElement;
+  private _value!: string | number;
 
   get value(): string | number {
     if (this.propName) return this.getProp();
@@ -31,7 +31,7 @@ export class Input extends UINode<InputStyle> {
       this.setLabelText(this._value);
       this.inputEl.value = this._value.toString();
     }
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, newVal, oldVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, newVal, oldVal);
   }
 
   constructor(node: Node, _options: InputOptions = DefaultInputOptions(node)) {
@@ -42,19 +42,19 @@ export class Input extends UINode<InputStyle> {
     options = { ...DefaultInputOptions(this.node), ...options };
     const { style = {}, height, input, output } = options;
 
-    this.height = height ?? this.node.style.rowHeight;
+    this.height = height ?? this.node.style?.rowHeight ?? 0;
     this.style = { ...DefaultInputStyle(), ...style };
 
     if (this.style.type === InputType.Number && typeof options.value === "string") {
       options.value = parseFloat(options.value);
     }
-    this._value = options.value;
+    this._value = options.value!;
 
     this.setupLabel();
     this.setupInputElement();
 
     if (input) {
-      const terminal = this.createTerminal(TerminalType.IN, options.style.type);
+      const terminal = this.createTerminal(TerminalType.IN, options.style?.type!);
       terminal.on("connect", (_, connector) => {
         if (connector.data) this.value = connector.data;
       });
@@ -63,7 +63,7 @@ export class Input extends UINode<InputStyle> {
       });
     }
     if (output) {
-      const terminal = this.createTerminal(TerminalType.OUT, options.style.type);
+      const terminal = this.createTerminal(TerminalType.OUT, options.style?.type!);
       terminal.on("connect", (_, connector) => (connector.data = this.value));
     }
 
@@ -88,21 +88,21 @@ export class Input extends UINode<InputStyle> {
 
     this.label.on("click", () => {
       if (document.activeElement !== this.inputEl) {
-        const realPosition = this.position.transform(this.node.flow.flowConnect.transform);
+        const realPosition = this.position.transform(this.node.flow!.flowConnect.transform);
         Object.assign(this.inputEl.style, {
           visibility: "visible",
           pointerEvents: "all",
-          top: realPosition.y + this.node.flow.flowConnect.canvasDimensions.top + 1 + "px",
-          left: realPosition.x + this.node.flow.flowConnect.canvasDimensions.left + 1 + "px",
-          width: (this.width - 1) * this.node.flow.flowConnect.scale + "px",
-          height: (this.height - 1) * this.node.flow.flowConnect.scale + "px",
+          top: realPosition.y + this.node.flow!.flowConnect.canvasDimensions.top + 1 + "px",
+          left: realPosition.x + this.node.flow!.flowConnect.canvasDimensions.left + 1 + "px",
+          width: (this.width - 1) * this.node.flow!.flowConnect.scale + "px",
+          height: (this.height - 1) * this.node.flow!.flowConnect.scale + "px",
           fontFamily: this.style.font,
-          fontSize: parseInt(this.style.fontSize.replace("px", "")) * this.node.flow.flowConnect.scale + "px",
+          fontSize: parseInt(this.style.fontSize?.replace("px", "")!) * this.node.flow!.flowConnect.scale + "px",
           color: this.style.color,
           backgroundColor: this.inputEl.validity.patternMismatch ? "red" : this.style.backgroundColor,
           textAlign: this.style.align,
         });
-        if (this.style.type === InputType.Number) this.inputEl.step = this.style.step;
+        if (this.style.type === InputType.Number) this.inputEl.step = this.style.step!;
         this.inputEl.focus();
       }
     });
@@ -114,15 +114,15 @@ export class Input extends UINode<InputStyle> {
     this.inputEl.className = "flow-connect-input";
     this.inputEl.spellcheck = false;
     const inputType = this.style.type === "string" ? "text" : this.style.type;
-    this.inputEl.type = this.style.pattern ? "text" : inputType;
+    this.inputEl.type = this.style.pattern ? "text" : inputType!;
     this.inputEl.value = this.value.toString();
-    this.inputEl.style.color = this.style.color;
-    this.inputEl.style.backgroundColor = this.style.backgroundColor;
-    this.inputEl.style.border = this.style.border;
+    this.inputEl.style.color = this.style.color ?? "";
+    this.inputEl.style.backgroundColor = this.style.backgroundColor ?? "";
+    this.inputEl.style.border = this.style.border ?? "";
 
     if (this.style.pattern) this.inputEl.pattern = this.style.pattern;
     if (this.style.type === InputType.Number && this.style.step) this.inputEl.step = this.style.step;
-    if (exists(this.style.maxLength)) this.inputEl.maxLength = this.style.maxLength;
+    if (exists(this.style.maxLength)) this.inputEl.maxLength = this.style.maxLength!;
 
     this.inputEl.addEventListener("blur", () => {
       this.inputEl.style.visibility = "hidden";
@@ -137,7 +137,7 @@ export class Input extends UINode<InputStyle> {
       if (this.style.pattern) {
         this.inputEl.style.backgroundColor = this.inputEl.validity.patternMismatch
           ? "orange"
-          : this.style.backgroundColor;
+          : (this.style.backgroundColor ?? "");
         this.label.style.color = this.inputEl.validity.patternMismatch ? "orange" : this.style.color;
       }
       this.call("input", this);
@@ -150,13 +150,13 @@ export class Input extends UINode<InputStyle> {
   }
 
   paint(): void {
-    this.context.strokeStyle = this.style.border;
+    this.context.strokeStyle = this.style.border ?? "";
     this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
   }
   paintLOD1() {
     let context = this.context;
-    context.strokeStyle = this.style.border;
-    context.fillStyle = this.style.backgroundColor;
+    context.strokeStyle = this.style.border ?? "";
+    context.fillStyle = this.style.backgroundColor ?? "";
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
@@ -172,13 +172,13 @@ export class Input extends UINode<InputStyle> {
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
         this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
         this.position.y + this.height / 2,
       );
     }
@@ -226,5 +226,5 @@ export interface InputOptions extends UINodeOptions<InputStyle> {
   value?: string | number;
 }
 const DefaultInputOptions = (node: Node): InputOptions => ({
-  height: node.style.rowHeight * 1.5,
+  height: node.style?.rowHeight! * 1.5,
 });

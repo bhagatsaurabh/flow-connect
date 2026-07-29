@@ -6,9 +6,9 @@ import { UINode, UINodeStyle, UINodeOptions } from "./ui-node.js";
 import { Align } from "../common/enums.js";
 
 export class Button extends UINode<ButtonStyle> {
-  style: ButtonStyle;
-  label: Label;
-  text: string;
+  style!: ButtonStyle;
+  label!: Label;
+  text!: string;
 
   constructor(_node: Node, _options: ButtonOptions) {
     super();
@@ -19,7 +19,7 @@ export class Button extends UINode<ButtonStyle> {
     const { height, style = {}, input, output, text = "Button" } = options;
 
     this.style = { ...DefaultButtonStyle(), ...style };
-    this.height = (height ?? this.node.style.rowHeight) + 2 * this.style.padding;
+    this.height = (height ?? this.node.style?.rowHeight ?? 0) + 2 * this.style.padding!;
 
     if (input) {
       const terminal = this.createTerminal(TerminalType.IN, "event");
@@ -49,8 +49,8 @@ export class Button extends UINode<ButtonStyle> {
       fillStyle: this.style.backgroundColor,
       shadowColor: this.style.shadowColor,
       shadowBlur: this.style.shadowBlur,
-      shadowOffsetX: this.style.shadowOffset.x,
-      shadowOffsetY: this.style.shadowOffset.y,
+      shadowOffsetX: this.style.shadowOffset?.x,
+      shadowOffsetY: this.style.shadowOffset?.y,
     });
     this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
@@ -72,14 +72,14 @@ export class Button extends UINode<ButtonStyle> {
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -115,5 +115,5 @@ export interface ButtonOptions extends UINodeOptions<ButtonStyle> {
 }
 const DefaultButtonOptions = (node: Node): ButtonOptions => ({
   text: "Button",
-  height: node.style.rowHeight,
+  height: node.style?.rowHeight,
 });

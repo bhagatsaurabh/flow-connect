@@ -3,7 +3,7 @@ import { UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 import { clamp } from "../utils/utils.js";
 
 export class HorizontalLayout extends UINode<HorizontalLayoutStyle> {
-  style: HorizontalLayoutStyle;
+  style!: HorizontalLayoutStyle;
 
   constructor(_node: Node, _options: HorizontalLayoutOptions = DefaultHorizontalLayoutOptions()) {
     super();
@@ -11,10 +11,10 @@ export class HorizontalLayout extends UINode<HorizontalLayoutStyle> {
 
   protected created(options: HorizontalLayoutOptions): void {
     options = { ...DefaultHorizontalLayoutOptions(), ...options };
-    const { style = {}, childs = [], height = this.node.style.rowHeight } = options;
+    const { style = {}, childs = [], height = this.node.style!.rowHeight } = options;
 
     this.style = { ...DefaultHorizontalLayoutStyle(), ...style };
-    this.height = height;
+    this.height = height!;
 
     if (childs && childs.length > 0) this.children.push(...childs);
   }
@@ -29,7 +29,7 @@ export class HorizontalLayout extends UINode<HorizontalLayoutStyle> {
   reflow() {
     let children = this.children.filter((child) => child.visible);
 
-    let availableWidth = this.width - (children.length > 0 ? children.length - 1 : 0) * this.style.spacing;
+    let availableWidth = this.width - (children.length > 0 ? children.length - 1 : 0) * this.style.spacing!;
     let originalWidth = availableWidth;
 
     let maxHeight = 0;
@@ -68,24 +68,24 @@ export class HorizontalLayout extends UINode<HorizontalLayoutStyle> {
       child.position.assign(x, y);
 
       availableWidth -= childWidth;
-      x += childWidth + this.style.spacing;
+      x += childWidth + this.style.spacing!;
     });
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
 
     // Bug, when creating HozLayout with childs argument, UI container's height won't update
-    this.node.ui.reflow();
+    this.node.ui?.reflow();
   }
 
   onPropChange() {}

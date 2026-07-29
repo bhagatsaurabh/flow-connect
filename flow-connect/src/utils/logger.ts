@@ -1,5 +1,3 @@
-import { FlowConnect } from "../flow-connect";
-
 export enum LogLevel {
   TRACE = 1,
   DEBUG = 2,

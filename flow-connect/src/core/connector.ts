@@ -69,7 +69,9 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
         end.connectors.push(connector);
       }
 
-      flow.executionGraph.connect(connector.startNode, connector.endNode);
+      if (connector.startNode && connector.endNode) {
+        flow.executionGraph.connect(connector.startNode, connector.endNode);
+      }
       start.onConnect(connector);
       end.onConnect(connector);
     }
@@ -87,7 +89,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
       1,
     );
     this.end?.connectors.pop();
-    if (startTerm && endTerm) {
+    if (startTerm?.node && endTerm?.node) {
       this.flow?.executionGraph.disconnect(startTerm.node, endTerm.node);
     }
     this.start?.onDisconnect(this, startTerm, endTerm);
@@ -108,7 +110,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
       destination = other;
     }
 
-    if (this.flow && source) {
+    if (this.flow?.rules && source) {
       return canConnect(source, destination, this.flow.rules, this.flow.executionGraph);
     }
     return false;
@@ -186,15 +188,20 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
   private _offRender() {
     /**/
   }
-  private getRenderParams(): ConnectorRenderParams {
+  private getRenderParams(): ConnectorRenderParams | undefined {
+    if (!this.startNode?.position || !this.endNode?.position) {
+      return;
+    }
     let start: SerializedVector | undefined, end: SerializedVector | undefined;
     if (this.start) {
       if (this.startNode.renderState.nodeState === NodeState.MAXIMIZED) start = this.start.position.serialize();
       else {
         start = this.startNode.position.serialize();
         start.x +=
-          this.startNode.width + (this.startNode.style.terminalStripMargin ?? 0) + (this.start.style.radius ?? 0);
-        start.y += (this.startNode.style.titleHeight ?? 0) / 2;
+          (this.startNode.width ?? 0) +
+          (this.startNode.style?.terminalStripMargin ?? 0) +
+          (this.start.style?.radius ?? 0);
+        start.y += (this.startNode.style?.titleHeight ?? 0) / 2;
       }
     } else {
       start = this.floatingTip?.serialize();
@@ -203,8 +210,8 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
       if (this.endNode.renderState.nodeState === NodeState.MAXIMIZED) end = this.end.position.serialize();
       else {
         end = this.endNode.position.serialize();
-        end.x -= (this.endNode.style.terminalStripMargin ?? 0) + (this.end.style.radius ?? 0);
-        end.y += (this.endNode.style.titleHeight ?? 0) / 2;
+        end.x -= (this.endNode.style?.terminalStripMargin ?? 0) + (this.end.style?.radius ?? 0);
+        end.y += (this.endNode.style?.titleHeight ?? 0) / 2;
       }
     } else end = this.floatingTip?.serialize();
 

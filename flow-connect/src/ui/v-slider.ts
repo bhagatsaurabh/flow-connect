@@ -7,12 +7,12 @@ import { FlowState } from "../core/flow.js";
 import { Constant } from "../resource/constants.js";
 
 export class VSlider extends UINode<VSliderStyle> {
-  style: VSliderStyle;
-  min: number;
-  max: number;
+  style!: VSliderStyle;
+  min!: number;
+  max!: number;
 
-  private thumbFill: number;
-  private _value: number;
+  private thumbFill!: number;
+  private _value!: number;
 
   get value(): number {
     if (this.propName) return this.getProp();
@@ -30,7 +30,7 @@ export class VSlider extends UINode<VSliderStyle> {
       this.reflow();
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(node: Node, _options: VSliderOptions = DefaultVSliderOptions(node)) {
@@ -45,9 +45,9 @@ export class VSlider extends UINode<VSliderStyle> {
 
     this.min = min;
     this.max = max;
-    this.style = { ...DefaultVSliderStyle(this.node, width), ...style };
-    this.height = height ?? this.node.style.rowHeight * 5;
-    this.width = width ?? this.node.style.rowHeight;
+    this.style = { ...DefaultVSliderStyle(this.node, width!), ...style };
+    this.height = height ?? this.node.style?.rowHeight! * 5;
+    this.width = width ?? this.node.style?.rowHeight!;
     this._value = this.propName ? this.getProp() : value;
     this._value = clamp(this._value, this.min, this.max);
 
@@ -72,8 +72,8 @@ export class VSlider extends UINode<VSliderStyle> {
 
   paint(): void {
     let context = this.context;
-    context.lineWidth = this.style.railWidth;
-    context.strokeStyle = this.style.color;
+    context.lineWidth = this.style.railWidth ?? 0;
+    context.strokeStyle = this.style.color ?? "";
     context.lineCap = "butt";
 
     let start = Math.max(this.position.y, this.position.y + this.thumbFill - 3);
@@ -83,7 +83,7 @@ export class VSlider extends UINode<VSliderStyle> {
       context.lineTo(this.position.x + this.width / 2, start);
       context.stroke();
     }
-    start = Math.min(this.position.y + 2 * this.style.thumbRadius + this.thumbFill + 3, this.position.y + this.height);
+    start = Math.min(this.position.y + 2 * this.style.thumbRadius! + this.thumbFill + 3, this.position.y + this.height);
     if (start !== this.position.y + this.height) {
       context.beginPath();
       context.moveTo(this.position.x + this.width / 2, start);
@@ -91,21 +91,21 @@ export class VSlider extends UINode<VSliderStyle> {
       context.stroke();
     }
 
-    context.fillStyle = this.style.thumbColor;
+    context.fillStyle = this.style.thumbColor ?? "";
     context.beginPath();
     context.arc(
       this.position.x + this.width / 2,
-      this.position.y + this.style.thumbRadius + this.thumbFill,
-      this.style.thumbRadius,
+      this.position.y + this.style.thumbRadius! + this.thumbFill,
+      this.style.thumbRadius!,
       0,
-      Constant.TAU
+      Constant.TAU,
     );
     context.fill();
   }
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = "#000";
-    context.fillStyle = this.style.color;
+    context.fillStyle = this.style.color ?? "";
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
@@ -118,19 +118,19 @@ export class VSlider extends UINode<VSliderStyle> {
     this.thumbFill = denormalize(
       1 - normalize(this.value, this.min, this.max),
       0,
-      this.height - 2 * this.style.thumbRadius
+      this.height - 2 * this.style.thumbRadius!,
     );
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -143,15 +143,15 @@ export class VSlider extends UINode<VSliderStyle> {
   }
 
   onDrag(event: UIEvent): void {
-    let x = this.position.x + this.width / 2 - this.style.railWidth / 2;
+    let x = this.position.x + this.width / 2 - this.style.railWidth! / 2;
     this.thumbFill = event.realPos
-      .clamp(x, x, this.position.y + this.style.thumbRadius, this.position.y + this.height - this.style.thumbRadius)
-      .subtractInPlace(0, this.position.y + this.style.thumbRadius).y;
+      .clamp(x, x, this.position.y + this.style.thumbRadius!, this.position.y + this.height - this.style.thumbRadius!)
+      .subtractInPlace(0, this.position.y + this.style.thumbRadius!).y;
 
     this.value = denormalize(
-      1 - normalize(this.thumbFill, 0, this.height - 2 * this.style.thumbRadius),
+      1 - normalize(this.thumbFill, 0, this.height - 2 * this.style.thumbRadius!),
       this.min,
-      this.max
+      this.max,
     );
   }
 }
@@ -166,7 +166,7 @@ const DefaultVSliderStyle = (node: Node, width: number): VSliderStyle => ({
   color: "#444",
   thumbColor: "#000",
   railWidth: 4,
-  thumbRadius: typeof width !== "undefined" ? width / 2 : (node.style.rowHeight * 1.5) / 2,
+  thumbRadius: typeof width !== "undefined" ? width / 2 : (node.style?.rowHeight! * 1.5) / 2,
 });
 
 export interface VSliderOptions extends UINodeOptions<VSliderStyle> {
@@ -180,7 +180,7 @@ const DefaultVSliderOptions = (node: Node): VSliderOptions => {
     min: 0,
     max: 100,
     value: 0,
-    width: node.style.rowHeight,
-    height: node.style.rowHeight * 5,
+    width: node.style?.rowHeight!,
+    height: node.style?.rowHeight! * 5,
   };
 };

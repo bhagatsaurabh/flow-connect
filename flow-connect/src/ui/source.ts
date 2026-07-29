@@ -8,14 +8,14 @@ import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
 
 export class Source extends UINode<SourceStyle> {
-  style: SourceStyle;
+  style!: SourceStyle;
 
-  private htmlInput: HTMLInputElement;
-  private fileIcon: Image;
-  private _file: File;
+  private htmlInput!: HTMLInputElement;
+  private fileIcon!: Image;
+  private _file!: File;
 
-  label: Label;
-  accept: string;
+  label!: Label;
+  accept!: string;
   actionOverride = false;
 
   get file(): File {
@@ -32,7 +32,7 @@ export class Source extends UINode<SourceStyle> {
       this.label.text = newVal.name.substring(0, this._file.name.toString().lastIndexOf("."));
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(node: Node, _options: SourceOptions = DefaultSourceOptions(node)) {
@@ -44,9 +44,9 @@ export class Source extends UINode<SourceStyle> {
     const { style = {}, height, accept, input, output, file, actionOverride } = options;
 
     this.style = { ...DefaultSourceStyle(), ...style };
-    this.accept = accept;
-    this.actionOverride = actionOverride;
-    this.height = height ?? this.node.style.rowHeight;
+    this.accept = accept!;
+    this.actionOverride = actionOverride!;
+    this.height = height ?? this.node.style?.rowHeight!;
 
     this.setupInputElement(options);
 
@@ -79,7 +79,7 @@ export class Source extends UINode<SourceStyle> {
       this.output?.setData(this.file);
     });
 
-    if (file) this.file = options.file;
+    if (file) this.file = options.file!;
   }
 
   setupInputElement(options: SourceOptions) {
@@ -87,22 +87,22 @@ export class Source extends UINode<SourceStyle> {
     this.htmlInput.type = "file";
     if (options.accept) this.htmlInput.accept = options.accept;
     this.htmlInput.onchange = () => {
-      if (this.htmlInput.files.length > 0) {
+      if (this.htmlInput.files!.length > 0) {
         let oldVal = this.file;
-        this.file = this.htmlInput.files[0];
-        if (this.node.flow.state === FlowState.Stopped) this.call("upload", this, oldVal, this.file);
+        this.file = this.htmlInput.files![0];
+        if (this.node.flow!.state === FlowState.Stopped) this.call("upload", this, oldVal, this.file);
       }
     };
   }
 
   paint(): void {
-    this.context.strokeStyle = this.style.borderColor;
+    this.context.strokeStyle = this.style.borderColor ?? "";
     this.context.strokeRect(this.position.x, this.position.y, this.width, this.height);
   }
   paintLOD1() {
     let context = this.context;
-    context.strokeStyle = this.style.borderColor;
-    context.fillStyle = this.style.color;
+    context.strokeStyle = this.style.borderColor ?? "";
+    context.fillStyle = this.style.color ?? "";
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
@@ -121,14 +121,14 @@ export class Source extends UINode<SourceStyle> {
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -157,5 +157,5 @@ export interface SourceOptions extends UINodeOptions<SourceStyle> {
   actionOverride?: boolean;
 }
 const DefaultSourceOptions = (node: Node): SourceOptions => ({
-  height: node.style.rowHeight * 1.5,
+  height: node.style?.rowHeight! * 1.5,
 });

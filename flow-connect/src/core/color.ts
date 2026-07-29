@@ -36,7 +36,7 @@ export class Color implements Serializable<SerializedColor> {
         Math.floor(getRandom(0, 255)),
         Math.floor(getRandom(0, 255)),
         255,
-      ])
+      ]),
     );
   }
   static hexToRGBA(hex: string): Uint8ClampedArray {
@@ -71,11 +71,11 @@ export class Color implements Serializable<SerializedColor> {
   static scale(colors: Color[] | Uint8ClampedArray | string[] | number[][]): (t: number) => string {
     if (!Array.isArray(colors)) {
       Log.error("An array is expected to create a color scale");
-      return;
+      return () => "";
     }
     if (colors.length <= 1) {
       Log.error("At least two colors are required to create a color scale");
-      return;
+      return () => "";
     }
 
     let colorObjs: Color[] = [];

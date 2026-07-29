@@ -14,8 +14,8 @@ export class Dial extends UINode<DialStyle> {
   private _value: number;
   private thumbStart: Vector = Vector.Zero();
   private thumbEnd: Vector = Vector.Zero();
-  private lastAngle: number;
-  private deltaValue: number;
+  private lastAngle?: number;
+  private deltaValue!: number;
   private temp: number;
 
   get value(): number {
@@ -31,14 +31,14 @@ export class Dial extends UINode<DialStyle> {
 
     this.temp = normalize(newVal, this.min, this.max);
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow?.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(node: Node, options: DialOptions) {
     super();
 
     options = { ...DefaultDialOptions(node), ...options };
-    const { min = 0, max = 100, height = 50 + node.style.padding * 2, style = {}, value = min } = options;
+    const { min = 0, max = 100, height = 50 + node.style?.padding! * 2, style = {}, value = min } = options;
 
     this.draggable = true;
     this.height = height;
@@ -73,11 +73,11 @@ export class Dial extends UINode<DialStyle> {
     let context = this.context;
     let size = Math.min(this.width, this.height);
 
-    context.fillStyle = this.style.color;
-    context.strokeStyle = this.style.borderColor;
-    context.lineWidth = this.style.borderWidth;
-    context.shadowColor = this.style.shadowColor;
-    context.shadowBlur = this.style.shadowBlur;
+    context.fillStyle = this.style.color ?? "";
+    context.strokeStyle = this.style.borderColor ?? "";
+    context.lineWidth = this.style.borderWidth ?? 0;
+    context.shadowColor = this.style.shadowColor ?? "";
+    context.shadowBlur = this.style.shadowBlur ?? 0;
     context.shadowOffsetX = 3;
     context.shadowOffsetY = 3;
     context.beginPath();
@@ -87,9 +87,9 @@ export class Dial extends UINode<DialStyle> {
 
     context.lineCap = "round";
     context.lineWidth = 10;
-    context.strokeStyle = this.style.thumbColor;
-    context.shadowColor = this.style.thumbShadowColor;
-    context.shadowBlur = this.style.thumbShadowBlur;
+    context.strokeStyle = this.style.thumbColor ?? "";
+    context.shadowColor = this.style.thumbShadowColor ?? "";
+    context.shadowBlur = this.style.thumbShadowBlur ?? 0;
     context.beginPath();
     context.moveTo(this.thumbStart.x, this.thumbStart.y);
     context.lineTo(this.thumbEnd.x, this.thumbEnd.y);
@@ -98,7 +98,7 @@ export class Dial extends UINode<DialStyle> {
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = "#000";
-    context.fillStyle = this.style.color;
+    context.fillStyle = this.style.color ?? "";
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
@@ -121,14 +121,14 @@ export class Dial extends UINode<DialStyle> {
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -207,7 +207,7 @@ export interface DialOptions extends UINodeOptions<DialStyle> {
   value?: number;
 }
 const DefaultDialOptions = (node: Node): DialOptions => ({
-  height: 50 + node.style.padding * 2,
+  height: 50 + node.style?.padding! * 2,
   min: 0,
   max: 100,
 });

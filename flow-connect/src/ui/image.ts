@@ -6,13 +6,13 @@ import { Align } from "../common/enums.js";
 import { FlowState } from "../core/flow.js";
 
 export class Image extends UINode<ImageStyle> {
-  style: ImageStyle;
+  style!: ImageStyle;
 
-  private imageCanvas: OffscreenCanvas | HTMLCanvasElement;
-  private imageContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-  private source: HTMLImageElement;
-  private ratio: number;
-  private _src: string;
+  private imageCanvas!: OffscreenCanvas | HTMLCanvasElement;
+  private imageContext!: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  private source!: HTMLImageElement;
+  private ratio!: number;
+  private _src!: string;
 
   get src(): string {
     if (this.propName) return this.getProp();
@@ -26,7 +26,7 @@ export class Image extends UINode<ImageStyle> {
     else this._src = newVal;
     this.setupImage();
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(_node: Node, _options: ImageOptions = DefaultImageOptions()) {
@@ -54,7 +54,7 @@ export class Image extends UINode<ImageStyle> {
         this.imageContext.drawImage(this.source, 0, 0);
         this.ratio = this.source.width / this.source.height;
         this.reflow();
-        this.node.ui.update();
+        this.node.ui?.update();
       };
     }
     if (!this.imageCanvas) {
@@ -86,16 +86,16 @@ export class Image extends UINode<ImageStyle> {
         x,
         this.position.y,
         this.source.width < this.width ? this.source.width : this.width,
-        this.height
+        this.height,
       );
     }
   }
   paintLOD1() {
     if (this.imageCanvas) {
       let x = this.position.x;
-      if (this.source.width < this.node.ui.contentWidth) {
-        if (this.style.align === Align.Center) x += this.node.ui.contentWidth / 2 - this.source.width / 2;
-        else if (this.style.align === Align.Right) x += +(this.node.ui.contentWidth - this.source.width);
+      if (this.source.width < this.node.ui!.contentWidth) {
+        if (this.style.align === Align.Center) x += this.node.ui!.contentWidth / 2 - this.source.width / 2;
+        else if (this.style.align === Align.Right) x += +(this.node.ui!.contentWidth - this.source.width);
       }
       let context = this.context;
       context.fillStyle = "lightgrey";
@@ -104,13 +104,13 @@ export class Image extends UINode<ImageStyle> {
         x,
         this.position.y,
         this.source.width < this.width ? this.source.width : this.width,
-        this.height
+        this.height,
       );
       context.strokeRect(
         x,
         this.position.y,
         this.source.width < this.width ? this.source.width : this.width,
-        this.height
+        this.height,
       );
     }
   }
@@ -126,7 +126,7 @@ export class Image extends UINode<ImageStyle> {
       x,
       this.position.y,
       this.source.width < this.width ? this.source.width : this.width,
-      this.height
+      this.height,
     );
   }
 

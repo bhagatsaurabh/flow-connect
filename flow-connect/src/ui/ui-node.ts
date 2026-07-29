@@ -9,31 +9,31 @@ import { Renderable } from "../common/interfaces.js";
 import { FlowConnect, Log } from "../flow-connect.js";
 
 export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks implements Renderable {
-  private _disabled: boolean;
-  private _visible: boolean;
+  private _disabled!: boolean;
+  private _visible!: boolean;
 
-  node: Node;
-  type: string;
+  node!: Node;
+  type!: string;
 
-  renderState: ViewPort;
-  hitColor: Color;
+  renderState!: ViewPort;
+  hitColor!: Color;
   abstract style: T;
-  propName: string;
-  input: Terminal;
-  output: Terminal;
-  id: string;
-  draggable: boolean;
-  zoomable: boolean;
+  propName!: string;
+  input!: Terminal;
+  output!: Terminal;
+  id!: string;
+  draggable!: boolean;
+  zoomable!: boolean;
   width: number = 0;
   height: number = 0;
   children: UINode[];
   get context(): CanvasRenderingContext2D {
-    return this.node.context;
+    return this.node.context!;
   }
   get offUIContext(): OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D {
-    return this.node.offUIContext;
+    return this.node.offUIContext!;
   }
-  position: Vector;
+  position!: Vector;
 
   get disabled(): boolean {
     return this._disabled;
@@ -47,7 +47,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
   }
   set visible(value: boolean) {
     this._visible = value;
-    this.node.ui.update();
+    this.node.ui?.update();
   }
 
   protected constructor() {
@@ -62,7 +62,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
     node: Node,
     options: UINodeOptions = DefaultUINodeOptions(node),
   ): T {
-    options.style = { ...(node.flow.flowConnect.getDefaultStyle("ui", type) || {}), ...(options.style || {}) };
+    options.style = { ...(node.flow?.flowConnect.getDefaultStyle("ui", type) || {}), ...(options.style || {}) };
 
     const construct = FlowConnect.getRegistered("ui", type);
     const uiNode = new construct(node, options);
@@ -71,11 +71,11 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
 
     uiNode.type = type;
     uiNode.node = node;
-    uiNode.setHitColor(hitColor);
+    uiNode.setHitColor(hitColor!);
     uiNode.id = id;
     uiNode._visible = visible;
     uiNode.position = position;
-    uiNode.propName = propName;
+    uiNode.propName = propName!;
 
     if (propName) {
       node.watch(propName, (oldVal, newVal) => uiNode.onPropChange(oldVal, newVal));
@@ -88,7 +88,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
 
   protected createTerminal(type: TerminalType, dataType: string): Terminal;
   protected createTerminal(type: TerminalType, dataType: string, name: string): Terminal;
-  protected createTerminal(type: TerminalType, dataType: string, name?: string): Terminal {
+  protected createTerminal(type: TerminalType, dataType: string, name?: string): Terminal | undefined {
     if ((type === TerminalType.IN && this.input) || (type === TerminalType.OUT && this.output)) {
       Log.error("Terminal for UINode was already configured, ignoring terminal creation");
       return;
@@ -116,7 +116,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
     this.update();
 
     // To fix a bug, when appending childs to UINodes in-between the tree, UI container's height won't update
-    this.node.ui.update();
+    this.node.ui?.update();
   }
   update(): void {
     this.reflow();
@@ -126,16 +126,16 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
   updateRenderState() {
     if (this.node.renderState.nodeState === NodeState.MINIMIZED) return;
 
-    let realPos = this.position.transform(this.node.flow.flowConnect.transform);
+    let realPos = this.position.transform(this.node.flow!.flowConnect.transform);
     this.renderState = intersects(
       0,
       0,
-      this.node.flow.flowConnect.canvasDimensions.width,
-      this.node.flow.flowConnect.canvasDimensions.height,
+      this.node.flow!.flowConnect.canvasDimensions.width,
+      this.node.flow!.flowConnect.canvasDimensions.height,
       realPos.x,
       realPos.y,
-      realPos.x + this.width * this.node.flow.flowConnect.scale,
-      realPos.y + this.height * this.node.flow.flowConnect.scale,
+      realPos.x + this.width * this.node.flow!.flowConnect.scale,
+      realPos.y + this.height * this.node.flow!.flowConnect.scale,
     );
 
     this.children.forEach((child) => child.updateRenderState());
@@ -184,20 +184,20 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
   }
 
   getProp() {
-    return this.node.state[this.propName];
+    return this.node.state![this.propName];
   }
   setProp(propValue: any) {
-    this.node.state[this.propName] = propValue;
+    this.node.state![this.propName] = propValue;
   }
 
-  query(query: string): Array<UINode> {
+  query(query: string): Array<UINode | undefined> {
     let result = [];
     query = query.trim();
     let queue: UINode[] = [this];
     while (queue.length !== 0) {
       let curr = queue.shift();
-      if (curr.type === query) result.push(curr);
-      curr.children.forEach((child) => queue.push(child));
+      if (curr!.type === query) result.push(curr);
+      curr!.children.forEach((child) => queue.push(child));
     }
 
     return result;
@@ -257,7 +257,7 @@ const DefaultUINodeOptions = (node: Node): UINodeOptions => {
     propName: undefined,
     id: uuid(),
     hitColor: undefined,
-    height: node.style.rowHeight,
+    height: node.style?.rowHeight,
     position: Vector.Zero(),
   };
 };

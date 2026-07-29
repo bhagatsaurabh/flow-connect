@@ -23,7 +23,7 @@ export const intersects = (
   start2X: number,
   start2Y: number,
   end2X: number,
-  end2Y: number
+  end2Y: number,
 ): ViewPort => {
   let res = !(start2X > end1X || end2X < start1X || start2Y > end1Y || end2Y < start1Y);
   if (res) {
@@ -40,8 +40,8 @@ export const canConnect = (source: Terminal, destination: Terminal, rules: Rules
   if (source === destination) return false;
   if (source.node === destination.node) return false;
   if (source.type === destination.type) return false;
-  if (!rules[source.dataType].includes(destination.dataType)) return false; // Directional !!
-  if (!executionGraph.canConnect(source.node, destination.node)) return false;
+  if (!rules[source.dataType!].includes(destination.dataType!)) return false; // Directional !!
+  if (!executionGraph.canConnect(source.node!, destination.node!)) return false;
   return true;
 };
 export const isEmpty = (obj: any): boolean => {

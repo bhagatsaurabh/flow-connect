@@ -12,10 +12,10 @@ import { clampMin } from "../flow-connect.js";
 export class Envelope extends UINode<EnvelopeStyle> {
   style: EnvelopeStyle;
 
-  private _value: List<Vector>;
+  private _value!: List<Vector>;
   private pointHitColorPoint: BiMap<string, ListNode<Vector>> = new BiMap();
-  offPointsCanvas: OffscreenCanvas | HTMLCanvasElement;
-  private offPointsContext: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
+  offPointsCanvas!: OffscreenCanvas | HTMLCanvasElement;
+  private offPointsContext!: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 
   get value(): Vector[] {
     let value;
@@ -34,7 +34,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
       this.handleEnvelopeChange(newVal);
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(_node: Node, options: EnvelopeOptions = DefaultEnvelopeOptions()) {
@@ -46,7 +46,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
     this.draggable = true;
     this.height = height;
     this.style = { ...DefaultEnvelopeStyle(), ...style };
-    this.style.pointDiameter = clampMin(this.style.pointDiameter, 2);
+    this.style.pointDiameter = clampMin(this.style.pointDiameter!, 2);
   }
 
   protected created(options: EnvelopeOptions): void {
@@ -89,39 +89,39 @@ export class Envelope extends UINode<EnvelopeStyle> {
     this.renderOffPoints();
   }
   renderOffPoints() {
-    let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
+    let [width, height] = [this.width - this.style.pointDiameter!, this.height - this.style.pointDiameter!];
     this.offPointsContext.clearRect(0, 0, width, height);
 
     this._value.forEach((node) => {
-      let coord = Vector.create(node.data.x, 1 - node.data.y)
+      let coord = Vector.create(node.data!.x, 1 - node.data!.y)
         .multiply(width, height)
-        .add(this.style.pointDiameter / 2);
+        .add(this.style.pointDiameter! / 2);
       this.offPointsContext.fillStyle = this.pointHitColorPoint.get(node) as string;
       this.offPointsContext.beginPath();
-      this.offPointsContext.arc(coord.x, coord.y, this.style.pointDiameter / 2, 0, Constant.TAU);
+      this.offPointsContext.arc(coord.x, coord.y, this.style.pointDiameter! / 2, 0, Constant.TAU);
       this.offPointsContext.fill();
     });
   }
 
   paint(): void {
-    let context = this.node.context;
+    let context = this.node.context!;
 
-    context.fillStyle = this.style.backgroundColor;
-    context.strokeStyle = this.style.borderColor;
-    context.lineWidth = this.style.borderWidth;
+    context.fillStyle = this.style.backgroundColor ?? "";
+    context.strokeStyle = this.style.borderColor ?? "";
+    context.lineWidth = this.style.borderWidth ?? 0;
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
-    let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
+    let [width, height] = [this.width - this.style.pointDiameter!, this.height - this.style.pointDiameter!];
     let points: Vector[] = this._value.map((node) =>
-      Vector.create(node.data.x, 1 - node.data.y)
+      Vector.create(node.data!.x, 1 - node.data!.y)
         .multiplyInPlace(width, height)
         .addInPlace(this.position)
-        .addInPlace(this.style.pointDiameter / 2),
+        .addInPlace(this.style.pointDiameter! / 2),
     );
 
     if (points.length > 0) {
-      context.strokeStyle = this.style.lineColor;
+      context.strokeStyle = this.style.lineColor ?? "";
       context.lineWidth = 2;
       context.beginPath();
       context.moveTo(this.position.x, points[0].y);
@@ -130,15 +130,15 @@ export class Envelope extends UINode<EnvelopeStyle> {
       context.stroke();
     }
 
-    context.fillStyle = this.style.pointColor;
+    context.fillStyle = this.style.pointColor ?? "";
     points.forEach((point) => {
       context.beginPath();
-      context.arc(point.x, point.y, this.style.pointDiameter / 2, 0, Constant.TAU);
+      context.arc(point.x, point.y, this.style.pointDiameter! / 2, 0, Constant.TAU);
       context.fill();
     });
   }
   paintLOD1() {
-    this.context.fillStyle = this.style.backgroundColor;
+    this.context.fillStyle = this.style.backgroundColor ?? "";
     this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
   offPaint(): void {
@@ -160,13 +160,13 @@ export class Envelope extends UINode<EnvelopeStyle> {
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
         this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
         this.position.y + this.height / 2,
       );
     }
@@ -179,20 +179,20 @@ export class Envelope extends UINode<EnvelopeStyle> {
     return hitPointNode as ListNode<Vector>;
   }
   movePoint(realPosition: Vector) {
-    let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
+    let [width, height] = [this.width - this.style.pointDiameter!, this.height - this.style.pointDiameter!];
 
-    this.currHitPoint.data = realPosition
+    this.currHitPoint!.data = realPosition
       .clamp(
-        this.position.x + this.style.pointDiameter / 2,
-        this.position.x + this.width - this.style.pointDiameter / 2,
-        this.position.y + this.style.pointDiameter / 2,
-        this.position.y + this.height - this.style.pointDiameter / 2,
+        this.position.x + this.style.pointDiameter! / 2,
+        this.position.x + this.width - this.style.pointDiameter! / 2,
+        this.position.y + this.style.pointDiameter! / 2,
+        this.position.y + this.height - this.style.pointDiameter! / 2,
       )
-      .subtractInPlace(this.position.add(this.style.pointDiameter / 2))
+      .subtractInPlace(this.position.add(this.style.pointDiameter! / 2))
       .clampInPlace(0, width, 0, height)
       .normalizeInPlace(0, width, 0, height)
-      .clampInPlace(this.currHitPoint.prev?.data.x || 0, this.currHitPoint.next?.data.x || 1, -Infinity, Infinity);
-    this.currHitPoint.data = Vector.create(this.currHitPoint.data.x, 1 - this.currHitPoint.data.y);
+      .clampInPlace(this.currHitPoint?.prev?.data!.x || 0, this.currHitPoint?.next?.data!.x || 1, -Infinity, Infinity);
+    this.currHitPoint!.data = Vector.create(this.currHitPoint!.data.x, 1 - this.currHitPoint!.data.y);
 
     this.updateState();
 
@@ -202,12 +202,12 @@ export class Envelope extends UINode<EnvelopeStyle> {
     let oldVal = this._value.toArray();
 
     let newPoint = realPosition
-      .subtract(this.position.add(this.style.pointDiameter / 2))
+      .subtract(this.position.add(this.style.pointDiameter! / 2))
       .normalizeInPlace(0, width, 0, height);
     newPoint = Vector.create(newPoint.x, 1 - newPoint.y);
 
     let newPointNode;
-    let anchor = this._value.searchTail((node) => node.data.x <= newPoint.x);
+    let anchor = this._value.searchTail((node) => node.data!.x <= newPoint.x);
 
     if (!anchor) newPointNode = this._value.prepend(newPoint);
     else newPointNode = this._value.addAfter(newPoint, anchor);
@@ -217,23 +217,23 @@ export class Envelope extends UINode<EnvelopeStyle> {
 
     this.updateState();
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, this._value.toArray());
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, this._value.toArray());
   }
   deletePoint() {
     let oldVal = this._value.toArray();
-    this._value.delete(this.currHitPoint);
-    this.pointHitColorPoint.delete(this.currHitPoint);
+    this._value.delete(this.currHitPoint!);
+    this.pointHitColorPoint.delete(this.currHitPoint!);
     this.renderOffPoints();
 
     this.updateState();
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, this._value.toArray());
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, this._value.toArray());
   }
   updateState() {
-    if (this.propName && this.node.state[this.propName]) {
-      this.node.state[this.propName].length = 0;
+    if (this.propName && this.node.state![this.propName]) {
+      this.node.state![this.propName].length = 0;
       const updatedVal = this._value.toArray().map((vec) => vec.clone());
-      this.node.state[this.propName].push(...updatedVal);
+      this.node.state![this.propName].push(...updatedVal);
     }
   }
 
@@ -250,7 +250,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
     this.lastDownPosition = event.realPos;
   }
   onUp(event: UIEvent): void {
-    let [width, height] = [this.width - this.style.pointDiameter, this.height - this.style.pointDiameter];
+    let [width, height] = [this.width - this.style.pointDiameter!, this.height - this.style.pointDiameter!];
     if (!this.currHitPoint && this.lastDownPosition) {
       if (Vector.Distance(this.lastDownPosition, event.realPos) <= 2) {
         this.newPoint(event.realPos, width, height);
@@ -264,7 +264,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
       this.deletePoint();
     } else if (this.currHitPoint) {
       // Point has finished moving
-      if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, null, this._value.toArray());
+      if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, null, this._value.toArray());
     }
 
     this.currHitPoint = undefined;
@@ -276,7 +276,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
   onExit(event: UIEvent) {
     if (this.currHitPoint) {
       this.movePoint(event.realPos);
-      if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, null, this._value.toArray());
+      if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, null, this._value.toArray());
     }
     this.currHitPoint = undefined;
     this.lastDownPosition = undefined;

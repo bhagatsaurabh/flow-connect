@@ -5,10 +5,10 @@ import { UINode, UINodeStyle, UINodeRenderParams, UINodeOptions } from "./ui-nod
 import { Align } from "../common/enums.js";
 
 export class Container extends UINode<ContainerStyle> {
-  style: ContainerStyle;
+  style!: ContainerStyle;
 
   renderer: Renderer<Container, ContainerRenderParams> = () => () => undefined;
-  contentWidth: number;
+  contentWidth!: number;
 
   constructor(_node: Node, _options: ContainerOptions) {
     super();
@@ -18,19 +18,19 @@ export class Container extends UINode<ContainerStyle> {
     options = { ...DefaultContainerOptions(this.node), ...options };
     const { width, height, style = {} } = options;
 
-    this.width = width;
-    this.height = height ?? this.node.style.padding * 2;
-    this.contentWidth = width - 2 * this.node.style.padding;
+    this.width = width ?? 0;
+    this.height = height ?? (this.node.style?.padding ?? 0) * 2;
+    this.contentWidth = (width ?? 0) - 2 * (this.node.style?.padding ?? 0);
     this.style = { ...DefaultContainerStyle(), ...style };
 
-    this.position = this.node.position;
+    this.position = this.node.position!;
   }
 
   paint(): void {
     const context = this.context;
 
-    const scopeFlowConnect = this.node.flow.flowConnect.getRegisteredRenderer("background");
-    const scopeFlow = this.node.flow.renderers.background;
+    const scopeFlowConnect = this.node.flow!.flowConnect.getRegisteredRenderer("background");
+    const scopeFlow = this.node.flow!.renderers.background;
     const scopeNode = this.node.renderers.background;
     const scopeContainer = this.renderer;
     const renderFn =
@@ -42,27 +42,27 @@ export class Container extends UINode<ContainerStyle> {
     renderFn(context, this.getRenderParams(), this);
   }
   private _paint(context: CanvasRenderingContext2D, params: ContainerRenderParams, container: Container) {
-    context.shadowColor = container.style.shadowColor;
-    context.shadowBlur = container.style.shadowBlur;
-    context.shadowOffsetX = container.style.shadowOffset.x;
-    context.shadowOffsetY = container.style.shadowOffset.y;
-    context.fillStyle = container.style.backgroundColor;
-    context.strokeStyle = container.style.borderColor;
-    context.lineWidth = container.style.borderWidth;
+    context.shadowColor = container.style.shadowColor ?? "";
+    context.shadowBlur = container.style.shadowBlur ?? 0;
+    context.shadowOffsetX = container.style.shadowOffset?.x ?? 0;
+    context.shadowOffsetY = container.style.shadowOffset?.y ?? 0;
+    context.fillStyle = container.style.backgroundColor ?? "";
+    context.strokeStyle = container.style.borderColor ?? "";
+    context.lineWidth = container.style.borderWidth ?? 0;
     context.roundRect(params.position.x, params.position.y, params.width, params.height, 5);
     context.stroke();
     context.fill();
   }
   paintLOD1() {
     let context = this.context;
-    context.fillStyle = this.style.backgroundColor;
-    context.strokeStyle = this.style.borderColor;
-    context.lineWidth = this.style.borderWidth;
+    context.fillStyle = this.style.backgroundColor ?? "";
+    context.strokeStyle = this.style.borderColor ?? "";
+    context.lineWidth = this.style.borderWidth ?? 0;
     context.roundRect(
       this.position.x,
-      this.position.y + this.node.style.titleHeight,
+      this.position.y + (this.node.style?.titleHeight ?? 0),
       this.width,
-      this.height - this.node.style.titleHeight,
+      this.height - (this.node.style?.titleHeight ?? 0),
       5,
     );
     context.stroke();
@@ -74,27 +74,28 @@ export class Container extends UINode<ContainerStyle> {
   }
   getRenderParams(): ContainerRenderParams {
     let position = this.position.serialize();
-    position.y += this.node.style.titleHeight;
+    position.y += this.node.style?.titleHeight ?? 0;
     return {
       position: position,
       width: this.width,
-      height: this.height - this.node.style.titleHeight,
+      height: this.height - (this.node.style?.titleHeight ?? 0),
     };
   }
 
   reflow(): void {
     const nodeStyle = this.node.style;
 
-    this.position = this.node.position;
+    this.position = this.node.position!;
     let terminalsDisplayHeight =
-      Math.max(this.node.inputs.length, this.node.outputs.length) * nodeStyle.terminalRowHeight + nodeStyle.titleHeight;
-    let x = this.position.x + nodeStyle.padding;
+      Math.max(this.node.inputs.length, this.node.outputs.length) * (nodeStyle?.terminalRowHeight ?? 0) +
+      (nodeStyle?.titleHeight ?? 0);
+    let x = this.position.x + nodeStyle?.padding!;
     let y = this.position.y + terminalsDisplayHeight;
     this.children
       .filter((child) => child.visible)
       .forEach((child) => {
-        y += nodeStyle.spacing;
-        let availableWidth = this.width - nodeStyle.padding * 2;
+        y += nodeStyle?.spacing!;
+        let availableWidth = this.width - nodeStyle?.padding! * 2;
         child.width = (child.width > availableWidth ? availableWidth : child.width) || availableWidth;
 
         if (child.width < availableWidth) {
@@ -102,7 +103,7 @@ export class Container extends UINode<ContainerStyle> {
           if (child.style.align === Align.Center) {
             childX = this.position.x + this.width / 2 - child.width / 2;
           } else if (child.style.align === Align.Right) {
-            childX = this.position.x + this.width - nodeStyle.padding - child.width;
+            childX = this.position.x + this.width - nodeStyle?.padding! - child.width;
           } else {
             childX = x;
           }
@@ -112,7 +113,7 @@ export class Container extends UINode<ContainerStyle> {
         }
         y += child.height;
       });
-    this.height = y + nodeStyle.padding - this.position.y;
+    this.height = y + nodeStyle?.padding! - this.position.y;
   }
   onPropChange() {}
 }

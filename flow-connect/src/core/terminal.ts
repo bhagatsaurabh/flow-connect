@@ -16,27 +16,27 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
    * This can be ignored for other applications where such pattern is not useful or relevant.
    **/
   ref: any;
-  node: Node;
-  type: TerminalType;
-  dataType: string;
-  name: string;
+  node?: Node;
+  type?: TerminalType;
+  dataType?: string;
+  name?: string;
   connectors: Connector[];
   focus: boolean;
   position: Vector;
-  hitColor: Color;
-  style: TerminalStyle;
-  id: string;
-  private _propName: string;
-  private watcherId: number;
-  private _ui: boolean;
+  hitColor?: Color;
+  style?: TerminalStyle;
+  id?: string;
+  private _propName?: string;
+  private watcherId?: number;
+  private _ui?: boolean;
 
-  get ui(): boolean {
+  get ui(): boolean | undefined {
     return this._ui;
   }
   private set ui(val: boolean) {
     this._ui = val;
   }
-  get propName(): string {
+  get propName(): string | undefined {
     return this._propName;
   }
   set propName(propName: string) {
@@ -75,7 +75,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     if (propName) terminal._propName = propName;
     terminal.style = {
       ...DefaultTerminalStyle(),
-      ...(node.flow.flowConnect.getDefaultStyle("terminal") || {}),
+      ...(node.flow?.flowConnect.getDefaultStyle("terminal") || {}),
       ...style,
     };
     terminal.id = id;
@@ -94,11 +94,14 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
   }
 
   private bindToProp(propName: string) {
+    if (!this._propName || !this.watcherId) {
+      return;
+    }
     let oldPropName = this._propName;
     let newPropName = propName;
-    this.watcherId ?? this.node.unwatch(oldPropName, this.watcherId);
+    this.watcherId ?? this.node?.unwatch(oldPropName, this.watcherId);
     this._propName = newPropName;
-    this.watcherId = this.node.watch(newPropName, (_oldVal: any, newVal: any) => {
+    this.watcherId = this.node?.watch(newPropName, (_oldVal: any, newVal: any) => {
       if (this.type === TerminalType.OUT) this.setData(newVal);
     });
   }
@@ -120,13 +123,16 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
   private setHitColor(hitColor?: Color) {
     if (!hitColor) {
       hitColor = Color.Random();
-      while (this.node.terminals.get(hitColor.rgbaString) || this.node.uiNodes.get(hitColor.rgbaString))
+      while (this.node?.terminals.get(hitColor.rgbaString) || this.node?.uiNodes.get(hitColor.rgbaString))
         hitColor = Color.Random();
     }
     this.hitColor = hitColor;
-    this.node.terminals.set(this.hitColor.rgbaString, this);
+    this.node?.terminals.set(this.hitColor.rgbaString, this);
   }
   render() {
+    if (!this.node?.context || !this.node?.flow) {
+      return;
+    }
     let context = this.node.context;
     context.save();
     let scopeNode = this.node.renderers.terminal;
@@ -147,31 +153,35 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     this.call("render", this);
   }
   _render(context: CanvasRenderingContext2D, params: TerminalRenderParams, terminal: Terminal) {
+    if (!terminal.dataType) {
+      return;
+    }
+    const termRadius = terminal.style?.radius ?? 0;
     if (params.focus) {
       context.beginPath();
-      context.arc(params.position.x, params.position.y, terminal.style.radius * 3, 0, Constant.TAU);
-      context.fillStyle = terminal.style.outerFocusColor;
+      context.arc(params.position.x, params.position.y, termRadius * 3, 0, Constant.TAU);
+      context.fillStyle = terminal.style?.outerFocusColor ?? "";
       context.fill();
     }
 
     if (terminal.dataType === "event") {
       context.beginPath();
-      context.moveTo(params.position.x, params.position.y - terminal.style.radius * 1.3);
-      context.lineTo(params.position.x + terminal.style.radius * 1.3, params.position.y);
-      context.lineTo(params.position.x, params.position.y + terminal.style.radius * 1.3);
-      context.lineTo(params.position.x - terminal.style.radius * 1.3, params.position.y);
-      context.lineTo(params.position.x, params.position.y - terminal.style.radius * 1.3);
+      context.moveTo(params.position.x, params.position.y - termRadius * 1.3);
+      context.lineTo(params.position.x + termRadius * 1.3, params.position.y);
+      context.lineTo(params.position.x, params.position.y + termRadius * 1.3);
+      context.lineTo(params.position.x - termRadius * 1.3, params.position.y);
+      context.lineTo(params.position.x, params.position.y - termRadius * 1.3);
       context.closePath();
     } else {
       context.beginPath();
-      context.arc(params.position.x, params.position.y, terminal.style.radius, 0, Constant.TAU);
+      context.arc(params.position.x, params.position.y, termRadius, 0, Constant.TAU);
     }
     context.fillStyle = params.focus
-      ? terminal.style.focusColor
-      : terminal.node.flow.ruleColors[terminal.dataType]?.hexValue || terminal.style.color;
-    context.strokeStyle = terminal.style.borderColor;
-    context.shadowBlur = terminal.style.shadowBlur;
-    context.shadowColor = terminal.style.shadowColor;
+      ? (terminal.style?.focusColor ?? "")
+      : terminal.node?.flow?.ruleColors?.[terminal.dataType]?.hexValue || (terminal.style?.color ?? "");
+    context.strokeStyle = terminal.style?.borderColor ?? "";
+    context.shadowBlur = terminal.style?.shadowBlur ?? 0;
+    context.shadowColor = terminal.style?.shadowColor ?? "";
     context.fill();
     context.stroke();
   }
@@ -181,7 +191,10 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       position: this.position.serialize(),
     };
   }
-  connect(otherTerminal: Terminal, options?: ConnectorOptions): boolean {
+  connect(otherTerminal: Terminal, options?: ConnectorOptions): boolean | undefined {
+    if (!this.node?.flow?.rules) {
+      return;
+    }
     // Check if already connected
     if (this.type !== otherTerminal.type) {
       let start = this.type === TerminalType.OUT ? this : otherTerminal;
@@ -201,6 +214,9 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     // Check if these terminals can be connected
     if (canConnect(source, destination, this.node.flow.rules, this.node.flow.executionGraph)) {
       let connector = Connector.create(this.node.flow, source, destination, options);
+      if (!connector.id) {
+        return;
+      }
       this.node.flow.connectors.set(connector.id, connector);
 
       return true;
@@ -239,6 +255,9 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     }
   }
   private offUIRender() {
+    if (!this.node?.offUIContext) {
+      return;
+    }
     let context = this.node.offUIContext;
     context.save();
 
@@ -246,11 +265,11 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
     context.arc(
       this.position.x,
       this.position.y,
-      this.style.radius + this.node.style.terminalStripMargin,
+      (this.style?.radius ?? 0) + (this.node.style?.terminalStripMargin ?? 0),
       0,
       Constant.TAU,
     );
-    context.fillStyle = this.hitColor.rgbaCSSString;
+    context.fillStyle = this.hitColor?.rgbaCSSString ?? "";
     context.fill();
 
     context.restore();
@@ -260,20 +279,29 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
   }
 
   onEnter(screenPosition: Vector, realPosition: Vector): void {
+    if (!this.node?.flow) {
+      return;
+    }
     this.call("enter", this, screenPosition, realPosition);
 
     this.focus = true;
     this.node.flow.flowConnect.cursor = "pointer";
   }
   onExit(screenPosition?: Vector, realPosition?: Vector): void {
+    if (!this.node?.flow) {
+      return;
+    }
     this.call("exit", this, screenPosition, realPosition);
 
     this.focus = false;
     this.node.flow.flowConnect.cursor = "unset";
   }
   onDown(screenPosition: Vector, realPosition: Vector): void {
+    if (!this.node?.flow) {
+      return;
+    }
     if (this.connectors.length > 0) {
-      if (this.type === TerminalType.IN) {
+      if (this.type === TerminalType.IN && this.connectors[0].start) {
         const start = this.connectors[0].start;
         this.disconnect();
         this.node.flow.setFloatingConnector(realPosition, start, "left");
@@ -333,7 +361,7 @@ export class Terminal extends Hooks implements Events, Serializable<SerializedTe
       propName: this.propName,
       id: this.id,
       style: this.style,
-      hitColor: this.hitColor.serialize(),
+      hitColor: this.hitColor?.serialize(),
       ui: this.ui,
     };
   }
@@ -345,9 +373,9 @@ export enum TerminalType {
 }
 
 export interface SerializedTerminal {
-  name: string;
-  dataType: string;
-  type: TerminalType;
+  name?: string;
+  dataType?: string;
+  type?: TerminalType;
   ui?: boolean;
   propName?: string;
   id?: string;

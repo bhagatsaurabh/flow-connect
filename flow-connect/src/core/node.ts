@@ -158,7 +158,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     return node as T;
   }
 
-  protected abstract setupIO(options: NodeOptions): void;
+  abstract setupIO(options: NodeOptions): void;
   protected abstract created(options: NodeOptions): void;
   protected abstract process(inputs: any[]): void;
 
@@ -167,8 +167,8 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     inputs &&
       this.inputs.push(
         ...inputs.map((input) =>
-          Terminal.create(this, TerminalType.IN, input.dataType, {
-            name: input.name,
+          Terminal.create(this, TerminalType.IN, input.dataType!, {
+            name: input.name!,
             id: input.id,
             hitColor: input.hitColor ? Color.create(input.hitColor) : undefined,
           }),
@@ -177,8 +177,8 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     outputs &&
       this.outputs.push(
         ...outputs.map((output) =>
-          Terminal.create(this, TerminalType.OUT, output.dataType, {
-            name: output.name,
+          Terminal.create(this, TerminalType.OUT, output.dataType!, {
+            name: output.name!,
             id: output.id,
             hitColor: output.hitColor ? Color.create(output.hitColor) : undefined,
           }),
@@ -309,7 +309,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       return;
     }
     this.inputs.forEach((terminal) => {
-      terminal.position.x = this.position!.x - (this.style?.terminalStripMargin ?? 0) - (terminal.style.radius ?? 0);
+      terminal.position.x = this.position!.x - (this.style?.terminalStripMargin ?? 0) - (terminal.style?.radius ?? 0);
       terminal.position.y = y;
       y += this.style?.terminalRowHeight ?? 0;
     });
@@ -323,7 +323,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
         this.position!.x +
         (this.ui?.width ?? 0) +
         (this.style?.terminalStripMargin ?? 0) +
-        (terminal.style.radius ?? 0);
+        (terminal.style?.radius ?? 0);
       terminal.position.y = y;
       y += this.style?.terminalRowHeight ?? 0;
     });
@@ -417,30 +417,34 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       context.font = (this.style?.fontSize ?? 0) + " " + (this.style?.font ?? "");
       context.textBaseline = "middle";
       this.inputs.forEach((terminal) => {
-        context.fillText(
-          terminal.name,
-          terminal.position.x +
-            (terminal.style.radius ?? 0) +
-            (this.style?.terminalStripMargin ?? 0) +
-            (this.style?.padding ?? 0),
-          terminal.position.y,
-        );
+        if (terminal.name) {
+          context.fillText(
+            terminal.name,
+            terminal.position.x +
+              (terminal.style?.radius ?? 0) +
+              (this.style?.terminalStripMargin ?? 0) +
+              (this.style?.padding ?? 0),
+            terminal.position.y,
+          );
+        }
       });
       this.outputs.forEach((terminal) => {
-        context.fillText(
-          terminal.name,
-          terminal.position.x -
-            (terminal.style.radius ?? 0) -
-            (this.style?.terminalStripMargin ?? 0) -
-            (this.style?.padding ?? 0) -
-            context.measureText(terminal.name).width,
-          terminal.position.y,
-        );
+        if (terminal.name) {
+          context.fillText(
+            terminal.name,
+            terminal.position.x -
+              (terminal.style?.radius ?? 0) -
+              (this.style?.terminalStripMargin ?? 0) -
+              (this.style?.padding ?? 0) -
+              context.measureText(terminal.name).width,
+            terminal.position.y,
+          );
+        }
       });
     } else {
       context.fillStyle = this.style?.minimizedTerminalColor ?? "";
       if (this.inputs.length + this.inputsUI.length > 0) {
-        let radius = this.inputs.length > 0 ? this.inputs[0].style.radius : this.inputsUI[0].style.radius;
+        let radius = this.inputs.length > 0 ? this.inputs[0].style?.radius : this.inputsUI[0].style?.radius;
         context.fillRect(
           this.position!.x - (this.style?.terminalStripMargin ?? 0) - (radius ?? 0) * 2,
           this.position!.y + (this.style?.titleHeight ?? 0) / 2 - (radius ?? 0),
@@ -449,7 +453,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
         );
       }
       if (this.outputs.length + this.outputsUI.length > 0) {
-        let radius = this.outputs.length > 0 ? this.outputs[0].style.radius : this.outputsUI[0].style.radius;
+        let radius = this.outputs.length > 0 ? this.outputs[0].style?.radius : this.outputsUI[0].style?.radius;
         context.fillRect(
           this.position!.x + this.width! + (this.style?.terminalStripMargin ?? 0),
           this.position!.y + (this.style?.titleHeight ?? 0) / 2 - (radius ?? 0),
@@ -476,17 +480,17 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
 
       let inputTerminalsWidth;
       if (this.inputs.length === 0) {
-        inputTerminalsWidth = this.inputsUI.length === 0 ? 0 : (this.inputsUI[0].style.radius ?? 0) * 2;
+        inputTerminalsWidth = this.inputsUI.length === 0 ? 0 : (this.inputsUI[0].style?.radius ?? 0) * 2;
       } else {
-        inputTerminalsWidth = (this.inputs[0].style.radius ?? 0) * 2;
+        inputTerminalsWidth = (this.inputs[0].style?.radius ?? 0) * 2;
       }
       inputTerminalsWidth += (this.style?.terminalStripMargin ?? 0) * 2;
 
       let outputTerminalsWidth;
       if (this.outputs.length === 0) {
-        outputTerminalsWidth = this.outputsUI.length === 0 ? 0 : (this.outputsUI[0].style.radius ?? 0) * 2;
+        outputTerminalsWidth = this.outputsUI.length === 0 ? 0 : (this.outputsUI[0].style?.radius ?? 0) * 2;
       } else {
-        outputTerminalsWidth = (this.outputs[0].style.radius ?? 0) * 2;
+        outputTerminalsWidth = (this.outputs[0].style?.radius ?? 0) * 2;
       }
       outputTerminalsWidth += (this.style?.terminalStripMargin ?? 0) * 2;
 
@@ -514,12 +518,12 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     let inputTerminalsStripWidth = 0,
       outputTerminalsStripWidth = 0;
     if (this.inputs.length + this.inputsUI.length !== 0) {
-      let radius = this.inputs.length > 0 ? this.inputs[0].style.radius : this.inputsUI[0].style.radius;
+      let radius = this.inputs.length > 0 ? this.inputs[0].style?.radius : this.inputsUI[0].style?.radius;
       x -= (this.style?.terminalStripMargin ?? 0) + (radius ?? 0) * 2;
       inputTerminalsStripWidth = (radius ?? 0) * 2 + (this.style?.terminalStripMargin ?? 0);
     }
     if (this.outputs.length + this.outputsUI.length !== 0) {
-      let radius = this.outputs.length > 0 ? this.outputs[0].style.radius : this.outputsUI[0].style.radius;
+      let radius = this.outputs.length > 0 ? this.outputs[0].style?.radius : this.outputsUI[0].style?.radius;
       outputTerminalsStripWidth = (radius ?? 0) * 2 + (this.style?.terminalStripMargin ?? 0);
     }
     this.offContext.fillRect(
@@ -558,7 +562,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   }
   addTerminal(terminal: Terminal | SerializedTerminal): Terminal {
     let t: Terminal | undefined;
-    if (!(terminal instanceof Terminal)) {
+    if (!(terminal instanceof Terminal) && terminal.type && terminal.dataType && terminal.name) {
       t = Terminal.create(this, terminal.type, terminal.dataType, {
         name: terminal.name,
         propName: terminal.propName,
@@ -567,7 +571,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
         hitColor: terminal.hitColor ? Color.create(terminal.hitColor) : undefined,
       });
     } else {
-      t = terminal;
+      t = terminal as Terminal;
     }
 
     (terminal.type === TerminalType.IN ? this.inputs : this.outputs).push(t);

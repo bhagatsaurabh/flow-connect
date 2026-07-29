@@ -60,7 +60,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     this.groupHitColors = new Map();
     this.sortedNodes = new AVLTree(
       (a: Node, b: Node) => a.zIndex - b.zIndex,
-      (node: Node) => node.id,
+      (node: Node) => node.id!,
     );
     this.inputs = [];
     this.outputs = [];
@@ -88,11 +88,11 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     [...this.nodes.values()].forEach((node) => node.call("transform", node));
     [...this.groups.values()].forEach((group) => group.call("transform", group));
   }
-  existsInFlow(flow: Flow): boolean {
+  existsInFlow(flow: Flow): boolean | undefined {
     for (let node of [...this.nodes.values()]) {
       if ((node as SubFlowNode).subFlow === flow) return true;
       else if ((node as SubFlowNode).subFlow) {
-        return (node as SubFlowNode).subFlow.existsInFlow(flow);
+        return (node as SubFlowNode).subFlow?.existsInFlow(flow);
       }
     }
     return false;
@@ -122,7 +122,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     }
 
     const node = this.createNode<SubFlowNode, SubFlowNodeOptions>("core/subflow", position, {
-      name: subFlow.name,
+      name: subFlow.name!,
       width: 150,
       subFlow: subFlow,
     });
@@ -142,7 +142,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       subFlowNode = arg1;
     }
 
-    this.removeNode(subFlowNode);
+    this.removeNode(subFlowNode!);
   }
 
   createNode<T extends Node = Node, O extends NodeOptions = NodeOptions>(
@@ -164,7 +164,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     return node;
   }
   private addNode(node: Node): void {
-    this.nodes.set(node.id, node);
+    this.nodes.set(node.id!, node);
     this.sortedNodes.add(node);
     this.executionGraph.add(node);
   }
@@ -184,7 +184,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       );
     }
 
-    this.nodes.delete(node.id);
+    this.nodes.delete(node.id!);
     this.sortedNodes.remove(node);
     this.executionGraph.remove(node);
   }
@@ -217,7 +217,7 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       this.executionGraph.nodes[order]
         .filter((graphNode) => graphNode.flowNode instanceof SubFlowNode)
         .map((graphNode) => graphNode.flowNode)
-        .forEach((subFlowNode: SubFlowNode) => subFlowNode.subFlow.stop());
+        .forEach((subFlowNode: Node) => (subFlowNode as SubFlowNode).subFlow?.stop());
     }
     this.executionGraph.stop();
     this.call("stop", this);
@@ -227,22 +227,24 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     const start = type === "left" ? fixedEnd : undefined;
     const end = type === "left" ? undefined : fixedEnd;
 
-    let connector = Connector.create(this, start, end, { floatingTip: floatingPos });
-    this.connectors.set(connector.id, connector);
+    let connector = Connector.create(this, start!, end!, { floatingTip: floatingPos });
+    this.connectors.set(connector.id!, connector);
     this.floatingConnector = connector;
   }
-  removeFloatingConnector(): Terminal {
-    if (!this.floatingConnector) return;
+  removeFloatingConnector(): Terminal | undefined {
+    if (!this.floatingConnector) {
+      return;
+    }
 
     let terminal = undefined;
     if (this.floatingConnector.start) terminal = this.floatingConnector.start;
     else terminal = this.floatingConnector.end;
 
-    if (terminal.node.currHitTerminal) {
+    if (terminal?.node?.currHitTerminal) {
       terminal.node.currHitTerminal.onExit();
       terminal.node.currHitTerminal = undefined;
     }
-    this.removeConnector(this.floatingConnector.id);
+    this.removeConnector(this.floatingConnector.id!);
 
     return terminal;
   }
@@ -272,8 +274,8 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     const inputs = await Promise.all(this.inputs.map((input) => input.serialize()));
     const outputs = await Promise.all(this.outputs.map((output) => output.serialize()));
     const ruleColors: SerializedRuleColors = {};
-    Object.keys(this.ruleColors).forEach(
-      (key) => (ruleColors[key] = (this.ruleColors[key] ?? Color.Random()).serialize()),
+    Object.keys(this.ruleColors!).forEach(
+      (key) => (ruleColors[key] = (this.ruleColors![key] ?? Color.Random()).serialize()),
     );
 
     return Promise.resolve<SerializedFlow>({
@@ -289,7 +291,14 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
       outputs,
     });
   }
-  static async deSerialize(flowConnect: FlowConnect, data: SerializedFlow, receive?: DataFetchProvider): Promise<Flow> {
+  static async deSerialize(
+    flowConnect: FlowConnect,
+    data: SerializedFlow,
+    receive?: DataFetchProvider,
+  ): Promise<Flow | undefined> {
+    if (!data.name || !data.rules) {
+      return;
+    }
     const ruleColors: RuleColors = {};
     Object.keys(data.ruleColors).forEach((key) => (ruleColors[key] = Color.create(data.ruleColors[key])));
 
@@ -303,13 +312,18 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     for (let serializedNode of data.nodes) {
       const state = await this.deSerializeState(serializedNode.state, receive);
       if (serializedNode.type === "core/subflow") {
-        const subFlow = await Flow.deSerialize(flowConnect, (serializedNode as SerializedSubFlowNode).subFlow, receive);
+        const subFlow = await Flow.deSerialize(
+          flowConnect,
+          (serializedNode as SerializedSubFlowNode).subFlow!,
+          receive,
+        );
         (serializedNode as any).subFlow = subFlow;
       }
-      const node = flow._createNode(serializedNode.type, Vector.create(serializedNode.position), {
+      const node = flow._createNode(serializedNode.type!, Vector.create(serializedNode.position!), {
+        name: serializedNode.name!,
         ...serializedNode,
         state,
-        hitColor: Color.create(serializedNode.hitColor),
+        hitColor: Color.create(serializedNode.hitColor!),
       });
       if (serializedNode.type === "core/tunnel") {
         ((serializedNode as any).tunnelType === "input" ? flow.inputs : flow.outputs).push(node as TunnelNode);
@@ -317,38 +331,39 @@ export class Flow extends Hooks implements Serializable<SerializedFlow> {
     }
 
     data.groups.forEach((serializedGroup) => {
-      let group = Group.create(flow, Vector.create(serializedGroup.position), {
+      let group = Group.create(flow, Vector.create(serializedGroup.position!), {
+        name: serializedGroup.name!,
         ...serializedGroup,
-        hitColor: Color.create(serializedGroup.hitColor),
+        hitColor: Color.create(serializedGroup.hitColor!),
       });
 
-      serializedGroup.nodes.forEach((nodeId) => group.add(flow.nodes.get(nodeId)));
+      serializedGroup.nodes?.forEach((nodeId) => group.add(flow.nodes.get(nodeId!)!));
 
       flow.groups.push(group);
     });
 
     data.connectors.forEach((serializedConnector) => {
-      let startNode = flow.nodes.get(serializedConnector.startNodeId);
+      let startNode = flow.nodes.get(serializedConnector.startNodeId!);
       let startTerminal;
       if (typeof serializedConnector.startId === "string") {
-        startTerminal = startNode.outputs.find((terminal) => terminal.id === serializedConnector.startId);
+        startTerminal = startNode?.outputs.find((terminal) => terminal.id === serializedConnector.startId);
       } else {
-        startTerminal = startNode.outputsUI[serializedConnector.startId];
+        startTerminal = startNode?.outputsUI[serializedConnector.startId!];
       }
 
-      let endNode = flow.nodes.get(serializedConnector.endNodeId);
+      let endNode = flow.nodes.get(serializedConnector.endNodeId!);
       let endTerminal;
       if (typeof serializedConnector.endId === "string") {
-        endTerminal = endNode.inputs.find((terminal) => terminal.id === serializedConnector.endId);
+        endTerminal = endNode?.inputs.find((terminal) => terminal.id === serializedConnector.endId);
       } else {
-        endTerminal = endNode.inputsUI[serializedConnector.endId];
+        endTerminal = endNode?.inputsUI[serializedConnector.endId!];
       }
 
-      const connector = Connector.create(flow, startTerminal, endTerminal, {
+      const connector = Connector.create(flow, startTerminal!, endTerminal!, {
         id: serializedConnector.id,
         style: serializedConnector.style,
       });
-      flow.connectors.set(serializedConnector.id, connector);
+      flow.connectors.set(serializedConnector.id!, connector);
     });
 
     return Promise.resolve<Flow>(flow);
@@ -416,10 +431,10 @@ const DefaultRuleColors: () => RuleColors = () => ({
 });
 
 export interface SerializedFlow {
-  version: string;
-  id: string;
-  name: string;
-  rules: Rules;
+  version?: string;
+  id?: string;
+  name?: string;
+  rules?: Rules;
   ruleColors: SerializedRuleColors;
   nodes: SerializedNode[];
   groups: SerializedGroup[];

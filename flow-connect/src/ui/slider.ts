@@ -6,12 +6,12 @@ import { FlowState } from "../core/flow.js";
 import { Constant } from "../resource/constants.js";
 
 export class Slider extends UINode<SliderStyle> {
-  style: SliderStyle;
+  style!: SliderStyle;
 
-  private thumbFill: number;
-  private _value: number;
-  min: number;
-  max: number;
+  private thumbFill!: number;
+  private _value!: number;
+  min!: number;
+  max!: number;
 
   get value(): number {
     if (this.propName) return this.getProp();
@@ -30,7 +30,7 @@ export class Slider extends UINode<SliderStyle> {
       this.reflow();
     }
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(node: Node, _options: SliderOptions = DefaultSliderOptions(node)) {
@@ -45,8 +45,8 @@ export class Slider extends UINode<SliderStyle> {
 
     this.min = min;
     this.max = max;
-    this.height = height ?? this.node.style.rowHeight;
-    this.style = { ...DefaultSliderStyle(this.node, height), ...style };
+    this.height = height ?? this.node.style?.rowHeight ?? 0;
+    this.style = { ...DefaultSliderStyle(this.node, height!), ...style };
     this._value = this.propName ? this.getProp() : value;
     this._value = clamp(this._value, this.min, this.max);
 
@@ -71,8 +71,8 @@ export class Slider extends UINode<SliderStyle> {
 
   paint(): void {
     let context = this.context;
-    context.lineWidth = this.style.railHeight;
-    context.strokeStyle = this.style.color;
+    context.lineWidth = this.style.railHeight ?? 0;
+    context.strokeStyle = this.style.color ?? "";
     context.lineCap = "butt";
 
     let start = Math.max(this.position.x, this.position.x + this.thumbFill - 3);
@@ -82,7 +82,7 @@ export class Slider extends UINode<SliderStyle> {
       context.lineTo(start, this.position.y + this.height / 2);
       context.stroke();
     }
-    start = Math.min(this.position.x + 2 * this.style.thumbRadius + this.thumbFill + 3, this.position.x + this.width);
+    start = Math.min(this.position.x + 2 * this.style.thumbRadius! + this.thumbFill + 3, this.position.x + this.width);
     if (start !== this.position.x + this.width) {
       context.beginPath();
       context.moveTo(start, this.position.y + this.height / 2);
@@ -90,21 +90,21 @@ export class Slider extends UINode<SliderStyle> {
       context.stroke();
     }
 
-    context.fillStyle = this.style.thumbColor;
+    context.fillStyle = this.style.thumbColor ?? "";
     context.beginPath();
     context.arc(
-      this.position.x + this.style.thumbRadius + this.thumbFill,
+      this.position.x + this.style.thumbRadius! + this.thumbFill,
       this.position.y + this.height / 2,
-      this.style.thumbRadius,
+      this.style.thumbRadius!,
       0,
-      Constant.TAU
+      Constant.TAU,
     );
     context.fill();
   }
   paintLOD1() {
     let context = this.context;
     context.strokeStyle = "#000";
-    context.fillStyle = this.style.color;
+    context.fillStyle = this.style.color ?? "";
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
@@ -114,18 +114,22 @@ export class Slider extends UINode<SliderStyle> {
   }
 
   reflow(): void {
-    this.thumbFill = denormalize(normalize(this.value, this.min, this.max), 0, this.width - 2 * this.style.thumbRadius);
+    this.thumbFill = denormalize(
+      normalize(this.value, this.min, this.max),
+      0,
+      this.width - 2 * this.style.thumbRadius!,
+    );
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -138,12 +142,16 @@ export class Slider extends UINode<SliderStyle> {
   }
 
   onDrag(event: UIEvent): void {
-    let y = this.position.y + this.height / 2 - this.style.railHeight / 2;
+    let y = this.position.y + this.height / 2 - this.style.railHeight! / 2;
     this.thumbFill = event.realPos
-      .clamp(this.position.x + this.style.thumbRadius, this.position.x + this.width - this.style.thumbRadius, y, y)
-      .subtractInPlace(this.position.x + this.style.thumbRadius, 0).x;
+      .clamp(this.position.x + this.style.thumbRadius!, this.position.x + this.width - this.style.thumbRadius!, y, y)
+      .subtractInPlace(this.position.x + this.style.thumbRadius!, 0).x;
 
-    this.value = denormalize(normalize(this.thumbFill, 0, this.width - 2 * this.style.thumbRadius), this.min, this.max);
+    this.value = denormalize(
+      normalize(this.thumbFill, 0, this.width - 2 * this.style.thumbRadius!),
+      this.min,
+      this.max,
+    );
   }
 }
 
@@ -158,7 +166,7 @@ const DefaultSliderStyle = (node: Node, height: number): SliderStyle => ({
   color: "#444",
   thumbColor: "#000",
   railHeight: 3,
-  thumbRadius: exists(height) ? height / 2 : (node.style.rowHeight * 1.5) / 2,
+  thumbRadius: exists(height) ? height / 2 : (node.style?.rowHeight! * 1.5) / 2,
 });
 
 export interface SliderOptions extends UINodeOptions<SliderStyle> {
@@ -169,5 +177,5 @@ export interface SliderOptions extends UINodeOptions<SliderStyle> {
 const DefaultSliderOptions = (node: Node): SliderOptions => ({
   min: 0,
   max: 100,
-  height: node.style.rowHeight * 1.5,
+  height: node.style?.rowHeight! * 1.5,
 });

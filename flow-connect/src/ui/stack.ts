@@ -2,7 +2,7 @@ import { Node } from "../core/node.js";
 import { UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 
 export class Stack extends UINode<StackStyle> {
-  style: StackStyle;
+  style!: StackStyle;
 
   constructor(node: Node, _options: StackOptions = DefaultStackOptions(node)) {
     super();
@@ -13,7 +13,7 @@ export class Stack extends UINode<StackStyle> {
     const { height, style = {}, childs = [] } = options;
 
     this.style = { ...DefaultStackStyle(), ...style };
-    this.height = height ?? this.node.style.rowHeight;
+    this.height = height ?? this.node.style?.rowHeight!;
 
     if (childs) this.children.push(...childs);
   }
@@ -28,14 +28,14 @@ export class Stack extends UINode<StackStyle> {
   reflow(): void {
     let children = this.children.filter((child) => child.visible);
     let actualTotalHeight = children.reduce((acc, curr) => acc + curr.height, 0);
-    let effectiveSpacing = (children.length - 1) * this.style.spacing;
+    let effectiveSpacing = (children.length - 1) * this.style.spacing!;
     this.height = actualTotalHeight + effectiveSpacing;
 
     let y = this.position.y;
     children.forEach((child) => {
       child.position.assign(this.position.x, y);
       child.width = this.width;
-      y += child.height + this.style.spacing;
+      y += child.height + this.style.spacing!;
     });
   }
 
@@ -53,5 +53,5 @@ export interface StackOptions extends UINodeOptions<StackStyle> {
   childs?: UINode[];
 }
 const DefaultStackOptions = (node: Node): StackOptions => ({
-  height: node.style.rowHeight,
+  height: node.style?.rowHeight,
 });

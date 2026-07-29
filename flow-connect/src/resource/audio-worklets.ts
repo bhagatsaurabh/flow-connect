@@ -1,7 +1,9 @@
 export const generateWorkletUtils = () => {
   return {
-    CircularBuffer: URL.createObjectURL(new Blob([
-      `export default class CircularBuffer {
+    CircularBuffer: URL.createObjectURL(
+      new Blob(
+        [
+          `export default class CircularBuffer {
         constructor(bufferLength, noOfChannels) {
           this.noOfChannels = noOfChannels;
           this.bufferLength = bufferLength;
@@ -37,16 +39,21 @@ export const generateWorkletUtils = () => {
           this.frames -= destinationLength;
           if (this.frames < 0) this.frames = 0;
         }
-      }`
-    ], { type: 'application/javascript' })),
-  }
-}
+      }`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
+  };
+};
 
 export const generateAudioWorklets = (utilsFileName: string) => {
   let audioWorklets: Record<string, string> = {
     // Creates an AudioWorkletProcessor to setup custom AudioParams for AudioBufferSourceNode's automation (because of their fire-forget-destroy behaviour)
-    Worklet_ProxyParamForSource: URL.createObjectURL(new Blob([
-      `registerProcessor('proxy-param-for-source', class ProxyParamForSource extends AudioWorkletProcessor {
+    Worklet_ProxyParamForSource: URL.createObjectURL(
+      new Blob(
+        [
+          `registerProcessor('proxy-param-for-source', class ProxyParamForSource extends AudioWorkletProcessor {
           static get parameterDescriptors() {
             return [{
               name: 'detune',
@@ -76,12 +83,17 @@ export const generateAudioWorklets = (utilsFileName: string) => {
             });
             return true;
           }
-        })`
-    ], { type: 'application/javascript' })),
+        })`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
 
     // Same as above, but not specifically for AudioBufferSourceNodes, this is more general purpose
-    Worklet_ProxyParam: URL.createObjectURL(new Blob([
-      `registerProcessor('proxy-param', class ProxyParam extends AudioWorkletProcessor {
+    Worklet_ProxyParam: URL.createObjectURL(
+      new Blob(
+        [
+          `registerProcessor('proxy-param', class ProxyParam extends AudioWorkletProcessor {
           static get parameterDescriptors() {
             return [{
               name: 'param',
@@ -121,12 +133,17 @@ export const generateAudioWorklets = (utilsFileName: string) => {
             });
             return true;
           }
-        })`
-    ], { type: 'application/javascript' })),
+        })`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
 
     // This one is used to only peak at the audio data flowing through this node, mainly for debugging purposes
-    Worklet_Debug: URL.createObjectURL(new Blob([
-      `registerProcessor('debug', class Debug extends AudioWorkletProcessor {
+    Worklet_Debug: URL.createObjectURL(
+      new Blob(
+        [
+          `registerProcessor('debug', class Debug extends AudioWorkletProcessor {
           throttle = 1000;
           lastPeak = -Infinity;
           constructor(...args) {
@@ -153,11 +170,16 @@ export const generateAudioWorklets = (utilsFileName: string) => {
             }
             return true;
           }
-        })`
-    ], { type: 'application/javascript' })),
+        })`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
 
-    Worklet_MoogEffect: URL.createObjectURL(new Blob([
-      `import CircularBuffer from '${utilsFileName}'
+    Worklet_MoogEffect: URL.createObjectURL(
+      new Blob(
+        [
+          `import CircularBuffer from '${utilsFileName}'
       registerProcessor('moog-effect', class MoogEffect extends AudioWorkletProcessor {
       cutoff = 0.065;
       resonance = 3.5;
@@ -234,11 +256,16 @@ export const generateAudioWorklets = (utilsFileName: string) => {
         this.outputBuffer.popBlock(output);
         return true;
       }
-    })`
-    ], { type: 'application/javascript' })),
+    })`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
 
-    Worklet_BitcrusherEffect: URL.createObjectURL(new Blob([
-      `import CircularBuffer from '${utilsFileName}'
+    Worklet_BitcrusherEffect: URL.createObjectURL(
+      new Blob(
+        [
+          `import CircularBuffer from '${utilsFileName}'
       registerProcessor('bitcrusher-effect', class BitcrusherEffect extends AudioWorkletProcessor {
       bits = 4;
       normFreq = 0.1;
@@ -299,11 +326,16 @@ export const generateAudioWorklets = (utilsFileName: string) => {
         this.outputBuffer.popBlock(output);
         return true;
       }
-    })`
-    ], { type: 'application/javascript' })),
+    })`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
 
-    Worklet_LFO: URL.createObjectURL(new Blob([
-      `registerProcessor('lfo', class LFO extends AudioWorkletProcessor {
+    Worklet_LFO: URL.createObjectURL(
+      new Blob(
+        [
+          `registerProcessor('lfo', class LFO extends AudioWorkletProcessor {
       oscillation = 0.3;
       offset = 0.85;
       phaseInc = 0;
@@ -341,11 +373,16 @@ export const generateAudioWorklets = (utilsFileName: string) => {
 
         return true;
       }
-    })`
-    ], { type: 'application/javascript' })),
+    })`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
 
-    Worklet_Noise: URL.createObjectURL(new Blob([
-      `registerProcessor('noise', class Noise extends AudioWorkletProcessor {
+    Worklet_Noise: URL.createObjectURL(
+      new Blob(
+        [
+          `registerProcessor('noise', class Noise extends AudioWorkletProcessor {
       type = 'white';
       types = ['white', 'pink', 'brownian'];
 
@@ -392,12 +429,17 @@ export const generateAudioWorklets = (utilsFileName: string) => {
         this.generate[this.type](outputs[0][0]);
         return true;
       }
-    })`
-    ], { type: 'application/javascript' })),
+    })`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
 
     // Just a normal proxy, outputs the inputs as it is, used for seamless connections of SourceNodes
-    Worklet_Proxy: URL.createObjectURL(new Blob([
-      `registerProcessor('proxy', class Proxy extends AudioWorkletProcessor {
+    Worklet_Proxy: URL.createObjectURL(
+      new Blob(
+        [
+          `registerProcessor('proxy', class Proxy extends AudioWorkletProcessor {
 
       constructor() { super(); }
       process(inputs, outputs, parameters) {
@@ -406,9 +448,12 @@ export const generateAudioWorklets = (utilsFileName: string) => {
         }));
         return true;
       }
-    })`
-    ], { type: 'application/javascript' })),
-  }
+    })`,
+        ],
+        { type: "application/javascript" },
+      ),
+    ),
+  };
 
   return audioWorklets;
-}
+};

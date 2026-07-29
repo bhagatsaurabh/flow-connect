@@ -1,6 +1,6 @@
 import { Log } from "../utils/logger.js";
 import { uuid } from "../utils/utils.js";
-import { Flow, FlowState } from "./flow.js";
+import { FlowState } from "./flow.js";
 import { Node } from "./node.js";
 import { List } from "../utils/linked-list.js";
 
@@ -18,13 +18,22 @@ export class Graph {
   }
 
   add(data: Node) {
+    if (!data.id) {
+      return;
+    }
     if (!this.nodes[0]) this.nodes.push([]);
     let graphNode = new GraphNode(data);
     this.nodes[0].push(graphNode);
     this.graphNodes.set(data.id, graphNode);
   }
   remove(data: Node) {
+    if (!data.id) {
+      return;
+    }
     let graphNode = this.graphNodes.get(data.id);
+    if (!graphNode) {
+      return;
+    }
     this.dirtyNodes.delete(graphNode.id);
     this.graphNodes.delete(data.id);
     this.nodes[0].splice(
@@ -33,9 +42,15 @@ export class Graph {
     );
   }
   connect(sourceNode: Node, destinationNode: Node) {
+    if (!sourceNode.id || !destinationNode.id) {
+      return;
+    }
     let startGraphNode = this.graphNodes.get(sourceNode.id);
     let endGraphNode = this.graphNodes.get(destinationNode.id);
 
+    if (!startGraphNode || !endGraphNode) {
+      return;
+    }
     if (!startGraphNode.childs.includes(endGraphNode)) {
       startGraphNode.childs.push(endGraphNode);
 
@@ -45,6 +60,9 @@ export class Graph {
     }
   }
   disconnect(sourceNode: Node, destinationNode: Node) {
+    if (!sourceNode.id || !destinationNode.id) {
+      return;
+    }
     let sourceGraphNode = this.graphNodes.get(sourceNode.id);
     let destinationGraphNode = this.graphNodes.get(destinationNode.id);
 
@@ -54,11 +72,15 @@ export class Graph {
     );
 
     if (connectedEndNodes.has(destinationNode)) return;
+
+    if (!sourceGraphNode || !destinationGraphNode) {
+      return;
+    }
     sourceGraphNode.childs.splice(sourceGraphNode.childs.indexOf(destinationGraphNode), 1);
 
     let maxOrderOfConnectedStartNodes = destinationNode.inputs
       .filter((terminal) => terminal.connectors.length > 0)
-      .map((terminal) => this.graphNodes.get(terminal.connectors[0].startNode.id).order)
+      .map((terminal) => this.graphNodes.get(terminal.connectors[0].startNode?.id!)!.order)
       .reduce((acc, curr) => Math.max(acc, curr), 0);
 
     this.updateOrder(destinationGraphNode, maxOrderOfConnectedStartNodes);
@@ -69,7 +91,7 @@ export class Graph {
     queue.push(root);
     while (queue.length !== 0) {
       let currNode = queue.shift();
-      currNode.childs.forEach((child) => {
+      currNode?.childs.forEach((child) => {
         if (child.order <= currNode.order) {
           this._updateOrder(child, currNode.order + 1);
         }
@@ -84,7 +106,9 @@ export class Graph {
     this.nodes[order].push(graphNode);
   }
   canConnect(sourceNode: Node, destinationNode: Node) {
-    if (this.graphNodes.get(destinationNode.id).childs.includes(this.graphNodes.get(sourceNode.id))) return false;
+    if (this.graphNodes.get(destinationNode.id!)?.childs.includes(this.graphNodes.get(sourceNode.id!)!)) {
+      return false;
+    }
     return true;
   }
 
@@ -138,13 +162,22 @@ export class Graph {
     );
   }
   setDirty(node: Node | GraphNode) {
+    if (!node.id) {
+      return;
+    }
     let graphNode = node instanceof Node ? this.graphNodes.get(node.id) : node;
     if (!graphNode) return;
 
     this.dirtyNodes.set(graphNode.id, graphNode);
   }
   clearDirty(node: Node | GraphNode) {
+    if (!node.id) {
+      return;
+    }
     let graphNode = node instanceof Node ? this.graphNodes.get(node.id) : node;
+    if (!graphNode) {
+      return;
+    }
     this.dirtyNodes.delete(graphNode.id);
   }
   // Returns all dirty nodes with lowest order
@@ -154,11 +187,20 @@ export class Graph {
   }
   // Generic BFS graph traversing function
   propagate(root: Node | GraphNode, callback: (node: Node) => void) {
+    if (!root.id) {
+      return;
+    }
     let start = root instanceof Node ? this.graphNodes.get(root.id) : root;
+    if (!start) {
+      return;
+    }
     let queue = new List<GraphNode>();
     queue.append(start);
     while (queue.length !== 0) {
       let currGNode = queue.removeFirst();
+      if (!currGNode) {
+        continue;
+      }
       callback(currGNode.flowNode);
       currGNode.childs.forEach((child) => queue.append(child));
     }

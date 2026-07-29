@@ -3,10 +3,10 @@ import { Node, NodeOptions, SerializedNode } from "./node.js";
 import { Terminal, TerminalType } from "./terminal.js";
 
 export class TunnelNode extends Node {
-  private tunnelType: "input" | "output";
-  private _proxyTerminal: Terminal;
+  private tunnelType?: "input" | "output";
+  private _proxyTerminal?: Terminal;
 
-  get proxyTerminal(): Terminal {
+  get proxyTerminal(): Terminal | undefined {
     return this._proxyTerminal;
   }
   set proxyTerminal(terminal: Terminal) {
@@ -21,6 +21,9 @@ export class TunnelNode extends Node {
   }
 
   setupIO(options: TunnelNodeOptions): void {
+    if (!options.tunnelName || !options.tunnelDataType) {
+      return;
+    }
     this.addTerminal({
       type: options.tunnelType === "input" ? TerminalType.OUT : TerminalType.IN,
       name: options.tunnelName,
@@ -36,12 +39,12 @@ export class TunnelNode extends Node {
         }
       });
     } else {
-      this.inputs[0].on("data", (_, data) => this.proxyTerminal.setData(data));
+      this.inputs[0].on("data", (_, data) => this.proxyTerminal?.setData(data));
     }
   }
 
   process(): void {
-    this.outputs[0]?.setData(this.proxyTerminal.getData());
+    this.outputs[0]?.setData(this.proxyTerminal?.getData());
   }
 
   async serialize(persist?: DataPersistenceProvider): Promise<SerializedTunnelNode> {
@@ -52,7 +55,7 @@ export class TunnelNode extends Node {
 }
 
 export interface SerializedTunnelNode extends SerializedNode {
-  tunnelType: "input" | "output";
+  tunnelType?: "input" | "output";
 }
 
 export interface TunnelNodeOptions extends NodeOptions {

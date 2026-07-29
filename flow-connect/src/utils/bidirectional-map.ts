@@ -8,7 +8,7 @@ export class BiMap<K, V> {
     this.reverseMap = new Map();
   }
 
-  get(keyOrVal: K | V): V | K {
+  get(keyOrVal: K | V): V | K | undefined {
     return this.map.get(keyOrVal) || this.reverseMap.get(keyOrVal);
   }
   set(key: K | V, value: V | K) {
@@ -21,14 +21,22 @@ export class BiMap<K, V> {
   delete(keyOrVal: K | V) {
     let temp1 = this.map.get(keyOrVal);
     let temp2 = this.reverseMap.get(keyOrVal);
-    if (typeof temp1 !== 'undefined') { this.map.delete(keyOrVal); }
-    if (typeof temp2 !== 'undefined') { this.reverseMap.delete(keyOrVal); }
+    if (typeof temp1 !== "undefined") {
+      this.map.delete(keyOrVal);
+    }
+    if (typeof temp2 !== "undefined") {
+      this.reverseMap.delete(keyOrVal);
+    }
 
     // I have a gut feeling that this is required, for some edge case that I cannot grab from my subconscious mind
-    this.map.delete(temp1);
-    this.reverseMap.delete(temp1);
-    this.map.delete(temp2);
-    this.reverseMap.delete(temp2);
+    if (temp1) {
+      this.map.delete(temp1);
+      this.reverseMap.delete(temp1);
+    }
+    if (temp2) {
+      this.map.delete(temp2);
+      this.reverseMap.delete(temp2);
+    }
   }
   clear() {
     this.map.clear();

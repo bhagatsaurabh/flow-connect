@@ -118,12 +118,20 @@ export class Vector implements Serializable<SerializedVector> {
   normalize(min: number, max: number): Vector;
   normalize(minX: number, maxX: number, minY: number, maxY: number): Vector;
   normalize(min: number, max: number, minY?: number, maxY?: number): Vector {
-    return new Vector(this.x, this.y).normalizeInPlace(min, max, minY, maxY);
+    const vector = new Vector(this.x, this.y);
+    if (typeof minY !== "undefined" && typeof maxY !== "undefined") {
+      return vector.normalizeInPlace(min, max, minY, maxY);
+    }
+    return vector.normalizeInPlace(min, max);
   }
   clamp(min: number, max: number): Vector;
   clamp(minX: number, maxX: number, minY: number, maxY: number): Vector;
   clamp(min: number, max: number, minY?: number, maxY?: number): Vector {
-    return new Vector(this.x, this.y).clampInPlace(min, max, minY, maxY);
+    const vector = new Vector(this.x, this.y);
+    if (typeof minY !== "undefined" && typeof maxY !== "undefined") {
+      return vector.clampInPlace(min, max, minY, maxY);
+    }
+    return vector.clampInPlace(min, max);
   }
   isInside(start: Vector, end: Vector): boolean;
   isInside(x1: number, y1: number, x2: number, y2: number): boolean;
@@ -132,8 +140,8 @@ export class Vector implements Serializable<SerializedVector> {
       if (this.x < arg1.x || this.x > arg2.x) return false;
       if (this.y < arg1.y || this.y > arg2.y) return false;
     } else if (typeof arg1 === "number" && typeof arg2 === "number") {
-      if (this.x < arg1 || this.x > arg3) return false;
-      if (this.y < arg2 || this.y > arg4) return false;
+      if (this.x < arg1 || this.x > (arg3 as number)) return false;
+      if (this.y < arg2 || this.y > (arg4 as number)) return false;
     } else {
       return false;
     }
@@ -185,7 +193,7 @@ export class Vector implements Serializable<SerializedVector> {
     if (vector1OrX1 instanceof Vector && vector2OrY1 instanceof Vector) {
       return Math.sqrt(Math.pow(vector2OrY1.x - vector1OrX1.x, 2) + Math.pow(vector2OrY1.y - vector1OrX1.y, 2));
     } else if (typeof vector1OrX1 === "number" && typeof vector2OrY1 === "number") {
-      return Math.sqrt(Math.pow(x2 - vector1OrX1, 2) + Math.pow(y2 - vector2OrY1, 2));
+      return Math.sqrt(Math.pow((x2 as number) - vector1OrX1, 2) + Math.pow((y2 as number) - vector2OrY1, 2));
     }
 
     return -1;
@@ -210,7 +218,7 @@ export class Vector implements Serializable<SerializedVector> {
     if (typeof arg1 === "object") {
       return new Vector(arg1.x, arg1.y);
     }
-    return new Vector(arg1, arg2);
+    return new Vector(arg1, arg2 as number);
   }
 }
 

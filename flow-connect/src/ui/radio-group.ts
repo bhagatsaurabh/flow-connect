@@ -6,10 +6,10 @@ import { Label, LabelOptions } from "./label.js";
 import { Align } from "../common/enums.js";
 
 export class RadioGroup extends UINode<RadioGroupStyle> {
-  style: RadioGroupStyle;
+  style!: RadioGroupStyle;
 
-  private _values: string[];
-  private _selected: string;
+  private _values!: string[];
+  private _selected!: string;
 
   get selected(): string {
     if (this.propName) return this.getProp();
@@ -26,7 +26,7 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
 
     this.setLabelStyle();
 
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
   get values(): string[] {
     return [...this._values];
@@ -44,7 +44,7 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
     const selectedValue = this.propName ? this.getProp() : selected;
     this._selected = this._values.includes(selectedValue) ? selectedValue : this._values[0];
     this.style = { ...DefaultRadioGroupStyle(), ...style };
-    this.height = height ?? this.node.style.rowHeight;
+    this.height = height ?? this.node.style?.rowHeight ?? 0;
 
     if (input) {
       const terminal = this.createTerminal(TerminalType.IN, "string");
@@ -81,7 +81,7 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
         });
 
         return label;
-      })
+      }),
     );
     Object.assign(this.children[this._values.indexOf(this._selected)].style, {
       backgroundColor: this.style.selectedBackgroundColor,
@@ -106,8 +106,8 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
 
   paint(): void {
     let context = this.context;
-    context.strokeStyle = this.style.borderColor;
-    context.lineWidth = this.style.borderWidth;
+    context.strokeStyle = this.style.borderColor ?? "";
+    context.lineWidth = this.style.borderWidth ?? 0;
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
 
     let commonWidth = this.width / this.children.length;
@@ -122,8 +122,8 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
   }
   paintLOD1() {
     let context = this.context;
-    context.strokeStyle = this.style.borderColor;
-    context.fillStyle = this.style.backgroundColor;
+    context.strokeStyle = this.style.borderColor ?? "";
+    context.fillStyle = this.style.backgroundColor ?? "";
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
@@ -143,14 +143,14 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -187,5 +187,5 @@ export interface RadioGroupOptions extends UINodeOptions<RadioGroupStyle> {
 }
 const DefaultRadioGroupOptions = (node: Node): RadioGroupOptions => ({
   values: ["Option1", "Option2"],
-  height: node.style.rowHeight * 1.5,
+  height: node.style?.rowHeight! * 1.5,
 });

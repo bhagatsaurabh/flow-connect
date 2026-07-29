@@ -7,11 +7,11 @@ import { Align } from "../common/enums.js";
 import { TerminalType } from "../flow-connect.js";
 
 export class Select extends UINode<SelectStyle> {
-  style: SelectStyle;
+  style!: SelectStyle;
 
-  values: string[];
-  label: Label;
-  private _selected: string;
+  values!: string[];
+  label!: Label;
+  private _selected!: string;
 
   get selected(): string {
     if (this.propName) {
@@ -33,7 +33,7 @@ export class Select extends UINode<SelectStyle> {
       this._selected = newVal;
       this.label.text = newVal;
     }
-    if (this.node.flow.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
+    if (this.node.flow!.state !== FlowState.Stopped) this.call("change", this, oldVal, newVal);
   }
 
   constructor(node: Node, _options: SelectOptions = DefaultSelectOptions(node)) {
@@ -46,7 +46,7 @@ export class Select extends UINode<SelectStyle> {
 
     this.values = values;
     this.style = { ...DefaultSelectStyle(), ...style };
-    this.height = height ?? this.node.style.rowHeight;
+    this.height = height ?? this.node.style?.rowHeight!;
     this._selected = selected ?? this.values[0];
 
     this.label = this.node.createUI<Label, LabelOptions>("core/label", {
@@ -79,7 +79,7 @@ export class Select extends UINode<SelectStyle> {
 
   paint(): void {
     let context = this.context;
-    context.fillStyle = this.style.arrowColor;
+    context.fillStyle = this.style.arrowColor ?? "";
     context.beginPath();
     context.moveTo(this.position.x, this.position.y + this.height / 2);
     context.lineTo(this.position.x + this.height * Constant.SIN_60, this.position.y);
@@ -88,7 +88,7 @@ export class Select extends UINode<SelectStyle> {
     context.closePath();
     context.fill();
 
-    context.fillStyle = this.style.arrowColor;
+    context.fillStyle = this.style.arrowColor ?? "";
     context.beginPath();
     context.moveTo(this.position.x + this.width, this.position.y + this.height / 2);
     context.lineTo(this.position.x + this.width - this.height * Constant.SIN_60, this.position.y);
@@ -99,7 +99,7 @@ export class Select extends UINode<SelectStyle> {
   }
   paintLOD1() {
     let context = this.context;
-    context.fillStyle = this.style.arrowColor;
+    context.fillStyle = this.style.arrowColor ?? "";
     context.strokeStyle = "#000";
     context.fillRect(this.position.x, this.position.y, this.width, this.height);
     context.strokeRect(this.position.x, this.position.y, this.width, this.height);
@@ -113,19 +113,19 @@ export class Select extends UINode<SelectStyle> {
     this.label.width = this.width * 0.7;
     this.label.position.assign(
       this.position.x + this.width * 0.15,
-      this.position.y + this.height / 2 - this.label.height / 2
+      this.position.y + this.height / 2 - this.label.height / 2,
     );
 
     if (this.input) {
       this.input.position.assign(
-        this.node.position.x - this.node.style.terminalStripMargin - this.input.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x - this.node.style?.terminalStripMargin! - this.input.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
     if (this.output) {
       this.output.position.assign(
-        this.node.position.x + this.node.width + this.node.style.terminalStripMargin + this.output.style.radius,
-        this.position.y + this.height / 2
+        this.node.position!.x + this.node.width! + this.node.style?.terminalStripMargin! + this.output.style?.radius!,
+        this.position.y + this.height / 2,
       );
     }
   }
@@ -170,5 +170,5 @@ export interface SelectOptions extends UINodeOptions<SelectStyle> {
 }
 const DefaultSelectOptions = (node: Node): SelectOptions => ({
   values: ["Option1", "Option2"],
-  height: node.style.rowHeight * 1.5,
+  height: node.style?.rowHeight! * 1.5,
 });
