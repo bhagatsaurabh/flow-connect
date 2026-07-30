@@ -20,7 +20,7 @@ export class Label extends UINode<LabelStyle> {
     else value = this._text;
 
     if (typeof value === "number") value = this.format(value);
-    return value;
+    return value as string;
   }
   set text(text: string | number) {
     let oldVal = this._text;
@@ -62,7 +62,7 @@ export class Label extends UINode<LabelStyle> {
       terminal.on("connect", (_, connector) => (connector.data = this.text));
     }
 
-    this._text = this.propName ? this.getProp() : text;
+    this._text = this.propName ? (this.getProp() as string) : text;
     this.reflow();
 
     this.height = height ?? this.textHeight + 5;

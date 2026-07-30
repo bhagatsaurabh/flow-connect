@@ -4,7 +4,7 @@ import { UIEvent, UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 import { Constant } from "../resource/constants.js";
 import { FlowState } from "../core/flow.js";
 import { Align } from "../common/enums.js";
-import { TerminalType } from "../flow-connect.js";
+import { TerminalType } from "../core/terminal.js";
 
 export class Select extends UINode<SelectStyle> {
   style!: SelectStyle;
@@ -16,9 +16,9 @@ export class Select extends UINode<SelectStyle> {
   get selected(): string {
     if (this.propName) {
       let value = this.getProp();
-      let slctdVal = this.values.includes(value) ? value : this.values[0];
+      let slctdVal = this.values.includes(value as string) ? value : this.values[0];
       value = this.values.length === 0 ? "None" : slctdVal;
-      return value;
+      return value as string;
     }
     return this._selected;
   }

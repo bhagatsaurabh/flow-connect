@@ -14,7 +14,7 @@ export class Slider extends UINode<SliderStyle> {
   max!: number;
 
   get value(): number {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as number;
     return this._value;
   }
   set value(value: number) {
@@ -47,7 +47,7 @@ export class Slider extends UINode<SliderStyle> {
     this.max = max;
     this.height = height ?? this.node.style?.rowHeight ?? 0;
     this.style = { ...DefaultSliderStyle(this.node, height!), ...style };
-    this._value = this.propName ? this.getProp() : value;
+    this._value = this.propName ? (this.getProp() as number) : value;
     this._value = clamp(this._value, this.min, this.max);
 
     if (input) {

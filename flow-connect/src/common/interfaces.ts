@@ -1,25 +1,14 @@
-import { Vector } from "../core/vector.js";
-import { LOD, ViewPort } from "./enums.js";
-import { Node, NodeOptions, NodeRenderParams, NodeState, NodeStyle } from "../core/node.js";
-import {
-  Color,
-  Connector,
-  ConnectorRenderParams,
-  ConnectorStyle,
-  Container,
-  ContainerRenderParams,
-  Flow,
-  Group,
-  GroupRenderParams,
-  GroupStyle,
-  SerializedColor,
-  Terminal,
-  TerminalRenderParams,
-  TerminalStyle,
-  UINode,
-  UINodeOptions,
-  UINodeStyle,
-} from "../flow-connect.js";
+import type { Vector } from "../core/vector.js";
+import type { LOD, ViewPort } from "./enums.js";
+import type { Node, NodeOptions, NodeRenderParams, NodeUIState, NodeStyle } from "../core/node.js";
+import type { Container, ContainerRenderParams } from "../ui/container.js";
+import type { Terminal, TerminalRenderParams, TerminalStyle } from "../core/terminal.js";
+import type { Group, GroupRenderParams, GroupStyle } from "../core/group.js";
+import type { Connector, ConnectorRenderParams, ConnectorStyle } from "../core/connector.js";
+import type { Color, SerializedColor } from "../core/color.js";
+import type { Flow } from "../core/flow.js";
+import type { UINode, UINodeOptions, UINodeStyle } from "../ui/ui-node.js";
+import type { FlowConnect } from "../flow-connect.js";
 
 /**
  *  To track canvas position and dimension when scrolling or resizing
@@ -60,7 +49,7 @@ export interface Events {
  */
 export interface RenderState {
   viewport: ViewPort;
-  nodeState: NodeState;
+  nodeState: NodeUIState;
   lod: LOD;
 }
 
@@ -116,6 +105,7 @@ export type UIConstructor<T extends UINode = UINode, O extends UINodeOptions = U
 export interface PluginType {
   node: NodeConstructor;
   ui: UIConstructor;
+  setup: (fcInst: FlowConnect) => Promise<void>;
 }
 export type Plugins = {
   [key in keyof PluginType]: Record<string, PluginType[key]>;

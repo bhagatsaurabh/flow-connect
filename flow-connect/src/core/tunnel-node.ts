@@ -1,4 +1,5 @@
-import { DataPersistenceProvider, Flow } from "../flow-connect.js";
+import type { DataPersistenceProvider } from "../common/interfaces.js";
+import { Flow } from "./flow.js";
 import { Node, NodeOptions, SerializedNode } from "./node.js";
 import { Terminal, TerminalType } from "./terminal.js";
 

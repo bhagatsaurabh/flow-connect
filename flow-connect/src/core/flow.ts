@@ -1,4 +1,3 @@
-import { Color, FlowConnect } from "../flow-connect.js";
 import { SerializedVector, Vector } from "./vector.js";
 import { Node, NodeOptions, SerializedNode } from "./node.js";
 import { Hooks } from "./hooks.js";
@@ -20,6 +19,8 @@ import { capitalize, isVector, uuid } from "../utils/utils.js";
 import { Graph } from "./graph.js";
 import { Terminal } from "./terminal.js";
 import { Log } from "../utils/logger.js";
+import type { FlowConnect } from "../flow-connect.js";
+import { Color } from "./color.js";
 
 /** A Flow is a set of Nodes, Connectors and Groups, it can also contain SubFlowNodes thereby creating a tree of Flows.
  *  ![](media://example.png)

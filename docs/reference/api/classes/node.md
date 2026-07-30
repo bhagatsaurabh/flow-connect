@@ -175,7 +175,7 @@ Any custom render functions specified using this resolver will affect everything
     <pre>
 {
   viewport: <Ref to="../enums/viewport">ViewPort</Ref>.INSIDE,
-  nodeState: <Ref to="../enums/node-state">NodeState</Ref>.MAXIMIZED,
+  nodeState: <Ref to="../enums/node-state">NodeUIState</Ref>.MAXIMIZED,
   lod: <Ref to="../enums/lod">LOD</Ref>.LOD2
 }</pre>
   </template>

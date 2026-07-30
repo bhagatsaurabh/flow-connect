@@ -14,7 +14,7 @@ export class Input extends UINode<InputStyle> {
   private _value!: string | number;
 
   get value(): string | number {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as string | number;
     return this._value;
   }
   set value(value: string | number) {

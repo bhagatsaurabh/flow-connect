@@ -19,7 +19,7 @@ export class Source extends UINode<SourceStyle> {
   actionOverride = false;
 
   get file(): File {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as File;
     return this._file;
   }
   set file(file: File) {

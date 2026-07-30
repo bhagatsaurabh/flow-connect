@@ -15,7 +15,7 @@ export class Image extends UINode<ImageStyle> {
   private _src!: string;
 
   get src(): string {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as string;
     return this._src;
   }
   set src(src: string) {

@@ -9,20 +9,26 @@ export default defineConfig({
   plugins: [
     dts({
       insertTypesEntry: true,
+      entryRoot: "src",
     }),
   ],
   build: {
     lib: {
-      entry: path.resolve(import.meta.dirname, "src/flow-connect.ts"),
-      name: "FC",
+      entry: {
+        "flow-connect": path.resolve(import.meta.dirname, "src/flow-connect.ts"),
+        common: path.resolve(import.meta.dirname, "src/common/index.ts"),
+        core: path.resolve(import.meta.dirname, "src/core/index.ts"),
+        ui: path.resolve(import.meta.dirname, "src/ui/index.ts"),
+        utils: path.resolve(import.meta.dirname, "src/utils/index.ts"),
+      },
       formats: ["es", "cjs"],
-      fileName: (format) => `flow-connect.${format}.js`,
+      fileName: (format, entryName) => `${entryName}/index.${format}.js`,
     },
     sourcemap: true,
     minify: false,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        chunkFileNames: "chunks/[name]-[hash].js",
       },
     },
   },
@@ -32,7 +38,6 @@ export default defineConfig({
   server: {
     port: process.env.PORT ? Number(process.env.PORT) : 9000,
   },
-
   resolve: {
     extensions: [".ts", ".js", ".json"],
   },

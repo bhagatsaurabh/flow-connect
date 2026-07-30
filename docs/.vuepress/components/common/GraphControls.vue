@@ -22,7 +22,7 @@ const buttonClicked = (name) => {
     }
   }
   emit("control", name);
-},
+}
 </script>
 
 <template>

@@ -1,5 +1,7 @@
 <script setup>
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { FlowConnect } from 'flow-connect';
+import { Vector } from 'flow-connect/core'
 import GraphControls from "../common/GraphControls.vue";
 
 const lastTheme = ref('');

@@ -7,7 +7,7 @@ import { FlowState } from "../core/flow.js";
 import { Constant } from "../resource/constants.js";
 import { List, ListNode } from "../utils/linked-list.js";
 import { BiMap } from "../utils/bidirectional-map.js";
-import { clampMin } from "../flow-connect.js";
+import { clampMin } from "../utils/utils.js";
 
 export class Envelope extends UINode<EnvelopeStyle> {
   style: EnvelopeStyle;
@@ -19,7 +19,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
 
   get value(): Vector[] {
     let value;
-    if (this.propName) value = this.getProp().map((vec: Vector) => vec.clone());
+    if (this.propName) value = (this.getProp() as Vector[]).map((vec: Vector) => vec.clone());
     else value = this._value.toArray().map((vec) => vec.clone());
 
     return value;
@@ -77,7 +77,7 @@ export class Envelope extends UINode<EnvelopeStyle> {
       | OffscreenCanvasRenderingContext2D
       | CanvasRenderingContext2D;
 
-    this.handleEnvelopeChange(this.getProp() ?? values);
+    this.handleEnvelopeChange((this.getProp() as Vector[]) ?? values);
   }
 
   handleEnvelopeChange(values: Vector[]) {
@@ -231,9 +231,9 @@ export class Envelope extends UINode<EnvelopeStyle> {
   }
   updateState() {
     if (this.propName && this.node.state![this.propName]) {
-      this.node.state![this.propName].length = 0;
+      (this.node.state![this.propName] as Vector[]).length = 0;
       const updatedVal = this._value.toArray().map((vec) => vec.clone());
-      this.node.state![this.propName].push(...updatedVal);
+      (this.node.state![this.propName] as Vector[]).push(...updatedVal);
     }
   }
 

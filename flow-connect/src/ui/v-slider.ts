@@ -15,7 +15,7 @@ export class VSlider extends UINode<VSliderStyle> {
   private _value!: number;
 
   get value(): number {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as number;
     return this._value;
   }
   set value(value: number) {
@@ -48,7 +48,7 @@ export class VSlider extends UINode<VSliderStyle> {
     this.style = { ...DefaultVSliderStyle(this.node, width!), ...style };
     this.height = height ?? this.node.style?.rowHeight! * 5;
     this.width = width ?? this.node.style?.rowHeight!;
-    this._value = this.propName ? this.getProp() : value;
+    this._value = this.propName ? (this.getProp() as number) : (value as number);
     this._value = clamp(this._value, this.min, this.max);
 
     if (input) {

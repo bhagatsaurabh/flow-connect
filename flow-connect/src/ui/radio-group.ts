@@ -12,7 +12,7 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
   private _selected!: string;
 
   get selected(): string {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as string;
     return this._selected;
   }
   set selected(selected: string) {
@@ -42,7 +42,7 @@ export class RadioGroup extends UINode<RadioGroupStyle> {
 
     this._values = values;
     const selectedValue = this.propName ? this.getProp() : selected;
-    this._selected = this._values.includes(selectedValue) ? selectedValue : this._values[0];
+    this._selected = this._values.includes(selectedValue as string) ? (selectedValue as string) : this._values[0];
     this.style = { ...DefaultRadioGroupStyle(), ...style };
     this.height = height ?? this.node.style?.rowHeight ?? 0;
 

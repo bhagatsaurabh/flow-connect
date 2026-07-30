@@ -19,7 +19,7 @@ export class Dial extends UINode<DialStyle> {
   private temp: number;
 
   get value(): number {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as number;
     return this._value;
   }
   set value(value: number) {

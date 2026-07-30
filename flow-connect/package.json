@@ -3,13 +3,14 @@
   "version": "2.0.8",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "type": "module",
-  "main": "./dist/flow-connect.cjs.js",
-  "module": "./dist/flow-connect.es.js",
-  "types": "./dist/flow-connect.d.ts",
-  "browser": "./dist/flow-connect.js",
+  "main": "./dist/flow-connect/index.cjs.js",
+  "module": "./dist/flow-connect/index.es.js",
+  "types": "./dist/flow-connect/index.d.ts",
+  "browser": "./dist/flow-connect.min.js",
   "scripts": {
     "build": "vite build",
     "build:watch": "vite build --watch",
+    "build:browser": "vite build --config vite.browser.config.ts",
     "prepublishOnly": "npm run build"
   },
   "files": [
@@ -18,28 +19,17 @@
   "exports": {
     ".": {
       "types": "./dist/flow-connect.d.ts",
-      "import": "./dist/flow-connect.es.js",
-      "require": "./dist/flow-connect.cjs.js"
+      "import": "./dist/flow-connect/index.es.js",
+      "require": "./dist/flow-connect/index.cjs.js"
     },
-    "./core": {
-      "types": "./dist/core/index.d.ts",
-      "import": "./dist/flow-connect.es.js",
-      "require": "./dist/flow-connect.cjs.js"
+    "./*": {
+      "types": "./dist/*/index.d.ts",
+      "import": "./dist/*/index.es.js",
+      "require": "./dist/*/index.cjs.js"
     },
-    "./ui": {
-      "types": "./dist/ui/index.d.ts",
-      "import": "./dist/flow-connect.es.js",
-      "require": "./dist/flow-connect.cjs.js"
-    },
-    "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "import": "./dist/flow-connect.es.js",
-      "require": "./dist/flow-connect.cjs.js"
-    },
-    "./common": {
-      "types": "./dist/common/index.d.ts"
-    },
-    "./package.json": "./package.json"
+    "./flow-connect": null,
+    "./resource/*": null,
+    "./chunks/*": null
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

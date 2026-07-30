@@ -30,7 +30,7 @@ const controlClicked = () => {
     controlIcon.value.classList.remove("flip");
   }
   isLiveOpen.value = !isLiveOpen.value;
-},
+}
 </script>
 
 <template>

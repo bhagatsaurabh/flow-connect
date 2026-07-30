@@ -10,7 +10,7 @@ export class Toggle extends UINode<ToggleStyle> {
   private _checked: boolean = false;
 
   get checked(): boolean {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as boolean;
     return this._checked;
   }
   set checked(checked: boolean) {
@@ -32,7 +32,7 @@ export class Toggle extends UINode<ToggleStyle> {
     const { style = {}, height, value, input, output } = options;
 
     this.style = { ...DefaultToggleStyle(), ...style };
-    this._checked = this.propName ? this.getProp() : value;
+    this._checked = this.propName ? (this.getProp() as boolean) : (value as boolean);
     this.height = height ?? this.node.style?.rowHeight!;
     if (!this.style.grow) this.width = this.height * 2.5;
 

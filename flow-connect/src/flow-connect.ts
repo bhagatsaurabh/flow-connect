@@ -24,10 +24,10 @@ import { TerminalType } from "./core/terminal";
 import { FlowState, FlowOptions, SerializedFlow } from "./core/flow";
 import { ViewPort } from "./common/enums";
 import { generateAudioWorklets, generateWorkletUtils } from "./resource/audio-worklets";
-import { TunaInitializer } from "./lib/tuna";
 import { EmptyNode } from "./core/empty-node";
 import { SubFlowNode } from "./core/subflow-node";
 import { TunnelNode } from "./core/tunnel-node";
+import { UINodeStyle } from "./ui/ui-node";
 import {
   Button,
   Label,
@@ -46,8 +46,7 @@ import {
   Toggle,
   VSlider,
   Container,
-} from "./flow-connect";
-import { UINodeStyle } from "./ui/ui-node";
+} from "./ui";
 
 /**
  * FlowConnect is like a placeholder that contains references to all Flows created by this instance and can render one flow at a time on-screen
@@ -60,8 +59,7 @@ export class FlowConnect extends Hooks {
   static async create(mount?: HTMLCanvasElement | HTMLDivElement): Promise<FlowConnect> {
     let flowConnect = new FlowConnect(mount);
     await flowConnect.setupAudioContext();
-    if (!(window as any).__tuna__)
-      (window as any).__tuna__ = new (TunaInitializer.initialize() as any)(flowConnect.audioContext);
+    await Promise.all(Object.values(this.plugins["setup"]).map((setupFn) => setupFn(flowConnect)));
     return flowConnect;
   }
 
@@ -90,6 +88,7 @@ export class FlowConnect extends Hooks {
       "core/toggle": Toggle,
       "core/v-slider": VSlider,
     },
+    setup: {},
   };
   static register<K extends keyof PluginType>(metadata: PluginMetadata, executor: PluginType[K]): boolean {
     if (!metadata.name) return false;
@@ -1124,7 +1123,7 @@ export enum FlowConnectState {
   Running = "Running",
 }
 
-export * from "./common/index";
-export * from "./core/index";
-export * from "./utils/index";
-export * from "./ui/index";
+export * from "./common";
+export * from "./core";
+export * from "./ui";
+export * from "./utils";

@@ -206,7 +206,7 @@ export const themeOptions: DefaultThemeOptions = {
           { text: "InputType", link: "/reference/api/enums/input-type.md" },
           { text: "LOD", link: "/reference/api/enums/lod.md" },
           { text: "LogLevel", link: "/reference/api/enums/log-level.md" },
-          { text: "NodeState", link: "/reference/api/enums/node-state.md" },
+          { text: "NodeUIState", link: "/reference/api/enums/node-state.md" },
           { text: "TerminalType", link: "/reference/api/enums/terminal-type.md" },
           { text: "ViewPort", link: "/reference/api/enums/viewport.md" },
         ],

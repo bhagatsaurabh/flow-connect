@@ -1,5 +1,7 @@
 <script setup>
-import { onMounted, useTemplateRef, watch } from 'vue';
+import { onMounted, useTemplateRef, watch, ref } from 'vue';
+import { FlowConnect } from 'flow-connect';
+import { Vector, Node } from 'flow-connect/core';
 
 const props = defineProps(["play"]);
 

@@ -3,7 +3,7 @@ import { canConnect, uuid } from "../utils/utils.js";
 import { Flow, FlowState } from "./flow.js";
 import { Terminal, TerminalType } from "./terminal.js";
 import { Renderable, Renderer, Serializable } from "../common/interfaces.js";
-import { Node, NodeState } from "./node.js";
+import { Node, NodeUIState } from "./node.js";
 import { Hooks } from "./hooks.js";
 
 export class Connector extends Hooks implements Serializable<SerializedConnector>, Renderable {
@@ -194,7 +194,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
     }
     let start: SerializedVector | undefined, end: SerializedVector | undefined;
     if (this.start) {
-      if (this.startNode.renderState.nodeState === NodeState.MAXIMIZED) start = this.start.position.serialize();
+      if (this.startNode.renderState.nodeState === NodeUIState.MAXIMIZED) start = this.start.position.serialize();
       else {
         start = this.startNode.position.serialize();
         start.x +=
@@ -207,7 +207,7 @@ export class Connector extends Hooks implements Serializable<SerializedConnector
       start = this.floatingTip?.serialize();
     }
     if (this.end) {
-      if (this.endNode.renderState.nodeState === NodeState.MAXIMIZED) end = this.end.position.serialize();
+      if (this.endNode.renderState.nodeState === NodeUIState.MAXIMIZED) end = this.end.position.serialize();
       else {
         end = this.endNode.position.serialize();
         end.x -= (this.endNode.style?.terminalStripMargin ?? 0) + (this.end.style?.radius ?? 0);

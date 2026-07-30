@@ -3,7 +3,7 @@ import { Node, NodeButton, SerializedNode, NodeButtonRenderParams, NodeOptions }
 import { Terminal, TerminalType } from "./terminal.js";
 import { TunnelNode } from "./tunnel-node.js";
 import { Align } from "../common/enums.js";
-import { DataPersistenceProvider } from "../flow-connect.js";
+import { DataPersistenceProvider } from "../common/interfaces.js";
 
 export class SubFlowNode extends Node {
   subFlow?: Flow;

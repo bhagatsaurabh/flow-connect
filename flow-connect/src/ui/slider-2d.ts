@@ -5,7 +5,7 @@ import { UIEvent, UINode, UINodeOptions, UINodeStyle } from "./ui-node.js";
 import { Color } from "../core/color.js";
 import { FlowState } from "../core/flow.js";
 import { Constant } from "../resource/constants.js";
-import { clampMin } from "../flow-connect.js";
+import { clampMin } from "../utils/utils.js";
 
 export class Slider2D extends UINode<Slider2DStyle> {
   style!: Slider2DStyle;
@@ -16,7 +16,7 @@ export class Slider2D extends UINode<Slider2DStyle> {
   private offThumbContext!: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 
   get value(): Vector {
-    if (this.propName) return this.getProp();
+    if (this.propName) return this.getProp() as Vector;
     return this._value;
   }
   set value(value: Vector) {
@@ -47,7 +47,7 @@ export class Slider2D extends UINode<Slider2DStyle> {
     this.style = { ...DefaultSlider2DStyle(), ...style };
     this.style.pointDiameter = clampMin(this.style.pointDiameter!, 5);
     this.height = height ?? this.node.style?.rowHeight! * 4;
-    this._value = this.propName ? this.getProp() : value;
+    this._value = this.propName ? (this.getProp() as Vector) : value;
     this._value.clampInPlace(0, 1);
 
     if (input) {

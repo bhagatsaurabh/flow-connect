@@ -1,12 +1,20 @@
 <script setup>
-import { onMounted, useTemplateRef, watch } from 'vue';
+import { onMounted, useTemplateRef, watch, ref } from 'vue';
+import { FlowConnect } from 'flow-connect';
+import { Vector } from 'flow-connect/core'
 
 const props = defineProps(["play"]);
 
 const flowConnect = ref();
 const exampleBasicCanvas = useTemplateRef('example-custom-canvas');
 
-watch(() => props.play, (newVal) => { });
+watch(() => props.play, (newVal) => {
+  if (newVal) {
+    flowConnect.value.currFlow.start();
+  } else {
+    flowConnect.value.currFlow.stop();
+  }
+});
 
 onMounted(() => {
   flowConnect.value = new FlowConnect(exampleBasicCanvas.value);
@@ -279,18 +287,6 @@ onMounted(() => {
 
   flowConnect.value.render(flow);
 });
-
-export default {
-  watch: {
-    play(newVal) {
-      if (newVal) {
-        flowConnect.value.currFlow.start();
-      } else {
-        flowConnect.value.currFlow.stop();
-      }
-    },
-  },
-};
 </script>
 
 <template>

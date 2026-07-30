@@ -21,7 +21,14 @@ import { Connector } from "./connector.js";
 import { Log } from "../utils/logger.js";
 import { FlowConnect } from "../flow-connect.js";
 
-export abstract class Node extends Hooks implements Events, Serializable<SerializedNode>, Renderable {
+export interface NodeState {
+  [x: string]: unknown;
+}
+
+export abstract class Node<S extends NodeState = NodeState>
+  extends Hooks
+  implements Events, Serializable<SerializedNode>, Renderable
+{
   //#region Properties
   renderers: NodeRenderers = {};
 
@@ -49,10 +56,10 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   outputs: Terminal[] = [];
   inputsUI: Terminal[] = [];
   outputsUI: Terminal[] = [];
-  state?: Record<string, any>;
+  state?: S;
   group?: Group;
   nodeButtons: Map<string, NodeButton>;
-  renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeState.MAXIMIZED, lod: LOD.LOD2 };
+  renderState: RenderState = { viewport: ViewPort.INSIDE, nodeState: NodeUIState.MAXIMIZED, lod: LOD.LOD2 };
   //#endregion
 
   //#region Accessors
@@ -185,7 +192,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
         ),
       );
   }
-  private setupState(state: any) {
+  private setupState(state: S) {
     this.state = new Proxy<any>(
       {},
       {
@@ -198,7 +205,11 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       },
     );
 
-    Object.keys(state).forEach((key) => this.state && (this.state[key] = state[key]));
+    Object.keys(state).forEach((key) => {
+      if (this.state) {
+        (this.state as Record<string, unknown>)[key] = state[key];
+      }
+    });
   }
   watch(propName: string, callback: (oldVal: any, newVal: any) => void): number | undefined {
     if (typeof this.state?.[propName] !== "undefined") {
@@ -292,7 +303,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       realPos.y,
       realPos.x + this.width * this.flow.flowConnect.scale,
       realPos.y +
-        ((this.renderState.nodeState === NodeState.MAXIMIZED ? this.ui?.height : this.style?.titleHeight) ?? 0) *
+        ((this.renderState.nodeState === NodeUIState.MAXIMIZED ? this.ui?.height : this.style?.titleHeight) ?? 0) *
           this.flow.flowConnect.scale,
     );
 
@@ -379,7 +390,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       return;
     }
     if (this.renderState.viewport === ViewPort.OUTSIDE) return;
-    if (this.renderState.nodeState === NodeState.MAXIMIZED) this.ui?.render();
+    if (this.renderState.nodeState === NodeUIState.MAXIMIZED) this.ui?.render();
 
     let context = this.context;
     context.save();
@@ -407,7 +418,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
     this.call("render", this);
   }
   private renderTerminals(context: CanvasRenderingContext2D) {
-    if (this.renderState.nodeState === NodeState.MAXIMIZED) {
+    if (this.renderState.nodeState === NodeUIState.MAXIMIZED) {
       if (this.renderState.lod > 0) {
         this.inputs.forEach((terminal) => terminal.render());
         this.outputs.forEach((terminal) => terminal.render());
@@ -498,7 +509,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
         this.position!.x - inputTerminalsWidth,
         this.position!.y,
         this.width! + inputTerminalsWidth + outputTerminalsWidth,
-        (this.renderState.nodeState === NodeState.MAXIMIZED
+        (this.renderState.nodeState === NodeUIState.MAXIMIZED
           ? (this.ui?.height ?? 0) + (this.style?.padding ?? 0)
           : this.style?.titleHeight) ?? 0,
         4,
@@ -530,7 +541,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
       x,
       y,
       (this.ui?.width ?? 0) + inputTerminalsStripWidth + outputTerminalsStripWidth,
-      (this.renderState.nodeState === NodeState.MAXIMIZED ? this.ui?.height : this.style?.titleHeight) ?? 0,
+      (this.renderState.nodeState === NodeUIState.MAXIMIZED ? this.ui?.height : this.style?.titleHeight) ?? 0,
     );
   }
   private static renderControlButton(
@@ -658,7 +669,7 @@ export abstract class Node extends Hooks implements Events, Serializable<Seriali
   }
   toggle() {
     this.renderState.nodeState =
-      this.renderState.nodeState === NodeState.MAXIMIZED ? NodeState.MINIMIZED : NodeState.MAXIMIZED;
+      this.renderState.nodeState === NodeUIState.MAXIMIZED ? NodeUIState.MINIMIZED : NodeUIState.MAXIMIZED;
   }
   dispose(): void {
     if (this.id) {
@@ -873,7 +884,7 @@ export interface NodeRenderParams {
   height: number;
   focus: boolean;
 }
-export enum NodeState {
+export enum NodeUIState {
   MAXIMIZED = "Maximized",
   MINIMIZED = "Minimized",
 }
@@ -935,11 +946,11 @@ export interface SerializedNode {
   style?: NodeStyle;
 }
 
-export interface NodeOptions {
+export interface NodeOptions<S extends NodeState = NodeState> {
   name: string;
   width?: number;
   style?: NodeStyle;
-  state?: Object;
+  state?: S;
   id?: string;
   hitColor?: Color;
   inputs?: SerializedTerminal[];

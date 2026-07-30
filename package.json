@@ -1,6 +1,7 @@
 {
-  "name": "flow-connect-monorepo",
+  "name": "root",
   "private": true,
+  "type": "module",
   "workspaces": [
     "docs",
     "flow-connect",
@@ -17,8 +18,9 @@
   "author": "Saurabh Bhagat",
   "license": "MIT",
   "scripts": {
-    "build": "npm run build -w flow-connect",
+    "build": "npm run build -w flow-connect && npm run build:browser",
     "build:watch": "npm run build:watch -w flow-connect",
+    "build:browser": "npm run build:browser -w flow-connect",
     "dev": "npm run build && concurrently \"npm run build:watch -w flow-connect\" \"npm run dev -w dev\"",
     "docs:dev": "npm run build && npm run docs:dev:watch",
     "docs:dev:watch": "concurrently \"npm run build:watch\" \"vuepress dev docs\"",
@@ -46,6 +48,7 @@
     "@vuepress/theme-default": "^2.0.0-rc.130",
     "concurrently": "^10.0.4",
     "markdown-it-attrs": "^4.3.1",
+    "sass-embedded": "^1.100.0",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^3.11.11",
     "vuepress": "^2.0.0-rc.30"

@@ -1,12 +1,13 @@
 import { Color } from "../core/color.js";
 import { Hooks } from "../core/hooks.js";
-import { Node, NodeState } from "../core/node.js";
+import { Node, NodeUIState } from "../core/node.js";
 import { Terminal, TerminalType } from "../core/terminal.js";
 import { SerializedVector, Vector } from "../core/vector.js";
 import { Align, LOD, ViewPort } from "../common/enums.js";
 import { uuid, intersects, capitalize } from "../utils/utils.js";
 import { Renderable } from "../common/interfaces.js";
-import { FlowConnect, Log } from "../flow-connect.js";
+import { FlowConnect } from "../flow-connect.js";
+import { Log } from "../utils/logger.js";
 
 export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks implements Renderable {
   private _disabled!: boolean;
@@ -124,7 +125,7 @@ export abstract class UINode<T extends UINodeStyle = UINodeStyle> extends Hooks 
     this.children.forEach((child) => child.update());
   }
   updateRenderState() {
-    if (this.node.renderState.nodeState === NodeState.MINIMIZED) return;
+    if (this.node.renderState.nodeState === NodeUIState.MINIMIZED) return;
 
     let realPos = this.position.transform(this.node.flow!.flowConnect.transform);
     this.renderState = intersects(
