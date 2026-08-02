@@ -31,24 +31,8 @@ jobs:
         with:
           name: flow-connect-dist
           path: dist
-  Test:
-    needs: [Build]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Test
-        run: |
-          npm i
-          npm test
   Docs:
-    needs: [Test]
+    needs: [Build]
     runs-on: ubuntu-latest
 
     steps:

@@ -482,5 +482,5 @@ Using the `create` method can lead to unexpected results, use <Ref to="./node">N
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/terminal.json';
+import data from '../../../.vuepress/reflections/api/classes/terminal.json';
 </script>

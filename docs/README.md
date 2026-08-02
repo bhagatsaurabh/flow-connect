@@ -13,23 +13,23 @@ footer: Copyright © 2021-present Saurabh Bhagat
 
 <div class="quick-start-step">
 <h5>Installation</h5>
-<CodeGroup>
-  <CodeGroupItem title="NPM">
+
+::: tabs
+
+@tab:active NPM
 
 ```bash:no-line-numbers
 npm install --save flow-connect
 ```
 
-  </CodeGroupItem>
-
-  <CodeGroupItem title="CDN">
+@tab CDN
 
 ```js:no-line-numbers
 <script src="https://cdn.jsdelivr.net/npm/flow-connect@latest/dist/flow-connect.js"></script>
 ```
 
-  </CodeGroupItem>
-</CodeGroup>
+:::
+
 </div>
 <div class="quick-start-desc">
   <h6>Learning FlowConnect is as simple as understanding what these terms mean and how they are related: Flows, Nodes, Connectors, Groups and Sub-Flows.<br/><br/>
@@ -91,7 +91,7 @@ npm install --save flow-connect
 </Features>
 
 <style>
-.home .features {
+.vp-home .features {
   border-top: unset;
 }
 .action-buttons {
@@ -104,7 +104,7 @@ npm install --save flow-connect
   flex-wrap: wrap;
   gap: 1.5rem;
 }
-.footer {
+.vp-footer {
   text-align: left !important;
 }
 .quick-start-step {

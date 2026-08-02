@@ -357,5 +357,5 @@ A 2D vector.
 </Method>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/vector.json';
+import data from '../../../.vuepress/reflections/api/classes/vector.json';
 </script>

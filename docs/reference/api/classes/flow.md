@@ -541,5 +541,5 @@ let node = flow.createNode("core/empty", Vector.create(50, 50), {
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/flow.json';
+import data from '../../../.vuepress/reflections/api/classes/flow.json';
 </script>

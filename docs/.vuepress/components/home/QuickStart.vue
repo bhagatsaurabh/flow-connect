@@ -8,16 +8,11 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "QuickStart",
-};
-</script>
-
 <style scoped>
 .quick-start-title {
   padding-top: 4rem;
 }
+
 .quick-start-title h1 {
   padding-bottom: 1rem;
   text-align: center;
@@ -26,6 +21,7 @@ export default {
   margin-left: auto;
   margin-right: auto;
 }
+
 .quick-start-title h4 {
   opacity: 0.7;
   margin: auto;
@@ -37,14 +33,17 @@ export default {
   .quick-start-title h4 {
     max-width: 100vw;
   }
+
   .quick-start-step {
     max-width: 100vw;
   }
 }
+
 @media (max-width: 700px) {
   .quick-start-title h4 {
     max-width: 90vw;
   }
+
   .quick-start-step {
     max-width: 90vw;
   }

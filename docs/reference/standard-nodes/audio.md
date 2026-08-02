@@ -10,7 +10,7 @@
 </ul>
 
 <script setup>
-import data from "../../../../reflections/standard-nodes/audio.json";
+import data from "../../.vuepress/reflections/standard-nodes/audio.json";
 </script>
 
 <style scoped>

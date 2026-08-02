@@ -242,5 +242,5 @@ Using the `create` method directly is not recommended as it can lead to unexpect
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/connector.json';
+import data from '../../../.vuepress/reflections/api/classes/connector.json';
 </script>

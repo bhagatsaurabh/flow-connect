@@ -80,7 +80,7 @@ flow.start();
 
 ## Testing
 
-Run unit tests using [Jest](https://jestjs.io/docs/getting-started)
+Run unit tests using [Vitest](https://vitest.dev/)
 
 ```bash
 npm run test
@@ -99,15 +99,7 @@ npm run build
 or
 
 ```bash
-npm run build:cjs
-```
-
-```bash
 npm run build:esm
-```
-
-```bash
-npm run build:umd
 ```
 
 <br/>

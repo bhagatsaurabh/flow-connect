@@ -363,5 +363,5 @@ For common usages, creating a UINode such as Labels, Selects, Toggles etc. using
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/ui-node.json';
+import data from '../../../.vuepress/reflections/api/classes/ui-node.json';
 </script>

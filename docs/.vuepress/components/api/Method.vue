@@ -1,3 +1,9 @@
+<script setup>
+import Icon from "./Icon.vue";
+
+defineProps(["type", "multipleSig"]);
+</script>
+
 <template>
   <article class="mt-1">
     <section>
@@ -19,7 +25,9 @@
         </ul>
       </template>
       <h4 v-if="$slots.return" class="d-inline-block mb-0 mr-1">Returns</h4>
-      <em><slot name="return"></slot></em>
+      <em>
+        <slot name="return"></slot>
+      </em>
     </section>
     <section v-if="$slots.example">
       <h4>Example</h4>
@@ -27,15 +35,3 @@
     </section>
   </article>
 </template>
-
-<script setup>
-import Icon from "./Icon.vue";
-</script>
-<script>
-export default {
-  name: "Method",
-  props: ["type", "multipleSig"],
-};
-</script>
-
-<style scoped></style>

@@ -880,5 +880,5 @@ See also <Ref to="#setupaudiocontext">setupAudioContext</Ref> to get more info o
 </Event>
 
 <script setup>
-import data from '../../../../../reflections/api/classes/flow-connect.json';
+import data from '../../../.vuepress/reflections/api/classes/flow-connect.json';
 </script>

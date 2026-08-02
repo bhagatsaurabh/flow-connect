@@ -1,3 +1,9 @@
+<script setup>
+import Icon from "./Icon.vue";
+
+defineProps(["data"]);
+</script>
+
 <template>
   <ul class="list">
     <li v-for="item in data.constructors" :key="item">
@@ -45,22 +51,13 @@
   </ul>
 </template>
 
-<script setup>
-import Icon from "./Icon.vue";
-</script>
-<script>
-export default {
-  name: "Overview",
-  props: ["data"],
-};
-</script>
-
 <style scoped>
 .list {
   column-count: 3;
   column-gap: 3rem;
   list-style: none;
 }
+
 .list li a {
   white-space: nowrap;
 }
@@ -70,6 +67,7 @@ export default {
     column-count: 2;
   }
 }
+
 @media (max-width: 490px) {
   .list {
     column-count: 1;

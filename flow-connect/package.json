@@ -1,0 +1,42 @@
+{
+  "name": "flow-connect",
+  "version": "2.1.0",
+  "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
+  "type": "module",
+  "main": "./dist/flow-connect/index.cjs.js",
+  "module": "./dist/flow-connect/index.es.js",
+  "types": "./dist/flow-connect/index.d.ts",
+  "browser": "./dist/flow-connect.min.js",
+  "scripts": {
+    "build": "vite build",
+    "build:watch": "vite build --watch",
+    "build:browser": "vite build --config vite.browser.config.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/flow-connect.d.ts",
+      "import": "./dist/flow-connect/index.es.js",
+      "require": "./dist/flow-connect/index.cjs.js"
+    },
+    "./*": {
+      "types": "./dist/*/index.d.ts",
+      "import": "./dist/*/index.es.js",
+      "require": "./dist/*/index.cjs.js"
+    },
+    "./flow-connect": null,
+    "./resource/*": null,
+    "./chunks/*": null
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/offscreencanvas": "^2019.6.4",
+    "ts-node": "^10.7.0",
+    "typescript": "^5.3.3",
+    "vite": "^8.0.13",
+    "vite-plugin-dts": "^5.0.1",
+    "vitest": "^4.1.7"
+  }
+}

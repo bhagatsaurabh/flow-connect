@@ -51,7 +51,7 @@ class DummyNode extends Node {
     ]);
   }
 }
-FlowConnect.register({ type: "node", name: "my-custom/dummy-node" }, DummyNode);
+FC.FlowConnect.register({ type: "node", name: "my-custom/dummy-node" }, DummyNode);
 
 flow.renderers.background = () => {
   return (context, params, target) => {

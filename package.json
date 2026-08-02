@@ -1,10 +1,16 @@
 {
-  "name": "flow-connect",
-  "version": "2.0.8",
-  "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
+  "name": "root",
+  "private": true,
   "type": "module",
-  "main": "dist/cjs/flow-connect.js",
-  "types": "dist/types/flow-connect.d.ts",
+  "workspaces": [
+    "docs",
+    "flow-connect",
+    "dev"
+  ],
+  "engines": {
+    "node": ">=24.15.0",
+    "npm": ">=11.12.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/bhagatsaurabh/flow-connect.git"
@@ -12,18 +18,13 @@
   "author": "Saurabh Bhagat",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
-    "prebuild": "npx shx rm -rf dist",
-    "build": "npm run build:umd && npm run build:cjs && npm run build:esm && npm run build:types",
-    "build:umd": "webpack --config=webpack.prod.js",
-    "build:cjs": "tsc -p tsconfig/cjs.tsconfig.json",
-    "build:esm": "tsc -p tsconfig/esm.tsconfig.json",
-    "build:types": "tsc -p tsconfig/types.tsconfig.json",
-    "postbuild": "node postbuild dist/cjs/flow-connect.js dist/esm/flow-connect.js",
-    "dev": "webpack-dev-server --open --config=webpack.dev.js",
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs --clean-temp --clean-cache",
-    "prepublishOnly": "npm run build"
+    "build": "npm run build -w flow-connect && npm run build:browser",
+    "build:watch": "npm run build:watch -w flow-connect",
+    "build:browser": "npm run build:browser -w flow-connect",
+    "dev": "npm run build && concurrently \"npm run build:watch -w flow-connect\" \"npm run dev -w dev\"",
+    "docs:dev": "npm run build && npm run docs:dev:watch",
+    "docs:dev:watch": "concurrently \"npm run build:watch\" \"vuepress dev docs\"",
+    "docs:build": "npm run build && vuepress build docs --clean-temp --clean-cache"
   },
   "keywords": [
     "node editor",
@@ -37,82 +38,19 @@
     "visual programming ui library",
     "node ui library"
   ],
-  "exports": {
-    "./*": {
-      "import": "./dist/esm/*",
-      "require": "./dist/cjs/*"
-    },
-    ".": {
-      "import": "./dist/esm/flow-connect.js",
-      "require": "./dist/cjs/flow-connect.js"
-    },
-    "./common": {
-      "import": "./dist/esm/common/index.js",
-      "require": "./dist/cjs/common/index.js"
-    },
-    "./core": {
-      "import": "./dist/esm/core/index.js",
-      "require": "./dist/cjs/core/index.js"
-    },
-    "./ui": {
-      "import": "./dist/esm/ui/index.js",
-      "require": "./dist/cjs/ui/index.js"
-    },
-    "./utils": {
-      "import": "./dist/esm/utils/index.js",
-      "require": "./dist/cjs/utils/index.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "common": [
-        "dist/types/common/index.d.ts"
-      ],
-      "core": [
-        "dist/types/core/index.d.ts"
-      ],
-      "ui": [
-        "dist/types/ui/index.d.ts"
-      ],
-      "utils": [
-        "dist/types/utils/index.d.ts"
-      ]
-    }
-  },
-  "browser": "./dist/flow-connect.js",
   "devDependencies": {
-    "@babel/core": "^7.17.8",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-typescript": "^7.16.7",
-    "@flow-connect/audio": "^2.0.0",
-    "@flow-connect/common": "^2.0.0",
-    "@flow-connect/math": "^2.0.0",
-    "@flow-connect/net": "^2.0.0",
-    "@flow-connect/ui": "^2.0.0",
-    "@flow-connect/visual": "^2.0.0",
-    "@types/jest": "^27.4.1",
-    "@types/node": "^14.18.3",
-    "@types/offscreencanvas": "^2019.6.4",
-    "@vuepress/plugin-register-components": "^2.0.0-beta.48",
-    "@vuepress/plugin-search": "^2.0.0-beta.48",
-    "babel-jest": "^27.5.1",
-    "cross-blob": "^3.0.0",
-    "html-webpack-plugin": "^5.5.0",
-    "jest": "^27.5.1",
-    "markdown-it-attrs": "^4.1.3",
-    "node-fetch": "^3.3.1",
-    "resolve-typescript-plugin": "^1.2.0",
-    "terser-webpack-plugin": "^5.3.0",
-    "ts-jest": "^27.1.4",
-    "ts-loader": "^8.3.0",
-    "ts-node": "^10.7.0",
-    "typedoc": "^0.22.10",
+    "@types/markdown-it-attrs": "^4.1.3",
+    "@vuepress/bundler-vite": "^2.0.0-rc.30",
+    "@vuepress/plugin-markdown-tab": "^2.0.0-rc.130",
+    "@vuepress/plugin-medium-zoom": "^2.0.0-rc.130",
+    "@vuepress/plugin-register-components": "^2.0.0-rc.130",
+    "@vuepress/plugin-search": "^2.0.0-rc.130",
+    "@vuepress/theme-default": "^2.0.0-rc.130",
+    "concurrently": "^10.0.4",
+    "markdown-it-attrs": "^4.3.1",
+    "sass-embedded": "^1.100.0",
+    "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^3.11.11",
-    "typescript": "^4.5.4",
-    "vuepress": "^2.0.0-beta.48",
-    "webpack": "^5.65.0",
-    "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.7.2",
-    "webpack-merge": "^5.8.0"
+    "vuepress": "^2.0.0-rc.30"
   }
 }

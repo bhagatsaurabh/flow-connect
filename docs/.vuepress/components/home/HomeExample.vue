@@ -1,187 +1,191 @@
+<script setup>
+import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { FlowConnect } from 'flow-connect';
+import { Vector } from 'flow-connect/core'
+import GraphControls from "../common/GraphControls.vue";
+
+const lastTheme = ref('');
+const orgPositions = ref({});
+const loadedDarkHeroImage = ref(null);
+const loadedLightHeroImage = ref(null);
+const flowConnectInst = ref();
+const toVector = ref();
+const func1 = ref();
+const func2 = ref();
+const parametricPlotter = ref();
+const arraySource = ref();
+const themeChangeObserver = ref();
+const canvasEl = ref();
+
+const init = async () => {
+  lastTheme.value = document.querySelector("html").className;
+  themeChanged();
+
+  let blob = await (await fetch("images/hero-dark.png")).blob();
+  loadedDarkHeroImage.value = URL.createObjectURL(blob);
+  blob = await (await fetch("images/hero.png")).blob();
+  loadedLightHeroImage.value = URL.createObjectURL(blob);
+
+  await nextTick().catch(() => { });
+
+  flowConnectInst.value = new FlowConnect(canvasEl.value);
+  window.flowConnect = flowConnectInst.value;
+  const flowConnect = flowConnectInst.value;
+  flowConnect.disableScale = true;
+
+  flowConnect.on("dimension-change", (_inst, width, height) => arrange(width, height));
+
+  let flow = flowConnect.createFlow({ name: "Math Plot", rules: {} });
+
+  toVector.value = flow.createNode("common/to-vector", Vector.create(585, 105), {
+    name: "Node",
+  });
+  func1.value = flow.createNode("math/func", Vector.create(295, 54), { name: "Node", expression: "cos(t)" });
+  func2.value = flow.createNode("math/func", Vector.create(295, 184.3), {
+    name: "Node",
+    expression: "sin(t) + 0.2cos(2.8t)",
+  });
+  parametricPlotter.value = flow.createNode("visual/function-plotter", Vector.create(775, 77.2), {
+    width: 250,
+    name: "Node",
+    plotStyle: { axisColor: "grey" },
+  });
+  parametricPlotter.value.plotStyle.plotColor = "#fa9868";
+  parametricPlotter.value.ui.query("core/display")[0].style.borderColor = "#fff";
+  arraySource.value = flow.createNode("common/array-source", Vector.create(12.4, 120.4), {
+    name: "Node",
+    state: {
+      number: true,
+      range: true,
+      min: -5 * Math.PI,
+      max: 5 * Math.PI,
+      step: 0.1,
+    },
+  });
+
+  arraySource.value.outputs[0].connect(func1.value.inputs[0]);
+  arraySource.value.outputs[0].connect(func2.value.inputs[0]);
+  func1.value.outputs[0].connect(toVector.value.inputs[0]);
+  func2.value.outputs[0].connect(toVector.value.inputs[1]);
+  toVector.value.outputs[0].connect(parametricPlotter.value.inputs[0]);
+
+  flowConnect.render(flow);
+
+  flow.nodes.forEach((node) => {
+    orgPositions.value[node.id] = node.position.clone();
+    node.style.color = "#fff";
+    node.ui.query("core/label").forEach((label) => (label.style.color = "#fff"));
+    node.ui.query("core/input").forEach((input) => (input.style.border = "#fff"));
+    node.ui.query("core/toggle").forEach((toggle) => {
+      toggle.style.color = "#fff";
+      toggle.style.backgroundColor = "#777";
+    });
+  });
+  flow.connectors.forEach((connector) => {
+    connector.style.width = 2;
+    connector.style.border = false;
+    connector.style.color = "#000";
+  });
+
+  flowConnect.registerRenderer("background", () => {
+    return (context, params, _target) => {
+      context.fillStyle = "#292929";
+      context.shadowColor = "#000";
+      context.shadowOffsetX = 0;
+      context.shadowOffsetY = 0;
+      context.shadowBlur = 15;
+      context.fillRect(params.position.x, params.position.y, params.width, params.height);
+    };
+  });
+
+  arrange(flowConnect.canvasDimensions.width, flowConnect.canvasDimensions.height);
+
+  themeChangeObserver.value = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "attributes" && mutation.attributeName === "class") {
+        themeChanged();
+      }
+    });
+  });
+
+  themeChangeObserver.value.observe(document.querySelector("html"), {
+    attributes: true,
+  });
+}
+
+const arrange = (width, _height) => {
+  const flowConnect = flowConnectInst.value;
+  let nodes = [[arraySource.value], [func1.value, func2.value], [toVector.value], [parametricPlotter.value]];
+  let totalWidth = nodes.reduce((acc, nodeCol) => acc + maxWidth(nodeCol), 0);
+  let spacing = (width - 40 - totalWidth) / 3;
+  let x = 20;
+  if (width > 419) {
+    nodes.forEach((nodeCol) => {
+      nodeCol.forEach((node) => {
+        node.position = node.position.assign(x, orgPositions.value[node.id].y);
+      });
+      x += maxWidth(nodeCol) + spacing;
+    });
+  } else {
+    Object.values(flowConnect.currFlow.nodes).forEach((node) => {
+      node.position = orgPositions.value[node.id].clone();
+    });
+  }
+  let origin = Vector.create(flowConnect.canvasDimensions.width, flowConnect.canvasDimensions.height);
+  flowConnect.translateBy(origin.subtract(origin.transform(flowConnect.transform)));
+};
+const maxWidth = (nodes) => {
+  let max = -Infinity;
+  nodes.forEach((node) => {
+    if (node.width > max) max = node.width;
+  });
+  return max;
+};
+const themeChanged = () => {
+  const flowConnect = flowConnectInst.value;
+  lastTheme.value = document.querySelector("html").className;
+  document.querySelector(".vp-home .vp-hero img").src = lastTheme.value.includes("dark")
+    ? loadedDarkHeroImage.value || "images/hero-dark.png"
+    : loadedLightHeroImage.value || "images/hero.png";
+
+  let titleColor, outlineColor, connectorColor;
+  if (lastTheme.value === "dark") {
+    titleColor = "#fff";
+    outlineColor = "#ccc";
+    connectorColor = "#fff";
+  } else {
+    titleColor = "#000";
+    outlineColor = "#000";
+    connectorColor = "#000";
+  }
+  if (flowConnect) {
+    flowConnect.currFlow.nodes.forEach((node) => {
+      node.style.titleColor = titleColor;
+      node.style.outlineColor = outlineColor;
+    });
+    flowConnect.currFlow.connectors.forEach((connector) => {
+      connector.style.color = connectorColor;
+    });
+  }
+};
+const handleControl = (controlName) => {
+  const flowConnect = flowConnectInst.value;
+  if (controlName === "play") {
+    if (flowConnect.state === FlowConnectState.Running) flowConnect.currFlow.stop();
+    else flowConnect.currFlow.start();
+  }
+}
+
+onMounted(async () => await init());
+onBeforeUnmount(() => themeChangeObserver.value.disconnect());
+</script>
+
 <template>
   <div class="home-example-container">
     <GraphControls class="home-example-graph-controls" @control="handleControl" :show-text="false" />
-    <canvas class="home-example" ref="home-example"></canvas>
+    <canvas ref="canvasEl" class="home-example"></canvas>
   </div>
 </template>
-
-<script setup>
-import GraphControls from "../common/GraphControls.vue";
-</script>
-<script>
-export default {
-  name: "HomeExample",
-  components: [GraphControls],
-  mounted() {
-    this.lastTheme = document.querySelector("html").className;
-    this.themeChanged();
-
-    fetch("images/hero-dark.png")
-      .then((res) => res.blob())
-      .then((blob) => (this.loadedDarkHeroImage = URL.createObjectURL(blob)));
-    fetch("images/hero.png")
-      .then((res) => res.blob())
-      .then((blob) => (this.loadedLightHeroImage = URL.createObjectURL(blob)));
-
-    setTimeout(() => {
-      this.flowConnect = new FlowConnect(this.$refs["home-example"]);
-      window.flowConnect = this.flowConnect;
-      this.flowConnect.disableScale = true;
-
-      this.flowConnect.on("dimension-change", (_inst, width, height) => this.arrange(width, height));
-
-      let flow = this.flowConnect.createFlow({ name: "Math Plot", rules: {} });
-
-      this.tovector = flow.createNode("common/to-vector", Vector.create(585, 105), {
-        name: "Node",
-      });
-      this.func1 = flow.createNode("math/func", Vector.create(295, 54), { name: "Node", expression: "cos(t)" });
-      this.func2 = flow.createNode("math/func", Vector.create(295, 184.3), {
-        name: "Node",
-        expression: "sin(t) + 0.2cos(2.8t)",
-      });
-      this.parametricPlotter = flow.createNode("visual/function-plotter", Vector.create(775, 77.2), {
-        width: 250,
-        name: "Node",
-        plotStyle: { axisColor: "grey" },
-      });
-      this.parametricPlotter.plotStyle.plotColor = "#fa9868";
-      this.parametricPlotter.ui.query("core/display")[0].style.borderColor = "#fff";
-      this.arraySource = flow.createNode("common/array-source", Vector.create(12.4, 120.4), {
-        name: "Node",
-        state: {
-          number: true,
-          range: true,
-          min: -5 * Math.PI,
-          max: 5 * Math.PI,
-          step: 0.1,
-        },
-      });
-
-      this.arraySource.outputs[0].connect(this.func1.inputs[0]);
-      this.arraySource.outputs[0].connect(this.func2.inputs[0]);
-      this.func1.outputs[0].connect(this.tovector.inputs[0]);
-      this.func2.outputs[0].connect(this.tovector.inputs[1]);
-      this.tovector.outputs[0].connect(this.parametricPlotter.inputs[0]);
-
-      this.flowConnect.render(flow);
-
-      flow.nodes.forEach((node) => {
-        this.orgPositions[node.id] = node.position.clone();
-        node.style.color = "#fff";
-        node.ui.query("core/label").forEach((label) => (label.style.color = "#fff"));
-        node.ui.query("core/input").forEach((input) => (input.style.border = "#fff"));
-        node.ui.query("core/toggle").forEach((toggle) => {
-          toggle.style.color = "#fff";
-          toggle.style.backgroundColor = "#777";
-        });
-      });
-      flow.connectors.forEach((connector) => {
-        connector.style.width = 2;
-        connector.style.border = false;
-        connector.style.color = "#000";
-      });
-
-      this.flowConnect.registerRenderer("background", () => {
-        return (context, params, _target) => {
-          context.fillStyle = "#292929";
-          context.shadowColor = "#000";
-          context.shadowOffsetX = 0;
-          context.shadowOffsetY = 0;
-          context.shadowBlur = 15;
-          context.fillRect(params.position.x, params.position.y, params.width, params.height);
-        };
-      });
-
-      this.arrange(this.flowConnect.canvasDimensions.width, this.flowConnect.canvasDimensions.height);
-
-      this.themeChangeObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === "attributes" && mutation.attributeName === "class") {
-            this.themeChanged();
-          }
-        });
-      });
-
-      this.themeChangeObserver.observe(document.querySelector("html"), {
-        attributes: true,
-      });
-    }, 0);
-  },
-  beforeUnmount() {
-    this.themeChangeObserver.disconnect();
-  },
-  data() {
-    return {
-      orgPositions: {},
-      lastTheme: "",
-      loadedDarkHeroImage: null,
-      loadedLightHeroImage: null,
-    };
-  },
-  methods: {
-    arrange(width, _height) {
-      let nodes = [[this.arraySource], [this.func1, this.func2], [this.tovector], [this.parametricPlotter]];
-      let totalWidth = nodes.reduce((acc, nodeCol) => acc + this.maxWidth(nodeCol), 0);
-      let spacing = (width - 40 - totalWidth) / 3;
-      let x = 20;
-      if (width > 419) {
-        nodes.forEach((nodeCol) => {
-          nodeCol.forEach((node) => {
-            node.position = node.position.assign(x, this.orgPositions[node.id].y);
-          });
-          x += this.maxWidth(nodeCol) + spacing;
-        });
-      } else {
-        Object.values(this.flowConnect.currFlow.nodes).forEach((node) => {
-          node.position = this.orgPositions[node.id].clone();
-        });
-      }
-      let origin = Vector.create(this.flowConnect.canvasDimensions.width, this.flowConnect.canvasDimensions.height);
-      this.flowConnect.translateBy(origin.subtract(origin.transform(this.flowConnect.transform)));
-    },
-    maxWidth(nodes) {
-      let max = -Infinity;
-      nodes.forEach((node) => {
-        if (node.width > max) max = node.width;
-      });
-      return max;
-    },
-    themeChanged() {
-      this.lastTheme = document.querySelector("html").className;
-      document.querySelector(".home .hero img").src = this.lastTheme.includes("dark")
-        ? this.loadedDarkHeroImage || "images/hero-dark.png"
-        : this.loadedLightHeroImage || "images/hero.png";
-
-      let titleColor, outlineColor, connectorColor;
-      if (this.lastTheme === "dark") {
-        titleColor = "#fff";
-        outlineColor = "#ccc";
-        connectorColor = "#fff";
-      } else {
-        titleColor = "#000";
-        outlineColor = "#000";
-        connectorColor = "#000";
-      }
-      if (this.flowConnect) {
-        this.flowConnect.currFlow.nodes.forEach((node) => {
-          node.style.titleColor = titleColor;
-          node.style.outlineColor = outlineColor;
-        });
-        this.flowConnect.currFlow.connectors.forEach((connector) => {
-          connector.style.color = connectorColor;
-        });
-      }
-    },
-    handleControl(controlName) {
-      if (controlName === "play") {
-        if (this.flowConnect.state === FlowConnectState.Running) this.flowConnect.currFlow.stop();
-        else this.flowConnect.currFlow.start();
-      }
-    },
-  },
-};
-</script>
 
 <style scoped>
 .home-example-container {
@@ -191,6 +195,7 @@ export default {
   height: calc(var(--navbar-height) * 8.5);
   z-index: -1;
 }
+
 .home-example-graph-controls {
   z-index: 1;
   top: 0;
@@ -208,12 +213,15 @@ export default {
   background-color: #ffffff55;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
 .home-example-graph-controls div {
   padding-left: 0.7rem;
 }
+
 .home-example-graph-controls .graph-control-button:first-child .graph-control-button-text {
   display: none;
 }
+
 @media (max-width: 419px) {
   .home-example-container {
     position: relative;
@@ -222,6 +230,7 @@ export default {
     height: 60vh;
     z-index: 1;
   }
+
   .home-example {
     box-shadow: 0 0 10px grey;
   }

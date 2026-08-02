@@ -1,0 +1,60 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "flow-connect/package.json"
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      should-publish: ${{ steps.check.outputs.should-publish }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Check if version changed
+        id: check
+        run: |
+          CHANGED=$(git diff --name-only HEAD^ HEAD -- flow-connect/package.json)
+          if [ -z "$CHANGED" ]; then
+            echo "should-publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          NEW_VERSION=$(node -p "require('./flow-connect/package.json').version")
+          PUBLISHED_VERSION=$(npm view flow-connect version 2>/dev/null || echo "none")
+
+          if [ "$NEW_VERSION" != "$PUBLISHED_VERSION" ]; then
+            echo "should-publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should-publish=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  Publish:
+    needs: detect
+    if: needs.detect.outputs.should-publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 24.x
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        run: npm publish -w flow-connect --access public --provenance
