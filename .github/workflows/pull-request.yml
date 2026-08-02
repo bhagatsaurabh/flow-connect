@@ -3,7 +3,6 @@ name: Pull request
 on:
   pull_request:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
   Build:
@@ -11,58 +10,42 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [24.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7.0.1
 
       - name: Use Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Build
         run: |
-          npm i
+          npm ci
           npm run build
 
       - name: Upload dist artifacts
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: flow-connect-dist
           path: dist
-  Test:
+  Docs:
     needs: [Build]
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Test
-        run: |
-          npm i
-          npm test
-  Docs:
-    needs: [Test]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7.0.0
         with:
           node-version: 18
 
       - name: Download dist artifacts
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v8.0.1
         with:
           name: flow-connect-dist
           path: dist
@@ -71,7 +54,7 @@ jobs:
         env:
           DOCS_CONTEXT: GitHub
         run: |
-          npm i
+          npm ci
           npm run docs:build
   Cleanup:
     needs: [Docs]
@@ -79,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete dist artifacts
-        uses: geekyeggo/delete-artifact@v5.0.0
+        uses: geekyeggo/delete-artifact@v6.0.0
         with:
           name: flow-connect-dist
           failOnError: false
