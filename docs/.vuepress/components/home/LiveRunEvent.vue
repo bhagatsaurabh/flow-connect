@@ -1,7 +1,8 @@
 <script setup>
-import { onMounted, useTemplateRef, watch } from 'vue';
+import { onMounted, useTemplateRef, watch, ref } from 'vue';
 import { FlowConnect } from 'flow-connect';
-import { Vector } from 'flow-connect/core'
+import { Vector } from 'flow-connect/core';
+import { Timer, SyncEvent } from '@flow-connect/common';
 
 const props = defineProps(["play"]);
 
@@ -21,7 +22,7 @@ onMounted(() => {
   window.eventExampleFC = flowConnect.value;
   let flow = flowConnect.value.createFlow({ name: "Events Example", rules: {} });
 
-  let timer1 = flow.createNode("common/timer", Vector.create(39.6, 5.1), {
+  let timer1 = new Timer(Vector.create(39.6, 5.1), {
     state: {
       delay: 500,
       lastBlink: 0,
@@ -30,7 +31,7 @@ onMounted(() => {
       emitValue: "Event from Timer1",
     },
   });
-  let timer2 = flow.createNode("common/timer", Vector.create(39.6, 126.8), {
+  let timer2 = new Timer(Vector.create(39.6, 126.8), {
     state: {
       delay: 1000,
       lastBlink: 0,
@@ -39,7 +40,7 @@ onMounted(() => {
       emitValue: "Event from Timer2",
     },
   });
-  let timer3 = flow.createNode("common/timer", Vector.create(304.3, 194), {
+  let timer3 = new Timer(Vector.create(304.3, 194), {
     state: {
       delay: 200,
       lastBlink: 0,
@@ -48,10 +49,10 @@ onMounted(() => {
       emitValue: "Event from Timer3",
     },
   });
-  let sync1 = flow.createNode("common/sync-event", Vector.create(262.8, 57.8), {
+  let sync1 = new SyncEvent(Vector.create(262.8, 57.8), {
     state: { lastBlink: 0, isBlinking: false, blinkDuration: 20 },
   });
-  let sync2 = flow.createNode("common/sync-event", Vector.create(526.7, 118.8), {
+  let sync2 = new SyncEvent(Vector.create(526.7, 118.8), {
     state: { lastBlink: 0, isBlinking: false, blinkDuration: 20 },
   });
 

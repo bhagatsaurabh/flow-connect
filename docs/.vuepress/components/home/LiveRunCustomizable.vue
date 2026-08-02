@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, useTemplateRef, watch, ref } from 'vue';
 import { FlowConnect } from 'flow-connect';
-import { Vector } from 'flow-connect/core'
+import { Vector } from 'flow-connect/core';
+import { Timer, Random } from '@flow-connect/common';
 
 const props = defineProps(["play"]);
 
@@ -29,8 +30,7 @@ onMounted(() => {
       any: "red",
     },
   });
-
-  let timerNode1 = flow.createNode("common/timer", Vector.create(22.6, 1.2), {
+  let timerNode1 = new Timer(Vector.create(22.6, 1.2), {
     state: { delay: 700 },
     style: {
       padding: 15,
@@ -49,6 +49,7 @@ onMounted(() => {
       outlineColor: "#ffa200",
     },
   });
+
   timerNode1.ui.style = {
     backgroundColor: "#6ba4ff",
     shadowColor: "white",
@@ -61,7 +62,7 @@ onMounted(() => {
   label.style.backgroundColor = "#fff";
   label.style.color = "#000";
 
-  let timerNode2 = flow.createNode("common/timer", Vector.create(22.6, 194.7), {
+  let timerNode2 = new Timer(Vector.create(22.6, 194.7), {
     state: { delay: 600 },
   });
   timerNode2.ui.style = {
@@ -73,7 +74,7 @@ onMounted(() => {
     borderWidth: 0,
   };
 
-  let randomNode = flow.createNode("common/random", Vector.create(321.5, 6.7), {
+  let randomNode = new Random(Vector.create(321.5, 6.7), {
     state: { min: 0, max: 5 },
   });
   randomNode.ui.style.backgroundColor = "#f7ff99";

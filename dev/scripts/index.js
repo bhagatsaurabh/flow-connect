@@ -1,3 +1,5 @@
+const FlowConnect = __FC__.FlowConnect;
+
 let examples = [];
 let fetchExamples = async () => {
   examples = await (await fetch("/examples")).json();
@@ -28,7 +30,7 @@ let exampleChangeHandler = (example) => {
 fetchExamples();
 
 let setupFlowConnect = async () => {
-  window.flowConnect = await FC.FlowConnect.create(canvas);
+  window.flowConnect = await FlowConnect.create(canvas);
 
   flowConnect.on("render", () => {
     offContext.clearRect(0, 0, offCanvas.width, offCanvas.height);

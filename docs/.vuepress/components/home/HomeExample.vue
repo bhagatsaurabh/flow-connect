@@ -1,7 +1,10 @@
 <script setup>
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { FlowConnect } from 'flow-connect';
-import { Vector } from 'flow-connect/core'
+import { Vector } from 'flow-connect/core';
+import { ToVector, ArraySource } from '@flow-connect/common';
+import { Func } from '@flow-connect/math';
+import { FunctionPlotter } from '@flow-connect/visual';
 import GraphControls from "../common/GraphControls.vue";
 
 const lastTheme = ref('');
@@ -37,22 +40,22 @@ const init = async () => {
 
   let flow = flowConnect.createFlow({ name: "Math Plot", rules: {} });
 
-  toVector.value = flow.createNode("common/to-vector", Vector.create(585, 105), {
+  toVector.value = new ToVector(Vector.create(585, 105), {
     name: "Node",
   });
-  func1.value = flow.createNode("math/func", Vector.create(295, 54), { name: "Node", expression: "cos(t)" });
-  func2.value = flow.createNode("math/func", Vector.create(295, 184.3), {
+  func1.value = new Func(Vector.create(295, 54), { name: "Node", expression: "cos(t)" });
+  func2.value = new Func(Vector.create(295, 184.3), {
     name: "Node",
     expression: "sin(t) + 0.2cos(2.8t)",
   });
-  parametricPlotter.value = flow.createNode("visual/function-plotter", Vector.create(775, 77.2), {
+  parametricPlotter.value = new FunctionPlotter(Vector.create(775, 77.2), {
     width: 250,
     name: "Node",
     plotStyle: { axisColor: "grey" },
   });
   parametricPlotter.value.plotStyle.plotColor = "#fa9868";
   parametricPlotter.value.ui.query("core/display")[0].style.borderColor = "#fff";
-  arraySource.value = flow.createNode("common/array-source", Vector.create(12.4, 120.4), {
+  arraySource.value = new ArraySource(Vector.create(12.4, 120.4), {
     name: "Node",
     state: {
       number: true,

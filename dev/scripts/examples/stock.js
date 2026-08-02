@@ -1,10 +1,12 @@
-class DataExtractNode extends Node {
+const FC = __FC__;
+
+class DataExtractNode extends FC.Node {
   setupIO() {
     this.addTerminals([
-      { type: TerminalType.IN, name: "data", dataType: "any" },
-      { type: TerminalType.OUT, name: "BTC", dataType: "number" },
-      { type: TerminalType.OUT, name: "ETH", dataType: "number" },
-      { type: TerminalType.OUT, name: "LTC", dataType: "number" },
+      { type: FC.TerminalType.IN, name: "data", dataType: "any" },
+      { type: FC.TerminalType.OUT, name: "BTC", dataType: "number" },
+      { type: FC.TerminalType.OUT, name: "ETH", dataType: "number" },
+      { type: FC.TerminalType.OUT, name: "LTC", dataType: "number" },
     ]);
   }
   created() {
@@ -26,55 +28,55 @@ let flow = flowConnect.createFlow({
   name: "Stock Flow",
   rules: {},
   ruleColors: {
-    number: Color.create("#7aff66"),
-    string: Color.create("#ffe366"),
-    array: Color.create("#66e6ff"),
-    any: Color.create("#6675ff"),
-    event: Color.create("#ffb066"),
+    number: FC.Color.create("#7aff66"),
+    string: FC.Color.create("#ffe366"),
+    array: FC.Color.create("#66e6ff"),
+    any: FC.Color.create("#6675ff"),
+    event: FC.Color.create("#ffb066"),
   },
 });
 
-const timer = flow.createNode("common/timer", Vector.create(50, 50), { state: { delay: 1000 } });
-const api = flow.createNode("net/api", Vector.create(100, 100), {
+const timer = flow.createNode("common/timer", FC.Vector.create(50, 50), { state: { delay: 1000 } });
+const api = flow.createNode("net/api", FC.Vector.create(100, 100), {
   state: { src: "/test-api" },
 });
-// const log = flow.createNode("common/log", Vector.create(150, 150), {});
-const extract = flow.createNode("custom/data-extract", Vector.create(200, 200), {});
+// const log = flow.createNode("common/log", FC.Vector.create(150, 150), {});
+const extract = flow.createNode("custom/data-extract", FC.Vector.create(200, 200), {});
 
-const btcBuffer = flow.createNode("common/buffer", Vector.create(200, 200), { state: { size: 30 } });
-const ethBuffer = flow.createNode("common/buffer", Vector.create(200, 200), { state: { size: 30 } });
-const ltcBuffer = flow.createNode("common/buffer", Vector.create(200, 200), { state: { size: 30 } });
-const btcNormalize = flow.createNode("math/normalize", Vector.create(200, 200), {
+const btcBuffer = flow.createNode("common/buffer", FC.Vector.create(200, 200), { state: { size: 30 } });
+const ethBuffer = flow.createNode("common/buffer", FC.Vector.create(200, 200), { state: { size: 30 } });
+const ltcBuffer = flow.createNode("common/buffer", FC.Vector.create(200, 200), { state: { size: 30 } });
+const btcNormalize = flow.createNode("math/normalize", FC.Vector.create(200, 200), {
   normalizationType: "array",
   state: { relative: true, constant: 5 },
 });
-const ethNormalize = flow.createNode("math/normalize", Vector.create(200, 200), {
+const ethNormalize = flow.createNode("math/normalize", FC.Vector.create(200, 200), {
   normalizationType: "array",
   state: { relative: true, constant: 5 },
 });
-const ltcNormalize = flow.createNode("math/normalize", Vector.create(200, 200), {
+const ltcNormalize = flow.createNode("math/normalize", FC.Vector.create(200, 200), {
   normalizationType: "array",
   state: { relative: true, constant: 5 },
 });
-const btcEthToArray = flow.createNode("common/to-array", Vector.create(200, 200), { noOfInputs: 2 });
-const btcLtcToArray = flow.createNode("common/to-array", Vector.create(200, 200), { noOfInputs: 2 });
-const btcEthLtcToArray = flow.createNode("common/to-array", Vector.create(200, 200), { noOfInputs: 3 });
+const btcEthToArray = flow.createNode("common/to-array", FC.Vector.create(200, 200), { noOfInputs: 2 });
+const btcLtcToArray = flow.createNode("common/to-array", FC.Vector.create(200, 200), { noOfInputs: 2 });
+const btcEthLtcToArray = flow.createNode("common/to-array", FC.Vector.create(200, 200), { noOfInputs: 3 });
 
-const btcEthChart = flow.createNode("visual/line-chart-mini", Vector.create(200, 200), {
+const btcEthChart = flow.createNode("visual/line-chart-mini", FC.Vector.create(200, 200), {
   displayHeight: 100,
   name: "BTC : ETH",
   width: 250,
   state: { colors: ["#ff6666", "#66d4ff"] },
   style: { backgroundColor: "#7a7a7a" },
 });
-const btcLtcChart = flow.createNode("visual/line-chart-mini", Vector.create(200, 200), {
+const btcLtcChart = flow.createNode("visual/line-chart-mini", FC.Vector.create(200, 200), {
   displayHeight: 100,
   state: { colors: ["#ffb066", "#668fff"] },
   style: { backgroundColor: "#7a7a7a" },
   name: "BTC : LTC",
   width: 250,
 });
-const btcEthLtcChart = flow.createNode("visual/line-chart-mini", Vector.create(200, 200), {
+const btcEthLtcChart = flow.createNode("visual/line-chart-mini", FC.Vector.create(200, 200), {
   displayHeight: 100,
   style: { backgroundColor: "#7a7a7a" },
   state: { colors: ["#ff66ad", "#669eff", "#66ffe3"] },
