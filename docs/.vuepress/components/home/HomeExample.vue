@@ -2,9 +2,9 @@
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { FlowConnect } from 'flow-connect';
 import { Vector } from 'flow-connect/core';
-import { ToVector, ArraySource } from '@flow-connect/common/index.es';
-import { Func } from '@flow-connect/math/index.es';
-import { FunctionPlotter } from '@flow-connect/visual/index.es';
+import { ToVector, ArraySource } from '@flow-connect/common';
+import { Func } from '@flow-connect/math';
+import { FunctionPlotter } from '@flow-connect/visual';
 import GraphControls from "../common/GraphControls.vue";
 
 const lastTheme = ref('');

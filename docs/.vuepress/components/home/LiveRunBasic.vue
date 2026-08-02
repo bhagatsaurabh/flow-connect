@@ -2,7 +2,7 @@
 import { onMounted, useTemplateRef, watch, ref } from 'vue';
 import { FlowConnect } from 'flow-connect';
 import { Vector, Node } from 'flow-connect/core';
-import { NumberSource } from '@flow-connect/common/index.es';
+import { NumberSource } from '@flow-connect/common';
 
 const props = defineProps(["play"]);
 

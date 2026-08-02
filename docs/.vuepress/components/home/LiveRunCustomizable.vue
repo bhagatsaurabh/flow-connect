@@ -2,7 +2,7 @@
 import { onMounted, useTemplateRef, watch, ref } from 'vue';
 import { FlowConnect } from 'flow-connect';
 import { Vector } from 'flow-connect/core';
-import { Timer, Random } from '@flow-connect/common/index.es';
+import { Timer, Random } from '@flow-connect/common';
 
 const props = defineProps(["play"]);
 
