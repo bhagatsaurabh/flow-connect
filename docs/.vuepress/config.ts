@@ -34,18 +34,6 @@ export default defineUserConfig({
       `
       function loadPackages() {
         const packages = [
-          'https://cdn.jsdelivr.net/npm/@flow-connect/common@latest/dist/common.js',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/common@latest/dist/common.js.map',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/visual@latest/dist/visual.js',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/visual@latest/dist/visual.js.map',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/ui@latest/dist/ui.js',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/ui@latest/dist/ui.js.map',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/net@latest/dist/net.js',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/net@latest/dist/net.js.map',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/math@latest/dist/math.js',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/math@latest/dist/math.js.map',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/audio@latest/dist/audio.js',
-          'https://cdn.jsdelivr.net/npm/@flow-connect/audio@latest/dist/audio.js.map',
           'example/custom-nodes.js'
         ];
         packages.forEach(package => {
@@ -57,15 +45,6 @@ export default defineUserConfig({
       };
       `,
     ],
-    /* [
-      "script",
-      { src: "https://cdn.jsdelivr.net/npm/flow-connect@latest/dist/flow-connect.js", onload: "loadPackages()" },
-    ],
-    [
-      "script",
-      { src: "https://cdn.jsdelivr.net/npm/flow-connect@latest/dist/flow-connect.js.map", type: "application/json" },
-    ], */
-    // ['script', { src: 'example/custom-nodes.js' }]
   ],
   extendsMarkdown: (md) => {
     md.use(markdownItAttrs);

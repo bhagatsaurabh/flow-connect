@@ -21,7 +21,7 @@
     "build": "npm run build -w flow-connect && npm run build:browser",
     "build:watch": "npm run build:watch -w flow-connect",
     "build:browser": "npm run build:browser -w flow-connect",
-    "dev": "npm run build && concurrently \"npm run build:watch -w flow-connect\" \"npm run dev -w dev\"",
+    "dev": "npm run build && concurrently \"npm run build:browser:watch -w flow-connect\" \"npm run dev -w dev\"",
     "docs:dev": "npm run build && npm run docs:dev:watch",
     "docs:dev:watch": "concurrently \"npm run build:watch\" \"vuepress dev docs\"",
     "docs:build": "npm run build && vuepress build docs --clean-temp --clean-cache"

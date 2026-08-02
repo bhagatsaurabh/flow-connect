@@ -2,6 +2,7 @@
 import { onMounted, useTemplateRef, watch, ref } from 'vue';
 import { FlowConnect } from 'flow-connect';
 import { Vector, Node } from 'flow-connect/core';
+import { NumberSource } from '@flow-connect/common/index.es';
 
 const props = defineProps(["play"]);
 
@@ -40,7 +41,7 @@ onMounted(() => {
     }
     process() { }
   }
-  FC.FlowConnect.register({ type: "node", name: "custom/timer-node" }, CustomTimerNode);
+  FlowConnect.register({ type: "node", name: "custom/timer-node" }, CustomTimerNode);
 
   let timerNode = flow.createNode("custom/timer-node", Vector.create(45, 7), { width: 500 });
 
@@ -71,7 +72,7 @@ onMounted(() => {
     });
   });
 
-  let numberSource = flow.createNode("common/number-source", Vector.create(245, 128), {
+  let numberSource = new NumberSource(Vector.create(245, 128), {
     state: { value: 100 },
   });
 

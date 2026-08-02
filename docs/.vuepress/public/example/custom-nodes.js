@@ -1,3 +1,5 @@
+const FC = __FC__;
+
 if (!window.TimerNode) {
   window.TimerNode = class TimerNode extends Node {
     timerId = -1;

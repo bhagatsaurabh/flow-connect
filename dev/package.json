@@ -5,10 +5,14 @@
   "scripts": {
     "dev": "vite --host"
   },
-  "dependencies": {
-    "flow-connect": "*"
-  },
   "devDependencies": {
-    "vite": "^8.0.13"
+    "vite": "^8.0.13",
+    "flow-connect": "*",
+    "@flow-connect/audio": "../../flow-connect-standard-nodes/packages/audio",
+    "@flow-connect/common": "../../flow-connect-standard-nodes/packages/common",
+    "@flow-connect/math": "../../flow-connect-standard-nodes/packages/math",
+    "@flow-connect/net": "../../flow-connect-standard-nodes/packages/net",
+    "@flow-connect/ui": "../../flow-connect-standard-nodes/packages/ui",
+    "@flow-connect/visual": "../../flow-connect-standard-nodes/packages/visual"
   }
 }

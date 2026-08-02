@@ -4,13 +4,13 @@
   <title>FlowConnect: Dev Server</title>
   <link rel="stylesheet" href="styles/index.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.5/split.min.js"></script>
-  <script src="flow-connect.js"></script>
-  <!-- <script src="common.js"></script>
-  <script src="net.js"></script>
-  <script src="audio.js"></script>
-  <script src="visual.js"></script>
-  <script src="ui.js"></script>
-  <script src="math.js"></script> -->
+  <script src="node_modules/flow-connect/dist/flow-connect.min.js"></script>
+  <script src="node_modules/@flow-connect/audio/fc-audio.min.js"></script>
+  <script src="node_modules/@flow-connect/common/fc-common.min.js"></script>
+  <script src="node_modules/@flow-connect/math/fc-math.min.js"></script>
+  <script src="node_modules/@flow-connect/net/fc-net.min.js"></script>
+  <script src="node_modules/@flow-connect/ui/fc-ui.min.js"></script>
+  <script src="node_modules/@flow-connect/visual/fc-visual.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 </head>
 
@@ -120,7 +120,7 @@
 
   <script>
     let flowControlHandler = () => {
-      if (flow.state !== FlowState.Stopped) {
+      if (flow.state !== __FC__.FlowState.Stopped) {
         document.getElementById('flow-control-button').children[0].src = 'assets/play.png';
         document.getElementById('flow-control-button').children[0].title = 'Play';
         flow.stop();

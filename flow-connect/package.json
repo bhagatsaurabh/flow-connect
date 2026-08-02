@@ -1,6 +1,6 @@
 {
   "name": "flow-connect",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "FlowConnect is a highly-customizable library for creating node-based editors, graphs and diagrams.",
   "repository": {
     "type": "git",
@@ -15,7 +15,8 @@
   "scripts": {
     "build": "vite build",
     "build:watch": "vite build --watch",
-    "build:browser": "vite build --config vite.browser.config.ts"
+    "build:browser": "vite build --config vite.browser.config.ts",
+    "build:browser:watch": "vite build --watch --config vite.browser.config.ts"
   },
   "files": [
     "dist"

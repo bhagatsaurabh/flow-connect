@@ -1,3 +1,5 @@
+const FC = __FC__;
+
 class TestNode extends FC.Node {
   setupIO() {
     this.addTerminals([

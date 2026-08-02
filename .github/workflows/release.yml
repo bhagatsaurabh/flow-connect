@@ -11,55 +11,55 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [24.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7.0.1
 
       - name: Use Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Build
         run: |
-          npm i
+          npm ci
           npm run build
 
       - name: Upload dist artifacts
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: flow-connect-dist
-          path: dist
+          path: flow-connect/dist
   Docs:
     needs: [Build]
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7.0.0
         with:
-          node-version: 18
+          node-version: 24.x
 
       - name: Download dist artifacts
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v8.0.1
         with:
           name: flow-connect-dist
-          path: dist
+          path: flow-connect/dist
 
       - name: Build VuePress site
         env:
           DOCS_CONTEXT: GitHub
         run: |
-          npm i
+          npm ci
           npm run docs:build
 
       - name: Upload docs artifacts
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: flow-connect-docs
           path: docs/.vuepress/dist
@@ -68,18 +68,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
       - name: Download docs artifacts
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v8.0.1
         with:
           name: flow-connect-docs
           path: docs/.vuepress/dist
 
       - name: Deploy to GitHub Pages
-        uses: crazy-max/ghaction-github-pages@v2
+        uses: crazy-max/ghaction-github-pages@v5.0.0
         with:
           target_branch: gh-pages
           build_dir: docs/.vuepress/dist
@@ -89,27 +89,27 @@ jobs:
     needs: [Docs]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7.0.0
         with:
-          node-version: 18
+          node-version: 24.x
 
       - name: Download dist artifacts
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v8.0.1
         with:
           name: flow-connect-dist
-          path: dist
+          path: flow-connect/dist
 
       - name: Build VuePress site
         env:
           DOCS_CONTEXT: Firebase
         run: |
-          npm i
+          npm ci
           npm run docs:build
 
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - uses: FirebaseExtended/action-hosting-deploy@v0.11.0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FLOW_CONNECT_70CFB }}"
@@ -121,13 +121,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete dist artifacts
-        uses: geekyeggo/delete-artifact@v5.0.0
+        uses: geekyeggo/delete-artifact@v6.0.0
         with:
           name: flow-connect-dist
           failOnError: false
 
       - name: Delete docs artifacts
-        uses: geekyeggo/delete-artifact@v5.0.0
+        uses: geekyeggo/delete-artifact@v6.0.0
         with:
           name: flow-connect-docs
           failOnError: false

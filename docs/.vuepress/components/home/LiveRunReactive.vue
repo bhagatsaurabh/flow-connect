@@ -1,7 +1,8 @@
 <script setup>
-import { onMounted, useTemplateRef, watch } from 'vue';
+import { onMounted, useTemplateRef, watch, ref } from 'vue';
 import { FlowConnect } from 'flow-connect';
 import { Vector } from 'flow-connect/core';
+import { StringSource, NumberSource, BooleanSource, Log } from '@flow-connect/common/index.es';
 
 const props = defineProps(['play']);
 
@@ -21,16 +22,16 @@ onMounted(() => {
   window.reactiveExampleFC = flowConnect.value;
   let flow = flowConnect.value.createFlow({ name: "Reactive Example", rules: {} });
 
-  let stringSource = flow.createNode("common/string-source", Vector.create(41.1, -3.5), {
+  let stringSource = new StringSource(Vector.create(41.1, -3.5), {
     state: { value: "Sample String" },
   });
-  let numberSource = flow.createNode("common/number-source", Vector.create(46.8, 93.2), {
+  let numberSource = new NumberSource(Vector.create(46.8, 93.2), {
     state: { value: 100 },
   });
-  let booleanSource = flow.createNode("common/boolean-source", Vector.create(60.3, 218), {
+  let booleanSource = new BooleanSource(Vector.create(60.3, 218), {
     state: { value: false },
   });
-  let log = flow.createNode("common/log", Vector.create(665.1, 64.3), {});
+  let log = new Log(Vector.create(665.1, 64.3), {});
   log.addNewTerminal("data");
   log.addNewTerminal("data");
 

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, useTemplateRef, watch } from 'vue';
+import { onMounted, useTemplateRef, watch, ref } from 'vue';
 import { FlowConnect } from 'flow-connect';
 import { Vector, Node } from 'flow-connect/core'
 
@@ -83,7 +83,7 @@ onMounted(() => {
       });
     }
   }
-  FC.FlowConnect.register({ type: "node", name: "my-custom/dummy-node" }, DummyNode);
+  FlowConnect.register({ type: "node", name: "my-custom/dummy-node" }, DummyNode);
 
   flow.renderers.background = () => {
     return (context, params, target) => {
