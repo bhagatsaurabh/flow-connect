@@ -10,8 +10,7 @@
   "scripts": {
     "build": "vite build",
     "build:watch": "vite build --watch",
-    "build:browser": "vite build --config vite.browser.config.ts",
-    "prepublishOnly": "npm run build"
+    "build:browser": "vite build --config vite.browser.config.ts"
   },
   "files": [
     "dist"
