@@ -18,11 +18,11 @@ FlowConnect is a highly-customizable library for creating node-based editors, gr
 \
 \
 \
-:globe_with_meridians: [Docs](https://flow-connect.saurabhagat.dev)
+:globe_with_meridians: [Docs](https://flowconnect.saurabhagat.dev)
 
-:mag: [Guide](https://flow-connect.saurabhagat.dev/guide)
+:mag: [Guide](https://flowconnect.saurabhagat.dev/guide)
 
-:books: [API](https://flow-connect.saurabhagat.dev/reference/api)
+:books: [API](https://flowconnect.saurabhagat.dev/reference/api)
 \
 <br/>
 
